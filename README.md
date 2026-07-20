@@ -2,7 +2,7 @@
 
 Agent skills authored to the [Agent Skills standard](https://agentskills.io) — small, composable `SKILL.md` files that work with any Agent-Skills-compatible harness (Claude Code, Codex, Cursor, the Figma MCP server, …).
 
-The layout mirrors [mattpocock/skills](https://github.com/mattpocock/skills): each skill lives at `skills/<category>/<name>/SKILL.md`, grouped by category, with a `README.md` per category.
+The layout follows [mattpocock/skills](https://github.com/mattpocock/skills): each skill lives at `<category>/<name>/SKILL.md`, grouped by category, with a `README.md` per category.
 
 ## Reference
 
@@ -14,4 +14,4 @@ General workflow tools, not code-specific.
 
 **User-invoked**
 
-- **[grill-me-figma](./skills/productivity/grill-me-figma/SKILL.md)** — A relentless interview to sharpen a Figma design plan or decision. Reads design facts from the Figma file rather than asking, and makes no edits until you confirm a shared understanding.
+- **[grill-me-figma](./productivity/grill-me-figma/SKILL.md)** — A relentless interview to sharpen a Figma design plan or decision. Reads design facts from the Figma file rather than asking, and makes no edits until you confirm a shared understanding.
