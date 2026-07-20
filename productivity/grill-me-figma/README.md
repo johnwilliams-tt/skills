@@ -19,7 +19,7 @@ Invoke `/grill-me-figma` and the agent interviews you one question at a time —
 
 ## Install
 
-Copy [`productivity/grill-me-figma/`](./productivity/grill-me-figma/) into your agent's skills directory (e.g. `~/.claude/skills/`), then invoke it with `/grill-me-figma`.
+Copy this `grill-me-figma/` folder into your agent's skills directory (e.g. `~/.claude/skills/`), then invoke it with `/grill-me-figma`.
 
 ## Credit
 
