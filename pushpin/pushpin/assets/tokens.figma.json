@@ -1,0 +1,341 @@
+{
+  "$comment": "Extracted verbatim from the Pushpin Thumbprint UI Kit Figma file. This file is the source of truth for the plugin; pushpin.css is generated from it. Re-extract with scripts/extract.md — do not hand-edit.",
+  "source": {
+    "fileKey": "VVRGrLgkPRU3vs765d5Q3r",
+    "fileName": "Pushpin Thumbprint UI Kit",
+    "libraryKey": "lk-003ce4846b4638268325b33ad167ece0cd390787a2782f1949cee2e38ca2e7719472f0968d45b4c2f0db9b35ec1820babadcf97a9f40fdd6cc84ba22f7b10a80",
+    "extractedAt": "2026-08-06",
+    "collectionsExtracted": 15
+  },
+
+  "baseColors": {
+    "gray/50": "#f5f6f6",
+    "gray/100": "#eeeff2",
+    "gray/200": "#dddee1",
+    "gray/300": "#b9bbbf",
+    "gray/400": "#83878d",
+    "gray/500": "#686c72",
+    "gray/600": "#595c61",
+    "gray/700": "#4c4e52",
+    "gray/800": "#383a3d",
+    "gray/900": "#2b2d2f",
+    "gray/950": "#1f2022",
+
+    "blue/50": "#f0faff",
+    "blue/100": "#e0f4fe",
+    "blue/200": "#b9ebfe",
+    "blue/300": "#7cdcfd",
+    "blue/400": "#36ccfa",
+    "blue/500": "#0cb6eb",
+    "blue/600": "#009fd9",
+    "blue/700": "#0175a3",
+    "blue/800": "#066286",
+    "blue/900": "#0b516f",
+    "blue/950": "#07344a",
+
+    "green/50": "#eefbf4",
+    "green/100": "#d6f5e3",
+    "green/200": "#b0eacb",
+    "green/300": "#7cd9ae",
+    "green/400": "#47c08c",
+    "green/500": "#24a571",
+    "green/600": "#16855b",
+    "green/700": "#126a4b",
+    "green/800": "#10553c",
+    "green/900": "#0e4633",
+    "green/950": "#07271d",
+
+    "indigo/50": "#eff4fe",
+    "indigo/100": "#e1edfe",
+    "indigo/200": "#c9dbfc",
+    "indigo/300": "#a8c3f9",
+    "indigo/400": "#85a1f4",
+    "indigo/500": "#6881ec",
+    "indigo/600": "#5968e2",
+    "indigo/700": "#3d4ac5",
+    "indigo/800": "#34409f",
+    "indigo/900": "#313b7e",
+    "indigo/950": "#1d2249",
+
+    "purple/50": "#f6f4fe",
+    "purple/100": "#efebfc",
+    "purple/200": "#dfdbf9",
+    "purple/300": "#c8bdf5",
+    "purple/400": "#ab98ed",
+    "purple/500": "#906ee4",
+    "purple/600": "#7f4fd8",
+    "purple/700": "#6637b6",
+    "purple/800": "#5d32a5",
+    "purple/900": "#4d2b87",
+    "purple/950": "#301a5b",
+
+    "red/50": "#fef2f2",
+    "red/100": "#fee2e2",
+    "red/200": "#fecaca",
+    "red/300": "#fca5a5",
+    "red/400": "#f87171",
+    "red/500": "#ef4444",
+    "red/600": "#dc2626",
+    "red/700": "#b91c1c",
+    "red/800": "#991b1b",
+    "red/900": "#7f1d1d",
+    "red/950": "#450a0a",
+
+    "yellow/50": "#fefce8",
+    "yellow/100": "#fef9c3",
+    "yellow/200": "#fef08a",
+    "yellow/300": "#fde047",
+    "yellow/400": "#facc15",
+    "yellow/500": "#eab308",
+    "yellow/600": "#ca8a04",
+    "yellow/700": "#a16207",
+    "yellow/800": "#854d0e",
+    "yellow/900": "#713f12",
+    "yellow/950": "#422006",
+
+    "system/white": "#ffffff",
+    "system/black": "#000000",
+
+    "alpha/50": "#1f20220d",
+    "alpha/100": "#1f20221a",
+    "alpha/200": "#1f202233",
+    "alpha/300": "#1f20224d",
+    "alpha/400": "#1f202266",
+    "alpha/500": "#1f202280",
+    "alpha/600": "#1f202299",
+    "alpha/700": "#1f2022b2",
+    "alpha/800": "#1f2022cc",
+    "alpha/900": "#1f2022e5",
+    "alpha/950": "#1f2022f2"
+  },
+
+  "semanticColors": {
+    "$modes": ["Light", "Dark"],
+
+    "background/neutral/default": { "Light": "@system/white", "Dark": "@gray/950" },
+    "background/neutral/low": { "Light": "@gray/50", "Dark": "@gray/900" },
+    "background/neutral/medium": { "Light": "@gray/100", "Dark": "@gray/800" },
+    "background/neutral/strong": { "Light": "@gray/300", "Dark": "@gray/700" },
+    "background/neutral/heavy": { "Light": "@gray/500", "Dark": "@gray/300" },
+    "background/neutral/inverse": { "Light": "@gray/950", "Dark": "@system/white" },
+    "background/neutral/inverse/hover": { "Light": "@gray/800", "Dark": "@gray/100" },
+    "background/neutral/default/hover": { "Light": "@blue/50", "Dark": "@blue/950" },
+    "background/neutral/default/pressed": { "Light": "@blue/100", "Dark": "@blue/900" },
+    "background/neutral/default/active": { "Light": "@blue/100", "Dark": "@blue/900" },
+    "background/neutral/low/hover": { "Light": "@blue/50", "Dark": "@blue/950" },
+    "background/neutral/low/pressed": { "Light": "@blue/100", "Dark": "@blue/900" },
+    "background/neutral/strong/active": { "Light": "@gray/950", "Dark": "@gray/50" },
+
+    "background/brand/low": { "Light": "@blue/100", "Dark": "@blue/950" },
+    "background/brand/low/hover": { "Light": "@blue/200", "Dark": "@blue/900" },
+    "background/brand/medium": { "Light": "@blue/700", "Dark": "@blue/300" },
+    "background/brand/medium/active": { "Light": "@blue/600", "Dark": "@blue/600" },
+    "background/brand/strong": { "Light": "@blue/950", "Dark": "@blue/400" },
+    "background/brand/strong/hover": { "Light": "@gray/950", "Dark": "@blue/500" },
+    "background/brand/strong/pressed": { "Light": "@blue/950", "Dark": "@blue/600" },
+
+    "background/info/low": { "Light": "@indigo/100", "Dark": "@indigo/950" },
+    "background/info/medium": { "Light": "@indigo/700", "Dark": "@indigo/300" },
+    "background/info/strong": { "Light": "@indigo/950", "Dark": "@indigo/100" },
+    "background/success/low": { "Light": "@green/100", "Dark": "@green/950" },
+    "background/success/medium": { "Light": "@green/700", "Dark": "@green/300" },
+    "background/success/strong": { "Light": "@green/950", "Dark": "@green/100" },
+    "background/warning/low": { "Light": "@yellow/50", "Dark": "@yellow/950" },
+    "background/warning/medium": { "Light": "@yellow/600", "Dark": "@yellow/300" },
+    "background/warning/strong": { "Light": "@yellow/950", "Dark": "@yellow/100" },
+    "background/alert/low": { "Light": "@red/50", "Dark": "@red/950" },
+    "background/alert/medium": { "Light": "@red/600", "Dark": "@red/600" },
+    "background/alert/medium/hover": { "Light": "@red/700", "Dark": "@red/700" },
+    "background/alert/medium/pressed": { "Light": "@red/800", "Dark": "@red/800" },
+    "background/alert/strong": { "Light": "@red/950", "Dark": "@red/100" },
+    "background/caution/low": { "Light": "@yellow/50", "Dark": "@yellow/950" },
+    "background/caution/low/hover": { "Light": "@red/50", "Dark": "@red/950" },
+    "background/caution/low/pressed": { "Light": "@red/100", "Dark": "@red/900" },
+
+    "background/disabled/low": { "Light": "@background/neutral/low", "Dark": "@background/neutral/low" },
+    "background/disabled/medium": { "Light": "@gray/200", "Dark": "@gray/800" },
+
+    "background/ratings/default": { "Light": "@background/neutral/default", "Dark": "@background/neutral/default" },
+    "background/ratings/default/active": { "Light": "@yellow/400", "Dark": "@yellow/500" },
+
+    "border/neutral/default": { "Light": "@gray/200", "Dark": "@gray/800" },
+    "border/neutral/default/active": { "Light": "@blue/600", "Dark": "@blue/600" },
+    "border/neutral/default/pressed": { "Light": "@gray/200", "Dark": "@gray/700" },
+    "border/neutral/default/disabled": { "Light": "@background/neutral/low", "Dark": "@background/neutral/low" },
+    "border/neutral/medium": { "Light": "@gray/300", "Dark": "@gray/700" },
+    "border/neutral/medium/disabled": { "Light": "@gray/200", "Dark": "@gray/800" },
+    "border/neutral/strong": { "Light": "@gray/950", "Dark": "@gray/50" },
+    "border/neutral/strong/active": { "Light": "@gray/950", "Dark": "@gray/50" },
+    "border/neutral/low/active": { "Light": "@gray/950", "Dark": "@gray/50" },
+    "border/neutral/inverse": { "Light": "@background/neutral/default", "Dark": "@gray/800" },
+    "border/disabled/default": { "Light": "@background/neutral/low", "Dark": "@background/neutral/low" },
+    "border/disabled/medium": { "Light": "@gray/200", "Dark": "@gray/800" },
+    "border/alert/default": { "Light": "@red/600", "Dark": "@red/400" },
+    "border/alert/default/pressed": { "Light": "@red/700", "Dark": "@red/600" },
+    "border/alert/strong/pressed": { "Light": "@red/800", "Dark": "@red/600" },
+    "border/ratings/default": { "Light": "@yellow/700", "Dark": "@yellow/600" },
+
+    "text/neutral/default": { "Light": "@gray/950", "Dark": "@gray/50" },
+    "text/neutral/medium": { "Light": "@gray/600", "Dark": "@gray/300" },
+    "text/neutral/inverse": { "Light": "@system/white", "Dark": "@gray/950" },
+    "text/disabled": { "Light": "@gray/300", "Dark": "@gray/700" },
+    "text/brand/medium": { "Light": "@blue/600", "Dark": "@blue/400" },
+    "text/brand/strong": { "Light": "@blue/950", "Dark": "@blue/100" },
+    "text/on-brand/strong": { "Light": "@blue/300", "Dark": "@text/neutral/inverse" },
+    "text/on-brand/default": { "Light": "@link/brand/default", "Dark": "@link/brand/default" },
+    "text/info/medium": { "Light": "@indigo/600", "Dark": "@indigo/400" },
+    "text/info/strong": { "Light": "@indigo/950", "Dark": "@indigo/100" },
+    "text/success/medium": { "Light": "@green/600", "Dark": "@green/400" },
+    "text/success/strong": { "Light": "@green/950", "Dark": "@green/100" },
+    "text/warning/medium": { "Light": "@yellow/600", "Dark": "@yellow/400" },
+    "text/warning/strong": { "Light": "@yellow/900", "Dark": "@yellow/100" },
+    "text/alert/medium": { "Light": "@red/600", "Dark": "@red/400" },
+    "text/alert/strong": { "Light": "@red/950", "Dark": "@red/100" },
+
+    "heading/neutral/default": { "Light": "@gray/950", "Dark": "@gray/50" },
+    "heading/neutral/medium": { "Light": "@gray/600", "Dark": "@gray/300" },
+    "heading/neutral/low": { "Light": "@gray/500", "Dark": "@gray/300" },
+    "heading/neutral/inverse": { "Light": "@system/white", "Dark": "@gray/950" },
+
+    "link/neutral/default": { "Light": "@text/neutral/default", "Dark": "@text/neutral/default" },
+    "link/neutral/default/hover": { "Light": "@blue/600", "Dark": "@blue/400" },
+    "link/neutral/low": { "Light": "@text/neutral/medium", "Dark": "@text/neutral/medium" },
+    "link/neutral/inverse": { "Light": "@background/neutral/default", "Dark": "@background/neutral/default" },
+    "link/brand/default": { "Light": "@blue/700", "Dark": "@blue/400" },
+    "link/on-brand/strong": { "Light": "@blue/300", "Dark": "@blue/950" },
+    "link/alert/default": { "Light": "@text/alert/medium", "Dark": "@text/alert/medium" },
+
+    "icon/neutral/default": { "Light": "@gray/950", "Dark": "@gray/50" },
+    "icon/neutral/medium": { "Light": "@gray/600", "Dark": "@gray/300" },
+    "icon/neutral/low": { "Light": "@gray/400", "Dark": "@gray/500" },
+    "icon/neutral/inverse": { "Light": "@system/white", "Dark": "@gray/950" },
+    "icon/disabled": { "Light": "@gray/300", "Dark": "@gray/600" },
+    "icon/brand/default": { "Light": "@blue/600", "Dark": "@blue/400" },
+    "icon/brand/low": { "Light": "@blue/400", "Dark": "@blue/600" },
+    "icon/brand/strong": { "Light": "@blue/950", "Dark": "@blue/100" },
+    "icon/on-brand/strong": { "Light": "@blue/300", "Dark": "@text/neutral/inverse" },
+    "icon/info/default": { "Light": "@indigo/600", "Dark": "@indigo/400" },
+    "icon/info/low": { "Light": "@indigo/400", "Dark": "@indigo/600" },
+    "icon/info/strong": { "Light": "@indigo/950", "Dark": "@indigo/100" },
+    "icon/success/default": { "Light": "@green/600", "Dark": "@green/400" },
+    "icon/success/low": { "Light": "@green/400", "Dark": "@green/600" },
+    "icon/success/strong": { "Light": "@green/950", "Dark": "@green/100" },
+    "icon/warning/default": { "Light": "@yellow/600", "Dark": "@yellow/400" },
+    "icon/warning/low": { "Light": "@yellow/400", "Dark": "@yellow/600" },
+    "icon/warning/strong": { "Light": "@yellow/950", "Dark": "@yellow/100" },
+    "icon/alert/default": { "Light": "@red/600", "Dark": "@red/400" },
+    "icon/alert/low": { "Light": "@red/400", "Dark": "@red/600" },
+    "icon/alert/strong": { "Light": "@red/950", "Dark": "@red/100" },
+
+    "data/info/low": { "Light": "@indigo/200", "Dark": "@indigo/800" },
+    "data/info/medium": { "Light": "@indigo/600", "Dark": "@indigo/400" },
+    "data/info/strong": { "Light": "@indigo/950", "Dark": "@indigo/100" },
+
+    "shadow/1": { "Light": "@alpha/800", "Dark": "#ffffffcc" }
+  },
+
+  "space": {
+    "$unit": "px",
+    "1": 4, "2": 8, "3": 12, "4": 16, "5": 20, "6": 24, "7": 32,
+    "8": 48, "9": 64, "10": 96, "11": 128, "12": 192, "13": 256
+  },
+
+  "cornerRadius": {
+    "$unit": "px",
+    "none": 0,
+    "xsmall": 4,
+    "small": 6,
+    "medium": 8,
+    "large": 12,
+    "xlarge": 16,
+    "xxlarge": 24,
+    "sides": 9999,
+    "full": "50%"
+  },
+
+  "fontWeight": {
+    "regular": 400,
+    "medium-regular": 563,
+    "medium": 590,
+    "medium-bold": 660,
+    "bold": 700
+  },
+
+  "font": {
+    "$modes": ["native", "desktop"],
+    "hero": { "size": { "native": 48, "desktop": 64 }, "lineHeight": { "native": 50.4, "desktop": 67.2 }, "weight": "@medium-regular" },
+    "title-1": { "size": { "native": 36, "desktop": 48 }, "lineHeight": { "native": 37.8, "desktop": 50.4 }, "weight": "@medium-regular" },
+    "title-2": { "size": { "native": 28, "desktop": 36 }, "lineHeight": { "native": 30.8, "desktop": 39.6 }, "weight": "@medium-regular" },
+    "title-3": { "size": { "native": 22, "desktop": 24 }, "lineHeight": { "native": 24.2, "desktop": 26.4 }, "weight": "@medium" },
+    "title-4": { "size": { "native": 20, "desktop": 20 }, "lineHeight": { "native": 24, "desktop": 24 }, "weight": "@medium-bold" },
+    "title-5": { "size": { "native": 18, "desktop": 18 }, "lineHeight": { "native": 21.6, "desktop": 21.6 }, "weight": "@medium-bold" },
+    "title-6": { "size": { "native": 16, "desktop": 16 }, "lineHeight": { "native": 19.2, "desktop": 19.2 }, "weight": "@medium-bold" },
+    "title-7": { "size": { "native": 14, "desktop": 14 }, "lineHeight": { "native": 16.8, "desktop": 16.8 }, "weight": "@medium-bold" },
+    "title-8": { "size": { "native": 12, "desktop": 12 }, "lineHeight": { "native": 14.4, "desktop": 14.4 }, "weight": "@medium-bold" },
+    "body-1": { "size": { "native": 16, "desktop": 16 }, "lineHeight": { "native": 24, "desktop": 24 }, "weight": "@regular" },
+    "body-2": { "size": { "native": 14, "desktop": 14 }, "lineHeight": { "native": 20, "desktop": 20 }, "weight": "@regular" },
+    "body-3": { "size": { "native": 12, "desktop": 12 }, "lineHeight": { "native": 18, "desktop": 18 }, "weight": "@regular" },
+    "body-4": { "size": { "native": 10, "desktop": 10 }, "lineHeight": { "native": 18, "desktop": 18 }, "weight": "@regular" }
+  },
+
+  "lineHeight": {
+    "$comment": "Unitless ratios, separate from the absolute line-heights baked into the font scale.",
+    "flat": 1,
+    "heading/1": 1.05,
+    "heading/2": 1.1,
+    "heading/3": 1.2,
+    "text/1": 1.2,
+    "text/2": 1.4,
+    "text/3": 1.6,
+    "text/4": 1.9
+  },
+
+  "letterSpacing": {
+    "$unit": "px",
+    "loose": 1,
+    "tight": -1,
+    "extra-tight": -2
+  },
+
+  "shadow": {
+    "100": "0px 1px 3px rgba(0, 0, 0, 0.1)",
+    "200": "0px 2px 4px rgba(0, 0, 0, 0.15)",
+    "300": "0px 2px 7px rgba(0, 0, 0, 0.15)",
+    "400": "0px 2px 10px rgba(0, 0, 0, 0.2)"
+  },
+
+  "duration": {
+    "$unit": "ms",
+    "1": 75, "2": 150, "3": 200, "4": 250, "5": 300, "6": 350
+  },
+
+  "easing": {
+    "ease-in": "cubic-bezier(0.50, 0, 1, 1)",
+    "ease-out": "cubic-bezier(0, 0, 0.40, 1)",
+    "ease-in-out": "cubic-bezier(0.45, 0, 0.40, 1)"
+  },
+
+  "breakpoint": {
+    "$unit": "px",
+    "small": 481,
+    "medium": 700,
+    "large": 1025,
+    "split-view-small": 769,
+    "split-view-medium": 1060
+  },
+
+  "scrim": {
+    "light-80": "rgba(255, 255, 255, 0.8)",
+    "dark-80": "rgba(0, 0, 0, 0.8)"
+  },
+
+  "wrap": {
+    "$unit": "px",
+    "max-width": 946,
+    "no-pad-width": 1010
+  },
+
+  "zIndex": {
+    "modal": 200
+  }
+}

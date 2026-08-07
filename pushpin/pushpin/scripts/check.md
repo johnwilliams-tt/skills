@@ -1,0 +1,154 @@
+# Checking the kit for changes
+
+Three read-only captures that feed `scripts/diff.mjs`. Run them, save each
+result to a file, and diff. Nothing here writes to Figma.
+
+Load the `figma-use` skill first — it is a required prerequisite for
+`use_figma`.
+
+## Why two vantage points
+
+`use_figma` inside the kit reads **editor state**, which includes edits that
+have not been published. A consuming file sees only what was published. The two
+answer different questions and the refresh needs both:
+
+| | Kit file | Consuming file |
+|---|---|---|
+| Values, aliases, modes | yes | no |
+| `hiddenFromPublishing` flag | yes | no |
+| What consumers can actually import | **no** | yes |
+
+Querying the kit for publish state returns nothing useful — a file is never
+listed as a library available to itself, so `getAvailableLibraryVariableCollectionsAsync`
+comes back empty and every collection looks unpublished. That is a property of
+the API, not a finding about the kit.
+
+When the two disagree, the kit has unpublished work in progress. `diff.mjs`
+reports that rather than guessing which is right.
+
+## 1. Kit capture
+
+`fileKey: VVRGrLgkPRU3vs765d5Q3r`. Save the result as `kit.json`.
+
+Deliberately faithful rather than tidy: values are returned as Figma reports
+them, floats and all. Normalising is `diff.mjs`'s job, using the same rules as
+the committed capture, so the two are comparable without the Figma-side script
+having to reproduce transcription conventions.
+
+```js
+const toHex = (c) => {
+  if (!c) return null;
+  const h = (n) => Math.round(n * 255).toString(16).padStart(2, '0');
+  const base = '#' + h(c.r) + h(c.g) + h(c.b);
+  return (c.a !== undefined && c.a < 0.999) ? base + h(c.a) : base;
+};
+
+const cols = await figma.variables.getLocalVariableCollectionsAsync();
+const collections = {};
+const hidden = {};
+const keys = {};
+
+for (const c of cols) {
+  if (!c.name.startsWith('Tokens / ')) continue;
+  const modes = c.modes.map((m) => ({ id: m.modeId, name: m.name }));
+  const vars = {};
+  for (const id of c.variableIds) {
+    const v = await figma.variables.getVariableByIdAsync(id);
+    if (!v) continue;
+    const entry = {};
+    for (const m of modes) {
+      const val = v.valuesByMode[m.id];
+      if (val && typeof val === 'object' && val.type === 'VARIABLE_ALIAS') {
+        const t = await figma.variables.getVariableByIdAsync(val.id);
+        entry[m.name] = t ? '@' + t.name : '@?';
+      } else if (val && typeof val === 'object' && 'r' in val) {
+        entry[m.name] = toHex(val);
+      } else if (val && typeof val === 'object') {
+        entry[m.name] = JSON.stringify(val);
+      } else {
+        entry[m.name] = val;
+      }
+    }
+    vars[v.name] = entry;
+    (keys[c.name] = keys[c.name] || {})[v.name] = v.key;
+    if (v.hiddenFromPublishing) (hidden[c.name] = hidden[c.name] || []).push(v.name);
+  }
+  collections[c.name] = { modes: modes.map((m) => m.name), vars };
+}
+
+const ts = await figma.getLocalTextStylesAsync();
+const textStyles = {};
+for (const s of ts) {
+  textStyles[s.name] = {
+    key: s.key,
+    font: s.fontName.family + ' / ' + s.fontName.style,
+    size: s.fontSize,
+    letterSpacing: s.letterSpacing && s.letterSpacing.value,
+    hidden: !!s.hiddenFromPublishing,
+  };
+}
+
+const es = await figma.getLocalEffectStylesAsync();
+const effectStyles = {};
+for (const s of es) effectStyles[s.name] = { key: s.key, hidden: !!s.hiddenFromPublishing };
+
+return {
+  capturedAt: new Date().toISOString().slice(0, 10),
+  survey: {
+    pages: figma.root.children.length,
+    collections: cols.length,
+    textStyles: ts.length,
+    effectStyles: es.length,
+  },
+  collections,
+  hidden,
+  keys,
+  textStyles,
+  effectStyles,
+};
+```
+
+## 2. Published capture
+
+Run against **any file that subscribes to the kit** — not the kit itself. A
+scratch file is fine. Save the result as `published.json`.
+
+```js
+const cols = await figma.teamLibrary.getAvailableLibraryVariableCollectionsAsync();
+const pushpin = cols.filter((c) => c.libraryName === 'Pushpin Thumbprint UI Kit');
+const published = {};
+let total = 0;
+for (const c of pushpin) {
+  const m = {};
+  try {
+    for (const v of await figma.teamLibrary.getVariablesInLibraryCollectionAsync(c.key)) {
+      m[v.name] = v.key;
+      total++;
+    }
+  } catch (e) {
+    m.__error = e.message;
+  }
+  published[c.name] = m;
+}
+return { capturedAt: new Date().toISOString().slice(0, 10), total, published };
+```
+
+If a collection you expect is missing from `getAvailableLibraryVariableCollectionsAsync`
+entirely, the library was unpublished or the file lost its subscription. That is
+a bigger event than a token change and worth stopping on.
+
+## 3. Component capture
+
+From the MCP tool `list_file_components_for_code_connect` with
+`fileKey: VVRGrLgkPRU3vs765d5Q3r` — a read despite the name. Save the raw array
+as `components-raw.json`; `diff.mjs` distills it with the same code that built
+the committed catalog.
+
+## 4. Diff
+
+```bash
+node scripts/diff.mjs --kit kit.json --published published.json --components components-raw.json
+```
+
+Every argument is optional, so a quick token-only check is just `--kit`. The
+command exits non-zero if anything breaking turned up.
