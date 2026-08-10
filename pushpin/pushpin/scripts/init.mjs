@@ -3,15 +3,17 @@
  * Sets a project up to use Pushpin.
  *
  * Installs the token stylesheet, records the Figma keys so the bridge works
- * without re-deriving them, and leaves a note for agents working in the repo
- * later. Prints a plan and changes nothing unless --write is passed.
+ * without re-deriving them, leaves a note for agents working in the repo
+ * later, and offers the plugin to anyone else who opens the repo. Prints a
+ * plan and changes nothing unless --write is passed.
  *
  * Usage:
  *   node scripts/init.mjs <project-dir> [--write] [--force] [--css-path <p>]
+ *                                       [--no-share]
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync } from 'node:fs';
-import { dirname, join, relative, resolve } from 'node:path';
+import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { hashAsset } from './canonical.mjs';
@@ -26,6 +28,7 @@ const target = resolve(argv.find((a) => !a.startsWith('--') && argv[argv.indexOf
 
 const WRITE = flag('--write');
 const FORCE = flag('--force');
+const SHARE = !flag('--no-share');
 
 if (!existsSync(target)) {
   console.error(`No such directory: ${target}`);
@@ -38,6 +41,60 @@ const MANIFEST = JSON.parse(readFileSync(join(ASSETS, 'manifest.json'), 'utf8'))
 const PLUGIN = JSON.parse(
   readFileSync(join(here, '..', '..', '.claude-plugin', 'plugin.json'), 'utf8'),
 );
+
+// Where a collaborator who opens the project will be offered this plugin from.
+// The marketplace file lives at the repo root, one level above the plugin, so
+// an installed copy doesn't carry it — hence the constant. In a dev checkout
+// it is reachable and authoritative, so a rename fails here rather than
+// sending every project a marketplace name that no longer resolves.
+const MARKETPLACE = 'johnwilliams-skills';
+const REPO = PLUGIN.repository.replace(/^https:\/\/github\.com\//, '').replace(/\.git$/, '');
+const PLUGIN_REF = `${PLUGIN.name}@${MARKETPLACE}`;
+
+const marketplacePath = join(here, '..', '..', '..', '.claude-plugin', 'marketplace.json');
+if (existsSync(marketplacePath)) {
+  const { name } = JSON.parse(readFileSync(marketplacePath, 'utf8'));
+  if (name !== MARKETPLACE) {
+    console.error(
+      `Marketplace is named "${name}" but init.mjs writes "${MARKETPLACE}".\n` +
+        'Update MARKETPLACE in scripts/init.mjs, or projects will be pointed at a name that does not resolve.',
+    );
+    process.exit(1);
+  }
+}
+
+// The plugin is not a project that consumes itself. Initializing it would drop
+// a second copy of the stylesheet beside the original in assets/, pin the
+// source of truth to its own capture, and offer the plugin to the repo that
+// publishes it.
+//
+// Detection is path identity with this running file, never a name: PLUGIN_ROOT
+// comes from import.meta.url, so a target inside it is literally the tree these
+// assets are being read from. The repo root above it is refused only when it
+// carries our marketplace file, verified just above. A project that happens to
+// be laid out like the plugin, or that vendors a copy of it, is unaffected.
+const SKILL_DIR = resolve(here, '..');
+const PLUGIN_ROOT = resolve(here, '..', '..');
+const within = (root, p) => p === root || p.startsWith(root + sep);
+
+const ownTree = within(PLUGIN_ROOT, target)
+  ? "the Pushpin plugin's own source tree"
+  : existsSync(marketplacePath) && target === resolve(PLUGIN_ROOT, '..')
+    ? `the ${MARKETPLACE} repository, which ships this plugin`
+    : null;
+
+if (ownTree) {
+  const assetsRel = (relative(target, join(SKILL_DIR, 'assets')) || '.') + sep;
+  console.error(
+    `Refusing to initialize ${target}.\n` +
+      `That is ${ownTree}, not a project that consumes Pushpin. init writes a copy of the ` +
+      'stylesheet, a pushpin.config.json pinned to a capture, an AGENTS.md section, and an ' +
+      'offer of the plugin — and the originals all of that is copied from are here in ' +
+      `${assetsRel}, so the result would be the source of truth pinned to itself.\n` +
+      'Point it at the project that should use Pushpin: node scripts/init.mjs <project-dir>',
+  );
+  process.exit(1);
+}
 
 /** Guess where stylesheets live, so the CSS lands somewhere idiomatic. */
 function detect() {
@@ -104,7 +161,7 @@ function planFile(rel, describe, writeFn) {
   plan.push({ rel, describe, abs, writeFn });
 }
 
-planFile(cssPath, '300 Pushpin design tokens', (abs) => {
+planFile(cssPath, 'the Pushpin token stylesheet, 300 custom properties', (abs) => {
   mkdirSync(dirname(abs), { recursive: true });
   copyFileSync(join(ASSETS, 'pushpin.css'), abs);
 });
@@ -135,12 +192,69 @@ planFile('pushpin.config.json', 'Figma keys and the capture this project is pinn
   );
 });
 
+// Declaring the marketplace in the project's own settings is what lets someone
+// who has never touched the CLI pick this up: Claude Code prompts them to
+// install it when they trust the folder. Merge rather than replace — this file
+// is shared and usually already holds unrelated project settings.
+function planSettings() {
+  const rel = join('.claude', 'settings.json');
+  const abs = join(target, rel);
+
+  let existing = null;
+  if (existsSync(abs)) {
+    try {
+      existing = JSON.parse(readFileSync(abs, 'utf8'));
+    } catch {
+      skipped.push(`${rel} — could not be parsed, leaving it alone`);
+      return;
+    }
+  }
+
+  const base = existing ?? {};
+  const marketplaces = base.extraKnownMarketplaces ?? {};
+  const enabled = base.enabledPlugins ?? {};
+  const source = { source: 'github', repo: REPO };
+
+  const pointsHere = JSON.stringify(marketplaces[MARKETPLACE]?.source) === JSON.stringify(source);
+  if (pointsHere && enabled[PLUGIN_REF] === true && !FORCE) {
+    skipped.push(`${rel} — already offers Pushpin to anyone who opens this repo`);
+    return;
+  }
+
+  const next = {
+    ...base,
+    extraKnownMarketplaces: { ...marketplaces, [MARKETPLACE]: { source } },
+    enabledPlugins: { ...enabled, [PLUGIN_REF]: true },
+  };
+
+  plan.push({
+    rel,
+    describe: existing
+      ? `add ${PLUGIN_REF} to the plugins this repo offers`
+      : `offer ${PLUGIN_REF} to anyone who opens this repo, no CLI needed`,
+    abs,
+    writeFn: (a) => {
+      mkdirSync(dirname(a), { recursive: true });
+      writeFileSync(a, JSON.stringify(next, null, 2) + '\n');
+    },
+  });
+}
+
+if (SHARE) planSettings();
+
 // A short, durable note so an agent opening this repo later knows the system is
 // in use and where the authority lives — the original point of packaging this.
+//
+// The precedence line belongs here rather than only in SKILL.md because the
+// skills it constrains — impeccable, frontend-design, ui-ux-pro-max — can be
+// loaded into a session this skill never enters. AGENTS.md is read either way.
 const NOTE = `## Design system
 
 This project uses **Pushpin**, Thumbtack's design system.
 
+- Pushpin is this project's tokens, components, and icon set, so it outranks
+  any other design skill's craft floor, ambition, or category defaults. Those
+  skills choose among Pushpin-legal options, never around them.
 - Tokens: \`${cssPath}\` — use \`--pp-*\` custom properties, never raw hex or px.
 - Prefer semantic tokens (\`--pp-background-brand-strong\`) over base ramps
   (\`--pp-color-blue-950\`). Reaching for a base ramp means no semantic token fit,
@@ -213,6 +327,13 @@ if (WRITE && plan.length) {
     console.log(`  2. Build with the custom properties; see the skill's reference/tokens.md.`);
   }
   console.log(`  3. Thumbtack Rise is not bundled here — install it or set --pp-font-family.`);
+
+  if (plan.some((p) => p.rel.endsWith('settings.json'))) {
+    console.log(`\nCommit .claude/settings.json to share Pushpin with the team.`);
+    console.log(`  Anyone who opens this repo is prompted to install it when they trust the`);
+    console.log(`  folder — no terminal needed. The plugin stays unloaded until they accept,`);
+    console.log(`  so tell them to say yes.`);
+  }
 } else if (!WRITE && plan.length) {
   console.log('\nRe-run with --write to apply.');
 }

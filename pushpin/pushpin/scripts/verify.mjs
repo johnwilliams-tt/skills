@@ -147,7 +147,24 @@ if (problems.length) {
   problems.forEach((p) => console.error('  ' + p));
   process.exit(1);
 }
+// The two totals count variables, not the token entries in tokens.figma.json —
+// the type ramp is one entry per step and three variables. Saying "every token"
+// invited the reading that 131 + 168 should come to 273, which it does not.
 console.log(
-  `All ${checked} checks pass — colors resolve to their Figma values, and every token is ` +
-    `accounted for as bindable (${bindableTotal}) or hidden from publishing (${hiddenTotal}).`,
+  `All ${checked} checks pass — colors resolve to their Figma values, and every color token is ` +
+    `accounted for in the ${bindableTotal + hiddenTotal} captured variable keys ` +
+    `(${bindableTotal} bindable, ${hiddenTotal} hidden from publishing).`,
+);
+
+// Every check above compares the repo against itself, so all of them pass on a
+// capture that went stale months ago. That makes the sentence just printed the
+// most likely source of false confidence in the whole toolchain, which is why
+// the capture date is stated right underneath it rather than left to be found.
+const ageDays = Math.max(
+  0,
+  Math.floor((Date.now() - Date.parse(`${manifest.capturedAt}T00:00:00Z`)) / 86_400_000),
+);
+console.log(
+  `Captured ${manifest.capturedAt}, ${ageDays} day${ageDays === 1 ? '' : 's'} ago. Nothing here ` +
+    `asks Figma whether that is still current — run scripts/freshness.mjs for that.`,
 );

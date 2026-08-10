@@ -1,10 +1,31 @@
 # Checking the kit for changes
 
-Three read-only captures that feed `scripts/diff.mjs`. Run them, save each
+Four read-only captures. The first three feed `scripts/diff.mjs`; the fourth
+covers the Annotation Kit, which `diff.mjs` does not read. Run them, save each
 result to a file, and diff. Nothing here writes to Figma.
 
 Load the `figma-use` skill first — it is a required prerequisite for
 `use_figma`.
+
+## 0. Cheaper first
+
+The captures below are manual and slow. Before taking them, run:
+
+```bash
+node scripts/freshness.mjs
+```
+
+It reports both captures' ages with no token at all, and with `FIGMA_TOKEN` set
+it also confirms that every component and style key in the Pushpin catalog and
+every component key in the Annotation Kit catalog still resolves. A clean run on
+a recent capture is good enough for most questions, and it costs one command
+instead of several plugin round-trips. Take the full captures when it exits
+non-zero, when you intend to update `assets/` anyway, or when you need to know
+exactly *what* moved rather than *that* something did.
+
+Note that `freshness.mjs` reads the published state over REST. It cannot see
+unpublished editor state, which is the whole reason the kit capture below
+exists.
 
 ## Why two vantage points
 
@@ -144,11 +165,43 @@ From the MCP tool `list_file_components_for_code_connect` with
 as `components-raw.json`; `diff.mjs` distills it with the same code that built
 the committed catalog.
 
-## 4. Diff
+## 4. Annotation Kit capture
+
+`fileKey: Qefv6O2RMPSBtSYBrCGcdI`. Run the four per-page scripts from
+[extract.md §6](extract.md), one call per page in parallel, and merge them the
+same way.
+
+This capture is its own comparison. Because §6 emits entries in the committed
+shape, the check is to write the merged result over
+`assets/annotations.figma.json` and read `git diff`. Nothing new has to be built
+and nothing can fall out of step with the committed catalog, which is the whole
+reason there is no distiller and no `diff.mjs` flag for this file.
+
+`node scripts/manifest.mjs --check` is the tripwire: it exits non-zero the
+moment the catalog's content hash moves, so a refresh cannot be committed
+half-done.
+
+What to look for in that diff, in descending order of how much it will hurt:
+
+| Change | Why it matters |
+|---|---|
+| A removed component, or a changed `key` | `importComponentByKeyAsync` throws — generation dies mid-run |
+| A changed property `key` | `setProperties` throws on the old key, which is exactly the failure this catalog exists to prevent |
+| A changed or removed variant option | `setProperties` throws on a value that no longer exists |
+| A new component | Nothing breaks; the catalog is just describing less than the library holds |
+
+An added or renamed page shows up as a changed `page` field and a changed
+`source.pages`. That is worth stopping on rather than accepting: the per-page
+scripts are keyed to page ids, so a page the capture does not visit is a set of
+components silently missing from the catalog.
+
+## 5. Diff
 
 ```bash
 node scripts/diff.mjs --kit kit.json --published published.json --components components-raw.json
 ```
 
 Every argument is optional, so a quick token-only check is just `--kit`. The
-command exits non-zero if anything breaking turned up.
+command exits non-zero if anything breaking turned up. It reads the Pushpin
+captures only; the Annotation Kit is covered by section 4 and by the
+`annotations` layer in `freshness.mjs`.

@@ -6,10 +6,17 @@
     "fileName": "Pushpin Thumbprint UI Kit",
     "libraryKey": "lk-003ce4846b4638268325b33ad167ece0cd390787a2782f1949cee2e38ca2e7719472f0968d45b4c2f0db9b35ec1820babadcf97a9f40fdd6cc84ba22f7b10a80"
   },
+  "annotationKit": {
+    "fileKey": "Qefv6O2RMPSBtSYBrCGcdI",
+    "fileName": "Annotation Kit",
+    "libraryKey": "lk-7faccc611b9ec03ccd81012447b2a1a34ffe027b513f5f94a328a5498c10f76052ba27c537a70120b6b9bd592bd8c09c3fc9abc03281c9fab80b1513aa2f03b1",
+    "capturedAt": "2026-08-10"
+  },
   "hashes": {
     "tokens.figma.json": "2e00b6ecbb2a4eb1",
     "variable-keys.figma.json": "554dd0a666cca4fb",
     "components.figma.json": "37670f89856113ac",
+    "annotations.figma.json": "2cbbfe561dc7e5a6",
     "styles.figma.json": "20b8f5dd68bffe05",
     "pushpin.css": "d4c1a58eb37aa585"
   },
@@ -35,6 +42,7 @@
     "bindable": 131,
     "hidden": 168,
     "components": 117,
+    "annotations": 91,
     "textStyles": 13,
     "effectStyles": 6
   }

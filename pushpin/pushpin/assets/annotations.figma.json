@@ -1,0 +1,1719 @@
+{
+  "$comment": "Published components of the Annotation Kit — the library the plugin places notes with, so a rationale is a real library instance rather than a drawn box. `key` is the assetKey to pass to figma.importComponentByKeyAsync, and each property carries the exact `key` that setProperties requires. Captured through use_figma; see scripts/extract.md.",
+  "$note": "No annotation component exposes its body text as a component property, so setProperties changes only variants. The text is a plain TEXT layer inside the instance: load its font, then set characters. reference/annotate.md names the layer for each one.",
+  "$duplicateNames": "A published name is not unique in this file — `A11y / Annotation / Spec` exists twice with different keys and different variant axes. Those entries are keyed `<name> [<nodeId>]` and carry the true Figma name in `name`. Every other entry is keyed by its name alone.",
+  "source": {
+    "fileKey": "Qefv6O2RMPSBtSYBrCGcdI",
+    "fileName": "Annotation Kit",
+    "libraryKey": "lk-7faccc611b9ec03ccd81012447b2a1a34ffe027b513f5f94a328a5498c10f76052ba27c537a70120b6b9bd592bd8c09c3fc9abc03281c9fab80b1513aa2f03b1",
+    "extractedAt": "2026-08-10",
+    "pages": {
+      "General": "0:1",
+      "Accessibility Annotations": "1192:101",
+      "Team Roster": "2335:1841",
+      "Thumbprint": "1415:790"
+    },
+    "capturedTotal": 111,
+    "internalOmitted": 20,
+    "publicKept": 91
+  },
+  "components": {
+    "A11y / Annotation / Arrows": {
+      "key": "0272c61e250a695c305214d03c6ca827ac3e7755",
+      "type": "COMPONENT_SET",
+      "page": "Accessibility Annotations",
+      "nodeId": "1193:614",
+      "properties": {
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "Line",
+            "Right angle",
+            "S-bend",
+            "U-bend",
+            "Square"
+          ],
+          "default": "Line"
+        },
+        "Color": {
+          "type": "VARIANT",
+          "key": "Color",
+          "options": [
+            "Blue",
+            "Gray",
+            "Green",
+            "Orange",
+            "Teal"
+          ],
+          "default": "Orange"
+        },
+        "Line": {
+          "type": "VARIANT",
+          "key": "Line",
+          "options": [
+            "Solid",
+            "Dashed"
+          ],
+          "default": "Solid"
+        }
+      }
+    },
+    "A11y / Annotation / Button": {
+      "key": "4b2bf271d733b4afd911c59b43f423d39471f959",
+      "type": "COMPONENT_SET",
+      "page": "Accessibility Annotations",
+      "nodeId": "1193:252",
+      "properties": {
+        "Button Label": {
+          "type": "VARIANT",
+          "key": "Button Label",
+          "options": [
+            "False",
+            "True"
+          ],
+          "default": "False"
+        },
+        "Direction": {
+          "type": "VARIANT",
+          "key": "Direction",
+          "options": [
+            "Up",
+            "Down",
+            "Left",
+            "Right",
+            "--"
+          ],
+          "default": "Right"
+        },
+        "Target Area": {
+          "type": "VARIANT",
+          "key": "Target Area",
+          "options": [
+            "True",
+            "False"
+          ],
+          "default": "False"
+        }
+      }
+    },
+    "A11y / Annotation / Compliant": {
+      "key": "0c7e0625b3e1ab883bbb0fceb5a7be60244ca8c3",
+      "type": "COMPONENT_SET",
+      "page": "Accessibility Annotations",
+      "nodeId": "1193:715",
+      "properties": {
+        "Compliant": {
+          "type": "VARIANT",
+          "key": "Compliant",
+          "options": [
+            "False",
+            "True"
+          ],
+          "default": "False"
+        }
+      }
+    },
+    "A11y / Annotation / Headings": {
+      "key": "248de60f979690cc38ab97dce9aea0bf441b9d9b",
+      "type": "COMPONENT_SET",
+      "page": "Accessibility Annotations",
+      "nodeId": "1193:184",
+      "properties": {
+        "Heading Level": {
+          "type": "VARIANT",
+          "key": "Heading Level",
+          "options": [
+            "H1",
+            "H2",
+            "H3",
+            "H4",
+            "H5",
+            "H6"
+          ],
+          "default": "H1"
+        },
+        "Direction": {
+          "type": "VARIANT",
+          "key": "Direction",
+          "options": [
+            "Up",
+            "Down",
+            "Left",
+            "Right"
+          ],
+          "default": "Right"
+        }
+      }
+    },
+    "A11y / Annotation / Image": {
+      "key": "beffe613aac58eb967cb54879ccfbbb497c8f4e1",
+      "type": "COMPONENT_SET",
+      "page": "Accessibility Annotations",
+      "nodeId": "1193:271",
+      "properties": {
+        "Alt Label": {
+          "type": "VARIANT",
+          "key": "Alt Label",
+          "options": [
+            "False",
+            "True"
+          ],
+          "default": "True"
+        },
+        "Direction": {
+          "type": "VARIANT",
+          "key": "Direction",
+          "options": [
+            "Up",
+            "Down",
+            "Left",
+            "Right"
+          ],
+          "default": "Right"
+        }
+      }
+    },
+    "A11y / Annotation / Label": {
+      "key": "61a30d972d499ac7c09b165c28af06a5d60af559",
+      "type": "COMPONENT_SET",
+      "page": "Accessibility Annotations",
+      "nodeId": "1193:295",
+      "properties": {
+        "Autocomplete": {
+          "type": "VARIANT",
+          "key": "Autocomplete",
+          "options": [
+            "True",
+            "False"
+          ],
+          "default": "False"
+        },
+        "Autocomplete type": {
+          "type": "VARIANT",
+          "key": "Autocomplete type",
+          "options": [
+            "City",
+            "Company",
+            "Country",
+            "Current-password",
+            "Email",
+            "Job title",
+            "Name",
+            "New-password",
+            "State",
+            "Street address",
+            "Telephone",
+            "Telephone + country code",
+            "Username",
+            "ZIP code",
+            "--"
+          ],
+          "default": "--"
+        },
+        "Direction": {
+          "type": "VARIANT",
+          "key": "Direction",
+          "options": [
+            "Up",
+            "Down",
+            "Left",
+            "Right",
+            "None"
+          ],
+          "default": "None"
+        }
+      }
+    },
+    "A11y / Annotation / Landmark": {
+      "key": "ff3de729062d49cd4bcbb49910376e66cc60b7ec",
+      "type": "COMPONENT_SET",
+      "page": "Accessibility Annotations",
+      "nodeId": "1193:567",
+      "properties": {
+        "Nested": {
+          "type": "VARIANT",
+          "key": "Nested",
+          "options": [
+            "True",
+            "False"
+          ],
+          "default": "False"
+        },
+        "Named": {
+          "type": "VARIANT",
+          "key": "Named",
+          "options": [
+            "True",
+            "False"
+          ],
+          "default": "False"
+        },
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "Application",
+            "Form",
+            "Navigation",
+            "Region",
+            "Search",
+            "Header",
+            "Main",
+            "Footer",
+            "Aside"
+          ],
+          "default": "Header"
+        }
+      }
+    },
+    "A11y / Annotation / Link": {
+      "key": "44c782530e3135a6f4710d2965913887687c9dd2",
+      "type": "COMPONENT_SET",
+      "page": "Accessibility Annotations",
+      "nodeId": "1193:233",
+      "properties": {
+        "Link target": {
+          "type": "VARIANT",
+          "key": "Link target",
+          "options": [
+            "Link",
+            "Link new window",
+            "--"
+          ],
+          "default": "Link"
+        },
+        "Direction": {
+          "type": "VARIANT",
+          "key": "Direction",
+          "options": [
+            "Up",
+            "Down",
+            "Left",
+            "Right",
+            "Target Area"
+          ],
+          "default": "Right"
+        },
+        "Target Area": {
+          "type": "VARIANT",
+          "key": "Target Area",
+          "options": [
+            "False",
+            "True"
+          ],
+          "default": "False"
+        }
+      }
+    },
+    "A11y / Annotation / Order": {
+      "key": "fa1749669922e1f5b80529499924eea6ebb027c3",
+      "type": "COMPONENT_SET",
+      "page": "Accessibility Annotations",
+      "nodeId": "1193:562",
+      "properties": {
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "Tab Order",
+            "Reading Order"
+          ],
+          "default": "Reading Order"
+        }
+      }
+    },
+    "A11y / Annotation / Page title": {
+      "key": "22ff1e9bf81f34f43e2cc495adc3a31733613bec",
+      "type": "COMPONENT",
+      "page": "Accessibility Annotations",
+      "nodeId": "1952:4525"
+    },
+    "A11y / Annotation / Skip link": {
+      "key": "5f57b9f160cfd9819ab5beeedf15520385f0acd8",
+      "type": "COMPONENT",
+      "page": "Accessibility Annotations",
+      "nodeId": "1952:4530"
+    },
+    "A11y / Annotation / Spec [1193:410]": {
+      "name": "A11y / Annotation / Spec",
+      "key": "89eeae930f582a00fece2a032ac2791347b41e3f",
+      "type": "COMPONENT_SET",
+      "page": "Accessibility Annotations",
+      "nodeId": "1193:410",
+      "properties": {
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "Active",
+            "Default",
+            "Disabled",
+            "Empty",
+            "Error",
+            "Focus",
+            "Hover",
+            "Loading",
+            "Selected",
+            "Visited"
+          ],
+          "default": "Default"
+        }
+      }
+    },
+    "A11y / Annotation / Spec [1193:431]": {
+      "name": "A11y / Annotation / Spec",
+      "key": "ceadd4e08c76bac916deefb789a007979d3e652c",
+      "type": "COMPONENT_SET",
+      "page": "Accessibility Annotations",
+      "nodeId": "1193:431",
+      "properties": {
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "Error",
+            "Keyboard",
+            "Style"
+          ],
+          "default": "Style"
+        },
+        "Example": {
+          "type": "VARIANT",
+          "key": "Example",
+          "options": [
+            "Expand Collapse",
+            "Menu",
+            "Menu Button",
+            "Tabs",
+            "--"
+          ],
+          "default": "--"
+        }
+      }
+    },
+    "Annotations": {
+      "key": "aa6e465a9c85c4067a897cc46408bd116d1e3e69",
+      "type": "COMPONENT_SET",
+      "page": "General",
+      "nodeId": "1396:994",
+      "properties": {
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "Dev Note",
+            "Guide",
+            "List",
+            "List Elelemt",
+            "Multi-line",
+            "Number",
+            "Small"
+          ],
+          "default": "Number"
+        }
+      }
+    },
+    "Annotations / Pointers": {
+      "key": "0edb90c14d0c3d308159f8fc2d940e036175e8d6",
+      "type": "COMPONENT_SET",
+      "page": "General",
+      "nodeId": "1412:806",
+      "properties": {
+        "Direction": {
+          "type": "VARIANT",
+          "key": "Direction",
+          "options": [
+            "Left",
+            "Down",
+            "Up",
+            "Right"
+          ],
+          "default": "Down"
+        },
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "Number",
+            "Label",
+            "Bracket"
+          ],
+          "default": "Number"
+        },
+        "Mode": {
+          "type": "VARIANT",
+          "key": "Mode",
+          "options": [
+            "Dark",
+            "Light"
+          ],
+          "default": "Dark"
+        }
+      }
+    },
+    "Branching": {
+      "key": "545a380daabbffb182abdb82148b5f7338aaba3d",
+      "type": "COMPONENT",
+      "page": "Thumbprint",
+      "nodeId": "1898:4086"
+    },
+    "Breakpoint": {
+      "key": "e3fe5d22dd6f1b1042712d60094112cee580a139",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:938",
+      "properties": {
+        "Size": {
+          "type": "VARIANT",
+          "key": "Size",
+          "options": [
+            "Split Medium",
+            "Large",
+            "Medium",
+            "Small",
+            "Split Small"
+          ],
+          "default": "Large"
+        }
+      }
+    },
+    "Capstones": {
+      "key": "49c39a47554a41882c1798089d1f741cefed5cd0",
+      "type": "COMPONENT_SET",
+      "page": "General",
+      "nodeId": "1391:651",
+      "properties": {
+        "Size": {
+          "type": "VARIANT",
+          "key": "Size",
+          "options": [
+            "Small",
+            "Medium",
+            "Large"
+          ],
+          "default": "Small"
+        }
+      }
+    },
+    "Color / Blue": {
+      "key": "747ecc01a5e54f391a88f867136abf87f2f5fe5f",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:847",
+      "properties": {
+        "Level": {
+          "type": "VARIANT",
+          "key": "Level",
+          "options": [
+            "100",
+            "200",
+            "300",
+            "400",
+            "500",
+            "600"
+          ],
+          "default": "100"
+        }
+      }
+    },
+    "Color / Green": {
+      "key": "b87bf54cebdfd8e0ff418a481541d41e48a5f3ee",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:886",
+      "properties": {
+        "Level": {
+          "type": "VARIANT",
+          "key": "Level",
+          "options": [
+            "100",
+            "200",
+            "300",
+            "400",
+            "500",
+            "600"
+          ],
+          "default": "100"
+        }
+      }
+    },
+    "Color / Indigo": {
+      "key": "d675dd91dcbc16617e4732c94765033927096082",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:860",
+      "properties": {
+        "Level": {
+          "type": "VARIANT",
+          "key": "Level",
+          "options": [
+            "100",
+            "200",
+            "300",
+            "400",
+            "500",
+            "600"
+          ],
+          "default": "100"
+        }
+      }
+    },
+    "Color / Neutral": {
+      "key": "b1fe3d2e45c76066c5ec0227265fc3ffe3f177b1",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:925",
+      "properties": {
+        "Level": {
+          "type": "VARIANT",
+          "key": "Level",
+          "options": [
+            "White",
+            "Gray200",
+            "Gray300",
+            "Gray",
+            "Black300",
+            "Black"
+          ],
+          "default": "White"
+        }
+      }
+    },
+    "Color / Purple": {
+      "key": "9bf65cdf6ca7d0fd42e3fc45e0ede8f8531abe9a",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:873",
+      "properties": {
+        "Level": {
+          "type": "VARIANT",
+          "key": "Level",
+          "options": [
+            "100",
+            "200",
+            "300",
+            "400",
+            "500",
+            "600"
+          ],
+          "default": "100"
+        }
+      }
+    },
+    "Color / Red": {
+      "key": "4c687293f58848b7899b6b7e413b3c3c6d4538ba",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:912",
+      "properties": {
+        "Level": {
+          "type": "VARIANT",
+          "key": "Level",
+          "options": [
+            "100",
+            "200",
+            "300",
+            "400",
+            "500",
+            "600"
+          ],
+          "default": "100"
+        }
+      }
+    },
+    "Color / Yellow": {
+      "key": "86df1d57dc4fa03ecd05b7fc4cc4ac2537314973",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:899",
+      "properties": {
+        "Level": {
+          "type": "VARIANT",
+          "key": "Level",
+          "options": [
+            "100",
+            "200",
+            "300",
+            "400",
+            "500",
+            "600"
+          ],
+          "default": "100"
+        }
+      }
+    },
+    "Contributing": {
+      "key": "721948b8b6742e98fec3da0081c9236bb5e20161",
+      "type": "COMPONENT",
+      "page": "Thumbprint",
+      "nodeId": "1891:2877"
+    },
+    "Contributing / Instructions": {
+      "key": "f07b7393f347d1302b5c62486a264d5fb7cc2e11",
+      "type": "COMPONENT",
+      "page": "Thumbprint",
+      "nodeId": "1891:2846"
+    },
+    "Contributing / Pages": {
+      "key": "ebd8f34d490215fceeae05aa6a992db07f04897d",
+      "type": "COMPONENT",
+      "page": "Thumbprint",
+      "nodeId": "1891:2845"
+    },
+    "Contribution / Checklist": {
+      "key": "9c4fa0c84e676cc60f71b43cd20bb66c8dd4e85a",
+      "type": "COMPONENT",
+      "page": "Thumbprint",
+      "nodeId": "1893:2799"
+    },
+    "Corner Radius": {
+      "key": "8d70e95151e1753827a14fdbe12d32eb5eed68c8",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:838",
+      "properties": {
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "Sides",
+            "Base",
+            "Big",
+            "Full"
+          ],
+          "default": "Base"
+        }
+      }
+    },
+    "Cursor / Hand": {
+      "key": "c997daacad3e71e7366723ed8aeca0dc644cea90",
+      "type": "COMPONENT",
+      "page": "General",
+      "nodeId": "2974:616"
+    },
+    "Cursor / Pointer": {
+      "key": "d10a19e5203e192a6dc1ce08e517a54cfda66284",
+      "type": "COMPONENT",
+      "page": "General",
+      "nodeId": "2974:594"
+    },
+    "Deprecated": {
+      "key": "662d091d7e3abcfa18981dd0aa38e432113eb1a6",
+      "type": "COMPONENT",
+      "page": "General",
+      "nodeId": "1091:116"
+    },
+    "Duration": {
+      "key": "0741ebbca9e23b1d884290f75c4f6bdd126d1542",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:949",
+      "properties": {
+        "Duration": {
+          "type": "VARIANT",
+          "key": "Duration",
+          "options": [
+            "1 (75)",
+            "2 (150)",
+            "3 (200)",
+            "4 (250)",
+            "5 (300)",
+            "6 (350)"
+          ],
+          "default": "1 (75)"
+        }
+      }
+    },
+    "Easing": {
+      "key": "d366c184512d1e83570f669c0e364f6728bcdbb2",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:962",
+      "properties": {
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "In",
+            "Out",
+            "InOut"
+          ],
+          "default": "In"
+        }
+      }
+    },
+    "Endpoint": {
+      "key": "f34e555b3c9fec6a90edf6f94c12928b3a760404",
+      "type": "COMPONENT_SET",
+      "page": "General",
+      "nodeId": "1394:659",
+      "properties": {
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "Circle",
+            "Rectangle",
+            "Triangle Left",
+            "Triangle Right"
+          ],
+          "default": "Triangle Left"
+        }
+      }
+    },
+    "Figma file structure": {
+      "key": "f6be3ec8d989816edabba5867f67c33a3dd626df",
+      "type": "COMPONENT_SET",
+      "page": "General",
+      "nodeId": "2870:524",
+      "properties": {
+        "Pages": {
+          "type": "VARIANT",
+          "key": "Pages",
+          "options": [
+            "Optional",
+            "Required"
+          ],
+          "default": "Optional"
+        }
+      }
+    },
+    "Folder message": {
+      "key": "524bffc89c85fc039579551f6deb7b5d76b2d7b1",
+      "type": "COMPONENT",
+      "page": "General",
+      "nodeId": "2989:794"
+    },
+    "Font / Body 1": {
+      "key": "c6129d012cd643d2d2d74abcad4c38c56ce3a516",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1052",
+      "properties": {
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "Size",
+            "Line Height"
+          ],
+          "default": "Size"
+        }
+      }
+    },
+    "Font / Body 1 / Platform": {
+      "key": "026cb92611a89ad0c6e78ba78b365f34e6028266",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1177",
+      "properties": {
+        "Platform": {
+          "type": "VARIANT",
+          "key": "Platform",
+          "options": [
+            "Native"
+          ],
+          "default": "Native"
+        }
+      }
+    },
+    "Font / Body 2": {
+      "key": "a8ec0af5ee8185053234204c333ce84dfbb00b8d",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1057",
+      "properties": {
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "Size",
+            "Line Height"
+          ],
+          "default": "Size"
+        }
+      }
+    },
+    "Font / Body 2 / Platform": {
+      "key": "4b0eaaef366c34ec9bb3c886a17489ab6ed71af2",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1181",
+      "properties": {
+        "Platform": {
+          "type": "VARIANT",
+          "key": "Platform",
+          "options": [
+            "Native"
+          ],
+          "default": "Native"
+        }
+      }
+    },
+    "Font / Body 3": {
+      "key": "08301f2fc1eb0b609a5878859ade44d6cb87958d",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1062",
+      "properties": {
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "Size",
+            "Line Height"
+          ],
+          "default": "Size"
+        }
+      }
+    },
+    "Font / Body 3 / Platform": {
+      "key": "8280e71856be51c72a5cd6308f7949241bfe7c60",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1185",
+      "properties": {
+        "Platform": {
+          "type": "VARIANT",
+          "key": "Platform",
+          "options": [
+            "Native"
+          ],
+          "default": "Native"
+        }
+      }
+    },
+    "Font / Title 1": {
+      "key": "670e759996f13c104abe6375c9a53a35edcdc702",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:978",
+      "properties": {
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "Size",
+            "Line Height",
+            "Weight",
+            "Resp. Size",
+            "Resp. Line Height",
+            "Resp. Weight"
+          ],
+          "default": "Size"
+        }
+      }
+    },
+    "Font / Title 1 / Platform": {
+      "key": "96b967d91b88069a9f6e83b73a514502c65ae00e",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1125",
+      "properties": {
+        "Platform": {
+          "type": "VARIANT",
+          "key": "Platform",
+          "options": [
+            "Native",
+            "Web"
+          ],
+          "default": "Native"
+        }
+      }
+    },
+    "Font / Title 2": {
+      "key": "88b48d4de280bc7891fd3fa544dd06f15235d9a0",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:991",
+      "properties": {
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "Size",
+            "Line Height",
+            "Weight",
+            "Resp. Size",
+            "Resp. Line Height",
+            "Resp. Weight"
+          ],
+          "default": "Size"
+        }
+      }
+    },
+    "Font / Title 2 / Platform": {
+      "key": "cf88dd86a1e85f56a61f25162bf0ac12df81a372",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1134",
+      "properties": {
+        "Platform": {
+          "type": "VARIANT",
+          "key": "Platform",
+          "options": [
+            "Native",
+            "Web"
+          ],
+          "default": "Native"
+        }
+      }
+    },
+    "Font / Title 3": {
+      "key": "82fc643a7217cad181b9980e1ca31afc1b90a1d3",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1004",
+      "properties": {
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "Size",
+            "Line Height",
+            "Weight",
+            "Resp. Size",
+            "Resp. Line Height",
+            "Resp. Weight"
+          ],
+          "default": "Size"
+        }
+      }
+    },
+    "Font / Title 3 / Platform": {
+      "key": "e024155948194a39cbe3793d5d36ed2fe857f853",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1143",
+      "properties": {
+        "Platform": {
+          "type": "VARIANT",
+          "key": "Platform",
+          "options": [
+            "Native",
+            "Web"
+          ],
+          "default": "Native"
+        }
+      }
+    },
+    "Font / Title 4": {
+      "key": "001c585a1cab129e5d5f4623a82bd42aeab9f15e",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1017",
+      "properties": {
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "Size",
+            "Line Height",
+            "Weight"
+          ],
+          "default": "Size"
+        }
+      }
+    },
+    "Font / Title 4 / Platform": {
+      "key": "5962582307021c92c70fcbf7966b707205ca2ed9",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1152",
+      "properties": {
+        "Platform": {
+          "type": "VARIANT",
+          "key": "Platform",
+          "options": [
+            "Native"
+          ],
+          "default": "Native"
+        }
+      }
+    },
+    "Font / Title 5": {
+      "key": "60c88ee9b81227c0289194fa5f4de5b8691b047d",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1024",
+      "properties": {
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "Size",
+            "Line Height",
+            "Weight"
+          ],
+          "default": "Size"
+        }
+      }
+    },
+    "Font / Title 5 / Platform": {
+      "key": "170906d792537773626a84826be0d9b89a87142b",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1157",
+      "properties": {
+        "Platform": {
+          "type": "VARIANT",
+          "key": "Platform",
+          "options": [
+            "Native"
+          ],
+          "default": "Native"
+        }
+      }
+    },
+    "Font / Title 6": {
+      "key": "bda24015059def131281a174375515bc0fc3f1db",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1031",
+      "properties": {
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "Size",
+            "Line Height",
+            "Weight"
+          ],
+          "default": "Size"
+        }
+      }
+    },
+    "Font / Title 6 / Platform": {
+      "key": "c6cf1db8c629aa7d20afe460f837f2cb7b9c5015",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1162",
+      "properties": {
+        "Platform": {
+          "type": "VARIANT",
+          "key": "Platform",
+          "options": [
+            "Native"
+          ],
+          "default": "Native"
+        }
+      }
+    },
+    "Font / Title 7": {
+      "key": "52f6c0edf4b99ec192d9ccff9dca41fa78854395",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1038",
+      "properties": {
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "Size",
+            "Line Height",
+            "Weight"
+          ],
+          "default": "Size"
+        }
+      }
+    },
+    "Font / Title 7 / Platform": {
+      "key": "4b3c5717462e7fb3eaa9fb3fe84507d83dc8a017",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1167",
+      "properties": {
+        "Platform": {
+          "type": "VARIANT",
+          "key": "Platform",
+          "options": [
+            "Native"
+          ],
+          "default": "Native"
+        }
+      }
+    },
+    "Font / Title 8": {
+      "key": "61c8fde4dc74320cc12654bebeab4457da4186cc",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1045",
+      "properties": {
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "Size",
+            "Line Height",
+            "Weight"
+          ],
+          "default": "Size"
+        }
+      }
+    },
+    "Font / Title 8 / Platform": {
+      "key": "1840e831c7c6fb4aa7bfa7ea508df10f78b58efd",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1172",
+      "properties": {
+        "Platform": {
+          "type": "VARIANT",
+          "key": "Platform",
+          "options": [
+            "Native"
+          ],
+          "default": "Native"
+        }
+      }
+    },
+    "Font Family": {
+      "key": "50a21854a9f440dd8f4dd64fc3c5ccd9e42c2780",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1067",
+      "properties": {
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "Base",
+            "Monospace"
+          ],
+          "default": "Base"
+        }
+      }
+    },
+    "Font Weight": {
+      "key": "4aae852605c5c86f8223e034baa0d92637cc18fc",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:969",
+      "properties": {
+        "Weight": {
+          "type": "VARIANT",
+          "key": "Weight",
+          "options": [
+            "Normal",
+            "Medium",
+            "Heavy",
+            "Bold"
+          ],
+          "default": "Normal"
+        }
+      }
+    },
+    "Framing Cards / Blank": {
+      "key": "2c397c2a8e4c007ccba3048cf0319fb671159437",
+      "type": "COMPONENT_SET",
+      "page": "General",
+      "nodeId": "2211:7006",
+      "properties": {
+        "Category": {
+          "type": "VARIANT",
+          "key": "Category",
+          "options": [
+            "Blank",
+            "Investigate & Understand",
+            "Establish POV",
+            "Hypothesis"
+          ],
+          "default": "Blank"
+        }
+      }
+    },
+    "Framing Cards / Establish POV": {
+      "key": "88b1fd4a4249711345670ca324b61804e7ea68ca",
+      "type": "COMPONENT",
+      "page": "General",
+      "nodeId": "2211:6913"
+    },
+    "Framing Cards / Hypothesis": {
+      "key": "dde56ae8a63118fb0f1c828792690510d9149cf6",
+      "type": "COMPONENT",
+      "page": "General",
+      "nodeId": "2211:6914"
+    },
+    "Framing Cards / Intro": {
+      "key": "7b060aa73150e4c518611ba8be8f98363dba64bf",
+      "type": "COMPONENT",
+      "page": "General",
+      "nodeId": "2211:6931"
+    },
+    "Framing Cards / Investigate & Understand": {
+      "key": "021b0ce98848c39951eeaf613b62b666b44d370c",
+      "type": "COMPONENT",
+      "page": "General",
+      "nodeId": "2211:6915"
+    },
+    "Gesture / Long press": {
+      "key": "f08f02d94336b5e87d412b0df1d442dda36a0445",
+      "type": "COMPONENT",
+      "page": "General",
+      "nodeId": "2974:602"
+    },
+    "Gesture / Swipe / Horizontal": {
+      "key": "b555599ff48dbe8a2beea62ff16fe7b6357e0f9c",
+      "type": "COMPONENT",
+      "page": "General",
+      "nodeId": "2974:610",
+      "properties": {
+        "👁️ Show Cursor / Hand": {
+          "type": "BOOLEAN",
+          "key": "👁️ Show Cursor / Hand#2978:0",
+          "default": true
+        }
+      }
+    },
+    "Gesture / Swipe / Vertical": {
+      "key": "1d225d90dd80f36afcf3e66cfb92505b48d571fe",
+      "type": "COMPONENT",
+      "page": "General",
+      "nodeId": "2974:613",
+      "properties": {
+        "👁️ Show Cursor / Hand": {
+          "type": "BOOLEAN",
+          "key": "👁️ Show Cursor / Hand#2978:1",
+          "default": true
+        }
+      }
+    },
+    "Gesture / Tap": {
+      "key": "adcd1fb0f765014c6cc6c47fb130c675c8eeea8f",
+      "type": "COMPONENT",
+      "page": "General",
+      "nodeId": "2974:606"
+    },
+    "Gesture / Touch": {
+      "key": "577b622cb24b409d391473d42540b294cd5f6474",
+      "type": "COMPONENT",
+      "page": "General",
+      "nodeId": "2974:600"
+    },
+    "Letter Spacing": {
+      "key": "8c089433482c07fe223cb1261b63dbe5ab57213d",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1072",
+      "properties": {
+        "Spacing": {
+          "type": "VARIANT",
+          "key": "Spacing",
+          "options": [
+            "Loose",
+            "Tight",
+            "ExtraTight"
+          ],
+          "default": "Loose"
+        }
+      }
+    },
+    "Line": {
+      "key": "1381ee906bf0de1662171349cc785b42932c4d3c",
+      "type": "COMPONENT_SET",
+      "page": "General",
+      "nodeId": "1394:661",
+      "properties": {
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "90˚",
+            "Measuring",
+            "Measuring · Bottom",
+            "Measuring · Left",
+            "Measuring · Right",
+            "Measuring · Top",
+            "Squiggly",
+            "Straight"
+          ],
+          "default": "Straight"
+        }
+      }
+    },
+    "Line Height": {
+      "key": "a33d31650d71784c9d8de93bd41bbea39faef0c1",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1079",
+      "properties": {
+        "Spacing": {
+          "type": "VARIANT",
+          "key": "Spacing",
+          "options": [
+            "Base",
+            "Tight",
+            "Loose"
+          ],
+          "default": "Base"
+        }
+      }
+    },
+    "Motion Tokens": {
+      "key": "c8a40690b37b1b68da0068a0f075925a31fc5024",
+      "type": "COMPONENT_SET",
+      "page": "General",
+      "nodeId": "1394:660",
+      "properties": {
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "Color · Motion Token",
+            "Full Page · Transition [Anrdoid]",
+            "Full Screen Modal · Transition [iOS]",
+            "Page · Sheet Transition [iOS]",
+            "Parent Child · Transition [Anrdoid]",
+            "Pop Up · Motion Token",
+            "Push · Transition [Anrdoid]",
+            "Push · Transition [iOS]",
+            "Slide · Motion Token"
+          ],
+          "default": "Push · Transition [iOS]"
+        }
+      }
+    },
+    "Polish review feedback": {
+      "key": "4fbf20390f355156205be4878d22b19e5c3f5427",
+      "type": "COMPONENT",
+      "page": "General",
+      "nodeId": "4118:982"
+    },
+    "Project overview": {
+      "key": "aba30552d2eba73967dda59b4adbd7f9e34a5de7",
+      "type": "COMPONENT_SET",
+      "page": "General",
+      "nodeId": "2794:10831",
+      "properties": {
+        "Instructions": {
+          "type": "BOOLEAN",
+          "key": "Instructions#2802:0",
+          "default": true
+        },
+        "Theme": {
+          "type": "VARIANT",
+          "key": "Theme",
+          "options": [
+            "Light",
+            "Dark"
+          ],
+          "default": "Light"
+        }
+      }
+    },
+    "Project status": {
+      "key": "82495b16d8ad9225fe1fc0743bd1a8f14ec02e64",
+      "type": "COMPONENT_SET",
+      "page": "General",
+      "nodeId": "2794:10290",
+      "properties": {
+        "Status": {
+          "type": "VARIANT",
+          "key": "Status",
+          "options": [
+            "In design",
+            "In development",
+            "Design complete",
+            "Launched",
+            "Paused",
+            "Archived",
+            "Figjam"
+          ],
+          "default": "In design"
+        }
+      }
+    },
+    "Scrim": {
+      "key": "efb755856c46744dfa7e67356d36fc19fd2dc1bf",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1095",
+      "properties": {
+        "Level": {
+          "type": "VARIANT",
+          "key": "Level",
+          "options": [
+            "Light80",
+            "Dark80"
+          ],
+          "default": "Light80"
+        }
+      }
+    },
+    "Shadow": {
+      "key": "70e6b6676769578d431aae217afbec77fe601dd6",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1086",
+      "properties": {
+        "Level": {
+          "type": "VARIANT",
+          "key": "Level",
+          "options": [
+            "100",
+            "200",
+            "300",
+            "400"
+          ],
+          "default": "100"
+        }
+      }
+    },
+    "Space [Native]": {
+      "key": "a7cbedc0b02b69714581422557ac15a2239e2dd2",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "3537:2916",
+      "properties": {
+        "Level": {
+          "type": "VARIANT",
+          "key": "Level",
+          "options": [
+            "1 (4px)",
+            "2 (8px)",
+            "3 (16px)",
+            "4 (24px)",
+            "5 (32px)",
+            "6 (64px)"
+          ],
+          "default": "1 (4px)"
+        }
+      }
+    },
+    "Space [Web]": {
+      "key": "0e4f4f5390473b312abbdbbb181ff29f422dd725",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1108",
+      "properties": {
+        "Level": {
+          "type": "VARIANT",
+          "key": "Level",
+          "options": [
+            "1 (4px)",
+            "2 (8px)",
+            "3 (16px)",
+            "4 (24px)",
+            "5 (32px)",
+            "6 (64px)",
+            "7 (128px)",
+            "8 (256px)"
+          ],
+          "default": "1 (4px)"
+        }
+      }
+    },
+    "Sticky Note": {
+      "key": "407484da8c0c66be1d34287aeed7259ea9c83f58",
+      "type": "COMPONENT_SET",
+      "page": "General",
+      "nodeId": "1393:652",
+      "properties": {
+        "Size": {
+          "type": "VARIANT",
+          "key": "Size",
+          "options": [
+            "Regular",
+            "Small"
+          ],
+          "default": "Regular"
+        }
+      }
+    },
+    "Sticky Note Status": {
+      "key": "55802bb08788df30f28f9d68544f5478451fec5d",
+      "type": "COMPONENT_SET",
+      "page": "General",
+      "nodeId": "1512:1827",
+      "properties": {
+        "Theme": {
+          "type": "VARIANT",
+          "key": "Theme",
+          "options": [
+            "To Do",
+            "Open Question",
+            "Impediment"
+          ],
+          "default": "Open Question"
+        },
+        "Completed": {
+          "type": "VARIANT",
+          "key": "Completed",
+          "options": [
+            "false",
+            "true"
+          ],
+          "default": "false"
+        }
+      }
+    },
+    "Studio Feedback": {
+      "key": "56e2157c865929f8beb17d9e33c0580c2fa62f8a",
+      "type": "COMPONENT_SET",
+      "page": "General",
+      "nodeId": "3987:592",
+      "properties": {
+        "Mode": {
+          "type": "VARIANT",
+          "key": "Mode",
+          "options": [
+            "Light",
+            "Dark"
+          ],
+          "default": "Light"
+        }
+      }
+    },
+    "Studio Feedback / Phase": {
+      "key": "1d0f6bc42f3e9128014e748db622651f81807473",
+      "type": "COMPONENT_SET",
+      "page": "General",
+      "nodeId": "3976:632",
+      "properties": {
+        "Phase": {
+          "type": "VARIANT",
+          "key": "Phase",
+          "options": [
+            "Exploration",
+            "Iteration",
+            "Refine",
+            "Default"
+          ],
+          "default": "Exploration"
+        }
+      }
+    },
+    "Team Member": {
+      "key": "f0663b7b8fbb55eca9f53de1756dfe09020c3da8",
+      "type": "COMPONENT_SET",
+      "page": "Team Roster",
+      "nodeId": "2337:41393",
+      "properties": {
+        "Team member": {
+          "type": "VARIANT",
+          "key": "Team member",
+          "options": [
+            "Adam Ahmed",
+            "Amelia Goldberg",
+            "Anaïs Ziae-Mohseni",
+            "Andre Wyatt Robb",
+            "Angeline Vuault",
+            "Britt Flaming",
+            "Craig Murray",
+            "Dave Bellona",
+            "Dave Handlong",
+            "Erik Goens",
+            "Erin Hogan",
+            "Daphne Shin",
+            "Grace Boatwright",
+            "Grace Cha",
+            "Hanna Jang",
+            "Jaclyn Mann",
+            "Joe Tutterow",
+            "Julian Borsellino",
+            "Katie Hansen",
+            "Kiran Ramsey",
+            "Krista Bangsund",
+            "Malia Eugenio",
+            "Melissa Hribar",
+            "Mike Trnkus",
+            "Nicole Bacchus",
+            "Rachel Sanfilippo",
+            "Sarah Mondestin",
+            "Susannah Chandhok",
+            "Valerie Peppers",
+            "Fede Nigro",
+            "Sebastian Fite",
+            "Rae Broviak",
+            "Jen Cardey",
+            "Aditya Nair",
+            "John Williams",
+            "Saygun Erkaraman"
+          ],
+          "default": "Adam Ahmed"
+        }
+      }
+    },
+    "Thumbnail": {
+      "key": "5d33410234feec794874a2af32c1e4293d5b609d",
+      "type": "COMPONENT_SET",
+      "page": "General",
+      "nodeId": "2794:10850",
+      "properties": {
+        "Year": {
+          "type": "TEXT",
+          "key": "Year#2794:0",
+          "default": "2024"
+        },
+        "Title": {
+          "type": "TEXT",
+          "key": "Title#2794:1",
+          "default": "Project title"
+        },
+        "Quarter": {
+          "type": "TEXT",
+          "key": "Quarter#2794:3",
+          "default": "Q2"
+        },
+        "👁 Instructions": {
+          "type": "BOOLEAN",
+          "key": "👁 Instructions#2794:5",
+          "default": true
+        },
+        "Emoji": {
+          "type": "TEXT",
+          "key": "Emoji#2814:6",
+          "default": "Emoji"
+        },
+        "👁️ Optional Team Member": {
+          "type": "BOOLEAN",
+          "key": "👁️ Optional Team Member#2822:0",
+          "default": true
+        },
+        "Thumbnail Type": {
+          "type": "VARIANT",
+          "key": "Thumbnail Type",
+          "options": [
+            "Figjam",
+            "Figma"
+          ],
+          "default": "Figma"
+        }
+      }
+    },
+    "Wrap": {
+      "key": "e0896b4f6a3efd12f5d9862b01ca847c5adb1e43",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1100",
+      "properties": {
+        "Width": {
+          "type": "VARIANT",
+          "key": "Width",
+          "options": [
+            "Max",
+            "No Pad"
+          ],
+          "default": "Max"
+        }
+      }
+    },
+    "Z-index": {
+      "key": "f764c064e3cc22a86d31b8ec04371bf3d1ba23ff",
+      "type": "COMPONENT_SET",
+      "page": "Thumbprint",
+      "nodeId": "1416:1105",
+      "properties": {
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "Modal"
+          ],
+          "default": "Modal"
+        }
+      }
+    }
+  }
+}

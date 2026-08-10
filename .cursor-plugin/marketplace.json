@@ -1,0 +1,16 @@
+{
+  "name": "johnwilliams-skills",
+  "owner": {
+    "name": "John Williams"
+  },
+  "metadata": {
+    "description": "Agent skills by John Williams, packaged as installable plugins."
+  },
+  "plugins": [
+    {
+      "name": "pushpin",
+      "source": "pushpin",
+      "description": "Thumbtack's Pushpin design system as an invokable skill. Ships the token stylesheet generated from the Pushpin Thumbprint UI Kit Figma file — colors in light and dark, a responsive type ramp, spacing, radius, elevation, and motion — plus a catalog of every published Figma component, the Annotation Kit for arguing a proposed component on canvas, and a verified path for generating Figma layouts from real library instances."
+    }
+  ]
+}

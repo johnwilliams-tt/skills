@@ -1,15 +1,19 @@
-# Re-extracting tokens from Figma
+# Re-extracting the captures from Figma
 
-`assets/tokens.figma.json` is produced by running these read-only scripts
-against the Pushpin file and transcribing the results. They are recorded here so
-the capture is reproducible rather than a one-time act.
+Everything in `assets/` is produced by running these read-only scripts against
+the source files and transcribing the results. They are recorded here so the
+captures are reproducible rather than one-time acts.
+
+Sections 1–5 read the Pushpin file, `VVRGrLgkPRU3vs765d5Q3r`. Section 6 reads
+the Annotation Kit, `Qefv6O2RMPSBtSYBrCGcdI`. Pass the right `fileKey` on every
+call; they are separate files and separate libraries.
 
 To find out **whether** anything changed, use [check.md](check.md) instead — one
 capture per vantage point, fed to `diff.mjs`, which classifies what moved. Come
 here when you already know you are re-transcribing the whole thing.
 
-Load the `figma-use` skill first — it is a required prerequisite for `use_figma`
-— and pass `fileKey: VVRGrLgkPRU3vs765d5Q3r` on every call.
+Load the `figma-use` skill first — it is a required prerequisite for
+`use_figma`.
 
 Variables cannot be enumerated through `search_design_system` (it returns names
 and keys but no values) or `get_variable_defs` (it requires a concrete node id).
@@ -176,6 +180,94 @@ hidden variable's key cannot be imported from another file, so storing it
 invites a runtime failure. Capture the hidden names separately, as
 `hiddenFromPublishing`, and let `diff.mjs` watch for anything crossing between
 the two lists.
+
+## 6. Annotation Kit
+
+`assets/annotations.figma.json` — `fileKey: Qefv6O2RMPSBtSYBrCGcdI`. There is no
+distiller script for this one. The capture below emits entries in the committed
+shape, so the transcription is a merge and a sort rather than a restructuring,
+and there is no second pipeline to keep in step with the first.
+
+`list_file_components_for_code_connect` is not used here even though it is what
+builds the Pushpin catalog. That tool is fine for import keys, but this catalog
+exists because the Annotation Kit's property keys are the thing that breaks:
+`setProperties` takes the suffixed key for every non-variant property, and a
+missing one throws at runtime. `use_figma` reads
+`componentPropertyDefinitions` straight off the node, which is the only reading
+that is definitionally correct.
+
+**One call per page, issued in parallel** — `use_figma` allows one
+`setCurrentPageAsync` per call, and a page's children are not loaded until it is
+current. The four pages and their ids:
+
+| Page | Node id |
+|---|---|
+| General | `0:1` |
+| Accessibility Annotations | `1192:101` |
+| Team Roster | `2335:1841` |
+| Thumbprint | `1415:790` |
+
+Run this once per page, substituting the id:
+
+```js
+const page = await figma.getNodeByIdAsync('0:1');
+await figma.setCurrentPageAsync(page);
+
+const entries = {};
+for (const n of page.findAllWithCriteria({ types: ['COMPONENT', 'COMPONENT_SET'] })) {
+  // A variant is reached through its set, and asking a variant for its
+  // property definitions throws rather than returning the set's.
+  if (n.parent && n.parent.type === 'COMPONENT_SET') continue;
+  // Internal parts, same rule as the Pushpin catalog: never placed directly.
+  if (n.name.startsWith('_') || n.name.startsWith('.')) continue;
+
+  const properties = {};
+  for (const [full, d] of Object.entries(n.componentPropertyDefinitions || {})) {
+    // Figma keys this object by the full property key. For VARIANT that is the
+    // bare name; for everything else it carries the `#id:n` suffix, and the
+    // display name is what precedes the `#`.
+    const display = d.type === 'VARIANT' ? full : full.slice(0, full.indexOf('#'));
+    properties[display] = {
+      type: d.type,
+      key: full,
+      ...(d.variantOptions ? { options: d.variantOptions } : {}),
+      ...(d.defaultValue !== undefined && d.type !== 'INSTANCE_SWAP'
+        ? { default: d.defaultValue }
+        : {}),
+    };
+  }
+
+  entries[n.name] = {
+    key: n.key,
+    type: n.type,
+    page: page.name,
+    nodeId: n.id,
+    ...(Object.keys(properties).length ? { properties } : {}),
+  };
+}
+return { page: page.name, kept: Object.keys(entries).length, entries };
+```
+
+Then merge the four `entries` objects into `components`, sorted by
+`localeCompare`, and rebuild `source` with the file key, the library key,
+today's date, the page ids, and the three counts — `capturedTotal` (every
+component node found), `internalOmitted`, and `publicKept`. `publicKept` must
+equal the number of keys in `components`; that is what makes the count checkable
+rather than decorative.
+
+Two things the merge has to handle:
+
+- **A name is not unique.** `A11y / Annotation / Spec` is published twice, with
+  different keys and different variant axes. Key those entries
+  `<name> [<nodeId>]` and give each a `name` field with the true Figma name. A
+  merge that lets the second overwrite the first silently loses a published
+  component and makes `publicKept` disagree with the key count.
+- **Names are exact, including the mistakes.** `List Elelemt` and
+  `… [Anrdoid]` are real published variant options. Copy them through.
+
+The Annotation Kit publishes no text or effect styles, and its single
+`Annotations / Tokens` collection documents Pushpin's variables rather than
+adding any, so there is nothing here corresponding to sections 2, 3 or 5.
 
 ## Transcription notes
 

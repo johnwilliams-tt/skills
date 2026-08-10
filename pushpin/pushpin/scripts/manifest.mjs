@@ -26,6 +26,7 @@ const TRACKED = [
   'tokens.figma.json',
   'variable-keys.figma.json',
   'components.figma.json',
+  'annotations.figma.json',
   'styles.figma.json',
   'pushpin.css',
 ];
@@ -39,6 +40,7 @@ const real = (o) => Object.keys(o).filter((k) => !k.startsWith('$'));
 const tokens = json('tokens.figma.json');
 const keys = json('variable-keys.figma.json');
 const components = json('components.figma.json');
+const annotations = json('annotations.figma.json');
 const styles = json('styles.figma.json');
 
 const collections = {};
@@ -57,6 +59,15 @@ const manifest = {
     fileName: tokens.source.fileName,
     libraryKey: keys.source.libraryKey,
   },
+  // The Annotation Kit is a second Figma source with its own capture date, and
+  // it sits beside `figma` rather than inside it because `figma` is read as the
+  // Pushpin kit by pull-published.mjs and by freshness.mjs's file-scoped calls.
+  annotationKit: {
+    fileKey: annotations.source.fileKey,
+    fileName: annotations.source.fileName,
+    libraryKey: annotations.source.libraryKey,
+    capturedAt: annotations.source.extractedAt,
+  },
   hashes: Object.fromEntries(TRACKED.map((f) => [f, hash(f)])),
   shape: {
     collections,
@@ -66,6 +77,7 @@ const manifest = {
       .filter(([k]) => !k.startsWith('$'))
       .reduce((n, [, v]) => n + v.length, 0),
     components: Object.keys(components.components).length,
+    annotations: Object.keys(annotations.components).length,
     textStyles: Object.keys(styles.textStyles).length,
     effectStyles: Object.keys(styles.effectStyles).length,
   },
@@ -89,9 +101,16 @@ if (process.argv.includes('--check')) {
 } else {
   writeFileSync(MANIFEST, serialised);
   const { shape } = manifest;
+  // `bindable` + `hidden` counts Figma variables; `tokensTotal` counts entries
+  // in tokens.figma.json, which groups the type ramp's three variables per step
+  // into one entry. The two are different quantities and the sentence says so,
+  // because 131 + 168 not summing to 273 otherwise reads as an arithmetic bug.
   console.log(
-    `Wrote manifest.json — ${shape.tokensTotal} tokens across ${Object.keys(shape.collections).length} ` +
-      `collections, ${shape.bindable} bindable, ${shape.hidden} hidden, ${shape.components} components, ` +
-      `${shape.textStyles} text and ${shape.effectStyles} effect styles.`,
+    `Wrote manifest.json — ${shape.tokensTotal} token entries across ` +
+      `${Object.keys(shape.collections).length} collections, covering ` +
+      `${shape.bindable + shape.hidden} Figma variables (${shape.bindable} bindable, ` +
+      `${shape.hidden} hidden from publishing); ${shape.components} components, ` +
+      `${shape.textStyles} text and ${shape.effectStyles} effect styles, ` +
+      `${shape.annotations} Annotation Kit components.`,
   );
 }
