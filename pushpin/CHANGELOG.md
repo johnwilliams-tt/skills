@@ -20,7 +20,7 @@ the toolchain, which `diff.mjs` has no category for.
 
 Nothing yet.
 
-## 0.5.1 — 2026-08-11
+## 0.5.3 — 2026-08-11
 
 Two places where the plugin talked at the user instead of to them. Freshness
 opened every session with a measurement nobody had asked for, and a design
