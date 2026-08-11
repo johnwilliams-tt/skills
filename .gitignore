@@ -1,1 +1,15 @@
 .DS_Store
+
+# The design-council plugin, deliberately untracked for now.
+#
+# It has never been committed and is not registered in
+# .claude-plugin/marketplace.json, so it was showing up as a pile of untracked
+# files on every status check and in every diff view — including two
+# plugin.json files that read as if Pushpin's manifests had been renamed. This
+# rule is what stops that; it is a decision to defer the plugin, not to drop it.
+#
+# To pick it back up: delete these two lines. Nothing else has to change.
+design/
+
+# design-council's --local seat clones (install-seats.sh --local)
+seats/
