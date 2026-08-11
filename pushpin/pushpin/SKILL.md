@@ -1,7 +1,7 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.2.0
+version: 0.3.0
 argument-hint: "[generate|audit|figma|check · init|freshness · refresh] [target]"
 allowed-tools:
   - Bash(${CLAUDE_SKILL_DIR}/scripts/*)
@@ -60,6 +60,41 @@ What Pushpin leaves open is genuinely open, and those skills decide it. The
 tokens do not choose a layout, a hierarchy, a piece of copy, or a moment of
 motion, and deferring those to Pushpin is as much a mistake as overriding it.
 
+## Grounding in the page
+
+Precedence settles whose judgment wins. This settles what that judgment is
+looking at.
+
+A resolved link names a page, and that page is the context for the work.
+Sibling frames are the same flow, the same product, and often the same screen
+in its other states — evidence about layout, density, copy voice, and naming
+that no general prior can supply. Any skill supplying craft floors, ambition, or
+category defaults works inside that page, and so does this one: the rule binds
+whoever is holding the pen.
+
+**Read the page, then offer to use it.** One read-only call returns the page's
+frames — names, types, and boxes — and it runs without asking, because an offer
+has to name what is on the page to be answerable. The yes governs whether the
+page shapes the work, not whether the call happens, and it holds for that page
+for the rest of the session.
+
+**Other pages are named, not read.** Page names come free, and the finalize
+pass already needs them. Contents do not: another page holds superseded versions
+and parked ideas, and drifting into one is how a shelved idea gets rebuilt as a
+new one. Read another page when the user asks for it or links into it, and give
+that reason when declining.
+
+**What the page offers is advisory.** It never overrides a token, a published
+component, or the icon set — a page built entirely of raw hex licenses nothing —
+and it settles no question on its own. What it does is furnish the best evidence
+available about what Pushpin leaves open, which makes departing from a pattern
+the page plainly holds to the user's call rather than the agent's. Name every
+intended departure in one question before anything is built; three interruptions
+mid-build is how a useful checkpoint becomes noise.
+
+[reference/context.md](reference/context.md) has the calls, the phrasing, and
+how much to read once the offer is accepted.
+
 ## Commands
 
 Seven, and after `init` none of them need typing — the routing table covers the
@@ -89,6 +124,7 @@ routing does that without being asked.
 | "what's our card radius", "which token for a disabled label", anything about dark mode | token question | [reference/tokens.md](reference/tokens.md) |
 | "which Thumbprint component is this", building the same UI in React | mapping question | [reference/components.md](reference/components.md) |
 | "leave notes on this", documenting a proposed component or an accessibility spec | annotate | [reference/annotate.md](reference/annotate.md) |
+| "what else is on this page", "is there more context here", a link that lands next to work already done | grounding | [reference/context.md](reference/context.md) |
 | raw hex, square corners, or off-token spacing in a repo | `check` | [reference/tokens.md](reference/tokens.md) |
 | "this hex disagrees with the token", "an export says otherwise" | provenance | [reference/provenance.md](reference/provenance.md) |
 | "set this repo up for Pushpin", a project with no `pushpin.config.json` | `init` | [below](#setting-a-project-up) |
@@ -207,6 +243,7 @@ Load these as the task requires rather than up front.
 | [reference/start.md](reference/start.md) | A bare `/pushpin` with no argument: what to say about freshness, where to start given what is actually present, and the follow-up |
 | [reference/generate.md](reference/generate.md) | **Building a layout in Figma.** Where the work gets written, how to place real component instances and bind real variables, when a `Proposed /` component is legal, and how to audit what you built |
 | [reference/annotate.md](reference/annotate.md) | Leaving notes on a canvas: arguing a proposed component, or writing an accessibility spec, using published Annotation Kit instances |
+| [reference/context.md](reference/context.md) | **Grounding in the page.** Which calls read a page and in what order, how to phrase the offer, how much to read once it is accepted, and how the gate on other pages is declined |
 | [reference/tokens.md](reference/tokens.md) | Choosing a token; need the full vocabulary or the dark-mode story |
 | [reference/components.md](reference/components.md) | Building UI in code; mapping Figma components to Thumbprint React |
 | [reference/figma.md](reference/figma.md) | Reading a design out of Figma; file keys and library keys |

@@ -285,7 +285,10 @@ building in a scratch file and offer to move it afterwards.
 **Resolve the link by traversing the tree.** `get_metadata` with no `nodeId`
 lists the file's pages; drill down from there. A file-level URL with one obvious
 candidate screen is not ambiguous, and asking about it spends a turn on nothing.
-Ask a follow-up only when traversal leaves a real choice.
+Neither is a file- or page-level URL with a frame selected in the desktop app —
+`get_metadata` reports the selection, so name it as the likely target and
+confirm rather than listing candidates. Ask a follow-up only when traversal
+leaves a real choice.
 
 **Duplicate beside the original.** The first pass copies the resolved frame onto
 the same page, next to the original, under a dated name of the form
@@ -359,26 +362,31 @@ reads like a generation bug rather than a permissions one.
 
 1. **Resolve the link** to a concrete frame, by traversal, per the section
    above.
-2. **Run the access preflight.** Before any node is created.
-3. **State in one line what will be duplicated and what the copy is named,**
-   so the user can stop you before anything is written.
-4. **Duplicate** the resolved frame beside the original, on the same page. The
+2. **Read the page and offer it.** Walk up to the resolved frame's page, take
+   its children, and offer the context naming what is on it —
+   [context.md](context.md). Skip the offer when the page holds nothing else.
+3. **Run the access preflight.** Before any node is created.
+4. **State in one line what will be duplicated and what the copy is named,**
+   so the user can stop you before anything is written. This is also where
+   every intended departure from the page's patterns is named, in one question
+   rather than several during the build.
+5. **Duplicate** the resolved frame beside the original, on the same page. The
    original stays untouched from here on.
-5. **Read the catalog.** Identify which published components cover the layout.
+6. **Read the catalog.** Identify which published components cover the layout.
    Load `assets/components.figma.json`; scope any `search_design_system` call
    with the Pushpin library key from [figma.md](figma.md).
-6. **Import each distinct component once,** at the top of the script. Reuse the
+7. **Import each distinct component once,** at the top of the script. Reuse the
    imported main component for every instance.
-7. **Build the skeleton** with `figma.createAutoLayout()` containers and
+8. **Build the skeleton** with `figma.createAutoLayout()` containers and
    `placeholder = true` on each section.
-8. **Fill sections incrementally,** ten logical operations per `use_figma` call
+9. **Fill sections incrementally,** ten logical operations per `use_figma` call
    at most. Clear each `placeholder` as it completes.
-9. **Audit before declaring done** — see below. Do not rely on a screenshot;
-   take one after the audit passes, as a visual check on top of the structural
-   one.
-10. **Annotate every proposal** with its Annotation Kit note and pointer, and
+10. **Audit before declaring done** — see below. Do not rely on a screenshot;
+    take one after the audit passes, as a visual check on top of the structural
+    one.
+11. **Annotate every proposal** with its Annotation Kit note and pointer, and
     print the chat summary.
-11. **Offer the finalize pass.** Offer it; do not perform it unprompted.
+12. **Offer the finalize pass.** Offer it; do not perform it unprompted.
 
 ## The audit
 

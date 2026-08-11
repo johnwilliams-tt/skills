@@ -20,6 +20,40 @@ the toolchain, which `diff.mjs` has no category for.
 
 Nothing yet.
 
+## 0.3.0 — 2026-08-11
+
+Nothing in `assets/` moved. One new rule about where design work gets its
+bearings, and no change to what it is allowed to build.
+
+**Added**
+
+- **Work is grounded in the page the link resolved to.** A resolved link names
+  a page, and its sibling frames are the same flow, the same product, and often
+  the same screen in its other states — evidence about layout, density, copy
+  voice, and naming that no general prior supplies. The page is read
+  automatically, because an offer has to name what is on the page to be
+  answerable; whether that context shapes the work is the user's call, and the
+  answer holds for that page for the session. Rule in `pushpin/SKILL.md`,
+  mechanics in `pushpin/reference/context.md`.
+- **Other pages are named, not read.** The file's page names stay free — the
+  finalize pass already needs them — but another page's contents are reached
+  only when the user asks for them or links into one. Pages hold superseded
+  versions and parked ideas, and rebuilding a shelved idea as if it were
+  current is the failure this closes.
+- **Page context is advisory, and departing from it is asked about.** It never
+  overrides a token, a published component, or the icon set, so a page built
+  entirely of raw hex licenses nothing. But going against a pattern the page
+  plainly holds to is the user's decision, put as one question before anything
+  is written rather than several during the build.
+- **The rule binds by definition rather than by list.** It applies to any skill
+  supplying craft floors, ambition, or category defaults — the three named
+  under `Precedence` are the current instances, not the extent of it, so a
+  skill that arrives later inherits the rule with no edit here.
+- **The current Figma selection is used to resolve a link.** `get_metadata`
+  reports what is selected in the desktop app, so a file- or page-level URL
+  with a frame selected is no longer treated as ambiguous. It is a hint that
+  gets confirmed, and it never substitutes for the link a write requires.
+
 ## 0.2.0 — 2026-08-10
 
 The first entry that records the plugin changing rather than the kit. Nothing in

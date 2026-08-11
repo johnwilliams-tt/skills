@@ -109,6 +109,7 @@ that project has fallen behind.
 |---|---|
 | [`reference/generate.md`](pushpin/reference/generate.md) | Building Figma layouts from real instances, and auditing that you did. |
 | [`reference/annotate.md`](pushpin/reference/annotate.md) | Annotation types, the note format, and where notes go on the canvas. |
+| [`reference/context.md`](pushpin/reference/context.md) | Grounding work in the page a link resolved to: which calls read a page, how the offer is phrased, and why other pages stay closed. |
 | [`reference/tokens.md`](pushpin/reference/tokens.md) | The token vocabulary and how to choose between tokens. |
 | [`reference/components.md`](pushpin/reference/components.md) | Kit inventory, the Thumbprint React map, and the class-name fallback for designs with no Code Connect. |
 | [`reference/figma.md`](pushpin/reference/figma.md) | File keys, library keys, workflow directions, and the state of Code Connect. |

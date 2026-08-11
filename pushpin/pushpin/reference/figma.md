@@ -28,14 +28,19 @@ additionally needs a concrete `nodeId`. To enumerate variables wholesale, use
 
 1. Load the `figma-design-to-code` skill. It is a required prerequisite for
    `get_design_context`.
-2. Call `get_design_context` with the `fileKey` and `nodeId` from the URL
+2. Read the page the linked frame sits on and offer it —
+   [context.md](context.md). In this direction the thing worth surfacing is
+   states: a sibling named `Results (empty)` or `03 Payment — error` is the
+   same screen in another state, and a component built from the linked frame
+   alone falls over on the second one. Name those siblings in the offer.
+3. Call `get_design_context` with the `fileKey` and `nodeId` from the URL
    (converting `-` to `:` in the node id).
-3. Check for Code Connect hints in the response. Read the caveat below before
+4. Check for Code Connect hints in the response. Read the caveat below before
    trusting their absence.
-4. Map what comes back to tokens, not to raw values. A returned `#07344a` is
+5. Map what comes back to tokens, not to raw values. A returned `#07344a` is
    `--pp-background-brand-strong`; a returned `16px` gap is `--pp-space-4`. The
    response is a reference to adapt, not code to paste.
-5. Icons resolve to the icon set, not to `<img>` of an exported PNG.
+6. Icons resolve to the icon set, not to `<img>` of an exported PNG.
 
 ## Code → Figma
 
