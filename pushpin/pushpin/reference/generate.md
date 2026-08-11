@@ -68,15 +68,53 @@ it is not:
   Buttons in a row. Wrapping them in a frame and calling it a proposal makes the
   gap harder to find, not easier.
 
-Build it the way the kit is built: bind every fill, radius, and gap to library
-variables, use published text and effect styles for type and elevation, and
-instance published components for the parts the kit already covers. A proposal
-built that way converges on the real component if one ever lands; one built from
-literals is just another thing to redo.
-
 Name it exactly `Proposed / <Name>`, with the spaces around the slash — that is
 the form the audit matches. `Proposed/FilterChip` and `[proposed] FilterChip`
 read as undocumented local components and are reported as defects.
+
+### Derive it; do not rebuild it
+
+**A proposal that extends a published component starts as that component.**
+Instance the closest variant, detach it, and change only what the proposal is
+actually about.
+
+```js
+const set = await figma.importComponentSetByKeyAsync(closestKey);
+const inst = set.defaultVariant.createInstance();
+inst.setProperties({ theme: 'secondary', size: 'medium' });   // the closest variant
+
+const frame = inst.detachInstance();   // keeps type, padding, strokes, radius, bindings
+// …change only what Delta names…
+const proposed = figma.createComponentFromNode(frame);
+proposed.name = 'Proposed / FilterChip';
+```
+
+The gate above already made you name the closest published component and say why
+it falls short. That component is not just the argument — it is the **starting
+material**, and skipping this step is where proposals go wrong.
+
+Rebuilt from scratch, a proposal drifts immediately and invisibly. The type
+lands as raw font settings instead of a text style, the padding becomes round
+numbers instead of the kit's spacing, the border weight and radius are
+approximated, and the result looks approximately right in a screenshot while
+sharing nothing with the component it claims to extend. Every one of those is a
+decision nobody made — they are just what happens when you start from an empty
+frame. Detaching hands you all of them already correct, and narrows the work to
+the actual proposal.
+
+**Everything the note's `Delta` does not name is identical to the source.** That
+is what makes a proposal reviewable: the reviewer reads one line and knows the
+rest is the component they already approved. A proposal that differs in six ways
+and describes one is not a proposal, it is a redesign with a misleading label.
+
+For a **net-new** component with no closest relative — `Extends: none` — there is
+nothing to derive from. Build it the way the kit is built: bind every fill,
+radius, and gap to library variables, use published text and effect styles for
+type and elevation, and instance published components for the parts the kit
+already covers. A proposal built that way converges on the real component if one
+ever lands; one built from literals is just another thing to redo. The audit
+holds derived and net-new proposals to the same standard on styles and bindings;
+only the starting point differs.
 
 ### Rationale on canvas
 
@@ -85,11 +123,20 @@ off-system. Every proposal carries its case next to it, placed as **published
 Annotation Kit instances** rather than drawn boxes — the same rule as everything
 else on this page:
 
-- A `Capstones` instance heading the proposal area.
-- One `Annotations` note per proposal, `Multi-line` variant, beside the screen.
-- An `Annotations / Pointers` instance aimed at the local instance the note is
-  about, so a reviewer can tell which element is under discussion.
-- A short summary frame listing every proposal on the screen.
+- A `Capstones` instance heading the annotated area.
+- One `Annotations` note per proposal, in the annotation column beside the
+  frame.
+- An anchor tying the note to the local instance it is about — a pointer for a
+  handful of notes, a number for more than three.
+- A short summary frame at the top of the column listing every proposal on the
+  screen.
+
+**All of it goes in one auto-layout column, and none of it is positioned by
+hand.** Notes are 320 to 500 points wide and overlap each other the moment they
+are placed relative to what they describe; the column is what stops that.
+[annotate.md](annotate.md#placement) has the gutter, the gap, the ordering, and
+the numbering rule, and the audit fails on any annotation that overlaps another
+or the design.
 
 The note body is key-value lines. It reads in the narrow 320px box and the audit
 can parse it:
@@ -97,13 +144,19 @@ can parse it:
 ```
 Proposed: FilterChip
 Extends: Chip
+Derived: Chip / theme=secondary, size=medium
 Tier: better-experience
 Delta: adds a count badge; Chip offers left/right icons only
 ```
 
-An extension carries `Extends` and a one-line `Delta`. A net-new component
-carries `Extends: none` and a real `Case:` block — the business argument for
-adding it to the system, not a restatement of what it looks like.
+An extension carries `Extends`, the `Derived` variant it was detached from, and
+a one-line `Delta`. A net-new component carries `Extends: none`,
+`Derived: none`, and a real `Case:` block — the business argument for adding it
+to the system, not a restatement of what it looks like.
+
+`Derived` names the exact variant, because "extends Chip" and "is a modified
+`Chip / theme=secondary, size=medium`" are different claims and only the second
+one can be checked.
 
 [annotate.md](annotate.md) holds the annotation vocabulary: what each type is
 for, the placement conventions, and what the promotion path into the kit
@@ -114,8 +167,11 @@ and at least one published variant name is misspelled (`List Elelemt`) — so
 never type one from memory.
 
 After a push that introduces proposals, print the same fields as a markdown
-summary in chat, so the case can be pasted into Slack or Coda. Nothing is
-written to disk.
+summary in chat, so the case can be pasted into Slack or Coda. List every
+unresolved atom in the same summary: a gap the design system owner can see is
+the point of both, and the two questions — "should we build this component?"
+and "what should this icon be?" — go to the same person. Nothing is written to
+disk.
 
 ## Placing a component
 
@@ -193,6 +249,97 @@ specifying every axis and hoping the combination was built.
 Always read the component's entry in the catalog before setting properties.
 Never set a property from memory.
 
+## Icons
+
+Icons are the part of the kit most likely to be got wrong, and all three ways of
+getting it wrong come from the same place: **the icon set is not published from
+the Pushpin file.** It lives in the older Thumbprint UI Kit
+(`jjhhb3Kp6a7JrtBLCjrf6u`), and a `search_design_system` call scoped to Pushpin
+returns nothing for `caret`. That reads as "Pushpin has no caret" and it is
+wrong — there are four, at four sizes each.
+
+`assets/icons.figma.json` is the catalog: 227 icons across ten categories, 899
+import keys. Read it the same way you read the component catalog, and never
+type an icon name from memory.
+
+```js
+const caret = await figma.importComponentByKeyAsync(
+  '9f82048ae8b63ce69e24cb84a5d3a514ba20dee7',   // Caret-Left · Small
+);
+slot.swapComponent(caret);
+```
+
+Every icon is a plain `COMPONENT`, not a set, so it is
+`importComponentByKeyAsync` and there are no variants to set. The size is not a
+property — it is a different component with a different key.
+
+Two catalog quirks worth knowing before a lookup fails. A name that is published
+in more than one category is keyed `<name> [<category>]` — there is no plain
+`Home`, only `Home [navigation]` and `Home [meta-category]`, because they are
+two different drawings. And a few names carry a doubled word, `Trend Icon` and
+`Home-Heart Icon`, because that is genuinely how they are published; correcting
+the spelling gives you a key that does not resolve.
+
+### The size ramp
+
+| Size | Pixels |
+|---|---|
+| `Tiny` | 14 |
+| `Small` | 18 |
+| `Medium` | 28 |
+| `Large` | 32 |
+
+**Never resize an icon.** There are exactly four sizes and each one is drawn for
+the size it is — a Large scaled to 18px is not a Small, it is a Large with the
+wrong stroke weight and the wrong optical corrections, and it is invisible in a
+screenshot. If the icon is the wrong size, import the key for the right size.
+`resize()`, `rescale()`, and a set `width` on an icon instance are all the same
+defect.
+
+### Which size
+
+**Read it off the slot rather than choosing it.** When filling an
+`INSTANCE_SWAP`, the component already contains an icon at the size the kit
+built it around. Take that one's size and swap to the same size:
+
+```js
+const slot = instance.findOne((n) => n.type === 'INSTANCE' && / Icon · /.test(n.name));
+const size = /Icon · (Tiny|Small|Medium|Large)$/.exec(slot.name)[1];
+```
+
+This is the whole rule for icons inside components, and it is worth preferring
+over any table because it cannot go stale. It needs no lookup, it stays correct
+when the kit rebuilds a component, and it gets the cases a table would miss —
+Button's left slot defaults to `Medium` while its right slot defaults to `Tiny`,
+which no reasonable table would have predicted. The catalog records the same
+answer statically as `defaultSize` on each `INSTANCE_SWAP` property, for reading
+ahead of a run.
+
+One caveat: the recorded default is the *default variant's* answer. A component
+with a `size` axis scales its icon along with it, so read the slot on the
+instance you actually configured, not on the one you first created.
+
+For a **standalone** icon, with no slot to read:
+
+| Where | Size |
+|---|---|
+| Inline with `body-3` or `body-4`, dense list rows, chips, badges | `Tiny` |
+| Inline with `body-1`/`body-2`, form affordances, most UI controls | `Small` |
+| Standalone affordance, list-item leading icon, tab bar | `Medium` |
+| Feature or empty-state illustration, marketing callout | `Large` |
+
+When in doubt between two, take the smaller. Pushpin reads soft and quiet, and
+an oversized icon is the first thing that breaks that.
+
+### When no icon matches
+
+Five icons do not publish all four sizes, and the set does not cover everything
+a design might ask for. Neither case licenses dropping the icon — see
+[Unresolved atoms](#unresolved-atoms-are-placed-never-dropped) below. Check
+`incomplete` in the catalog before assuming a size exists, and reach for a
+nearby size only by placing it deliberately at its own correct dimensions, never
+by resizing.
+
 ## What you can and cannot bind
 
 Not every token is reachable from another file. The library marks 168 of its 299
@@ -219,6 +366,50 @@ from published styles, not variables.**
 `assets/variable-keys.figma.json` lists both sets, so check there before writing
 an import. `assets/styles.figma.json` has the 13 text styles and 6 effect
 styles.
+
+## Unresolved atoms are placed, never dropped
+
+When something the design calls for cannot be resolved to a published asset —
+an icon the set does not cover, an illustration, a logo, a photograph, an avatar
+— **place a marked placeholder and record it.** Do not leave it out.
+
+Omission is the worst available outcome and it is the one that happens by
+default, because a missing thing raises no error and takes no space. The frame
+looks finished, it reviews as finished, and the gap is found by whoever builds
+it. A placeholder is uglier and honest, and honest is the whole job here.
+
+Two failures, and the second is the expensive one:
+
+- **The atom disappears.** A row of five icons ships as four.
+- **The atom takes its parent with it.** An icon button whose icon could not be
+  resolved ships as no button at all — the control, its action, and its place in
+  the layout all vanish because a child was missing. **A missing child never
+  removes its parent.** Place the parent, place the placeholder inside it, and
+  let the gap be one icon rather than one feature.
+
+The placeholder is a frame named `Placeholder / <kind> · <size>`, sized to what
+the real thing would be, with a variable-bound fill:
+
+```
+Placeholder / icon · Small          18×18, where a Small icon belongs
+Placeholder / illustration · 240    the box the illustration would fill
+```
+
+Bind the fill to `background/neutral/low` so it reads as deliberately blank
+rather than as a styling accident, and give it the corner radius the real asset
+would have. It is layout, not a component, so the ordinary rules apply: no
+literal fills, no drawn lookalike of the thing that is missing.
+
+Each one gets a `Sticky Note Status` instance with `Theme: Open Question`,
+placed in the annotation column rather than on the frame —
+[annotate.md](annotate.md) has the placement. That component exists "to provide
+information about a design that otherwise might be nested in comments", and an
+asset the system cannot supply is exactly such a question.
+
+The audit reports these in an `unresolved` bucket, which does not fail the run,
+and the chat handoff lists every one. The point is that the gap is *stated*: a
+reviewer who disagrees can say "use the Sparkle icon instead", and nobody
+discovers the hole at build time.
 
 ## Applying type and elevation
 
@@ -307,7 +498,8 @@ destination is a question, not a default.
 
 **Shared library files are refused outright.** Never write into the Pushpin
 Thumbprint UI Kit (`VVRGrLgkPRU3vs765d5Q3r`), the Annotation Kit
-(`Qefv6O2RMPSBtSYBrCGcdI`), or any file that appears as a subscribed library of
+(`Qefv6O2RMPSBtSYBrCGcdI`), the Thumbprint UI Kit that publishes the icon set
+(`jjhhb3Kp6a7JrtBLCjrf6u`), or any file that appears as a subscribed library of
 the file being worked in. A bad write there reaches everyone subscribed, and the
 user cannot undo it. Contributing a component to the kit goes through a Figma
 branch and the contribution flow, which this plugin documents in
@@ -324,21 +516,26 @@ being generated into.
 `freshness` cannot answer that. It validates keys against whatever credentials
 happen to be present, usually the maintainer's or none, so it reports clean while
 a teammate's generation dies mid-run inside `importComponentByKeyAsync`. The
-Annotation Kit makes that materially more likely: it is a second library, and
-most product files do not already subscribe to it.
+second and third libraries make that materially more likely: most product files
+subscribe to Pushpin and not to the Annotation Kit, and the icon library is the
+least likely of the three to be enabled, because nothing about it announces that
+Pushpin's icons live in the predecessor file.
 
-So before creating any node, resolve one known key from each library.
+So before creating any node, resolve one known key from each of the three.
 
 ```js
 const probes = [
-  ['Pushpin', 'ebc80753f095633977049c061a28a082816ef9c7'],   // Button
-  ['Annotation Kit', '<a COMPONENT_SET key from assets/annotations.figma.json>'],
+  ['Pushpin', 'set', 'ebc80753f095633977049c061a28a082816ef9c7'],       // Button
+  ['Icons', 'component', '9f82048ae8b63ce69e24cb84a5d3a514ba20dee7'],   // Caret-Left · Small
+  ['Annotation Kit', 'set', '<a COMPONENT_SET key from assets/annotations.figma.json>'],
 ];
 
 const unreachable = [];
-for (const [library, key] of probes) {
+for (const [library, kind, key] of probes) {
   try {
-    await figma.importComponentSetByKeyAsync(key);
+    await (kind === 'set'
+      ? figma.importComponentSetByKeyAsync(key)
+      : figma.importComponentByKeyAsync(key));
   } catch (e) {
     unreachable.push(`${library} — ${e.message}`);
   }
@@ -346,14 +543,23 @@ for (const [library, key] of probes) {
 return unreachable;
 ```
 
-Use `importComponentByKeyAsync` instead if the catalog entry you pick has
-`type: "COMPONENT"`.
+Every icon is a plain `COMPONENT` rather than a set, which is why the icon probe
+uses `importComponentByKeyAsync`. Use the same call for any catalog entry whose
+`type` is `"COMPONENT"`.
+
+An unreachable icon library is the one failure worth calling out by name in the
+report, because the obvious reading of it — "Pushpin has no caret icon" — is
+wrong and sends the next person to propose a component that already exists.
 
 Stop on failure, and report **which library was unreachable.** The next step is
 `whoami`, which Figma documents for exactly this class of access and rate-limit
 debugging. The fix is access to the file, or enabling that library in the target
 file — not a change to the catalog, and not a re-capture. Running `freshness`
 again will keep reporting clean.
+
+Naming the library matters more than naming the key. "Enable the Thumbprint UI
+Kit in this file" is a thing a designer can do in thirty seconds; a raw
+`Component with key "9f8204…" not found` is not.
 
 Failing here costs nothing. Failing halfway through leaves a partial screen that
 reads like a generation bug rather than a permissions one.
@@ -372,39 +578,50 @@ reads like a generation bug rather than a permissions one.
    rather than several during the build.
 5. **Duplicate** the resolved frame beside the original, on the same page. The
    original stays untouched from here on.
-6. **Read the catalog.** Identify which published components cover the layout.
-   Load `assets/components.figma.json`; scope any `search_design_system` call
-   with the Pushpin library key from [figma.md](figma.md).
-7. **Import each distinct component once,** at the top of the script. Reuse the
-   imported main component for every instance.
+6. **Read the catalogs.** Identify which published components cover the layout,
+   and which icons it needs. Load `assets/components.figma.json` and
+   `assets/icons.figma.json`; scope any `search_design_system` call with the
+   right library key from [figma.md](figma.md) — Pushpin for components, the
+   Thumbprint UI Kit for icons.
+7. **Import each distinct component and icon once,** at the top of the script.
+   Reuse the imported main component for every instance.
 8. **Build the skeleton** with `figma.createAutoLayout()` containers and
    `placeholder = true` on each section.
 9. **Fill sections incrementally,** ten logical operations per `use_figma` call
-   at most. Clear each `placeholder` as it completes.
+   at most. Clear each `placeholder` as it completes. Nothing the design calls
+   for is left out: what cannot be resolved gets a marked placeholder.
 10. **Audit before declaring done** — see below. Do not rely on a screenshot;
     take one after the audit passes, as a visual check on top of the structural
     one.
-11. **Annotate every proposal** with its Annotation Kit note and pointer, and
-    print the chat summary.
+11. **Annotate,** in one auto-layout column beside the frame: every proposal's
+    note and anchor, and an open question for every unresolved atom. Then print
+    the chat summary, listing proposals and unresolved atoms both.
 12. **Offer the finalize pass.** Offer it; do not perform it unprompted.
 
 ## The audit
 
 This is the check that catches the failure this whole page is about. Run it on
 the generated frame before handing anything over. It sorts what it finds into
-three buckets:
+four buckets:
 
 - **Library** — instances that resolved to remote published components.
 - **Proposed** — local components named `Proposed / …` that have a parseable
   note on the page.
+- **Unresolved** — placeholders standing in for something the system could not
+  supply.
 - **Defects** — detached instances, lookalikes, undeclared local components,
-  literal fills, and `Proposed /` components whose note is missing or
-  incomplete.
+  literal fills, resized icons, `Proposed /` components whose note is missing or
+  incomplete or whose type and geometry drifted from the component they claim to
+  extend, and overlapping annotations.
 
-The run fails on defects only. A populated `proposed` bucket is a result to
-report, not a failure — this is a `use_figma` script, so "exit non-zero" means
-`report.ok === false`: do not hand the frame over, and do not offer the finalize
-pass.
+The run fails on defects only. A populated `proposed` or `unresolved` bucket is
+a result to report, not a failure — this is a `use_figma` script, so "exit
+non-zero" means `report.ok === false`: do not hand the frame over, and do not
+offer the finalize pass.
+
+`unresolved` does not fail for the same reason `proposed` does not: both are
+the honest outcome of a gap in the system, and failing on them would push the
+next run back toward hiding the gap. What fails is hiding it.
 
 ```js
 const root = await figma.getNodeByIdAsync('<generated frame id>');
@@ -423,7 +640,7 @@ for (const t of page.findAllWithCriteria({ types: ['TEXT'] })) {
   if (fields.Proposed) notes.set(fields.Proposed, fields);
 }
 
-const report = { library: 0, proposed: [], defects: [] };
+const report = { library: 0, proposed: [], unresolved: [], defects: [] };
 const ancestor = (n, test) => {
   for (let p = n.parent; p; p = p.parent) if (test(p)) return true;
   return false;
@@ -450,14 +667,61 @@ for (const inst of root.findAllWithCriteria({ types: ['INSTANCE'] })) {
 for (const [name, instances] of localMains) {
   const fields = notes.get(name.slice('Proposed / '.length));
   if (!fields) { report.defects.push(`${name} — no annotation note`); continue; }
-  const missing = ['Extends', 'Tier'].filter((k) => !fields[k]);
+  const missing = ['Extends', 'Derived', 'Tier'].filter((k) => !fields[k]);
   if (fields.Extends === 'none') { if (!fields.Case) missing.push('Case'); }
   else if (!fields.Delta) missing.push('Delta');
   if (fields.Tier && fields.Tier !== 'gap' && fields.Tier !== 'better-experience') {
     missing.push(`Tier (got "${fields.Tier}")`);
   }
+  // An extension that says it derived from nothing did not derive.
+  if (fields.Extends && fields.Extends !== 'none' && fields.Derived === 'none') {
+    missing.push('Derived (extends a component but claims no derivation)');
+  }
   if (missing.length) report.defects.push(`${name} — note missing ${missing.join(', ')}`);
   else report.proposed.push({ name, tier: fields.Tier, instances });
+}
+
+// Icons: the size is a different component, never a resize. `Caret-Left Icon ·
+// Small` that is not 18×18 was scaled, and a scaled icon carries the stroke
+// weight of the size it was drawn at.
+const ICON_PX = { Tiny: 14, Small: 18, Medium: 28, Large: 32 };
+for (const n of root.findAll((x) => / Icon · (Tiny|Small|Medium|Large)$/.test(x.name))) {
+  const px = ICON_PX[n.name.split(' · ').pop()];
+  if (Math.round(n.width) !== px || Math.round(n.height) !== px) {
+    report.defects.push(
+      `${n.name} — ${Math.round(n.width)}×${Math.round(n.height)}, should be ${px}×${px}; ` +
+        `swap the size variant instead of resizing`,
+    );
+  }
+}
+
+// Declared gaps. Reported, never failed — the rule is that a gap is stated.
+for (const n of root.findAll((x) => x.name.startsWith('Placeholder / '))) {
+  report.unresolved.push({ name: n.name, width: Math.round(n.width), height: Math.round(n.height) });
+}
+
+// Proposals must keep the type ramp and the token geometry of what they extend.
+// This is the drift that a rebuilt-from-scratch proposal shows first and that no
+// screenshot contradicts.
+for (const name of localMains.keys()) {
+  const def = page.findOne((n) =>
+    (n.type === 'COMPONENT' || n.type === 'COMPONENT_SET') && n.name === name);
+  if (!def) continue;
+  for (const t of def.findAllWithCriteria({ types: ['TEXT'] })) {
+    if (inInstance(t)) continue;               // the library owns nested instances
+    if (t.textStyleId === '' || t.textStyleId === figma.mixed) {
+      report.defects.push(`${name} / ${t.name} — raw font settings, not a published text style`);
+    }
+  }
+  for (const n of [def, ...def.findAllWithCriteria({ types: ['FRAME'] })]) {
+    if (inInstance(n)) continue;
+    const bound = n.boundVariables ?? {};
+    for (const prop of ['topLeftRadius', 'paddingLeft', 'paddingTop', 'itemSpacing']) {
+      if (n[prop] > 0 && !bound[prop]) {
+        report.defects.push(`${name} / ${n.name} — ${prop} ${n[prop]} is a literal, not a bound token`);
+      }
+    }
+  }
 }
 
 // Lookalikes: shapes styled like components instead of being instances.
@@ -482,6 +746,31 @@ for (const n of root.findAllWithCriteria({ types: ['FRAME', 'RECTANGLE', 'TEXT']
 }
 for (const d of unbound) report.defects.push(d);
 
+// Annotations must be readable, which means nothing may cover anything. Only
+// top-level annotation instances are compared: their children are laid out by
+// the auto-layout column and cannot collide.
+const ANNOTATION = /^(Annotations|Capstones|Sticky Note)/;
+const notesOnPage = page.findAll((n) =>
+  n.type === 'INSTANCE' && ANNOTATION.test(n.name) && !inInstance(n));
+const hits = (a, b) =>
+  a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
+
+for (let i = 0; i < notesOnPage.length; i++) {
+  const a = notesOnPage[i].absoluteBoundingBox;
+  if (!a) continue;
+  for (let j = i + 1; j < notesOnPage.length; j++) {
+    const b = notesOnPage[j].absoluteBoundingBox;
+    if (b && hits(a, b)) {
+      report.defects.push(`${notesOnPage[i].name} overlaps ${notesOnPage[j].name}`);
+    }
+  }
+  // A pointer belongs on the design; nothing else does.
+  const box = root.absoluteBoundingBox;
+  if (box && hits(a, box) && !notesOnPage[i].name.startsWith('Annotations / Pointers')) {
+    report.defects.push(`${notesOnPage[i].name} overlaps the design frame`);
+  }
+}
+
 report.ok = report.defects.length === 0;
 return report;
 ```
@@ -496,12 +785,26 @@ Any pill-shaped frame outside those two cases is the exact bug this page exists
 to prevent: something that looks like a Pushpin component and isn't one.
 
 **A `Proposed /` component with no note is a defect, and so is a note without a
-`Tier`.** Without that rule the annotation requirement is satisfiable with an
-empty sticky — the component exists, something is placed next to it, and the
-reviewer still cannot tell what is being proposed or which of the two arguments
-they are being asked to accept. The note is the entire reason local components
-are allowed at all; a proposal nobody argued for is an off-system element with
-better naming.
+`Tier` or a `Derived`.** Without that rule the annotation requirement is
+satisfiable with an empty sticky — the component exists, something is placed
+next to it, and the reviewer still cannot tell what is being proposed or which
+of the two arguments they are being asked to accept. The note is the entire
+reason local components are allowed at all; a proposal nobody argued for is an
+off-system element with better naming.
+
+**The derivation checks are the ones that catch drift.** A proposal built from
+scratch passes every structural check in the older version of this audit — it is
+a real component, it has a note, nothing about it is a lookalike — and is still
+wrong, because its type is raw font settings rather than a text style and its
+padding is a round number rather than a bound token. Those two checks are cheap
+and they are exactly the difference between "Chip plus a count badge" and
+"something Chip-shaped". A proposal that derived properly passes them without
+trying, because the detached instance arrives with all of it already correct.
+
+The icon check is the same idea one level down. `Caret-Left Icon · Small` that
+measures 32×32 is a Large that someone scaled, and a screenshot cannot tell you
+that — the stroke is wrong by an amount nobody notices until the whole screen
+looks slightly off.
 
 The fill check has legitimate exceptions — a photograph, a scrim built by hand.
 Bind what can be bound, and name the rest in the handoff. Silently ignoring the
@@ -511,12 +814,12 @@ A real run of this workflow — a mobile screen with a TextInput, two Buttons, a
 a card — returns:
 
 ```
-{ library: 5, proposed: [], defects: [], ok: true }
+{ library: 5, proposed: [], unresolved: [], defects: [], ok: true }
 ```
 
 Five instances resolved to remote main components (three placed directly, two
-nested inside them), nothing was drawn by hand, and every fill on the hand-built
-containers was variable-bound.
+nested inside them), nothing was drawn by hand, every icon is at its own size,
+and every fill on the hand-built containers was variable-bound.
 
 ## Custom work that is not a proposal
 

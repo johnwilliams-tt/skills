@@ -27,6 +27,7 @@ const TRACKED = [
   'variable-keys.figma.json',
   'components.figma.json',
   'annotations.figma.json',
+  'icons.figma.json',
   'styles.figma.json',
   'pushpin.css',
 ];
@@ -41,6 +42,7 @@ const tokens = json('tokens.figma.json');
 const keys = json('variable-keys.figma.json');
 const components = json('components.figma.json');
 const annotations = json('annotations.figma.json');
+const icons = json('icons.figma.json');
 const styles = json('styles.figma.json');
 
 const collections = {};
@@ -68,6 +70,16 @@ const manifest = {
     libraryKey: annotations.source.libraryKey,
     capturedAt: annotations.source.extractedAt,
   },
+  // The third source, and the surprising one: icons are not published from the
+  // Pushpin file at all. They come from the older Thumbprint UI Kit, which is a
+  // library most product files do not subscribe to — so this key is what the
+  // generation preflight probes before it places anything.
+  iconLibrary: {
+    fileKey: icons.source.fileKey,
+    fileName: icons.source.fileName,
+    libraryKey: icons.source.libraryKey,
+    capturedAt: icons.source.extractedAt,
+  },
   hashes: Object.fromEntries(TRACKED.map((f) => [f, hash(f)])),
   shape: {
     collections,
@@ -78,6 +90,10 @@ const manifest = {
       .reduce((n, [, v]) => n + v.length, 0),
     components: Object.keys(components.components).length,
     annotations: Object.keys(annotations.components).length,
+    // Two numbers, because an icon is one entry with up to four import keys and
+    // the keys are what a run can fail on.
+    icons: Object.keys(icons.icons).length,
+    iconKeys: icons.source.keyCount,
     textStyles: Object.keys(styles.textStyles).length,
     effectStyles: Object.keys(styles.effectStyles).length,
   },
@@ -111,6 +127,7 @@ if (process.argv.includes('--check')) {
       `${shape.bindable + shape.hidden} Figma variables (${shape.bindable} bindable, ` +
       `${shape.hidden} hidden from publishing); ${shape.components} components, ` +
       `${shape.textStyles} text and ${shape.effectStyles} effect styles, ` +
-      `${shape.annotations} Annotation Kit components.`,
+      `${shape.annotations} Annotation Kit components, ` +
+      `${shape.icons} icons across ${shape.iconKeys} published sizes.`,
   );
 }

@@ -4,20 +4,30 @@
 
 | File | Key | What it is |
 |---|---|---|
-| Pushpin Thumbprint UI Kit | `VVRGrLgkPRU3vs765d5Q3r` | **Canonical.** Tokens, components, icons. Source for `assets/`. |
-| Thumbprint UI Kit | `jjhhb3Kp6a7JrtBLCjrf6u` | Predecessor. Still where Code Connect points. |
+| Pushpin Thumbprint UI Kit | `VVRGrLgkPRU3vs765d5Q3r` | **Canonical.** Tokens, components, styles. Source for most of `assets/`. |
+| Thumbprint UI Kit | `jjhhb3Kp6a7JrtBLCjrf6u` | Predecessor — **and where the icon set is published.** Also where Code Connect points. |
+| Annotation Kit | `Qefv6O2RMPSBtSYBrCGcdI` | Notes, pointers, capstones. See [annotate.md](annotate.md). |
 
-Pushpin's published library key, for scoping `search_design_system` with
-`includeLibraryKeys`:
+**Icons come from the second file, not the first.** This is the one place
+Pushpin is not self-contained, and it is not obvious: the Pushpin kit publishes
+117 public components and not one of them is an icon. Searching the Pushpin
+library for a caret returns nothing, which reads as "no such icon" and is really
+"wrong library". The catalog is `assets/icons.figma.json`; the placement rules
+are in [generate.md](generate.md).
+
+Library keys, for scoping `search_design_system` with `includeLibraryKeys`:
 
 ```
-lk-003ce4846b4638268325b33ad167ece0cd390787a2782f1949cee2e38ca2e7719472f0968d45b4c2f0db9b35ec1820babadcf97a9f40fdd6cc84ba22f7b10a80
+Pushpin       lk-003ce4846b4638268325b33ad167ece0cd390787a2782f1949cee2e38ca2e7719472f0968d45b4c2f0db9b35ec1820babadcf97a9f40fdd6cc84ba22f7b10a80
+Icons         lk-6d54e39c09e05fd3a5164fcc5a88cf6a2dbedd3ad29d20c2ce66ee39c57c81234d16c5746301ace3ae6af7d5bcf49b7389800cb4f7b9521f2fb70de1af7c2dd6
+Annotations   lk-7faccc611b9ec03ccd81012447b2a1a34ffe027b513f5f94a328a5498c10f76052ba27c537a70120b6b9bd592bd8c09c3fc9abc03281c9fab80b1513aa2f03b1
 ```
 
 The Pushpin file subscribes to eight team libraries, including the older
 Thumbprint UI Kit, Thumbprint Global, Thumbprint Native, and an Illustration
 Library. A `search_design_system` call without `includeLibraryKeys` searches all
-of them and will happily return a pre-Pushpin component. Scope the search.
+of them and will happily return a pre-Pushpin component. Scope the search — to
+Pushpin for components, and to the icon library for icons.
 
 **Every Figma MCP read needs a `fileKey`.** `search_design_system` and
 `get_variable_defs` both reject calls without one, and `get_variable_defs`
@@ -40,7 +50,10 @@ additionally needs a concrete `nodeId`. To enumerate variables wholesale, use
 5. Map what comes back to tokens, not to raw values. A returned `#07344a` is
    `--pp-background-brand-strong`; a returned `16px` gap is `--pp-space-4`. The
    response is a reference to adapt, not code to paste.
-6. Icons resolve to the icon set, not to `<img>` of an exported PNG.
+6. Icons resolve to the icon set, not to `<img>` of an exported PNG. A layer
+   named `Caret-Left Icon · Small` is `@thumbtack/thumbprint-icons`'
+   `NavigationCaretLeftSmall` — the category comes from
+   `assets/icons.figma.json`, and the size suffix carries through.
 
 ## Code → Figma
 

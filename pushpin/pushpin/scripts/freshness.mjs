@@ -16,6 +16,7 @@
  *   styles         FIGMA_TOKEN, any plan       — do our text and effect style keys
  *   variables      FIGMA_TOKEN, Enterprise     — has the kit published since
  *   annotations    FIGMA_TOKEN, any plan       — do our 91 Annotation Kit keys still exist
+ *   icons          FIGMA_TOKEN, any plan       — do our 899 icon keys still exist
  *
  * The age layer matters most in practice. A designer asking "can I trust this?"
  * gets a real answer with no token, no plan, and no setup — which is the
@@ -27,12 +28,17 @@
  * at review. That is why key existence is checked directly rather than inferred
  * from counts.
  *
- * Two files are checked, because the plugin now depends on two. An unpublished
+ * Three files are checked, because the plugin depends on three. An unpublished
  * Annotation Kit key throws in exactly the same place as an unpublished Pushpin
  * one, and the annotation is placed at the end of a generation run, so the
  * failure lands after the expensive part. The Annotation Kit publishes no text
  * or effect styles and its variables are not used, so it gets a component layer
  * and nothing else.
+ *
+ * The third file is the older Thumbprint UI Kit, which is where the icon set is
+ * actually published — not the Pushpin file, despite icons being part of
+ * Pushpin. Icons are placed early and everywhere, so a dead icon key takes a
+ * run down near the start; it also gets a component layer and nothing else.
  *
  * Nothing here writes a file. For the capture itself, see pull-published.mjs
  * and scripts/check.md.
@@ -63,7 +69,17 @@ const opt = (n, fallback) => (has(n) ? argv[argv.indexOf(n) + 1] : fallback);
 const manifest = load('manifest.json');
 const catalog = load('components.figma.json');
 const annotationCatalog = load('annotations.figma.json');
+const iconCatalog = load('icons.figma.json');
 const styleCatalog = load('styles.figma.json');
+
+/**
+ * Icons are one catalog entry with up to four import keys, so the unit that can
+ * fail is the key rather than the entry. Flattened to `<name> · <size>` pairs
+ * so a finding names the exact variant that stopped resolving.
+ */
+const iconKeyPairs = Object.entries(iconCatalog.icons ?? {}).flatMap(([name, e]) =>
+  Object.entries(e.keys).map(([size, key]) => [`${name} · ${size}`, key]),
+);
 
 /** Catalog objects carry `$comment`-style metadata alongside real entries. */
 const real = (o) => Object.entries(o ?? {}).filter(([k]) => !k.startsWith('$'));
@@ -78,10 +94,11 @@ if (has('--help') || has('-h')) {
   console.log(
     'usage: node scripts/freshness.mjs [--max-age days] [--offline] [--strict] [--json]\n\n' +
       'Reports how far the committed captures may have drifted from Figma.\n' +
-      'Set FIGMA_TOKEN to check the import keys against the two live files: ' +
+      'Set FIGMA_TOKEN to check the import keys against the three live files: ' +
       `${real(catalog.components).length} components and ${styleKeyCount} styles in ` +
-      `${manifest.figma.fileName}, and ${real(annotationCatalog.components).length} ` +
-      `components in ${manifest.annotationKit.fileName}.`,
+      `${manifest.figma.fileName}, ${real(annotationCatalog.components).length} ` +
+      `components in ${manifest.annotationKit.fileName}, and ${iconKeyPairs.length} ` +
+      `icon keys in ${manifest.iconLibrary.fileName}.`,
   );
   process.exit(0);
 }
@@ -111,8 +128,8 @@ const ageOf = (date, where) => {
 const phraseFor = (days) =>
   days === 0 ? 'captured today' : days === 1 ? 'captured yesterday' : `${days} days old`;
 
-// The two files are captured independently, so they age independently. The
-// budget is tested against the older of them: a current Annotation Kit says
+// The three files are captured independently, so they age independently. The
+// budget is tested against the oldest of them: a current Annotation Kit says
 // nothing about a Pushpin capture that has been sitting for two months.
 const captures = [
   {
@@ -124,6 +141,11 @@ const captures = [
     fileName: manifest.annotationKit.fileName,
     capturedAt: manifest.annotationKit.capturedAt,
     ageDays: ageOf(manifest.annotationKit.capturedAt, 'annotationKit.capturedAt'),
+  },
+  {
+    fileName: manifest.iconLibrary.fileName,
+    capturedAt: manifest.iconLibrary.capturedAt,
+    ageDays: ageOf(manifest.iconLibrary.capturedAt, 'iconLibrary.capturedAt'),
   },
 ];
 
@@ -177,6 +199,7 @@ if (ageStale) {
 const token = process.env.FIGMA_TOKEN;
 const fileKey = manifest.figma.fileKey;
 const annotationFileKey = manifest.annotationKit.fileKey;
+const iconFileKey = manifest.iconLibrary.fileKey;
 
 /** One REST call, with the failure modes we care about kept distinguishable. */
 async function figmaGet(path) {
@@ -252,7 +275,7 @@ function escalate(name, detail) {
   if (l && l.status === 'pass') Object.assign(l, { status: 'fail', mark: 'moved', detail });
 }
 
-const NETWORK_LAYERS = ['components', 'styles', 'variables', 'annotations'];
+const NETWORK_LAYERS = ['components', 'styles', 'variables', 'annotations', 'icons'];
 
 if (offline) {
   for (const name of NETWORK_LAYERS) layer(name, 'skipped', '--offline');
@@ -261,9 +284,9 @@ if (offline) {
   for (const name of NETWORK_LAYERS) layer(name, 'skipped', why);
   report.notes.push(
     'Only the capture dates were checked. For the stronger answer — whether our import ' +
-      'keys still exist in the kit and the Annotation Kit — create a personal access ' +
-      'token at figma.com > Settings > Security with the file_read scope, then re-run ' +
-      'with FIGMA_TOKEN set.',
+      'keys still exist in the kit, the Annotation Kit, and the icon library — create a ' +
+      'personal access token at figma.com > Settings > Security with the file_read scope, ' +
+      'then re-run with FIGMA_TOKEN set.',
   );
 } else {
   /**
@@ -277,8 +300,14 @@ if (offline) {
    *
    * `componentCount` stays the `/components` figure on its own, because that is
    * what the capture's `publishedTotal` was counted against.
+   *
+   * `ours` narrows the `updated_at` sweep to keys the catalog actually depends
+   * on. It matters for the icon library: that file publishes 170 components
+   * beyond the icon page, and any edit to one of them would otherwise read as
+   * "an icon changed after the capture" and send the reader re-capturing for
+   * nothing.
    */
-  async function publishedComponents(key, forLayer) {
+  async function publishedComponents(key, forLayer, ours) {
     const [compRes, setRes] = await Promise.all([
       figmaGet(`/files/${key}/components`),
       figmaGet(`/files/${key}/component_sets`),
@@ -306,6 +335,7 @@ if (offline) {
       keys: new Set(both.map((c) => c.key)),
       componentCount: live.length,
       newest: both
+        .filter((c) => !ours || ours.has(c.key))
         .map((c) => c.updated_at)
         .filter(Boolean)
         .sort()
@@ -418,6 +448,24 @@ if (offline) {
       manifest.annotationKit.capturedAt,
       'the Annotation Kit',
     );
+  }
+
+  // Icons. Third file, same endpoints. Every icon is a plain COMPONENT rather
+  // than a set, so `/components` alone would do — but publishedComponents also
+  // gives the `updated_at` sweep, and an icon redrawn after the capture is
+  // worth knowing about even when its key survives.
+  //
+  // No count comparison. The icon page is one page of a much larger file, so
+  // the file's published total and this catalog's 227 entries are not the same
+  // quantity and a delta between them would mean nothing.
+  const liveIcons = await publishedComponents(
+    iconFileKey,
+    'icons',
+    new Set(iconKeyPairs.map(([, k]) => k)),
+  );
+  if (liveIcons) {
+    compareKeys('icons', iconKeyPairs, liveIcons.keys, null, liveIcons.componentCount);
+    flagLateEdits('icons', liveIcons.newest, manifest.iconLibrary.capturedAt, 'the icon library');
   }
 
   // A token that reaches nothing is worse than no token, because the run still

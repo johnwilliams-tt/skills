@@ -20,6 +20,92 @@ the toolchain, which `diff.mjs` has no category for.
 
 Nothing yet.
 
+## 0.4.0 — 2026-08-11
+
+Four fidelity failures observed in real use, three of which turned out to be the
+same missing capture. Icons were never extracted, because they are not published
+from the Pushpin file at all — they live in the older Thumbprint UI Kit. With no
+catalog and no size ramp on record, omitting an icon was the only move the rules
+left open, and "large icon scaled to look small" was the only way to get a size.
+
+**Added**
+
+- **`assets/icons.figma.json` — the icon set, finally captured.** 227 icons
+  across ten categories, 899 import keys, from
+  `jjhhb3Kp6a7JrtBLCjrf6u` page `2:1`. This is a **third source library**: the
+  plugin previously knew about Pushpin and the Annotation Kit only. Built by the
+  new `scripts/build-icons.mjs`, which joins the component dump (names and
+  `assetKey`s) against page metadata (the category frames) on `nodeId`.
+- **Icon placement rules in `reference/generate.md`.** The size ramp is Tiny 14,
+  Small 18, Medium 28, Large 32 and nothing else. An icon is never resized —
+  each size is a separate component with its own key, and a scaled one carries
+  the stroke weight of the size it was drawn at. Inside a component, the size is
+  *read off the slot* rather than chosen, which needs no lookup table and cannot
+  go stale when the kit changes.
+- **Unresolved atoms are placed, never dropped.** When an icon, illustration,
+  avatar, or logo cannot resolve to a published asset, a marked
+  `Placeholder / <kind> · <size>` goes in its place with an `Open Question`
+  sticky, and the audit reports it in a new non-failing `unresolved` bucket.
+  Critically, **a missing child never removes its parent** — an icon button with
+  an unresolvable icon still ships as an icon button, which is the cascade that
+  made whole controls disappear.
+- **Proposals derive from the component they extend.** The proposal gate already
+  made you name the closest published component; that component is now the
+  starting material. Instance it, `detachInstance()`, change only what the
+  `Delta` names, then `createComponentFromNode()`. Rebuilt from scratch, a
+  proposal loses the text styles, the padding, the border weight, and the radius
+  immediately and invisibly — every one of those a decision nobody made.
+- **A `Derived:` field on the proposed-component note,** naming the exact
+  variant. "Extends Chip" and "is a modified `Chip / theme=secondary`" are
+  different claims and only the second can be checked.
+- **A deterministic annotation layout in `reference/annotate.md`,** replacing
+  four bullets that gave sizes but no algorithm. Notes go in one auto-layout
+  column beside the frame at a fixed gutter and gap — the auto-layout *is* the
+  collision avoidance, since nothing in the column is positioned individually.
+  Past three notes, anchoring switches from pointers to numbers, and pointer
+  direction is derived from geometry rather than chosen. Capstones follow the
+  Icons page's own usage: left-aligned with the block they head and stretched to
+  span it.
+- **Four new audit checks,** all mechanical: an icon whose dimensions are off
+  its ramp step, a `TEXT` node inside a `Proposed /` component with raw font
+  settings instead of a published text style, unbound radius/padding/spacing
+  inside one, and any pairwise overlap among annotation instances or between an
+  annotation and the design.
+- **`init` writes `DESIGN.md` and `.impeccable/design.json`,** generated from
+  the token capture. Browser-first work means drift is introduced in CSS and
+  arrives in Figma already baked in, where the audit notices it a step too late.
+  These two files are the allowlist `impeccable`'s `design-system-*` rules read,
+  so a hardcoded color, font, radius, or font size reports as Pushpin drift
+  while you work — with no change to `impeccable`, which has no way to register
+  a rule. Verified against its detector: every Pushpin token passes and
+  off-system values are flagged.
+- **A third access-preflight probe.** The icon library is the least likely of
+  the three to be enabled in a product file, and an unreachable one reads as
+  "Pushpin has no caret icon", which is wrong and sends the next person to
+  propose a component that already exists.
+- **An `icons` freshness layer,** checking all 899 keys against the live file.
+  Its late-edit sweep is scoped to keys the catalog depends on, since that file
+  publishes 170 components beyond the icon page.
+
+**Changed**
+
+- `build-components.mjs` no longer discards `preferredValues` on an
+  `INSTANCE_SWAP` property. Pushpin declares none today, so this is defensive —
+  but a slot arriving as a key and nothing else is how an icon slot ended up
+  empty.
+- An `INSTANCE_SWAP` default is now resolved from a bare node id to the name of
+  what the kit puts in that slot, and its size recorded as `defaultSize`. Five
+  components gained it. `Button` turns out to default to a `Medium` icon on the
+  left and a `Tiny` on the right, which no size table would have predicted and
+  is the reason the rule reads the slot instead.
+- `components.figma.json` re-captured. Nothing moved beyond the two new fields.
+- `manifest.json` gains an `iconLibrary` block and icon counts; `verify.mjs`
+  gains internal-consistency checks on the icon catalog, so a lossy merge reads
+  as a broken capture rather than a smaller kit.
+- `diff.mjs` gains `--icons` / `--icons-page`, and refuses `--icons` alone —
+  without the page metadata every icon distils as `uncategorised`, which would
+  report as 227 category changes rather than the missing input it is.
+
 ## 0.3.0 — 2026-08-11
 
 Nothing in `assets/` moved. One new rule about where design work gets its

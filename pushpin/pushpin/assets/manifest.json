@@ -12,11 +12,18 @@
     "libraryKey": "lk-7faccc611b9ec03ccd81012447b2a1a34ffe027b513f5f94a328a5498c10f76052ba27c537a70120b6b9bd592bd8c09c3fc9abc03281c9fab80b1513aa2f03b1",
     "capturedAt": "2026-08-10"
   },
+  "iconLibrary": {
+    "fileKey": "jjhhb3Kp6a7JrtBLCjrf6u",
+    "fileName": "Thumbprint UI Kit",
+    "libraryKey": "lk-6d54e39c09e05fd3a5164fcc5a88cf6a2dbedd3ad29d20c2ce66ee39c57c81234d16c5746301ace3ae6af7d5bcf49b7389800cb4f7b9521f2fb70de1af7c2dd6",
+    "capturedAt": "2026-08-11"
+  },
   "hashes": {
     "tokens.figma.json": "2e00b6ecbb2a4eb1",
     "variable-keys.figma.json": "554dd0a666cca4fb",
-    "components.figma.json": "37670f89856113ac",
+    "components.figma.json": "c63f42141df68976",
     "annotations.figma.json": "2cbbfe561dc7e5a6",
+    "icons.figma.json": "614b323a0175f4b5",
     "styles.figma.json": "20b8f5dd68bffe05",
     "pushpin.css": "d4c1a58eb37aa585"
   },
@@ -43,6 +50,8 @@
     "hidden": 168,
     "components": 117,
     "annotations": 91,
+    "icons": 227,
+    "iconKeys": 899,
     "textStyles": 13,
     "effectStyles": 6
   }

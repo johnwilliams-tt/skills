@@ -127,6 +127,47 @@ if (hiddenTotal !== keys.source.hiddenCount) {
   problems.push(`hidden count is ${hiddenTotal}, header claims ${keys.source.hiddenCount}`);
 }
 
+// The icon catalog states three counts in its header and they are the only
+// thing standing between it and a silently lossy merge — two icons published
+// under one name, or a size dropped, would otherwise look like a smaller kit
+// rather than a broken capture. Same reasoning as the bindable/hidden totals
+// above: a number nothing checks is decoration.
+const iconCatalog = JSON.parse(readFileSync(join(here, '..', 'assets', 'icons.figma.json'), 'utf8'));
+const iconEntries = Object.entries(iconCatalog.icons);
+const iconKeyTotal = iconEntries.reduce((n, [, e]) => n + Object.keys(e.keys).length, 0);
+const iconSizes = Object.keys(iconCatalog.sizes);
+
+checked += 2;
+if (iconEntries.length !== iconCatalog.source.publicKept) {
+  problems.push(
+    `icon catalog holds ${iconEntries.length} entries, header claims ` +
+      `${iconCatalog.source.publicKept}`,
+  );
+}
+if (iconKeyTotal !== iconCatalog.source.keyCount) {
+  problems.push(`icon keys total ${iconKeyTotal}, header claims ${iconCatalog.source.keyCount}`);
+}
+
+for (const [name, entry] of iconEntries) {
+  checked++;
+  const sizes = Object.keys(entry.keys);
+  if (!sizes.length) {
+    problems.push(`icon ${name}: no keys at any size`);
+    continue;
+  }
+  const unknown = sizes.filter((s) => !iconSizes.includes(s));
+  if (unknown.length) {
+    problems.push(`icon ${name}: size ${unknown.join(', ')} is not on the ramp`);
+  }
+  // An icon that does not publish every size is legal and recorded, but it has
+  // to be recorded — the placement rules send a caller to a size that exists,
+  // and they read `incomplete` to know which ones don't.
+  if (sizes.length !== iconSizes.length && !iconCatalog.incomplete[name]) {
+    problems.push(`icon ${name}: publishes ${sizes.length} of ${iconSizes.length} sizes, ` +
+      `but is not listed under incomplete`);
+  }
+}
+
 // Every capture must still hash to what the manifest recorded. This is the only
 // check that catches a hand-edited capture: build-css.mjs --check proves the CSS
 // matches the JSON, but a JSON edited to match a wrong assumption would pass it.

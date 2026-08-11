@@ -1,7 +1,7 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.3.0
+version: 0.4.0
 argument-hint: "[generate|audit|figma|check · init|freshness · refresh] [target]"
 allowed-tools:
   - Bash(${CLAUDE_SKILL_DIR}/scripts/*)
@@ -106,7 +106,7 @@ same ground from plain speech.
 | `audit` | Run the structural audit against an existing Figma frame: detached instances, drawn lookalikes, fills that should be variable bindings | [reference/generate.md](reference/generate.md) |
 | `figma` | Read a design out of Figma into code | [reference/figma.md](reference/figma.md) |
 | `check` | Audit a file or directory for off-system values: raw hex matching a base ramp, square corners on interactive elements, non-token spacing, pure-black text | [reference/tokens.md](reference/tokens.md) |
-| `init` | Set a project up — stylesheet, Figma keys, an `AGENTS.md` note, and the plugin offer | [below](#setting-a-project-up) |
+| `init` | Set a project up — stylesheet, Figma keys, browser-phase token checks, an `AGENTS.md` note, and the plugin offer | [below](#setting-a-project-up) |
 | `freshness` | Ask how far the capture may have drifted, without capturing anything | [below](#freshness-layers) |
 | `refresh` | Check whether the kit has moved since the capture, and update if it has | [below](#refreshing-the-capture) |
 
@@ -183,17 +183,23 @@ covered the case, which is worth noticing.
 - **Sentence case** for headings, buttons, labels, and badges.
 - **Mobile is the primary surface.** The type ramp ships mobile-first and scales
   up at 700px; design the small screen first.
-- **No emoji in product UI.** Use the icon set.
+- **No emoji in product UI.** Use the icon set — 227 icons at four sizes, in
+  `assets/icons.figma.json`. Never resize one; each size is its own component.
 - **Don't introduce new colors.** Every value in the kit is a token.
 - **In Figma, instance published components — or propose one. Never imitate.**
   Import the published component by key and instance it. Two cases justify a new
   local component instead: nothing published expresses the interaction without
   lying about its API, or something could be stretched but a new component is
   clearly the better experience. Either way it is a real component definition
-  named `Proposed / <Name>`, with its rationale annotated on canvas. A drawn pill
-  that looks like a button is still a defect, and strict adherence to a young
-  system is its own failure mode. The gate, the naming, and the annotation are in
-  [reference/generate.md](reference/generate.md).
+  named `Proposed / <Name>`, **derived by detaching the closest published
+  component** rather than rebuilt, with its rationale annotated on canvas. A
+  drawn pill that looks like a button is still a defect, and strict adherence to
+  a young system is its own failure mode. The gate, the derivation, the naming,
+  and the annotation are in [reference/generate.md](reference/generate.md).
+- **Nothing the design calls for is silently left out.** An asset the system
+  cannot supply gets a marked placeholder and an open question, never an
+  omission — and a child that could not be resolved never takes its parent with
+  it.
 
 ## Where designs get written
 
@@ -211,9 +217,10 @@ in place and no destination is guessed.
 - **The finalize move is offered, not automatic.** Once the work is accepted,
   offer to move it onto its own page named to the file's conventions.
 - **Shared library files are refused** — the Pushpin kit
-  (`VVRGrLgkPRU3vs765d5Q3r`), the Annotation Kit (`Qefv6O2RMPSBtSYBrCGcdI`), and
-  any file that appears as a subscribed library. Contributing a component to the
-  kit goes through a Figma branch and the contribution flow, which this plugin
+  (`VVRGrLgkPRU3vs765d5Q3r`), the Annotation Kit (`Qefv6O2RMPSBtSYBrCGcdI`), the
+  Thumbprint UI Kit that publishes the icons (`jjhhb3Kp6a7JrtBLCjrf6u`), and any
+  file that appears as a subscribed library. Contributing a component to the kit
+  goes through a Figma branch and the contribution flow, which this plugin
   documents and does not perform.
 
 [reference/generate.md](reference/generate.md) carries the full order of
@@ -249,11 +256,15 @@ Load these as the task requires rather than up front.
 | [reference/figma.md](reference/figma.md) | Reading a design out of Figma; file keys and library keys |
 | [reference/provenance.md](reference/provenance.md) | Something disagrees with these tokens, or the kit changed |
 
-Four generated catalogs back this up, and they exist because none of it is
+Five generated catalogs back this up, and they exist because none of it is
 guessable:
 
 - `assets/components.figma.json` — all 117 published components, their exact
   variant options, and the key to import each one.
+- `assets/icons.figma.json` — 227 icons at up to four sizes each, 899 import
+  keys. **Icons are published from the older Thumbprint UI Kit, not from
+  Pushpin** — searching the Pushpin library for a caret returns nothing and
+  reads as "no such icon". See [reference/generate.md](reference/generate.md).
 - `assets/variable-keys.figma.json` — which of the kit's 299 variables can be
   bound from another file (131) and which are hidden from publishing (168).
 - `assets/styles.figma.json` — the 13 text styles and 6 effect styles, which are
@@ -280,6 +291,20 @@ node scripts/init.mjs <project-dir>             # print a plan, change nothing
 node scripts/init.mjs <project-dir> --write     # apply it
 node scripts/init.mjs <project-dir> --no-share  # skip .claude/settings.json
 ```
+
+It also writes a `DESIGN.md` and an `.impeccable/design.json` sidecar generated
+from the token capture. Together they are the token allowlist that `impeccable`
+and other tools reading that format check against, which makes a hardcoded
+color, font, radius, or font size report as Pushpin drift **in the browser** —
+before the design reaches Figma, where the audit would otherwise be the first
+thing to notice. Both files are machine-written and re-generated by `init`; they
+are not the place to record a decision.
+
+That is the whole of the integration. `impeccable` has no way to register a rule
+and no concept of a component library, so nothing here teaches it about
+components, icons, or proposals — the Figma audit still owns all of that. Tokens
+are simply the part that can be checked from a stylesheet, and the part most
+often got wrong there.
 
 It never overwrites without `--force`, and it is safe to re-run. If it detects
 Thumbprint it says so and warns against per-component CSS overrides, which is

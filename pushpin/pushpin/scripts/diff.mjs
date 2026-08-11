@@ -15,6 +15,7 @@
  * Usage:
  *   node scripts/diff.mjs --kit kit.json [--published published.json]
  *                         [--components components-raw.json]
+ *                         [--icons icons-raw.json --icons-page icons-page.xml]
  */
 
 import { readFileSync } from 'node:fs';
@@ -22,6 +23,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { distillComponents } from './build-components.mjs';
+import { distillIcons } from './build-icons.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const ASSETS = join(here, '..', 'assets');
@@ -33,12 +35,23 @@ const opt = (n) => (argv.includes(n) ? argv[argv.indexOf(n) + 1] : null);
 const kitPath = opt('--kit');
 const publishedPath = opt('--published');
 const componentsPath = opt('--components');
+const iconsPath = opt('--icons');
+const iconsPagePath = opt('--icons-page');
 
-if (!kitPath && !publishedPath && !componentsPath) {
+if (!kitPath && !publishedPath && !componentsPath && !iconsPath) {
   console.error(
     'usage: node scripts/diff.mjs --kit kit.json [--published published.json] [--components components-raw.json]\n' +
+      '                            [--icons icons-raw.json --icons-page icons-page.xml]\n' +
       '\nCaptures come from scripts/check.md.',
   );
+  process.exit(1);
+}
+
+// The icon capture needs both halves to distil: the dump carries the keys and
+// the page metadata carries the categories, and a category silently becoming
+// "uncategorised" would read as a kit change rather than a missing input.
+if (iconsPath && !iconsPagePath) {
+  console.error('--icons also needs --icons-page. See scripts/check.md.');
   process.exit(1);
 }
 
@@ -46,6 +59,7 @@ const tokens = load(join(ASSETS, 'tokens.figma.json'));
 const keys = load(join(ASSETS, 'variable-keys.figma.json'));
 const styles = load(join(ASSETS, 'styles.figma.json'));
 const catalog = load(join(ASSETS, 'components.figma.json'));
+const iconCatalog = load(join(ASSETS, 'icons.figma.json'));
 
 const breaking = [];
 const changed = [];
@@ -342,6 +356,42 @@ if (componentsPath) {
     }
     for (const prop of Object.keys(nowProps)) {
       if (!(prop in wasProps)) added.push(`components/${name}: new property "${prop}"`);
+    }
+  }
+}
+
+// -------------------------------------------------------------- icon capture
+
+if (iconsPath) {
+  const { icons: fresh } = distillIcons(load(iconsPath), readFileSync(iconsPagePath, 'utf8'));
+  const before = iconCatalog.icons;
+
+  for (const name of Object.keys(fresh)) {
+    if (!(name in before)) added.push(`icons: new icon "${name}"`);
+  }
+
+  for (const [name, was] of Object.entries(before)) {
+    const now = fresh[name];
+    if (!now) {
+      breaking.push(`icons: "${name}" was removed or unpublished`);
+      continue;
+    }
+    // A category move renames the entry only when the name is ambiguous, so on
+    // its own it is a note — but it does change how the icon is looked up.
+    if (now.category !== was.category) {
+      changed.push(`icons/${name}: category ${was.category} -> ${now.category}`);
+    }
+    for (const [size, key] of Object.entries(was.keys)) {
+      if (!now.keys[size]) {
+        breaking.push(
+          `icons/${name}: the ${size} size was removed — importComponentByKeyAsync will throw`,
+        );
+      } else if (now.keys[size] !== key) {
+        breaking.push(`icons/${name} · ${size}: key changed ${key} -> ${now.keys[size]}`);
+      }
+    }
+    for (const size of Object.keys(now.keys)) {
+      if (!was.keys[size]) added.push(`icons/${name}: now publishes a ${size} size`);
     }
   }
 }

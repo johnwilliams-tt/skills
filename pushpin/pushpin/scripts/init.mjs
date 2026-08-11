@@ -17,6 +17,7 @@ import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { hashAsset } from './canonical.mjs';
+import { renderDesignJson, renderDesignMd } from './impeccable-bridge.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const ASSETS = join(here, '..', 'assets');
@@ -35,7 +36,8 @@ if (!existsSync(target)) {
   process.exit(1);
 }
 
-const SOURCE = JSON.parse(readFileSync(join(ASSETS, 'tokens.figma.json'), 'utf8')).source;
+const TOKENS = JSON.parse(readFileSync(join(ASSETS, 'tokens.figma.json'), 'utf8'));
+const SOURCE = TOKENS.source;
 const KEYS = JSON.parse(readFileSync(join(ASSETS, 'variable-keys.figma.json'), 'utf8'));
 const MANIFEST = JSON.parse(readFileSync(join(ASSETS, 'manifest.json'), 'utf8'));
 const PLUGIN = JSON.parse(
@@ -192,6 +194,25 @@ planFile('pushpin.config.json', 'Figma keys and the capture this project is pinn
   );
 });
 
+// Design-system drift is now usually introduced in the browser and pushed to
+// Figma afterwards, which means the Figma audit catches it a step too late.
+// These two files project Pushpin's tokens into the format `impeccable`'s
+// detector reads, turning its design-system-* rules into live Pushpin checks
+// with no change to impeccable itself. See impeccable-bridge.mjs.
+//
+// Written in this order deliberately: the detector compares mtimes and warns
+// when the markdown is newer than the sidecar, so the sidecar goes last.
+const bridgeMeta = { pluginVersion: PLUGIN.version, capturedAt: MANIFEST.capturedAt };
+
+planFile('DESIGN.md', "Pushpin's tokens as design-system checks for the browser phase", (abs) =>
+  writeFileSync(abs, renderDesignMd(TOKENS, bridgeMeta)),
+);
+
+planFile(join('.impeccable', 'design.json'), 'the complete token ramps behind those checks', (abs) => {
+  mkdirSync(dirname(abs), { recursive: true });
+  writeFileSync(abs, JSON.stringify(renderDesignJson(TOKENS, bridgeMeta), null, 2) + '\n');
+});
+
 // Declaring the marketplace in the project's own settings is what lets someone
 // who has never touched the CLI pick this up: Claude Code prompts them to
 // install it when they trust the folder. Merge rather than replace — this file
@@ -260,6 +281,9 @@ This project uses **Pushpin**, Thumbtack's design system.
   (\`--pp-color-blue-950\`). Reaching for a base ramp means no semantic token fit,
   which is worth questioning.
 - Buttons, inputs, and chips are pill-shaped: \`--pp-radius-sides\`.
+- \`DESIGN.md\` and \`.impeccable/design.json\` are generated from those tokens, so
+  a hardcoded color, font, radius, or font size is flagged as drift while you
+  work. Both are machine-written — fix the code, not the check.
 - Figma source of truth: \`${SOURCE.fileName}\` (\`${SOURCE.fileKey}\`).
 - Full guidance lives in the \`pushpin\` skill. Load it before design work.
 `;
@@ -327,6 +351,13 @@ if (WRITE && plan.length) {
     console.log(`  2. Build with the custom properties; see the skill's reference/tokens.md.`);
   }
   console.log(`  3. Thumbtack Rise is not bundled here — install it or set --pp-font-family.`);
+
+  if (plan.some((p) => p.rel === 'DESIGN.md')) {
+    console.log(`\nDESIGN.md and .impeccable/design.json turn the tokens into live checks:`);
+    console.log(`  a raw hex, font, radius, or font size that is not Pushpin is reported as`);
+    console.log(`  drift while you work, rather than at the Figma push. Both are generated —`);
+    console.log(`  re-run init after updating the plugin, and never hand-edit them.`);
+  }
 
   if (plan.some((p) => p.rel.endsWith('settings.json'))) {
     console.log(`\nCommit .claude/settings.json to share Pushpin with the team.`);

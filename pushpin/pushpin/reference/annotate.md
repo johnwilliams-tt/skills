@@ -144,6 +144,7 @@ it to tell a documented proposal from an undocumented lookalike.
 ```
 Proposed: FilterChip
 Extends: Chip
+Derived: Chip / theme=secondary, size=medium
 Tier: better-experience
 Delta: adds a count badge; Chip offers left/right icons only
 ```
@@ -152,9 +153,17 @@ Delta: adds a count badge; Chip offers left/right icons only
 |---|---|---|
 | `Proposed:` | always | The component name, matching the local component after `Proposed / ` |
 | `Extends:` | always | The closest published Pushpin component, or `none` |
+| `Derived:` | always | The exact variant the component was detached from, or `none` |
 | `Tier:` | always | `gap` or `better-experience` |
 | `Delta:` | extensions | One line on what the published component cannot express |
 | `Case:` | net-new | The business argument for adding it to the system |
+
+`Derived` records that the proposal was built by detaching a real instance
+rather than drawn from scratch — the rule is in
+[generate.md](generate.md#derive-it-do-not-rebuild-it). It matters to a reviewer
+because it is the difference between "Chip plus a count badge" and "something
+Chip-shaped", and the second one quietly loses the type ramp, the padding, and
+the border weight on its way to looking similar.
 
 `Tier` records which argument the reviewer is being asked to accept. `gap` means
 no published component covers the interaction without lying about its API or
@@ -163,20 +172,113 @@ to cover it and a new component would be clearly better. Both are legal; they
 are not the same claim, and a reviewer who cannot tell them apart cannot weigh
 either.
 
-A note missing `Tier`, or a `Proposed /` component with no note at all, is a
-defect. The annotation requirement is not satisfied by an empty sticky.
+A note missing `Tier` or `Derived`, or a `Proposed /` component with no note at
+all, is a defect. The annotation requirement is not satisfied by an empty
+sticky.
 
 ## Placement
 
-Beside the screen, never on top of it:
+Annotations are only useful if they can be read, and the way they stop being
+readable is always the same: each one gets positioned relative to the thing it
+describes, the things it describes are close together, and the notes — which are
+320 to 500 points wide — end up stacked on top of each other and on the design.
+A screen with eight notes becomes unreadable at exactly the moment it becomes
+worth annotating.
 
-- A `Capstones` instance heading the proposal area, so the area reads as
-  deliberate rather than as leftovers.
-- One `Annotations` note per proposal, `Multi-line` variant.
-- An `Annotations / Pointers` instance aimed at the local instance the note is
-  about — the instance on the screen, not the component definition.
-- A short summary frame listing every proposal on the screen, so a reviewer can
-  count them without hunting.
+So annotations are not positioned individually. **They go in one auto-layout
+column beside the frame, and the auto-layout is what prevents the overlap.**
+Nothing in the column has an x or a y of its own; the column decides. This is
+the whole mechanism, and it is not a guideline about being careful.
+
+### The column
+
+One `FRAME` per annotated design frame, vertical auto-layout:
+
+```js
+const col = figma.createFrame();
+col.name = `${target.name} — notes`;
+col.layoutMode = 'VERTICAL';
+col.primaryAxisSizingMode = 'AUTO';     // grows with its contents
+col.counterAxisSizingMode = 'AUTO';     // as wide as its widest member
+col.itemSpacing = 24;                   // the gap, applied once
+col.x = target.x + target.width + 80;   // the gutter
+col.y = target.y;
+```
+
+- **Gutter 80** between the frame's right edge and the column. Wide enough that
+  the column reads as commentary rather than as part of the design.
+- **Gap 24** between notes, set on the column and never on a note.
+- **Top-aligned with the frame**, not centred. A reader scans both from the top.
+- **Right of the frame**, unless the page's own convention is otherwise or the
+  right side is occupied — in which case left, at the same gutter. Never above,
+  below, or on top.
+
+The column is layout, so bind its fill if it has one and leave it transparent if
+it does not. It is not a component and needs no proposal.
+
+Order inside it: the summary frame first when there is one — a short list of
+every proposal on the screen, so a reviewer can count them without hunting —
+then the notes in the order a reader meets their subjects on the design.
+
+### Anchoring: number, don't point
+
+A pointer aimed across 400 points of canvas is the other half of the mess. Past
+about three notes they cross each other and stop indicating anything.
+
+**Three or fewer notes on a frame:** `Annotations` · `Multi-line` in the column,
+each with an `Annotations / Pointers` instance on the design aimed at its
+subject.
+
+**Four or more:** switch to numbers. An `Annotations / Pointers` · `Number`
+instance sits on the design at the element, and the matching
+`Annotations` · `List Elelemt` row carries the same number in the column. The
+pairing is the number, so nothing has to be aimed and nothing can cross. This is
+what the `Number` variants are for, and it is the reason the kit publishes a
+`List` of seven pre-stacked rows.
+
+Numbers run in reading order down the design — top to bottom, then left to
+right — and the column is in the same order. A reader should never have to hunt
+for `4`.
+
+### Pointer direction is derived, not chosen
+
+`Direction` describes where the pointer's tail comes from, so it follows from
+the geometry and is never a preference. With the column on the right, a note
+reaching back to the design is a `Left` pointer:
+
+```js
+const direction = noteBox.x > targetBox.x + targetBox.width ? 'Left' : 'Right';
+```
+
+A pointer whose direction disagrees with its position reads as aiming at
+something else entirely, which is worse than no pointer.
+
+### Placing a capstone
+
+A `Capstones` instance heads an annotated area so it reads as deliberate rather
+than as leftovers. The Icons page of the Thumbprint UI Kit is the reference for
+how one is used:
+
+- **Left-aligned with the block it heads**, sharing its x.
+- **Stretched to span that block's width.** The published sizes are starting
+  widths, not constraints — the Icons page runs a 112-tall capstone out to 3472
+  wide across the whole inventory. Pick the size by height and stretch the width.
+- **Above the block with clear air beneath it** — the Icons page leaves about
+  84 points. Never overlapping what it heads, and never inside it.
+
+A capstone headings the design *and* its column spans both, so its width is the
+frame plus the gutter plus the column.
+
+### Nothing overlaps
+
+The audit checks it — pairwise bounding-box intersection among every annotation
+instance, and between any annotation and the design frame. An intersection is a
+defect, not a warning, because an unreadable note is worth exactly as much as an
+absent one and costs more to produce.
+
+The two rules that keep it true: everything in the column is laid out by the
+column, and nothing but a `Pointers` instance is ever placed on the design
+itself.
 
 Nothing is written into the Annotation Kit itself. It is a shared library, and
 the plugin refuses to write into shared libraries for the same reason it refuses

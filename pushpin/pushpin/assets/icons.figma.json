@@ -1,0 +1,2100 @@
+{
+  "$comment": "Published icon components of the Thumbprint UI Kit. `keys` holds the assetKey to pass to figma.importComponentByKeyAsync, one per size. Icons are NOT published from the Pushpin file — this is a third source library. Generated — see scripts/build-icons.mjs.",
+  "source": {
+    "fileKey": "jjhhb3Kp6a7JrtBLCjrf6u",
+    "fileName": "Thumbprint UI Kit",
+    "libraryKey": "lk-6d54e39c09e05fd3a5164fcc5a88cf6a2dbedd3ad29d20c2ce66ee39c57c81234d16c5746301ace3ae6af7d5bcf49b7389800cb4f7b9521f2fb70de1af7c2dd6",
+    "page": "Icons",
+    "pageId": "2:1",
+    "extractedAt": "2026-08-11",
+    "capturedTotal": 905,
+    "offPageOmitted": 5,
+    "duplicateOmitted": 1,
+    "publicKept": 227,
+    "keyCount": 899
+  },
+  "sizes": {
+    "Tiny": 14,
+    "Small": 18,
+    "Medium": 28,
+    "Large": 32
+  },
+  "categories": {
+    "content-actions": 31,
+    "content-modifier": 59,
+    "credit-card": 4,
+    "feature": 19,
+    "home-care": 24,
+    "inputs": 9,
+    "meta-category": 20,
+    "navigation": 30,
+    "notification-alerts": 10,
+    "social": 21
+  },
+  "incomplete": {
+    "AI-Writing": [
+      "Tiny",
+      "Small",
+      "Medium"
+    ],
+    "Messages Filled": [
+      "Medium",
+      "Large"
+    ],
+    "Messages-Filled": [
+      "Tiny",
+      "Small"
+    ],
+    "Trend": [
+      "Small",
+      "Medium",
+      "Large"
+    ],
+    "Trend Icon": [
+      "Tiny"
+    ]
+  },
+  "duplicates": {
+    "AI-Writing Icon · Medium": [
+      "19099:960"
+    ]
+  },
+  "icons": {
+    "Accessibility": {
+      "category": "home-care",
+      "keys": {
+        "Tiny": "7c959f6a35c9d959896c39a00c4da4ba92a463b4",
+        "Small": "7232de36745249c17545101e1efa2d4f500312b1",
+        "Medium": "5b1fa5d70b615194868b3cc79298b99802bf1244",
+        "Large": "3eeb2fa9e7d133ce7f0b259b1b45f082bb95c5ea"
+      }
+    },
+    "Add": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "54e42103fe3aeef10da8e4eb880542cbb1f0d795",
+        "Small": "a4e54a8db03ab7c224c888acc13c778f2723afb8",
+        "Medium": "97b88803829cdf0bd8ea1db5df76f878a4ea2f41",
+        "Large": "7223234461a1458c59441525ba2b577b87a4243d"
+      }
+    },
+    "AI-Writing": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "b0a201332e6e8e73eb8f8063517e1b303fb488a7",
+        "Small": "c79eaea0d3bf52cebe6ec34e131e6fb263db7985",
+        "Medium": "0ad09c4270b45d995d486c8e38ce205f562f66b5"
+      }
+    },
+    "American-Express": {
+      "category": "credit-card",
+      "keys": {
+        "Tiny": "c788ebbf8cb30d721f93da40ce9d3df381929ae9",
+        "Small": "8cc7303d3a3ab713029cd2ee41985030e732746a",
+        "Medium": "180db4822ee2e1763e6c1e19b0d32a51d9d15fe2",
+        "Large": "d3dd75c726cca913456e550e5d2f334ec2611311"
+      }
+    },
+    "Apple-Login": {
+      "category": "social",
+      "keys": {
+        "Tiny": "c04b70a8adf485ad6e79e9a46f2a1c30a8e7d719",
+        "Small": "76d44d11760e896657999c9e7ff569df76eab1d0",
+        "Medium": "6358b6f598f7ffac44e90654f9282dc12c97b26f",
+        "Large": "18981c09ce67937c6bbb1942e9bff3667b385ddc"
+      }
+    },
+    "Archive": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "17c292f194608934d9c4afd76e14d987d78d88fd",
+        "Small": "c586ebe285831f7d0a8fd289b3380541770516a4",
+        "Medium": "0f6dec1857dc7396281549c451d47dc85d10032c",
+        "Large": "6dc0dc297b167906d6df9d8207b400426aac6872"
+      }
+    },
+    "Archive-Filled": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "342a697339afe7469e6f6448607441e055076d31",
+        "Small": "84f004d0169706973637effdc6685c428b1b5170",
+        "Medium": "c5cc6a30f28fa86125f4c31b074e4a676342ec36",
+        "Large": "6ac92d698a58810f070c9e11639e9a3cca6817d1"
+      }
+    },
+    "Arrow-Down": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "42e5a669e472c49259e128e6cb09cd1d3c9ab41d",
+        "Small": "fbbd215a680f65243f3a617b4931aa5bcc52d3f8",
+        "Medium": "2ca58551a90d99ed2219fe282aee6e3c4a305757",
+        "Large": "09ca24ec4bdb895dcf88f652a8c06e564d8440eb"
+      }
+    },
+    "Arrow-Left": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "23a9e35634eeca2b6d5fb56cbf6a997bdc28fd16",
+        "Small": "e4f465dc0d5095408f916bb4a159756b20e287fd",
+        "Medium": "8bfb492016c627084c39db4a2e37a59acb6fd75c",
+        "Large": "cac54e77f14807a059b3ab047e479197a3522881"
+      }
+    },
+    "Arrow-Right": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "ed180cf5804699f87cf884b4ad8adb66d104f0bc",
+        "Small": "a12efb0f3d908db33e3e974be46da568f6298bee",
+        "Medium": "29eb10d7d62ec5265279dc95bed2b3a5b6c53ba2",
+        "Large": "83b702456b9119ec5958f00907e9b073ed62fde6"
+      }
+    },
+    "Arrow-Up": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "6f043699962c43b96644b288261bd1fb9e27f17d",
+        "Small": "ad46c564c90ddbf0bb40b8534cced96e900795d1",
+        "Medium": "8a5db263cdf7dd27e4c2f6faf2b535e44da67055",
+        "Large": "4b46fe58e05909ca151eabd436347b9d0a6c25eb"
+      }
+    },
+    "Arrow-Up-Right": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "1f3880214e62b7d4aa20be380996236513890069",
+        "Small": "c9ed42f3f2cb3197914948e749c06119a3f4b360",
+        "Medium": "f83ee267f52e6296c010b7a47f5f084b5d4c36a1",
+        "Large": "a21cf141521ae8169b59971da9a12267db5e8711"
+      }
+    },
+    "Attach": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "c80aa19c68caaf50ddee7f87e77ac479617ad883",
+        "Small": "f340c97b2678c09a62b7ebf0aeea6611c441a56c",
+        "Medium": "03096866c117e60105b41c120ca8f72d9f238888",
+        "Large": "e246b6a09d482872b6c85f2b3c2ce5a4bca9e5de"
+      }
+    },
+    "Audio": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "3382030a4d43469687aee42cf65e054588faf3b2",
+        "Small": "2e18a18eaa1e943b9277055b938c1956aa9715f5",
+        "Medium": "b3eceb1a0a3e761fb94171d213a4906662185e1f",
+        "Large": "ef0d8ab4d25df5628a3eec4745843fa7f19de81b"
+      }
+    },
+    "Auto": {
+      "category": "meta-category",
+      "keys": {
+        "Tiny": "2d999959c0ce92527c38524e12a3264e28789e37",
+        "Small": "b6eeb8e5b56c655257f51267fe9eb9f425fe03de",
+        "Medium": "8e59d739345492b77ab49aac0270cb1210e4c48a",
+        "Large": "77eda7619f0506de151a0755963ff666139a6bf7"
+      }
+    },
+    "Avatar": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "e5f020a79b1301273f1abc1a1e49a510c8fe10e4",
+        "Small": "e27a5deba9b2fef0b2386d65fbee446065301d36",
+        "Medium": "01dfa82fa9f43db579698b38a3cd0938fd077ca4",
+        "Large": "e22acb117a67dc421a296c0a56eae7fcce0d9564"
+      }
+    },
+    "Award": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "d45cfd7e6fe87fb8628db6002473c34bd66848a6",
+        "Small": "82698287f31a645ddc3ea0cd5bda0fd262ddcbbf",
+        "Medium": "25dcc24ef8bac1c5637854b244780024b06aa6ee",
+        "Large": "2dbd7f0f4edabd5de0544135ee2e18106c9dc994"
+      }
+    },
+    "Background-Check": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "51f8f43e95e324e946553e7ba4dad2c5d11bb62b",
+        "Small": "43364c4e0a0b43af169b46a93a733480a4b79a4a",
+        "Medium": "59d12e4bdfa57774f84397e7356669f44303bdb3",
+        "Large": "363bb8b94ff729f3f249a0324df7185e7029e907"
+      }
+    },
+    "Bar-Graph": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "b2a2045498d9666c45ec973c6341e65af4a739c1",
+        "Small": "8334cfe5710f29b987887091070aec0e5cf7a323",
+        "Medium": "9b8c56cf4b3efab9b149fe027e7cce5de4c608e9",
+        "Large": "c79080e1bfa91c0b4bb6ae572d97bcfbb68a21b7"
+      }
+    },
+    "Blocked": {
+      "category": "notification-alerts",
+      "keys": {
+        "Tiny": "fb7127c172ed629fd4f8baba87e90dccceb9cffa",
+        "Small": "ae3953f9de73069b283794c6c862d28bdce5305a",
+        "Medium": "c0ea7367a3da1e09863536e734fddfebbb18a94f",
+        "Large": "843ed34d76cadfc7a2bee1d833dd3672e3fe1acd"
+      }
+    },
+    "Blocked-Filled": {
+      "category": "notification-alerts",
+      "keys": {
+        "Tiny": "66efdd86609aab43ddd851b8d0b9f240443b8d61",
+        "Small": "7f1c84cc90ed46d724a54dd9090023b57432c451",
+        "Medium": "9ee2c33b53d19ab6476ef92990c5124a3ddfab72",
+        "Large": "5a29156222afa51aa239f973b9afa65b6c6d4207"
+      }
+    },
+    "Book": {
+      "category": "home-care",
+      "keys": {
+        "Tiny": "5b5019ffb5148b54212a61523d7c7a9681725290",
+        "Small": "cfc1bacbb48ffbb4bf42a61ce9e937a5ffc0d6ee",
+        "Medium": "bc98af85d5047e59346a7cda25f47e30b8e462a6",
+        "Large": "5b1f9f70d6cde7a4bebfd4d1275a572770fe9cb4"
+      }
+    },
+    "Bookmark": {
+      "category": "feature",
+      "keys": {
+        "Tiny": "6650f5a6f3405e7d1e676624493965baf11dcd47",
+        "Small": "e3ec2b0eae70a4f0023b6c9d16922e7d008a24fb",
+        "Medium": "8a63c317e13861e70da56271bbbc253a3dbf01db",
+        "Large": "ef1d56029bf09c769547f4d16618ecbaec792bfd"
+      }
+    },
+    "Bookmark Filled": {
+      "category": "feature",
+      "keys": {
+        "Tiny": "8667363a138a9b2c1b6ec4362bebdbb854dc8580",
+        "Small": "a98923d2a3459668f27e05df8a0d846fee4f118c",
+        "Medium": "90cace237e6ee6e2158b73d5a4e0ca9b992895c2",
+        "Large": "1a28e6b0d5c606aaf998c47218b8d83146c4a37b"
+      }
+    },
+    "Brush": {
+      "category": "home-care",
+      "keys": {
+        "Tiny": "57c0d8e24d42f12a016d7230cd83400b9691c636",
+        "Small": "aa35cbd40f5a7b67c5dd0fd59ccc8d1bfc8c4ba2",
+        "Medium": "7ee0e9f571bc6d51c060c92595f87bf05ff1976b",
+        "Large": "21f7b8e9b277e9d9939d80a8cb6729c47f16bf4b"
+      }
+    },
+    "Budget": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "c83b58a186b9a596f4049ebe755623e70986c7c2",
+        "Small": "e7d116aef27240f71c90d9dcf63d1fc032ef79fc",
+        "Medium": "b00db68e0696e046be12c0c448737e1395347be3",
+        "Large": "3dec0c0b89513387a34cfabecc597ceb963aa2cd"
+      }
+    },
+    "Bug": {
+      "category": "home-care",
+      "keys": {
+        "Tiny": "4f9d7b602003afc5dff88588151d02443115d17a",
+        "Small": "32faedbb5b7c33e154156635c4ec4beb07db86de",
+        "Medium": "4e7a5935be6533f47a422a846f1d54c5f4ed1946",
+        "Large": "0b03b1c52ddfdef5f84fef38f4414ae9458791d6"
+      }
+    },
+    "Business": {
+      "category": "meta-category",
+      "keys": {
+        "Tiny": "efdc80294777fd94198b40cce07e3860d997bca7",
+        "Small": "d884a1879d25324945f007122782d352912257d1",
+        "Medium": "1acb0c4b39e7f3b94c35ce85c284ba1ecb611a70",
+        "Large": "cc6ceea3f98306cd9cf8c0b69e81894bdb7ad6cb"
+      }
+    },
+    "Business-Verification": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "5c69e810969b534ba328aa70cb3ec2286d254a15",
+        "Small": "64052135b0b7ecdcb68cb8157830454a05cc24b8",
+        "Medium": "18e2bc4181bac27919e38bbfbf98676f4e729702",
+        "Large": "6c9ef46c66b549d3e7ab8ad09eac3509e0f40af1"
+      }
+    },
+    "Camera": {
+      "category": "feature",
+      "keys": {
+        "Tiny": "e9f9b22aeac32c73ca5581805614608a8e9d2b5f",
+        "Small": "dc6f08412d7ecf2f19b56d194cb963110c4828f7",
+        "Medium": "59bc3a1da7b8e7fb806097a49fe1719a5dbc31a4",
+        "Large": "84b999342a795027d10b9690ff77099b6047d7fb"
+      }
+    },
+    "Caret-Down": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "c1e4f7e920b63bf47f0f48540d8b4c416d586230",
+        "Small": "8543c205f65e4de92c06c58ee3239e6dccb2f7b3",
+        "Medium": "2ca81dcf867ebe8e7abe07dfa999f45c39047e34",
+        "Large": "478ec07c2a332ba9385da746c7c759f530b4187f"
+      }
+    },
+    "Caret-Left": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "bda210ffbbfac66b179231ed97761526d1595e4b",
+        "Small": "9f82048ae8b63ce69e24cb84a5d3a514ba20dee7",
+        "Medium": "886e2117571edd83fba1593bc4c7a89ce94f115a",
+        "Large": "139f2cf121beb7200632a4ba5ce575a30e404921"
+      }
+    },
+    "Caret-Right": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "91f85a6f48fdefe3873766f2ea1eec00ca81de5f",
+        "Small": "4798264e1764e6cbc7d68abd5bd863a71b775af7",
+        "Medium": "851ef60a6f9e8bca8e04706f16fc447406118c7f",
+        "Large": "99539fff23355ded6a56fb22c5dc9eae791f06c1"
+      }
+    },
+    "Caret-Up": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "83ede403273c8beb136e273c47f75d5e84a1009e",
+        "Small": "c06f8b2a0cafcf2e80b09049571ab363abd70203",
+        "Medium": "876f65c4c42a5f1fb270943d8db0763fb2fb9988",
+        "Large": "349eec7f0bd9b23b8ae345896cfe40067ab26b28"
+      }
+    },
+    "Certified": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "2f643eabe727839c74934890cf3ddaadb2e06029",
+        "Small": "f4cae182b51ccc90e2ca886330e6914e104c6c61",
+        "Medium": "768fcdd605c49980c9b81aa31c8a1f2d1231d54e",
+        "Large": "03c3f8cdeb274c31f13a30a7eda2473735eace04"
+      }
+    },
+    "Chart": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "727e15871d6e4d35197df6db1dc5cbe2cc0af703",
+        "Small": "b763a1c8a7e1bba2fc8c71278ab5d05c65f73d75",
+        "Medium": "9fdb0f159e8d552637393cb257ed4440d11324f2",
+        "Large": "a06382dbb51f496a05353b423a117e719bf70488"
+      }
+    },
+    "Chat": {
+      "category": "feature",
+      "keys": {
+        "Tiny": "6531679428db611956a3c656d4bea69549dff60d",
+        "Small": "13a148c4ce04af1ba031b07bd151d9592204e2ca",
+        "Medium": "9e7c09e3906ee23c1fb9cedda19a6e05e0d41bd3",
+        "Large": "3fd38af0af57019a76cf2e7aa62a904a38d1715d"
+      }
+    },
+    "Check": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "47817607f08c61330d28d02cf8eae423435d7e3e",
+        "Small": "33de4eb993faa465eee46d9242c2f4fc78ce7372",
+        "Medium": "9b0a908d0f1deb0a0dbdcf99524839cfd069e5ef",
+        "Large": "540651622cf91a43c1a4714cd88361c0beeeb7e3"
+      }
+    },
+    "Chiirp": {
+      "category": "social",
+      "keys": {
+        "Tiny": "a7ce76adc10ffbad4a4b3553c128e8b71ba70cb1",
+        "Small": "5e413d577c5aa2eef7638a9278f9198ad8861f21",
+        "Medium": "be11eb41b26983a68b2de38d899d9bd207d2fa9b",
+        "Large": "ce346bff3700a265409c07de3f11366dfefc2734"
+      }
+    },
+    "Circle-Check": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "446cc3a9aafa06a6a6ef5fed2c0f8d3e72130fb6",
+        "Small": "8df6ce307264cfb3c9c89a28e62345b7e9229d2e",
+        "Medium": "fd8627780d66adfb88d52543c304de13286b2fb5",
+        "Large": "4538fe77067d195900da7756943037383faa236c"
+      }
+    },
+    "Circle-Check-Filled": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "407d69c8e0b12a5aaff79f92981ebba770c278d4",
+        "Small": "9fd042e26df11368b28d431684c6602b90a15715",
+        "Medium": "7687e1c1b53c99412e6aede3f0b0c73e1283b51c",
+        "Large": "295cbcf055cffa6e75aaa918fddeadc14782da3b"
+      }
+    },
+    "Circle-Map-Pin-Filled": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "04f998111bcf30859059214e997d58bc4a4bb565",
+        "Small": "050d2941633bde1ef46ed7cf5d31dccbda01298a",
+        "Medium": "4564f98ecb79ddbf2f9a928ca3356b2e400c0293",
+        "Large": "a0d40962750729c785ded7e4423b37f15f10f20b"
+      }
+    },
+    "Circle-Money-Filled": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "2a650df00676c0528367a2464c69ff53396a9411",
+        "Small": "c95e298cca9384688e4af0b8f9558f671640f570",
+        "Medium": "c224e08883239b20f094481834d4a4fc27d70fa5",
+        "Large": "79b8ec9053e0362c6da73d510408d374e4c45d94"
+      }
+    },
+    "Close": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "c2a917b78f1bca26b7811c2fc358d0886b22466b",
+        "Small": "74a43367580bb9ff55e8cbfb8b7adea148bdaefb",
+        "Medium": "a10104433e5342d9f7a82ec8796efb43a9edc6ce",
+        "Large": "2ad3243da004e682fb848d5e2826883dd42944e6"
+      }
+    },
+    "Code": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "218ea777c49dc850816169775e6f2869cbed1201",
+        "Small": "2dca618bad54ac24f5c790d4203ca930b8e006ad",
+        "Medium": "72d896b28c491870a9e34598fe07eb4ebcb5c67b",
+        "Large": "a0239b268eacf7084772cb1be6c0b5572829754c"
+      }
+    },
+    "Code-Filled": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "e5adc204fa2e3c6aa4f1fa6bf5f14a3d9355d187",
+        "Small": "767a826673f7f1fc3e22cd4499bf4ef3796ff0e1",
+        "Medium": "14bd2470fe778622c06aa44271b0a948612acd77",
+        "Large": "66b92977e7d1fd0f1b1f128f24f185cac57c0121"
+      }
+    },
+    "Copy-Link": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "65d2fd24d8da7138801fc5735ba972f5e69abfb9",
+        "Small": "d7909511a84914597d520e3b67fca19d2d44a5ae",
+        "Medium": "b6c1d375dba9db71cf698683f3a57620bf94454c",
+        "Large": "cb737259f281e329bb3531845663af57daef9d8d"
+      }
+    },
+    "Crafts": {
+      "category": "meta-category",
+      "keys": {
+        "Tiny": "05455c50076e98bbfe39d3ae72c11dcf51b5ba56",
+        "Small": "0e2dd39a2d0e6f3debadde1877c34c3c7795745b",
+        "Medium": "d40d84a1edb9ac89fc5a7e2825c318d2d1a26e46",
+        "Large": "9b0d052492a63c595964f12ae13d145a3b5aa925"
+      }
+    },
+    "Credit-Card": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "0a17075499873fafbb1b46e2940fb38a8f5a33d9",
+        "Small": "dbb08e4299f010c70aad61409aebc105ec56f36e",
+        "Medium": "6288587b9b17f622b22a0eff53caded4e0f51a1c",
+        "Large": "e203dd9796611ce611478eab3dfcaff0c6bff7c9"
+      }
+    },
+    "Data": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "aabf3a3560e845304016e367b6a2a4025c7714c9",
+        "Small": "c22f4647c060dad4ce18deb784226c8fe89b89f7",
+        "Medium": "58441073ba62c0e217995f7ccc999ea4b479ce50",
+        "Large": "536a4e95fe9ff8fc7c9695b2720d8f9789bbcc50"
+      }
+    },
+    "Date-Placeholder": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "5e37d443967ae481c56311678b39a6e2dde2c318",
+        "Small": "b40b242f7fa4297bafee0f8fc6e8ac8293893437",
+        "Medium": "a4fa36cf4a393182a63696b564b87f2936323704",
+        "Large": "f4ae400925f9b2fd65e08fb212d0031de09af2bd"
+      }
+    },
+    "Date-Time": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "8a7896255a3f63d6d7fc05a1c6e22df0c74a848b",
+        "Small": "4cd3ce2d59fd3ea59a8b18847e5db16b1efa6cb9",
+        "Medium": "2d703b856110fe73db98fb7caad191c04e318767",
+        "Large": "3d8ec7522c444193d3234082c1d42feaf42ae158"
+      }
+    },
+    "Date-Time-Filled": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "c30b0c2a30bc30f2f414b508b04136dd4feb7f62",
+        "Small": "edd0d426dce9c763fa90dd5688a901cf78af9e02",
+        "Medium": "2ad4acadb775b8ba24588171bd65b230ca67760e",
+        "Large": "12bb89ce93a180e3d7e1abbc5bb41161e4bf94d4"
+      }
+    },
+    "Design-Web": {
+      "category": "meta-category",
+      "keys": {
+        "Tiny": "38571d0441f242026bf4e1a0b8c897c2e0313973",
+        "Small": "b0cacada9af82d06638cc34078d4f52f2305d6ac",
+        "Medium": "c3fcc69c1817c51268ac1f5f7bc2669fe7025aa1",
+        "Large": "425e4ef76b1d88ffa97feedf3d2374a522baa897"
+      }
+    },
+    "Discover-Card": {
+      "category": "credit-card",
+      "keys": {
+        "Tiny": "86009d39b827979c8fe50f7e8629063ca0607631",
+        "Small": "ea35e22863a23f2b55a62e6b9c2eda4eed8b0cf3",
+        "Medium": "c43f10ef91612453814d371d995014b8ebfb582c",
+        "Large": "0a1581136997ad919a2f37ada38e35a993bf408d"
+      }
+    },
+    "DIY-Effort": {
+      "category": "home-care",
+      "keys": {
+        "Tiny": "21cf0298bc6419420d272d43986d5d17234abd2b",
+        "Small": "f02f0e45f9070ff5ec6d6a258de3e121795ab85c",
+        "Medium": "15b1fd501bf45e236857f44561a8559a40f423cb",
+        "Large": "5c26c2f0f153d4dbe85e91f4cae914c91fb0ce2b"
+      }
+    },
+    "Document": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "b9eb953deb377ba25ea79e0d9c22aa35a91df030",
+        "Small": "b68ab95cd9c111f00b153f905c6a2f8023cc8e42",
+        "Medium": "abb737b18c5a7b682eb9cf5f7c3973d2a496ed23",
+        "Large": "c947b122dded24bdd14bd065af2aad567f43241c"
+      }
+    },
+    "Dolly": {
+      "category": "home-care",
+      "keys": {
+        "Tiny": "c70a50c7668044014d122280627ba8008d2a37d6",
+        "Small": "3db50faa538cc7bfe3f71c41b1523a64e37b7e59",
+        "Medium": "16c3e74dd2ad30191e22d3eeabc3546aece2b955",
+        "Large": "d780f513c587513c32f8ebf49ef89c5610cc5ae0"
+      }
+    },
+    "Download": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "f8637cf560a04ecad093ecf2298d512bd8b03407",
+        "Small": "79f489445593af6fa6555fc1acae81a4e2753e62",
+        "Medium": "63fe6957b729955e5e372c8907e27c1db914c3fe",
+        "Large": "b95d2587c334f96e68d3a3c19d533b543211779e"
+      }
+    },
+    "Drafts": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "162705cc6bac31e19ee1e63138a127db721aa724",
+        "Small": "cc85fbf3fc312b27bcb32035be8c5120ab71dd6b",
+        "Medium": "9a7e285691870fb7f6cdb2e990c05c78848bec24",
+        "Large": "22e8d0b0a2e9f7de13257a932dda8c0d07b3e3f3"
+      }
+    },
+    "Earth": {
+      "category": "home-care",
+      "keys": {
+        "Tiny": "1d86dbbb62471ea9f19d16e0c49411f0cb83b6b3",
+        "Small": "90f3e444c91024ddba617325724a33aa149668c2",
+        "Medium": "a9d2b2e8a87788f4535c9fe6a50b724c6d04f9ad",
+        "Large": "146a46228da32021facb2bcfc3d7cdbac10f38f8"
+      }
+    },
+    "Edit": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "18597cf9243780ec74eb2d92f8e310f6bc1be359",
+        "Small": "00ccbb705f22508f895c92bfaa8bbdbd9d47a309",
+        "Medium": "1813bbf853ef6a2e2c05e1b6561fcbfc95077657",
+        "Large": "233b9f2a3a04e3dd899b0bfca6595e5434ccaf04"
+      }
+    },
+    "Energy": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "7967d462ccda4aa6b99424e805c3487e2d3bfcec",
+        "Small": "852058f8a82efa4548bd8e32090b678668b7a247",
+        "Medium": "a00e8813bdb8ed799886dbd0c38a2f00390ed463",
+        "Large": "036a9dc47072a41bd2ad2bff521473e73184ec3b"
+      }
+    },
+    "Events": {
+      "category": "meta-category",
+      "keys": {
+        "Tiny": "a51b61e8a4e9ce92d9c6c3fb773bfe53b54734b0",
+        "Small": "23332dc930e30ca2f6bd55dde83a19551d336c97",
+        "Medium": "745d1ac5c186d2cebbf1aaafcd4e66aceb1fb357",
+        "Large": "ac83b1f170c222543022807cc7013d17d6b843c2"
+      }
+    },
+    "Exclamation": {
+      "category": "notification-alerts",
+      "keys": {
+        "Tiny": "ca888b25435bf47f1fb3403057df6f1c0b0cb58e",
+        "Small": "b6dadabb0ed01d7ae4ef7343830dee3d07740f0f",
+        "Medium": "696c0c7dbd8a14bfc2f1952155f66e01bf768dbc",
+        "Large": "db744739288adfb8a2dde7a9d669adda4c9e290c"
+      }
+    },
+    "Expand": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "47fd805d7e43168824f459fc4841b9e7c4e1cd89",
+        "Small": "10f64edc4db07d933abcd9787c19f4412888c6bd",
+        "Medium": "92cca79944cbbe46e3bdd34a6587e5dff312a003",
+        "Large": "4228ce18407eeff8aa609681426efdf53ff8355a"
+      }
+    },
+    "Explore": {
+      "category": "feature",
+      "keys": {
+        "Tiny": "04d921c0a26761da8c0685c9649e3726f9a60843",
+        "Small": "335c0977341d0c58620c8b86f76d9c87dea0234d",
+        "Medium": "658842fd575435219e7857f1e3d059facedc01e7",
+        "Large": "ac5af8907310c6cfae3da84337a63ececec556a6"
+      }
+    },
+    "Explore Filled": {
+      "category": "feature",
+      "keys": {
+        "Tiny": "8f8f0d42aa86dfca9a29643350cb44b701397e8d",
+        "Small": "d9dcdd8f8813de9b8aca6125e1937df6c039580e",
+        "Medium": "ce83a2402d5855cae16f98c9fc79c78beaa7315c",
+        "Large": "6a7daed2b2dcd22be7ba81eedc8270b23d567882"
+      }
+    },
+    "Export": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "b78ac15ac5324f55b51ae8e1971dfba3e6d764c2",
+        "Small": "08b6fbb5dea68e1f09ddbdb478a19206740ef953",
+        "Medium": "54aab7fbd6f5abfa7688d7a5a9abd8f093c11256",
+        "Large": "e27037fb78cabb5ded999b13d338e26eb5687774"
+      }
+    },
+    "Facebook": {
+      "category": "social",
+      "keys": {
+        "Tiny": "0c1a946884316963c4b444f4f48bdee174433d35",
+        "Small": "8d8ae11826f5d74df82af65bb9d2af47a01b3ed3",
+        "Medium": "525a52493818f0296a481d8006d44fac16b7efc5",
+        "Large": "cfca93c431207117eb774a2465a622882aa178ee"
+      }
+    },
+    "Facebook-Login": {
+      "category": "social",
+      "keys": {
+        "Tiny": "9a706d8a6be92276075edb9f83411566e0766c1a",
+        "Small": "25808f96b6e658b7dcc945f6b1db46abcfd10c11",
+        "Medium": "9cfb0eeeeb213daa83be22869e6c7a8525ead779",
+        "Large": "d3d2c6ba8e02a7cbcdaeb6aecbf4a18cae869519"
+      }
+    },
+    "Fall": {
+      "category": "meta-category",
+      "keys": {
+        "Tiny": "5816ecb3d96f42850efeef5e4bfdbb6e23581c57",
+        "Small": "74cc7348897f3b4f3c2f91a9c18479c843211b6c",
+        "Medium": "319a1aac95656b85f02c68efa70ec5bc78bcafa4",
+        "Large": "7d29cc070d66d5a8cf9b354f40f7d4387575fe60"
+      }
+    },
+    "Favorite": {
+      "category": "inputs",
+      "keys": {
+        "Tiny": "c718131b93d7d1e0c29f0ae6394066b7a27f9552",
+        "Small": "d3b7121db3de452830f245c050cf020fcad89097",
+        "Medium": "295afa358c122a75e176fb827e12e57a71f9816d",
+        "Large": "194daaf5a257091f0af21b7d34919cac03576c24"
+      }
+    },
+    "Favorite-Filled": {
+      "category": "inputs",
+      "keys": {
+        "Tiny": "1d3d4793f29557674863f1367cf50f538a4755fc",
+        "Small": "8a39ff315087a9ea2946a1db0c204938f9d30854",
+        "Medium": "ba2f42d10c7cf522426f70ba5168e4434858612f",
+        "Large": "fee4d643f732fa3449a7c9868db0f1c540a4ad99"
+      }
+    },
+    "FieldPulse": {
+      "category": "social",
+      "keys": {
+        "Tiny": "195179278e340533b1d35d55b2128672012e1be7",
+        "Small": "919012f7aefc17bce6354fa31a518bb07802d946",
+        "Medium": "ef321389ba7f8c019f06b5a7191576762f139e0c",
+        "Large": "3f48d2b6cc28715faa39be1ed4d1da544cf98a2f"
+      }
+    },
+    "Filter": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "2e25d68a3c8153ecb6913a6db492e4aec112658a",
+        "Small": "799774f15a6ad2f5d98090f7d38035bdc9b0cf57",
+        "Medium": "4f4ce24be4dfd79d0cd6345e258f884838fbb2ec",
+        "Large": "41cb7961701bd63bb6edd4319dac5659d41f2157"
+      }
+    },
+    "Fire": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "733481bfe07e98f1bb3eba6d689f9dea3a11781a",
+        "Small": "73ce6c280949559475f35cd8b08a51fac318ed23",
+        "Medium": "20e8a6c029ca2ac4bbf728d5ff3ebf3c21a14dcc",
+        "Large": "2caeb89e05453a65ab79be987e5182c6e493d380"
+      }
+    },
+    "Fire-Extinguisher": {
+      "category": "home-care",
+      "keys": {
+        "Tiny": "0da9e1113a627f7515f80c4161a21e561cd03254",
+        "Small": "eedf969648c4edc1bf758dcd3ebe7ee218a18121",
+        "Medium": "a4c8a62cca0f48089f4a9e120467bad2b2afe527",
+        "Large": "a5068d48f6b8866d8425a31a5950835b9fcdd829"
+      }
+    },
+    "Flag": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "70706a5a5ed42908bbebdfead8de316263dd274b",
+        "Small": "442a39a0c940676f32b1bb2cc688b12fc8430469",
+        "Medium": "6fad2f333f85101ed62df0e5313b04b37c8321bd",
+        "Large": "b305279279243468138b6219f5567978b3a279b7"
+      }
+    },
+    "Folder": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "f9c1fd51b52efe96f14bc9a840c9ffe4ec213b96",
+        "Small": "779bdc0d92f3276b61516566635f88b522d3f10f",
+        "Medium": "d508698be691f8abdb6c416afeaf92d0167fbc05",
+        "Large": "7592473a9850ac32c041c48e96fb11301126e2bf"
+      }
+    },
+    "Fullscreen": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "3f31f70ba6b0bab88b179e9e08247a8fa5cca1f5",
+        "Small": "1958fa3b434f21adcd291389e6c6af1d419c9959",
+        "Medium": "1a702686cc1c0262bd7ae5067cfe713698978c97",
+        "Large": "5f3574ac998be25b8a17ca8bc372c8956e0f3fc0"
+      }
+    },
+    "Fullscreen-Collapse": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "2cd9530b759f88f895e9e521d35f9cf411a0b4c6",
+        "Small": "368c2547a140c09a3dd197b264da934f77884d2a",
+        "Medium": "3cbcda6f6a8fb4965048c309595cd51a4c5abe5b",
+        "Large": "3571a5bc2ddbee6c64f9571d3fc7e61841e1ddc6"
+      }
+    },
+    "Gesture": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "d3233d3c2e32e0da21b8bb9e8a2dcd741d4761e7",
+        "Small": "6b7a31d001b7d065ece2fb5afe52af5565d4f724",
+        "Medium": "53287d63465f977ec1237c37046578cdd81fe061",
+        "Large": "9ff1a0a901807ae0c90dad0eae98dff5177fef32"
+      }
+    },
+    "Gift": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "a95a605666cc0c5911a945c0c7ddb68099c19b07",
+        "Small": "17a6700b4d7fc9b084e6d0101d0ed442789ceadf",
+        "Medium": "7efdbbd6c55f82761ec976864c48a0cab6727bca",
+        "Large": "f062d16b616c31f7e65d0bbd0ee8b37bc7d289b6"
+      }
+    },
+    "Google-Login": {
+      "category": "social",
+      "keys": {
+        "Tiny": "9e2077ee2786e171ad3da77a155a47799de5130c",
+        "Small": "cbbd32f5bb2689695f5243ead2dd71c422ce68b3",
+        "Medium": "0ba8687e509e054d91a4d986f28a1408b4949e9e",
+        "Large": "c239dd4719ea7ae9b4d216c2f823147548da3d5b"
+      }
+    },
+    "GoSite": {
+      "category": "social",
+      "keys": {
+        "Tiny": "bfce7a2979b1f9cef849b4dd05a29382e81919d1",
+        "Small": "c35c5b4b744f20d9d43cedec89389ebee3ffbd45",
+        "Medium": "353efb9bce1b6af997573db63c00a4a92cc2c689",
+        "Large": "9761b13256ecfa973e86b4b02414a395b498a3c0"
+      }
+    },
+    "Grass": {
+      "category": "home-care",
+      "keys": {
+        "Tiny": "9ac20e5a2adc92cb60ff1b185c1803fdb72c93c2",
+        "Small": "c41881aec659abd6283b243e4979a13ca4d7fe32",
+        "Medium": "7a43b6fb173a9f4dabc0676430fb4bf41fc70783",
+        "Large": "a69fbac16857fb48ddc00a0465a8ce4d58f2acb3"
+      }
+    },
+    "Hamburger": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "644044fe4e59db5143dc15e6df9064f40daa675e",
+        "Small": "98f41f536085407ecdc82a30a3dfd8b29a3f73ae",
+        "Medium": "3dcbaa685221b2d33620e2444dcd0945464be1e2",
+        "Large": "1e66e60431cc04c3cdb145500077e638348406ce"
+      }
+    },
+    "Hand-Heart": {
+      "category": "home-care",
+      "keys": {
+        "Tiny": "3ac476fe1eb1d9b4080c66e01ee4470c94cec8fc",
+        "Small": "92beb39fa48de2b2ae7deaa2b75bb565d36c044f",
+        "Medium": "efe64b601a8791feb2c7b83ae6062d4523a2ab0c",
+        "Large": "8ef478e7b9d25238c005b10868ccf03f42e44c86"
+      }
+    },
+    "Heart-Rate": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "8f0b0443e3cf7c663875b5a35fd3c1d8236402d4",
+        "Small": "bc3d6f17c4cc76164acce30c22f55e6e98ba30e5",
+        "Medium": "53c683dbd01b14c02462863120b303a7a9a083e4",
+        "Large": "70c7b7b9d947d2e9d61c8de649f1a33891b1c6a5"
+      }
+    },
+    "Help": {
+      "category": "notification-alerts",
+      "keys": {
+        "Tiny": "6d9cc6f7b606d7b81f9e3db5e652ee0ff8913a14",
+        "Small": "f77128209271088667e0f5057cef1101ae3e8469",
+        "Medium": "8b5b71c322bffdd3a812631f09582618a21f4f89",
+        "Large": "6748879e8147d03684837e2994e72b4ff7478bde"
+      }
+    },
+    "Hidden": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "d82f3dda9e5c6be67be5b9092762c88f4557b38f",
+        "Small": "2485258d448cd52d37bc3b55c8c560c2568e0605",
+        "Medium": "02cc5eb191034748bb8d698319561a4908c9ddf8",
+        "Large": "c527c9b1a1e24241b7567ddd799c500ba97bb220"
+      }
+    },
+    "Home [meta-category]": {
+      "name": "Home",
+      "category": "meta-category",
+      "keys": {
+        "Tiny": "765f6d3b848125660b7b620656cd9e19b553b0e2",
+        "Small": "d11587793e0eb3630ed971d9bd6ff01ad4b656fb",
+        "Medium": "13819c5b8bdb0ed05f5265580eb8da0008ca7e2e",
+        "Large": "2b559bcafd9ae68804d7085be42bebab64a1ad74"
+      }
+    },
+    "Home [navigation]": {
+      "name": "Home",
+      "category": "navigation",
+      "keys": {
+        "Tiny": "e718c5ceb454595cba2408093227e9bb220848a0",
+        "Small": "01d62de239ee936c95429b799a87f082e604701f",
+        "Medium": "cf7daf534dadc71023967ad9aa2ef404479bdd36",
+        "Large": "37be54bc0c47f44586b7300d2372ee408ee5b851"
+      }
+    },
+    "Home-Heart Icon": {
+      "category": "home-care",
+      "keys": {
+        "Tiny": "309ba6a72980808deb0362a9d9d91a8e0917c518",
+        "Small": "8ad1a32d829ea02110d1d04bda9ec1f350605916",
+        "Medium": "e1e833614c9ee6db8e2f524b0fdd34cffe07331c",
+        "Large": "6b9dee9e95ad2587aee0456b6b0978b38c918ef4"
+      }
+    },
+    "Housecall Pro": {
+      "category": "social",
+      "keys": {
+        "Tiny": "325007b2c4e1f08c9c8e47ec6e1a3e96a34fe157",
+        "Small": "02839493606391f4e96c41ffe1164bda71a31958",
+        "Medium": "2cad2223e5c6d011ae9dcba233721c9358ba78f6",
+        "Large": "840f4a02100f733f52688f221d149c10c1d8b611"
+      }
+    },
+    "Image": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "918c4e99b6a9fa9fc88dcc7d14b5e1d22eae5984",
+        "Small": "19fcd855f237d8a1b02081f7a3cc443fa9ec334e",
+        "Medium": "0942927090131d700c933a91eb53425e30ba8f18",
+        "Large": "90ef02be8660413d8032c31728d9ace7773e1cb2"
+      }
+    },
+    "Inbox": {
+      "category": "feature",
+      "keys": {
+        "Tiny": "f8762fe83bf73246bbfd63e7d23390be72c83637",
+        "Small": "651a8edae14c3cc7e63941721000554771096148",
+        "Medium": "eeb96d866a8173e6c1314dc561009d53226afcbb",
+        "Large": "0fb0fbd314f759ad16a4fd326d3daa87ccfc303b"
+      }
+    },
+    "Inbox Filled": {
+      "category": "feature",
+      "keys": {
+        "Tiny": "4251a58117b30fb9d7d48ceb8f4b02ef746d98aa",
+        "Small": "cfdffbd7040c5d907a6119a18524cf81f5a32c1d",
+        "Medium": "cd914cfe392d05995e6d7020c61398a736c5ccf0",
+        "Large": "332256d6e163befae11575bd165c63f67b7b2f08"
+      }
+    },
+    "Incoming-Call": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "d310e9addf4c37d2e2c9b5ce8f89b83a7b854e9b",
+        "Small": "4408ddbbfdb0867fd17c23b6750cf7b58b66a2f4",
+        "Medium": "30303dfb5bcf9b40b4583ff416898e66b483e81a",
+        "Large": "234e2c5b9dfbf9efbb4221c16de3daaf159ae322"
+      }
+    },
+    "Info": {
+      "category": "notification-alerts",
+      "keys": {
+        "Tiny": "8e91310748fff4abcc02007ad2ec6cc0b533488b",
+        "Small": "e913709ee441fd2b3a2281cc94e167589545f26a",
+        "Medium": "a6aef34b145dd0b1f06e1724a2a131040727e089",
+        "Large": "dac8c8f67e7e8e634e0ed7d6d9aacb9474d77fa4"
+      }
+    },
+    "Info-Filled": {
+      "category": "notification-alerts",
+      "keys": {
+        "Tiny": "205e841c7b2958f40aa4281116860a37d40fc0fc",
+        "Small": "72340bca9fd1180e2109bdfb0b2205fb9872cf05",
+        "Medium": "8983282e4885f08759c2990f801c86f7c7eb45d8",
+        "Large": "23bce1e8f0750937f68f66eb2eca294f631f280d"
+      }
+    },
+    "Instagram": {
+      "category": "social",
+      "keys": {
+        "Tiny": "7ef6454f1efaea3470de48e7f033d996ee003dc5",
+        "Small": "6c1a94203502f43e4b1056ee6277ce5a4881f77c",
+        "Medium": "b65c07592507241f388e06c0278d270f4a53a766",
+        "Large": "d666c8cbf062bf5a59b3a6d1ef7a423e274aed84"
+      }
+    },
+    "Jobber": {
+      "category": "social",
+      "keys": {
+        "Tiny": "95a5d829be0f61739c6e7f19daf6621860c1382f",
+        "Small": "b6b0591523bdaf498253aae2a51a4840aba1545a",
+        "Medium": "a277962d2b313f99122903796bda007320a301bb",
+        "Large": "2cf567bee8d31b5fcabd2e9cf5e3444fe4708248"
+      }
+    },
+    "Legal": {
+      "category": "meta-category",
+      "keys": {
+        "Tiny": "f28754aea58dbca6a6c8e1dc6cdfe8134ed5fe37",
+        "Small": "8f1166abe9d075dc685ae9f146385eeb8bc7aaa2",
+        "Medium": "4da709df84724da742caf704ab7996b2e6298b43",
+        "Large": "dcf40cae508d2c31e5c4877ebb52077705fd6a23"
+      }
+    },
+    "Lessons": {
+      "category": "meta-category",
+      "keys": {
+        "Tiny": "05482040ec350c8d9adb668c2fbba91b60ef315d",
+        "Small": "349b628ee29b599cabf97f11f1ef2de7e05125b7",
+        "Medium": "90146b0e7d2b7b59587e501aacea4e9e7e4d77fe",
+        "Large": "41b3e2e9d30d8ea14605f57b66b0c25f305d6059"
+      }
+    },
+    "Lightbulb": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "75b3140cd9e7f71167228c3b280c65aa498a1cf3",
+        "Small": "2e4b1a24a9204ad503eaa9c3cceef9fcbdc9ff14",
+        "Medium": "32dc5da6b7ff63c94be2879cb68e5338498284c6",
+        "Large": "6c140f6e9de3461b723a4bcc5744480e50b63c1b"
+      }
+    },
+    "Lightning": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "7d605600072a9b329f720d664309e24b74027efa",
+        "Small": "86071adf89a428e0764279ae760fdd642b49b2df",
+        "Medium": "0e7630bf5e44f2067bd9df6992ec40e70ee5335b",
+        "Large": "122c27cb6f9b7cebd14d39c73f45a8881440df9d"
+      }
+    },
+    "List": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "f4831e1dd4013d41606381d18a06e1d8950cf325",
+        "Small": "8689bc65e0fd2d8b795ea259407e3f8566ba98c0",
+        "Medium": "b887164d06af6bd4c557a930e7045d932b9279ef",
+        "Large": "768c9810616a79ff1f0ba686f6975258f2268106"
+      }
+    },
+    "List-Check": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "60a8082bd73b2068cf58a648744aa499bd1de647",
+        "Small": "50589de99d163ef6027ca84ff028faf35219fdff",
+        "Medium": "7f434d931751a52e8cd6d11d92163ecac3ee2b34",
+        "Large": "9fcbfd5f90c0dc8859464847efb1dba57005c946"
+      }
+    },
+    "Location": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "b13011fda24620d7e026aa5586874106ba202a89",
+        "Small": "90c3ae639ffb038618c3f71a1c931c9aebb4f6fe",
+        "Medium": "8b1d7f6ad5d3686d2dc40a43dc0675eeb7961042",
+        "Large": "624bd2494bec6d1c9849f13016b10864aadbb123"
+      }
+    },
+    "Locked": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "5bec284aae59cf427e8e42adf13523396f1464d4",
+        "Small": "f030f314270994fb65d2df0305d1e01e49f3daef",
+        "Medium": "d6deb4d7b43725cc99617d774e49591e79b1d069",
+        "Large": "3fc3e80f950b56b30ea7372b91cede814dddbd72"
+      }
+    },
+    "Mail": {
+      "category": "feature",
+      "keys": {
+        "Tiny": "fffe64b5a201facefac2108ab00cad8cb321e9a6",
+        "Small": "11716250504bf55ae5657f345287cb6266d9409b",
+        "Medium": "f8dfefd736620cd65dee0ae5dd7e52a3d0e34e85",
+        "Large": "53fa695f918d964855f87c07e31b64de8ae288fa"
+      }
+    },
+    "Mail Filled": {
+      "category": "feature",
+      "keys": {
+        "Tiny": "0107efaa74714b51ff6aaed66a52990db01a4869",
+        "Small": "ce87c66ddc3b9033d94e645c87f92f20f7fcaf5b",
+        "Medium": "81ee0ad335a56242bf4cd9309529e3f53783cadb",
+        "Large": "d7cfe5a46ee8eeadef8c61e4b90ea85abde10d31"
+      }
+    },
+    "Map": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "40fc69f7f94291e11cf60e11755a5108f417b0f2",
+        "Small": "438e1fc7d54f48e437ba7873f011993ea613c08a",
+        "Medium": "0f215e9c93ff978463c8a82a8dbe67d72634b2be",
+        "Large": "67a1e0a2707818407bf2925716e92b0fed7f51e5"
+      }
+    },
+    "Map-Pin": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "13dd8e1960db76c1d9b14546778e14e7aeeb11f7",
+        "Small": "f10f889b9207fbd0d238bfa3bae0d6ce3bbfd56a",
+        "Medium": "04d924fe0758cf3e6e7b787d57fcd61d86a00f0f",
+        "Large": "070060c29a297871b94cae385eea39143ba8e276"
+      }
+    },
+    "Mastercard": {
+      "category": "credit-card",
+      "keys": {
+        "Tiny": "d78bff830a62bb4b4adedee0ba78759b97f9b020",
+        "Small": "a0d7dfc41f67d987487a3f981ef2fc36b2c7852f",
+        "Medium": "2ba5cc1a810d036fcaa45297c3631c06dde5edb3",
+        "Large": "e3b4ace5af8a7ba3fe18aeda7d1926fb47297c32"
+      }
+    },
+    "Meeting-Confirmed": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "c105074f66d52d43867d20e8910da0ade72044c5",
+        "Small": "11f07add7bbce8675871bed2f56471f74122f933",
+        "Medium": "728ae5e80cdd844cc8ea4b151604695d085f1109",
+        "Large": "0b1d7234b01c701017088c7740124ebfe03ca28c"
+      }
+    },
+    "Meeting-Declined": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "8a1efa9aa1959305ab8d5b02b1e2cbb026a450dd",
+        "Small": "309ca42cad98b630de7ee6e990bae23073e34397",
+        "Medium": "a18a65b32cb23b3272da65c700d37403cd6fedfe",
+        "Large": "11e34a0cfdb0c26edca3d86588f921a9353332d5"
+      }
+    },
+    "Message": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "eaedc11ef2c920a392c9787b387a3b1e2196c7fa",
+        "Small": "8ed436b68a6400c0f4b63e4c26e3e4e59ad0f1b0",
+        "Medium": "cd2327f460fba2b959ee3c479c594611431e9c52",
+        "Large": "b24d39d8ee770e31ade209689f0f8728a010a83d"
+      }
+    },
+    "Message-Declined": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "2ab96a04dfef2fa748d582844028bc2b6ae45e36",
+        "Small": "9ecde8c94b949198c0ce0b829d77987b3f0dddaa",
+        "Medium": "1b7078301aed56fda04b8438eefaf30aa8a613db",
+        "Large": "46f92d3ac387b2e6fdd098b3c39ef928c877b0db"
+      }
+    },
+    "Messages": {
+      "category": "feature",
+      "keys": {
+        "Tiny": "5cb04da4f1b793631be3678dbf3c92ab58a43851",
+        "Small": "c00888f22f31c0aa8c5b27c050c9b6fd085675c4",
+        "Medium": "98f1697e1800dcaccc94a0ba75866d7e38835e00",
+        "Large": "9b08fa4e097c0a813206cceb4a43da707b852720"
+      }
+    },
+    "Messages Filled": {
+      "category": "feature",
+      "keys": {
+        "Medium": "b20c179042272a68c194713993e5bbec2ddab12e",
+        "Large": "798ba68b415cf2ce65f3c10ed064d37ae942234d"
+      }
+    },
+    "Messages-Filled": {
+      "category": "feature",
+      "keys": {
+        "Tiny": "919165d5f795d37d5bed6a27e614bcdc39342548",
+        "Small": "803a6a7a49e5b2b088de74da020f3681da4f911d"
+      }
+    },
+    "Messenger": {
+      "category": "social",
+      "keys": {
+        "Tiny": "e0d90883bcbed0c5566a15a22f4945af1ba90f18",
+        "Small": "76787c1e46b66fb5ff55055d81cb78fcad059e14",
+        "Medium": "5a2a0468e9ffe8a8ba39018a163385e19ce03503",
+        "Large": "5313bf09f61bc363791f5bfe07bd9b1f1718eb77"
+      }
+    },
+    "Microphone": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "e91a2a3e2297329d0e018402464b134391ae1350",
+        "Small": "277373464d7d23a571e25abfc9f43aa096fd217f",
+        "Medium": "f3d8f55068cb66bdd810615a07d0b8b3cf12c673",
+        "Large": "3ece8dfdc675820b9c5321fda1dab456ef268eb5"
+      }
+    },
+    "Minus": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "80a33d1f1665f311b240079a70b6853a6e84a0e2",
+        "Small": "12cbef1c1076dd2d1d572bd413c878891a4a813b",
+        "Medium": "41f9ea6720bb4fce67a783625f36b9c5e7341602",
+        "Large": "c5c809ad5de8e7d41eb39ce7e1a53a9d285a22d1"
+      }
+    },
+    "Mold": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "8979f4b57e0a32dac11c5e6d741af3f31849cb8c",
+        "Small": "aab8e2b3a538612fb42895f0dca10326c85968ac",
+        "Medium": "c2627001fef075f586fa3ab7a963f8d52cedc154",
+        "Large": "bda9e402b02033805d3ae7f32b4a2aae253a815a"
+      }
+    },
+    "Money": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "0c49199b96c48660243317702174bd8b57237963",
+        "Small": "87925249b5e9b74a4f008aa4951a02544010ab32",
+        "Medium": "70d67ac58d4d456dcb3421b5c002c1c33bf7bec4",
+        "Large": "f155ee7ad185331f45a6c6b5f97ee3f2c4bf1fec"
+      }
+    },
+    "More-Horizontal": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "749f4031c798a091957a88654eca21add11916a7",
+        "Small": "5178f613d0bdf0e36f1c10e1e9ef707c412e1ae4",
+        "Medium": "1188357f9c0eefd1424268241ad2bf36a8fb2acf",
+        "Large": "76da2a27f3055c12f9e029d41422311a194440df"
+      }
+    },
+    "More-Vertical": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "e918dcb14fb54e5372fe488227c941dedf5e5b0c",
+        "Small": "782f6ec3b3499d32595c56c96f1f7216d5fa3d5f",
+        "Medium": "0528165fa69eb6630ae30ed203b3e67a906ac138",
+        "Large": "3592cfee716f7d39c606be5371e0d897493867b1"
+      }
+    },
+    "Mute": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "3f729623c60b97911953ed563d1c5a0d85c4b498",
+        "Small": "3ae8c58ba46a64b5bd5c79ccab99bff98130d047",
+        "Medium": "a5be7f9a92799f8372185e9c9e24080a7ad3ed13",
+        "Large": "f2ef92153a25a95bbe1b7539efd565994e21ff9e"
+      }
+    },
+    "Mute-Filled": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "e9bb846f04ebe0579da538be965761314e33f55f",
+        "Small": "4bc79d56e6f2ee6bfb5f641a6976e5b0a36eff4e",
+        "Medium": "a44ce7a32e94750751cd272c88413118296e6d80",
+        "Large": "e1e68fdf1c94fa897b226d650a7cb11f6111a797"
+      }
+    },
+    "No Security": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "bbf2ba68323b6058b7918af46f98a4d1a641c9b0",
+        "Small": "f7fe182b903be4cbe078977bc89850c5d9fb8238",
+        "Medium": "0784270cd2e75ca980820ba34f591f20baa5372b",
+        "Large": "d8a02932a02462bacdf57d498ba9bf283548b2c2"
+      }
+    },
+    "Notification": {
+      "category": "notification-alerts",
+      "keys": {
+        "Tiny": "35371e001ffa95db8cbd607569a785d00f592164",
+        "Small": "ac9135dce8fe5dc6c0d53be1fefa3df53ce3d8ca",
+        "Medium": "6f228eff13f5a53305ab5b35a4af0a21e4798833",
+        "Large": "d4a3c82dd7b95c63356f0a985413cc7128388984"
+      }
+    },
+    "Notification-Filled": {
+      "category": "notification-alerts",
+      "keys": {
+        "Tiny": "c310b3a25ef4cc33c310dd555388dccf71284df2",
+        "Small": "bd207364c0958295d7843fd937f1912d2cf0db01",
+        "Medium": "467e183d74397a89b57ce13b149e477f98ce4c3f",
+        "Large": "3bb14df6d91c7bf45cd6df3032570e5a98df8a9f"
+      }
+    },
+    "Outgoing-Call": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "64756c9e146eed62cfdcbd80bd615846e75fac10",
+        "Small": "0d35b2eb3b50e4af4271207773c43c6af75b5ca8",
+        "Medium": "f623ee01930bd23bd0aa2a242a6bdbee29ef2557",
+        "Large": "6ab86872461c2252a365e113718e5f9c4fba5d5e"
+      }
+    },
+    "Pause": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "79e8f3488a58f8b72e5bf097c76e270f0d347553",
+        "Small": "ebf5bc61dffec9a84e5c6cf390038f04f29d4511",
+        "Medium": "0eda88a9ec7ef547a7abb02bc33b1467f3ae1cf8",
+        "Large": "dbdc0a1985e54882d0918420c3cd5a8ef2349edc"
+      }
+    },
+    "Pause-Filled": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "a2953dc4c970238eec5e20070e60ea2db22373d2",
+        "Small": "f84bf551080b09a791f0e86980d609ead9a9eafc",
+        "Medium": "8da748e40f4263d081c220f08510265591a131b6",
+        "Large": "f118a84a954e76ff2b3a2b440681194523876535"
+      }
+    },
+    "PayPal": {
+      "category": "social",
+      "keys": {
+        "Tiny": "24e19e807ef3a36d784c410f75f8f6db0f5aea5a",
+        "Small": "5398cd4271480fc02ebfd8d34ac05497c69d07c7",
+        "Medium": "93acdecd4042e9e3fe5d31603986b37fb1614a89",
+        "Large": "cf204bed43c473614391686c1394409b8126ad97"
+      }
+    },
+    "People": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "f2aa0ef27aa1c72c8a05c9e378125c99abb672c9",
+        "Small": "e9dedc3979bc1199accea3cc8f30d67d0b97a75d",
+        "Medium": "05d0277e0e4fd8dc6c2ab49b94dda0fa59a10819",
+        "Large": "52c9bcd72d29ed9cc1bb21a6fd0de919d959f72f"
+      }
+    },
+    "Personal": {
+      "category": "meta-category",
+      "keys": {
+        "Tiny": "e14f65851774f05f736f5b43cca441370caa5469",
+        "Small": "f6cb555aef7f07c896b7f2d056720f710a2310ed",
+        "Medium": "7a70970e284f6169c82866602078dcd866bfddf0",
+        "Large": "6c3d9e2116ab17e33d5754f690ac7dca771668cf"
+      }
+    },
+    "Pets": {
+      "category": "meta-category",
+      "keys": {
+        "Tiny": "98899fabf9b83b657a6fb92a6921f481f91af0a7",
+        "Small": "571a2f238c76abf60d4a0cfe5c3707dd7c6ab50d",
+        "Medium": "9cdde293aff914d257979a5c4b8d7af3c3fe07bb",
+        "Large": "5c64d9d8d093c69abea037ebd974b0e0377b3e86"
+      }
+    },
+    "Phone-Call": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "bef1f023718af9de29a399fd541e33ec4685f918",
+        "Small": "caab45cd19dce2479e12a27ab3d3e80f3f7fef6a",
+        "Medium": "ff0197dda26f22369cfc4f3704a206c560f3e6da",
+        "Large": "90d88bcc9badb9053779657797227ef68b967627"
+      }
+    },
+    "Photography": {
+      "category": "meta-category",
+      "keys": {
+        "Tiny": "53f18f164be71bf315a39809290b6fab8e09411a",
+        "Small": "d5c5007246752cffc2a4fdf478a04e23d5436c0c",
+        "Medium": "43a10c1b020a749187669ee0a747a77637faa652",
+        "Large": "6ca9506fdabf67d47804550785ab8b2b7951b1b7"
+      }
+    },
+    "Piggy-Bank": {
+      "category": "home-care",
+      "keys": {
+        "Tiny": "7ea42327c2bdcbb070ca52c967307d4843ea5a2b",
+        "Small": "8273ee2b2139843af8ebd8db3608408744a2820e",
+        "Medium": "c2a48b0eeb5c7a8dde0f4fb54209ab4d13685ac4",
+        "Large": "f6e8dd0efaebbdb7f3728541d1cfc862990ed037"
+      }
+    },
+    "Pinterest": {
+      "category": "social",
+      "keys": {
+        "Tiny": "0d3b89cc345fffe7c8efc026cdf93f1e35206729",
+        "Small": "693d50b0a1115921236d5552202eb9489022d340",
+        "Medium": "763419e5a9f05b4737450f3f7bc897d121eba711",
+        "Large": "eaca283c5447f7c52c524e5d5d90e39c701a9078"
+      }
+    },
+    "Play": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "f22f156dfee3473e84519a031eb7f0d50f62964f",
+        "Small": "8acc3bbc6bc809f7449160d28687649fb0a8206d",
+        "Medium": "c9b87e55e44496f9cd168d07d6233680fdb0a4bf",
+        "Large": "87da02e0e009ef99381613c7ecb0ddb4d1343c47"
+      }
+    },
+    "Play-Filled": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "eb604a76d2f6f6a5637282991e1f0e9fbc2a7443",
+        "Small": "90b10ef568dde55ff0da6b885d013fba7c552f47",
+        "Medium": "9f0018f3e89f375f66f68f22ac50fbb7576566f4",
+        "Large": "92c8eda1fc1d2379b22ffc5f4638b7925a8f6ee0"
+      }
+    },
+    "Plus": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "7c9299357485715c6c675b4a97022474ffbe7106",
+        "Small": "f9132ed456ddc1a950acbf06a758fde37e563045",
+        "Medium": "7171f0bd8237acbe4f7f22706327b80d56f80c31",
+        "Large": "33c672382457cad7ef219b2887b65f644b8aa56d"
+      }
+    },
+    "Portrait": {
+      "category": "feature",
+      "keys": {
+        "Tiny": "5247b671a634c594dc98b986b73035a91d78e0b5",
+        "Small": "c91958c828882c0f632788636718f9644c4c96db",
+        "Medium": "994d2966ca5cfec8222217a4687ff0faabda1c1c",
+        "Large": "73ee4b8dfd92a7db31aab00abfba1740e547d31d"
+      }
+    },
+    "Portrait Filled": {
+      "category": "feature",
+      "keys": {
+        "Tiny": "f1c9a18616d6c06f36c441acf5908ed99f7f31ef",
+        "Small": "b1e2b2bf248bb37a48c7e51b1763721bbac757fe",
+        "Medium": "bd00f58bcd0fac7839710a5925504f95e4a81e7a",
+        "Large": "55d0ebcaba1df0ac89232948fcfbce1a67f8ece3"
+      }
+    },
+    "Preferences": {
+      "category": "feature",
+      "keys": {
+        "Tiny": "0cec6126fa9786316ceef84922a2b69dd6c69a4a",
+        "Small": "d13abe80d449aaec1760f935689b4a3f26c09e52",
+        "Medium": "ddb36e96706f0cc9c15e11feacb07f1b6b2aa92d",
+        "Large": "fb18686c262e7bf0db9e036575e0167b805f5413"
+      }
+    },
+    "Preview": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "11607b4bc7e1ce86a5f62a4b36a77f502a8013f7",
+        "Small": "51f325397c453fc64552fd549fd6940ab0109d68",
+        "Medium": "d5e1fb0239df615fe57377d66b2aa871a6873df3",
+        "Large": "f6fc2f511c751b8921904e18f7f2edefc363b91e"
+      }
+    },
+    "Preview-Carousel": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "db92bbd8956ade7c9a385495aa9cdd048e95b6a8",
+        "Small": "33256d74b27ea44391848a69ff20711334a5670a",
+        "Medium": "e1720b2947e1df89b373244f4d3d5dde3d21c07e",
+        "Large": "5d28277bbd80d060df42c71e37a238fd9b808cc0"
+      }
+    },
+    "Price-Assurance": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "1fdaa1f8c4cbd68fd254adb021b2b736ef32d027",
+        "Small": "2d93992904146ecea01583dfe42caedd480f42eb",
+        "Medium": "6a8c9e1d08bde98ff81f08b93d73794a747792aa",
+        "Large": "72d11dcf21d1811c5046348d8582db80c2a57a10"
+      }
+    },
+    "Price-Tag": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "d721bf0626d54cc3badc6f3dbc001bb03864f9ed",
+        "Small": "26bdf3814700639fb36a628fc07eaa9d10f7eacd",
+        "Medium": "8ccde4b5472961dc574939a1ecb9320c8da35324",
+        "Large": "6e9300c16e17758f3c3768ce79980dd0b83488d8"
+      }
+    },
+    "Price-Tag-Filled": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "b57a49253d614bdacab0c49f53373a5d7a193ccc",
+        "Small": "f80f0123c627c4a45465ce14699ad718dfdd9e19",
+        "Medium": "08f4d2cb8bb399b07afb3bec60079845b0aa2948",
+        "Large": "6970e37ea33e81185bfd78b37015bc2e84f9a54c"
+      }
+    },
+    "Promoted": {
+      "category": "feature",
+      "keys": {
+        "Tiny": "47ff7d5d720bfd7118a10efdcec0bc5c958cdac1",
+        "Small": "b20ac4546ea5e9659575da010ba3a7ca74133acc",
+        "Medium": "e48d15048707b5dd2cebb63249907300460712a8",
+        "Large": "5297896d8eae775193e7eaed886f7c326f91507f"
+      }
+    },
+    "Refresh": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "0e215593eb9e898f59d91db652be272bb25a43d6",
+        "Small": "18878444b5f27ec8d8cdedfa1e5ce7018b8932d2",
+        "Medium": "59665e9e27664406cb5cf1dd3c8415c8500c5150",
+        "Large": "a59b657a98d2acc242d503bda310dfa3934d3d99"
+      }
+    },
+    "Refund": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "f808b8051638d95a0dfc6890339490e09b7253be",
+        "Small": "453975876c8991a8b2293c4ab00506f7b639bd19",
+        "Medium": "30e230f74ba3167da7c4fc7481e608cc6d543a8e",
+        "Large": "4246e3eaf892289d727cb523313b2e4a558f6418"
+      }
+    },
+    "Reminder-Repeating": {
+      "category": "home-care",
+      "keys": {
+        "Tiny": "abc655cd0d443c8e0bf09aae154e78e2b81c5c5d",
+        "Small": "36ba3bdaf01ba67dcb2346ed07aa7e36420a404f",
+        "Medium": "08988a9bfc51535d45a12ee2e65aad93a3818283",
+        "Large": "c7f8a9054fcaff220ae512dc858a67d0b434a06f"
+      }
+    },
+    "Repair-Support": {
+      "category": "meta-category",
+      "keys": {
+        "Tiny": "f46b0aba7c708850b3d81edc2f9466f64615fe73",
+        "Small": "5e520552901bfd8dd8a728746257ab51df253021",
+        "Medium": "4156269b4c5fbc0f76de94dc1e7a70c6393f8915",
+        "Large": "b376a710c15746df2e717c8258664e815a27e10f"
+      }
+    },
+    "Reply": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "a51d13e16d227e89b15c018fdeef6428919aaedb",
+        "Small": "fb6ac283cb68b72feb14ed2c0154ccb3751462c3",
+        "Medium": "b3bf141615e2de5d08e64ffb3be98db5ec91b3f0",
+        "Large": "79c7ffd5ca2c969a653d1f6bfac3d615f3e86f92"
+      }
+    },
+    "Rocket": {
+      "category": "home-care",
+      "keys": {
+        "Tiny": "c3eb71a5c1244093401a4e38a3d2e4b95217437d",
+        "Small": "5f0715cc108d05e492b3b71bbacbc02f5be2cf9b",
+        "Medium": "1f73b17c23cf5f7696e86fc3a5143258ea399980",
+        "Large": "17a90810f1a450e14f17273273d746f9f4da0359"
+      }
+    },
+    "Roof": {
+      "category": "home-care",
+      "keys": {
+        "Tiny": "3f2dacdd8b893a5a02d74e5eeef63d3db9d15564",
+        "Small": "e00ed37ad11a0607da5679c1304164ed2ab84898",
+        "Medium": "a2c910d7891255458e65a222b06c8f363cb834c4",
+        "Large": "74beaf98f29a3f4867d4b1ea50bc465fa60b8f28"
+      }
+    },
+    "Schedule-Meeting": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "009842f53a2dfb1edbd39887fd26d441499776cc",
+        "Small": "1fe08db9a7544508dde028a0a79b8470b2b1bce9",
+        "Medium": "039e6c037f30de2d9f5c5bc7862619ba87d0ce52",
+        "Large": "7e3d9a4a01d0d818c092fdf9751367dae24a9c72"
+      }
+    },
+    "Scorpion": {
+      "category": "social",
+      "keys": {
+        "Tiny": "db319a8e388fffa61a35f69ec8f3b45f6b68d953",
+        "Small": "1c092c6c95310ee6857a631f917f5cae4217edfe",
+        "Medium": "2716039c4f16e8cea863567e247cbfc22d771c21",
+        "Large": "9c019762311acd3a9f41382a7b9d0c911cbd0504"
+      }
+    },
+    "Search": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "a73c63134d95be4b2245926775c98ca306ea5ee8",
+        "Small": "d1b93e32965d95d026770ed1eca88c9a51a99300",
+        "Medium": "089c62c3e9ba0c7c886cec15eaa3b47f34867770",
+        "Large": "4e76ae14e610b13605062a4717a38ae1e7396dc5"
+      }
+    },
+    "Security": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "fd7ca8ab012b6073fcf43485876df358b16cc5b6",
+        "Small": "dca6abfd68cf65f7461dfb1b4ae1d2ce01f6d037",
+        "Medium": "24f6ba7e1f4243111db4d61337b16471559e0032",
+        "Large": "50094ae19119c845e6354d8b265b395d361bc8de"
+      }
+    },
+    "Sent": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "734d540ef6f53e02c4539a25233d62b6741238c3",
+        "Small": "afa69951ad2f143aae7037cef7fb9cc4cbbdc387",
+        "Medium": "0c591d93442eb53a4ad8113fe1e1a85c8fc7ec9f",
+        "Large": "68db10815b8017c1130aa74f33263dedc1206658"
+      }
+    },
+    "Sent-Filled": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "5dd964ec29dd8874106c3b46428845396cd910a0",
+        "Small": "a21a0f1c16fe148a09ebc7a839218e0c70308594",
+        "Medium": "f9f653b3c75f5d3c8b2bb6837b0447d9bf1b1474",
+        "Large": "af97516ac1ac3b7abc8c6db811a3b1c6df45ef47"
+      }
+    },
+    "Services": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "a888e8e534a96c859c5486aa5d7b53d6e8781408",
+        "Small": "d12e34a8527015d2cc9c9307f09e98e99ed36cd3",
+        "Medium": "8bc649cdf913d48a95156427ea29c664d7452ac1",
+        "Large": "e50b7e529bfb3066345241164638b403b4ea2602"
+      }
+    },
+    "Services-Filled": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "f424cf3c74fdf565c9f6be75d771532636ea59c3",
+        "Small": "ead6854f11b070b58118bd3cc894a277f54f158b",
+        "Medium": "91b654fc3e917454db891d6881f8bc15adeebe96",
+        "Large": "60095fda3f67b056c4e1e55427596d81153d2c32"
+      }
+    },
+    "ServiceTitan": {
+      "category": "social",
+      "keys": {
+        "Tiny": "aa78b8639d289dc9676fe0ad4983fe9024049134",
+        "Small": "278f2af008d1252ff5d759c4b8c38db60ca47a13",
+        "Medium": "a300a5602394e19de794d81a8e8d31144f94573d",
+        "Large": "88b8f2fa1ea6114346a4d60dec289bd28cd12b03"
+      }
+    },
+    "Settings": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "daeb7e4d24c87447c959eb530a1effedac18ccf6",
+        "Small": "3a74da3ce12e84b553da320c6a90c9ebc3a9cb32",
+        "Medium": "484d09392d2f23483cbf1b2feca31a15fcaa35a9",
+        "Large": "018a0f89a3a17a0cdbfa5faaad787d72139b5411"
+      }
+    },
+    "Share": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "02921efeec931ad4970547522e3b8bb191d7827b",
+        "Small": "b82c7a7df53a760cd6cb2a0a362c515c651fd7ea",
+        "Medium": "9f3e1546229405afb4d33382193e8398258fdbbf",
+        "Large": "2b0ada5b1d0115d7f2957125dd899bf8980aeb70"
+      }
+    },
+    "Share-Alt": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "8d5c8dfe73e6e798465a91f22d6ba400af0b007a",
+        "Small": "672cdac1ef6593fa2c0fa4e6ba3cc1daf6a512f4",
+        "Medium": "e7b5f38bc015bef432a8028a3041037d16a7912f",
+        "Large": "f93d41b41eca1cf6e3ccc919434c212f1407f34f"
+      }
+    },
+    "Shrink": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "b3814880044263eac19da17c39b3ee57b9524380",
+        "Small": "938be196642ed50f9cbe587d425923c45fae0327",
+        "Medium": "ce26d310a2e5f0b18997971edb15da157aac1697",
+        "Large": "f35e3907baa5ec3642243de82627a9c1ff1c5455"
+      }
+    },
+    "Sign-Hanging": {
+      "category": "home-care",
+      "keys": {
+        "Tiny": "6d0d915f41775c52a209047672d037fcd13fbb74",
+        "Small": "363be043c4e47817b4894e50e038828f7df9f3c2",
+        "Medium": "653ebc7ac6750a84395f2d68a36593a254863062",
+        "Large": "d524a805fc6cbefea336a86cdff7b6c1b105af5d"
+      }
+    },
+    "Sort": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "718a951474b9cf5bf684e08e0deefbfb8b2f88a0",
+        "Small": "b0bd15d89702a17bba3367f9601e1b586816cdeb",
+        "Medium": "1971beb8bc0402d29e86c48eab776bf75a46c431",
+        "Large": "55d07fe77ea61f279424f8887bfb5bf470e45572"
+      }
+    },
+    "Sparkle": {
+      "category": "home-care",
+      "keys": {
+        "Tiny": "9382cdc3456e9fc38df5f4830fda18970419c1b7",
+        "Small": "5b720b4df2ee9df89a376891220add42e49294ca",
+        "Medium": "9217f70553f1533508b47f5eaac908de16d8da70",
+        "Large": "f636155e49e5f1db3400d3831274c8bab26ddb42"
+      }
+    },
+    "Spray-Bottle": {
+      "category": "home-care",
+      "keys": {
+        "Tiny": "1ce9b8649b2865653ced90902c00225c32c896ea",
+        "Small": "de47c6a38094d4bfc9a7f253b8ec2ac5eddf6b7b",
+        "Medium": "2f7a5f32d06908186018bc8e24b220f93c238d2e",
+        "Large": "0ce01442ad54fa88d28ba4638c62386406946801"
+      }
+    },
+    "Spring": {
+      "category": "meta-category",
+      "keys": {
+        "Tiny": "c56aadf334ddba0c07282b8b053f197b54b74b22",
+        "Small": "ef044531e31b2b045311f0f969f388f9748efef3",
+        "Medium": "b287e45c695dfc583827c599240c8d01d11bdedb",
+        "Large": "a0234632a7bc725d004e7d1bbbedd21fec14791e"
+      }
+    },
+    "Square": {
+      "category": "social",
+      "keys": {
+        "Tiny": "fba383bc6a1ae8d211e3dfabf2bae047ac9bb80d",
+        "Small": "f4a7c15cd3d3da932a0cdc7717368934b8fa0f3c",
+        "Medium": "6cb1fac7ed26103c1b690385f5ba2488097a84ed",
+        "Large": "626363767a703545c0c4684945b6bec1530e0f7f"
+      }
+    },
+    "Star": {
+      "category": "inputs",
+      "keys": {
+        "Tiny": "3eee25f11fb50c9d698e527c910576c5a2561428",
+        "Small": "d82c5a01866a6fed1655de77a2c5926ec55d96af",
+        "Medium": "52167638e67888b0e01c00d5e7c2b48ffe2970c1",
+        "Large": "23404221c0b8734bcafe89b724ca1bf1bb28218a"
+      }
+    },
+    "Star-Filled": {
+      "category": "inputs",
+      "keys": {
+        "Tiny": "2704c141c7f3ec6416ce7087b336a0dbc492de69",
+        "Small": "ebe8f98437d6ad0aaf4b6ff02e6f4eb38285f8f1",
+        "Medium": "129d91202795d0c0dc830b179d43984aeb9c794d",
+        "Large": "8a0b5da4f6aee123992507a817f1b116fd87d63d"
+      }
+    },
+    "Star-Half-Filled": {
+      "category": "inputs",
+      "keys": {
+        "Tiny": "5f67a589dc0170013d9588b317ac141ddcb2cb85",
+        "Small": "5ead912c1023def85ee5350135382194fb2f7c3c",
+        "Medium": "72f748de548748f594b14f424e6c52691df4c67c",
+        "Large": "ab1678851e0270c0bb0607b7cc5957849ea15364"
+      }
+    },
+    "Store": {
+      "category": "feature",
+      "keys": {
+        "Tiny": "22e4f1eaaef4842152b41203327c72ced99f4b52",
+        "Small": "f444a1b996b912fada21236d95c7c7640a69e70d",
+        "Medium": "8accc1cd1bc4ddbbaa8cc70efe23c1bc3fea6217",
+        "Large": "f9e5428a77d7d8ec47a549d32d99b9d82fcaed06"
+      }
+    },
+    "Store Filled": {
+      "category": "feature",
+      "keys": {
+        "Tiny": "d02d5a9bc7cff2bb97abf4a59ed0bd34f9070b73",
+        "Small": "8248c9df2ff2a2edad2043f6a502aaac982f3919",
+        "Medium": "bcc420e4bf1fc44759beb51193d4f178a88f036d",
+        "Large": "e94da29b96dab46bc4743ce7e7e34213431fabc0"
+      }
+    },
+    "Stroller": {
+      "category": "home-care",
+      "keys": {
+        "Tiny": "03a1cfeed4c004f83aa883881ecf260252cd67ff",
+        "Small": "ad6cce71b314e4c4a7cd38b43455930794cc510a",
+        "Medium": "c3b5729b22cb9069f45d491b454a8099a4aad75d",
+        "Large": "87a757fbd31820a57af7e46b6b55f733d5e64c18"
+      }
+    },
+    "Subtract": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "24c33d03196839c66ce19d36a489f35254920ba3",
+        "Small": "cf3cfcfa0fd1134560feb299f7598ad969edc05d",
+        "Medium": "f0cb59da02d85be8d8a52ba438a7176644d86da2",
+        "Large": "454d636fde628ccbe9f6976d730430f6e6fd085b"
+      }
+    },
+    "Summer": {
+      "category": "meta-category",
+      "keys": {
+        "Tiny": "8d99e5c26eb8304a63e6db94701606c492c74001",
+        "Small": "3793545d61cb3e6f2dbe8cfa3340bd25c2b2f23a",
+        "Medium": "268c6254802588744b0e52a60a02178b76bf3d7b",
+        "Large": "b5bbc8e3969fb9f283447cc1ffb606799332ee00"
+      }
+    },
+    "Sync": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "bffd28fa5164a17655cfb9898d0c144981d53fc8",
+        "Small": "bf319302be30375a4a697bc83c9754536af2e9c3",
+        "Medium": "3e084a9518d35c85855ce67fc35063a4a847b24f",
+        "Large": "1f9a2ac94c15ce9d7e078d020632df5477db990c"
+      }
+    },
+    "Thumbs-Down": {
+      "category": "inputs",
+      "keys": {
+        "Tiny": "33223d9d7ba0c332082ad5b8206bd4f2b5093d0b",
+        "Small": "fa74eaa8c656d5f32e43727face12bfb57df5e6a",
+        "Medium": "a32e288cac545b6bbbde7103514d9a4ccb45a9f9",
+        "Large": "c688442b1c01c460f19e3ca9d9aec5246839e8b3"
+      }
+    },
+    "Thumbs-Down-Filled": {
+      "category": "inputs",
+      "keys": {
+        "Tiny": "12727da62725b22c0b518a1d830b8c5777535a3a",
+        "Small": "d297bc50fb1b9af0dfeb3d03c0183e12fd88c124",
+        "Medium": "dabda1d2ef35cc8b894d0db198023ebea703d941",
+        "Large": "2283712fd866c7401aab5b8b1f8b8c6fe1e0a494"
+      }
+    },
+    "Thumbs-Up": {
+      "category": "inputs",
+      "keys": {
+        "Tiny": "2f63f8d11b4c5a3068f2bf46ca8cc5de8a023299",
+        "Small": "1a17f9c5255eae4f6382571fd6884fda26aabcea",
+        "Medium": "1bcf4431e894d95a106742ee7b492da008d91162",
+        "Large": "8646cbdf7cc97abf6984119de8af543ec73d5966"
+      }
+    },
+    "Thumbs-Up-Filled": {
+      "category": "inputs",
+      "keys": {
+        "Tiny": "3de7afc6b2b8cc9d37e0b95947917370a7200ed5",
+        "Small": "9a0cbe06e69e8735e2aa80b0df0371ad102b73b3",
+        "Medium": "01edcd93fe0aa72b2774f1e31b1cf8d9549259b0",
+        "Large": "f84d5640061f84a0fd97653d44ea7187b300a6c9"
+      }
+    },
+    "Time": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "30bac8b3f7fb200ffd58ff6ec51f045b386f3eea",
+        "Small": "bf087080f13861a1aa490b9f076c53f780f58a13",
+        "Medium": "8a4e42a9e2beda023f4f81f9c2e1bb932564a514",
+        "Large": "012f8fec41fc78a14178b462e23d2cdfb1abe393"
+      }
+    },
+    "Toolkit": {
+      "category": "home-care",
+      "keys": {
+        "Tiny": "450b744fb95cba6cd5e231148dbe17157d4c5924",
+        "Small": "e26f5bc1e86898300f3a95c04a11009e0f0fd2a1",
+        "Medium": "b980558dcec379938551fe80727ac436355683fa",
+        "Large": "63d5710f55a5876e4112319d4e873572631a6496"
+      }
+    },
+    "Trash": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "440fd88df55ac98f6dfa437a1d2bf01aebad1216",
+        "Small": "ff6cc839224c4ee2fd853f5ad3c3c3c6b60f62ed",
+        "Medium": "c76ccff5d112d7b13483e457cbfc98058e76aa0e",
+        "Large": "ed3cf5e64ac2ab314554c319f8b364a27156baf3"
+      }
+    },
+    "Trend": {
+      "category": "home-care",
+      "keys": {
+        "Small": "5a61820e6fb8dd267607c6923140d55db523a037",
+        "Medium": "2914b54670d5bc65131178b064181a254c216c9c",
+        "Large": "ae824fc9fc76c96ca322911f8bd0068626a5e8a3"
+      }
+    },
+    "Trend Icon": {
+      "category": "home-care",
+      "keys": {
+        "Tiny": "3779e6ef967f36691578009b3cb6d91a69c53b7b"
+      }
+    },
+    "Trophy": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "8cf54025209165bdfbaaa8f137d562fee6207f86",
+        "Small": "24729554f1c55532cd9e0449e1c20e7a86ba82b9",
+        "Medium": "58f7f5a68af5cd4cb55ccedd1fcf24834e3da4ba",
+        "Large": "fe966588f9d0354324509211f8d08905776b9565"
+      }
+    },
+    "Trophy-Filled": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "5e7b782f141e31e011d06768a5b8bdad97917c12",
+        "Small": "9be55080c686d2f0aabdaf2300d8fc6fdd2a87e7",
+        "Medium": "b69e887a98e665f005c8de8e94df9208f143601f",
+        "Large": "e3856886e3fc0a67826e71b212139f69d7154b8e"
+      }
+    },
+    "Twitter": {
+      "category": "social",
+      "keys": {
+        "Tiny": "9f2fae2473182cffc7e53e4ff35dbf4d4fd7180a",
+        "Small": "4290a3aa841f7f97a553a317ab96beafd3f10328",
+        "Medium": "597d6f0d8de7b5b99e3830867b7f85e074bda4ce",
+        "Large": "a886fd5576b07c92b9ae0a0a8e0687e7c1200d03"
+      }
+    },
+    "Upload": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "2c8dc500034af7b5caaf9de1c87716a184b529fb",
+        "Small": "9b193d4e3da6128f32e9de1ab21e48a156ed22d6",
+        "Medium": "374da1c5b635bace1a2717ba246276f2ac56dfac",
+        "Large": "a48fac9fc2dc0b9e92cd1358c6b32aadf6c5fc79"
+      }
+    },
+    "User": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "e42439d41a028ba6f9a8ab446887b58789fde720",
+        "Small": "0ce516eaa0540966116e72770cbcc939080127e3",
+        "Medium": "3890884b41de91c55a2a18c5cdbb3329d48ea7e1",
+        "Large": "e4a09f9248a9ad28c9dfbd3f8fb3926155505e23"
+      }
+    },
+    "Venmo": {
+      "category": "social",
+      "keys": {
+        "Tiny": "11944b5d38cc3017da1e94a5b30fd909b8cf1b12",
+        "Small": "51fc3f9b3f59b5bad787660cc983d300a2335897",
+        "Medium": "774610fe34b740377aa6cb353d16e74e0916c8ef",
+        "Large": "08c64e2adde431e722a5dda9588c2f55f64c58c9"
+      }
+    },
+    "Video": {
+      "category": "content-actions",
+      "keys": {
+        "Tiny": "7f5f0b4864fea0f3f83ba0afc43bf5c3f2c027ce",
+        "Small": "9505d4565680c6a4df539cb13362fa4e130d9ccb",
+        "Medium": "50f63e365b8d32e016fc2099f37f43da95ee4ad8",
+        "Large": "4727f9549f98b15ab35e9a6f909de7863d29cae8"
+      }
+    },
+    "Viewed": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "f1edef5596d8cbe6c68b4cfc9414e5ef0c88b27f",
+        "Small": "106f274125477ecedee577cc3028ba9895710e0c",
+        "Medium": "1663a2304d01f5b1a43ec8130533a3a244e1262a",
+        "Large": "023dad4bc83cd4a8251614a842cc8175b4d9eba6"
+      }
+    },
+    "Visa": {
+      "category": "credit-card",
+      "keys": {
+        "Tiny": "09b274056ab74535bc4b49b7c5cd3744ff23faf5",
+        "Small": "4c68456c784b441483e7e0c1d8f66fc0828302a8",
+        "Medium": "28752d96c549b91d48dd32582a846c1ba03f1a1e",
+        "Large": "48861ad30ebd833ff291975072dafcd17e9e3e71"
+      }
+    },
+    "Warning": {
+      "category": "notification-alerts",
+      "keys": {
+        "Tiny": "8707a786490019c28948a01b194b403d3f0a6bf4",
+        "Small": "93c6d78bf8e2488d088c295a1079a99477fd5637",
+        "Medium": "55e34492cc585695703bc5bbc529ac1b0cf35239",
+        "Large": "a7f5a7b4f36444f0aa9f3b060314c124c28de7c3"
+      }
+    },
+    "Warning-Filled": {
+      "category": "notification-alerts",
+      "keys": {
+        "Tiny": "fb1e18cc0037f117a365f9759f2ce927ed9b6f51",
+        "Small": "3d52ec420d691d97b006a99de3cad73cbfb9226a",
+        "Medium": "57fb812ed956236a196a8b2e0af1ea56a2cb4056",
+        "Large": "6b69edbaa3bad346b30a4c99bbd0c43f3d0ed346"
+      }
+    },
+    "Water-Drops": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "5d17c96eafceb0058bc27084f25c6474d3d859af",
+        "Small": "a6f9d7f2861b17f2395b178756ee0c45720ee4d6",
+        "Medium": "dd67232986bb0e452f1110e0425be2917a23b6ec",
+        "Large": "83ba0511e4d4741926b61ada2288059cd89587b7"
+      }
+    },
+    "Wave": {
+      "category": "meta-category",
+      "keys": {
+        "Tiny": "fa833c872f7ce565886d32e7d798625bbb11c399",
+        "Small": "80ea7eec532000d7f181e22dc100d32180f8894d",
+        "Medium": "422d8a6515e1885ba05a48771095a68eb29be3f0",
+        "Large": "79da61f9cbbac31d68ec97a12a73967041eb1afc"
+      }
+    },
+    "Waves": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "e66f9dc56df1c5210e56be97d770cfa57fe22016",
+        "Small": "f36f8c5eb5b3e380610ae70bf725ebf4aa06d8eb",
+        "Medium": "cb515793dc3565929450ca36bb5cab39559603bf",
+        "Large": "ce2103a09e33a210a130f67d946c84e7e4f388a2"
+      }
+    },
+    "Webhooks": {
+      "category": "social",
+      "keys": {
+        "Tiny": "e27c90671289bd38fe0a503609b1602b7b50ef14",
+        "Small": "d8508d5bc08f7a01bb905c987730e1617c1e7e60",
+        "Medium": "7e63aaf5616d4dd88d3875bdbf0f542abb60906e",
+        "Large": "4ca62f4d342decb7f3e1eeab030bf1d8f4d2cc0b"
+      }
+    },
+    "Website": {
+      "category": "content-modifier",
+      "keys": {
+        "Tiny": "6ab44c333ebf5cd8fce0cdba1875f94498c1b023",
+        "Small": "9893f9e96fb10d5cf11cc85f0462aefb13779c3d",
+        "Medium": "20cfdf853df8125f23ca173d11926e43286f3465",
+        "Large": "da27a680825619bd101d34abb3863a2f24c0ab1d"
+      }
+    },
+    "Wedding": {
+      "category": "meta-category",
+      "keys": {
+        "Tiny": "0bdbb8af72e1d9dba82e8afee269c8df55dc101c",
+        "Small": "bb5628fe3d3b29eb892c5fbda497ea6f3af1ed36",
+        "Medium": "b9039c427e42cada210edbf521268576a7cd7dee",
+        "Large": "97eb6a9496951cfe1d2054cd6c62069e8f737e1d"
+      }
+    },
+    "Wellness": {
+      "category": "meta-category",
+      "keys": {
+        "Tiny": "8b57ce97cb31617fbc1f82fb3a67ab4c74504001",
+        "Small": "fb4f55558b6b77970f033d032029927fd99d89e0",
+        "Medium": "5c54d2ec58a39a51325acaa88236a5a66b20ac0c",
+        "Large": "63e1bc92f2f5b36c36794dffa9f2fc94da151dc8"
+      }
+    },
+    "Wheelbarrow": {
+      "category": "home-care",
+      "keys": {
+        "Tiny": "b69085444b3ee76afab4264cced0346a743b3b1e",
+        "Small": "604ddc0f1b481037d5bc1cf45652cc1c08c58dba",
+        "Medium": "24cbbdf24b37a959289bfbf0473502ea4fdbae10",
+        "Large": "d5fc22f72e211404519612e22cff63ed1432ad9b"
+      }
+    },
+    "Window": {
+      "category": "home-care",
+      "keys": {
+        "Tiny": "5938e77bb82d86e9cf65447d390d54e24b1490db",
+        "Small": "dbe7941865e631fc2fc39c61d28d6a455c65e261",
+        "Medium": "fd3cd785e72956685e8eb3cc48ae9d7d144b4ae4",
+        "Large": "17c69f3f9e2e92244adecbf56a99ac5813835e15"
+      }
+    },
+    "Winter": {
+      "category": "meta-category",
+      "keys": {
+        "Tiny": "04263728ef7e399d93966924fee5117f246f1944",
+        "Small": "030b1a698a144c4c7602ea75af3c6488f85250ff",
+        "Medium": "ee07f0476165e2a6932d533d2d758ef3c7c13881",
+        "Large": "b48c00ed9a66ffb298c33a7eb2d4757ec1a27916"
+      }
+    },
+    "Workiz Circle": {
+      "category": "social",
+      "keys": {
+        "Tiny": "5853daed3686a9bca9403a46d8f0ce538e44938b",
+        "Small": "a45d4a0b956ef06ff49f802bb99f1ae31c5c00a9",
+        "Medium": "72d5a66c1d1b28fd7e037bb3368c172bc427706b",
+        "Large": "0e0ec4a618aa1ae9bd9b883d03cd81af9206033d"
+      }
+    },
+    "Writing-Translation": {
+      "category": "meta-category",
+      "keys": {
+        "Tiny": "26df818ebbeace4ce0e2f64a4cfa25d44721c054",
+        "Small": "3bfb217d2073453a38f236484a84ee4d600be639",
+        "Medium": "cfc23acae247a681deb8791e36c2cd7d5e74dbdd",
+        "Large": "e7062184964a70fc3169449bd5fb319cd70c195d"
+      }
+    },
+    "Zelle": {
+      "category": "social",
+      "keys": {
+        "Tiny": "7ce1c6a66bc9d0243d3a99e9093a05ecf284e0e7",
+        "Small": "39ffa5d144199c8a4ef55bf77e6878ac2f9bc771",
+        "Medium": "7d0b3eeabaee380784a93e76c1021ee0eda9821e",
+        "Large": "53b9a7bc1f1106879862bb73270088eb1e42050e"
+      }
+    }
+  }
+}

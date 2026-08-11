@@ -5,8 +5,10 @@ the source files and transcribing the results. They are recorded here so the
 captures are reproducible rather than one-time acts.
 
 Sections 1–5 read the Pushpin file, `VVRGrLgkPRU3vs765d5Q3r`. Section 6 reads
-the Annotation Kit, `Qefv6O2RMPSBtSYBrCGcdI`. Pass the right `fileKey` on every
-call; they are separate files and separate libraries.
+the Annotation Kit, `Qefv6O2RMPSBtSYBrCGcdI`. Section 7 reads the older
+Thumbprint UI Kit, `jjhhb3Kp6a7JrtBLCjrf6u`, which is where the icon set is
+published. Pass the right `fileKey` on every call; they are three separate files
+and three separate libraries.
 
 To find out **whether** anything changed, use [check.md](check.md) instead — one
 capture per vantage point, fed to `diff.mjs`, which classifies what moved. Come
@@ -268,6 +270,63 @@ Two things the merge has to handle:
 The Annotation Kit publishes no text or effect styles, and its single
 `Annotations / Tokens` collection documents Pushpin's variables rather than
 adding any, so there is nothing here corresponding to sections 2, 3 or 5.
+
+## 7. Icons
+
+`assets/icons.figma.json` — `fileKey: jjhhb3Kp6a7JrtBLCjrf6u`, page `2:1`.
+
+**Icons are not published from the Pushpin file.** They never were: the Pushpin
+kit's component dump holds 117 public entries and not one of them is an icon,
+which is why the plugin had no way to place one until this catalog existed. The
+set lives on the Icons page of the older Thumbprint UI Kit and publishes from
+that file's library. Capturing it against `VVRGrLgkPRU3vs765d5Q3r` returns
+nothing and looks like a kit that lost its icons.
+
+Two reads, neither sufficient alone:
+
+```
+list_file_components_for_code_connect   fileKey jjhhb3Kp6a7JrtBLCjrf6u
+get_metadata                            fileKey jjhhb3Kp6a7JrtBLCjrf6u, nodeId 2:1
+```
+
+The dump gives every published icon's name and `assetKey` and flattens the page
+to a list, losing the grouping entirely. The metadata gives the ten category
+frames and which icons sit inside each, and carries no keys. They join on
+`nodeId`. Save them and run the distiller:
+
+```bash
+node scripts/build-icons.mjs icons-raw.json icons-page.xml
+```
+
+Layer names are `<Name> Icon · <Size>` and the ramp is the whole point of the
+capture: **Tiny 14, Small 18, Medium 28, Large 32.** An icon is placed by
+importing the key for the size that is already correct, so the catalog stores
+one key per size and the audit uses the pixel values to catch a resized one.
+
+Four things the distiller handles that a hand-merge would get wrong:
+
+- **A name is not unique.** `Home` is published in both Navigation and Meta
+  Category at all four sizes — two real components sharing a name, the same trap
+  the Annotation Kit sets with its two `A11y / Annotation / Spec` entries.
+  Entries whose base name spans categories are keyed `<name> [<category>]` and
+  carry a `name` field with the true name. Collapsing on name alone drops one of
+  them and makes `publicKept` disagree with the key count.
+- **Not every icon publishes every size.** Five do not, and that is a fact about
+  the kit rather than a capture bug — `AI-Writing` has no Large,
+  `Messages Filled` and `Messages-Filled` split the ramp between two spellings.
+  They are recorded under `incomplete` so the placement rules can send a caller
+  to a size that exists instead of resizing a neighbour.
+- **Names are exact, including the mistakes.** `Trend Icon Icon · Tiny` and
+  `Home-Heart Icon Icon · Small` are really published with the doubled word.
+  Copy them through; a corrected spelling is a key that does not resolve.
+- **Five icons live off the Icons page** — older copies parked in a workspace,
+  plus one `_base /` internal. They are omitted and counted, because a stray
+  duplicate resolving under the same base name would shadow the canonical one.
+
+`scripts/verify.mjs` checks that `publicKept` matches the entry count, that
+`keyCount` matches the keys actually present, that no size is off the ramp, and
+that every incomplete icon is listed as incomplete. Those are what stop a lossy
+merge reading as a smaller kit.
 
 ## Transcription notes
 

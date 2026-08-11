@@ -3,7 +3,7 @@
   "source": {
     "fileKey": "VVRGrLgkPRU3vs765d5Q3r",
     "fileName": "Pushpin Thumbprint UI Kit",
-    "extractedAt": "2026-08-06",
+    "extractedAt": "2026-08-11",
     "publishedTotal": 1071,
     "internalOmitted": 951,
     "publicKept": 117
@@ -585,11 +585,15 @@
         },
         "Icon Left": {
           "type": "INSTANCE_SWAP",
-          "key": "Icon Left#22316:0"
+          "key": "Icon Left#22316:0",
+          "default": "_Arrow-Left Icon · Medium",
+          "defaultSize": "Medium"
         },
         "Icon Right": {
           "type": "INSTANCE_SWAP",
-          "key": "Icon Right#22316:261"
+          "key": "Icon Right#22316:261",
+          "default": "_Arrow-Right Icon · Tiny",
+          "defaultSize": "Tiny"
         },
         "Platform": {
           "type": "VARIANT",
@@ -913,11 +917,15 @@
         },
         "iconRight": {
           "type": "INSTANCE_SWAP",
-          "key": "iconRight#20713:0"
+          "key": "iconRight#20713:0",
+          "default": "_Close Icon · Tiny",
+          "defaultSize": "Tiny"
         },
         "icon": {
           "type": "INSTANCE_SWAP",
-          "key": "icon#20713:8"
+          "key": "icon#20713:8",
+          "default": "_Check Icon · Tiny",
+          "defaultSize": "Tiny"
         },
         "state": {
           "type": "VARIANT",
@@ -1587,11 +1595,15 @@
         },
         "iconLeft": {
           "type": "INSTANCE_SWAP",
-          "key": "iconLeft#13534:17"
+          "key": "iconLeft#13534:17",
+          "default": "_Arrow-Left Icon · Tiny",
+          "defaultSize": "Tiny"
         },
         "iconRight": {
           "type": "INSTANCE_SWAP",
-          "key": "iconRight#13534:21"
+          "key": "iconRight#13534:21",
+          "default": "_Arrow-Right Icon · Tiny",
+          "defaultSize": "Tiny"
         },
         "theme": {
           "type": "VARIANT",
@@ -2791,7 +2803,9 @@
         },
         "icon": {
           "type": "INSTANCE_SWAP",
-          "key": "icon#8499:0"
+          "key": "icon#8499:0",
+          "default": "_Video Icon · Tiny",
+          "defaultSize": "Tiny"
         },
         "Label": {
           "type": "TEXT",
@@ -3669,7 +3683,9 @@
         },
         "TextInputIcon / Small": {
           "type": "INSTANCE_SWAP",
-          "key": "TextInputIcon / Small#13232:20"
+          "key": "TextInputIcon / Small#13232:20",
+          "default": "_Search Icon · Small",
+          "defaultSize": "Small"
         },
         "👁️ Label": {
           "type": "BOOLEAN",

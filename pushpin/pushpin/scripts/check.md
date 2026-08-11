@@ -1,8 +1,9 @@
 # Checking the kit for changes
 
-Four read-only captures. The first three feed `scripts/diff.mjs`; the fourth
-covers the Annotation Kit, which `diff.mjs` does not read. Run them, save each
-result to a file, and diff. Nothing here writes to Figma.
+Six read-only captures across three files. Sections 1–3 and 5 feed
+`scripts/diff.mjs`; section 4 covers the Annotation Kit, which `diff.mjs` does
+not read. Run them, save each result to a file, and diff. Nothing here writes to
+Figma.
 
 Load the `figma-use` skill first — it is a required prerequisite for
 `use_figma`.
@@ -15,13 +16,14 @@ The captures below are manual and slow. Before taking them, run:
 node scripts/freshness.mjs
 ```
 
-It reports both captures' ages with no token at all, and with `FIGMA_TOKEN` set
-it also confirms that every component and style key in the Pushpin catalog and
-every component key in the Annotation Kit catalog still resolves. A clean run on
-a recent capture is good enough for most questions, and it costs one command
-instead of several plugin round-trips. Take the full captures when it exits
-non-zero, when you intend to update `assets/` anyway, or when you need to know
-exactly *what* moved rather than *that* something did.
+It reports all three captures' ages with no token at all, and with `FIGMA_TOKEN`
+set it also confirms that every component and style key in the Pushpin catalog,
+every component key in the Annotation Kit catalog, and every one of the 899 icon
+keys still resolves. A clean run on a recent capture is good enough for most
+questions, and it costs one command instead of several plugin round-trips. Take
+the full captures when it exits non-zero, when you intend to update `assets/`
+anyway, or when you need to know exactly *what* moved rather than *that*
+something did.
 
 Note that `freshness.mjs` reads the published state over REST. It cannot see
 unpublished editor state, which is the whole reason the kit capture below
@@ -195,13 +197,37 @@ An added or renamed page shows up as a changed `page` field and a changed
 scripts are keyed to page ids, so a page the capture does not visit is a set of
 components silently missing from the catalog.
 
-## 5. Diff
+## 5. Icon capture
+
+`fileKey: jjhhb3Kp6a7JrtBLCjrf6u` — the **older Thumbprint UI Kit**, not the
+Pushpin file. Icons are the one part of Pushpin published from somewhere else,
+which is why they need their own capture against their own file.
+
+Two reads, because neither alone distils:
+
+- `list_file_components_for_code_connect` with that `fileKey`. Save the raw
+  array as `icons-raw.json`. It carries the names and the `assetKey`s and
+  nothing about how the page is organised.
+- `get_metadata` with that `fileKey` and `nodeId: 2:1`. Save it as
+  `icons-page.xml`. It carries the ten category frames and which icons sit in
+  each, and no keys.
+
+They join on `nodeId`, and `diff.mjs` distils them with the same code that built
+the committed catalog.
+
+## 6. Diff
 
 ```bash
-node scripts/diff.mjs --kit kit.json --published published.json --components components-raw.json
+node scripts/diff.mjs --kit kit.json --published published.json \
+                      --components components-raw.json \
+                      --icons icons-raw.json --icons-page icons-page.xml
 ```
 
 Every argument is optional, so a quick token-only check is just `--kit`. The
-command exits non-zero if anything breaking turned up. It reads the Pushpin
-captures only; the Annotation Kit is covered by section 4 and by the
+command exits non-zero if anything breaking turned up. It reads the Pushpin and
+icon captures; the Annotation Kit is covered by section 4 and by the
 `annotations` layer in `freshness.mjs`.
+
+`--icons` needs `--icons-page` alongside it. Without the page metadata every
+icon distils as `uncategorised`, which would report as 227 category changes
+rather than as the missing input it is, so the script refuses instead.
