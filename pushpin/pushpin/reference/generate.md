@@ -494,9 +494,18 @@ Agent writes to Figma are **not recoverable with the user's undo stack.** Cmd+Z
 is their history, not yours. So nothing here edits existing work in place, and
 nothing here guesses a destination.
 
-**A link is required.** Ask for a Figma URL before pushing anything, and accept
-whatever form the user has — file, page, frame, or component. Do not start
-building in a scratch file and offer to move it afterwards.
+**A link is required, and it comes before everything.** Not before the first
+write — before the first call. No page reads, no catalog work, no access
+preflight until there is a URL, because every one of those is work against a
+file nobody has named yet. Accept whatever form the user has — file, page,
+frame, or component. Do not start building in a scratch file and offer to move
+it afterwards.
+
+**Ask for it; never go looking.** A missing link is a question, answered in a
+turn. It is not a search: no file hunt, no `search_design_system` to work out
+where the work should land, no subagent sent to find the user's project. The
+destination is something they have and you do not, and the minutes spent looking
+still end in a guess.
 
 **Resolve the link by traversing the tree.** `get_metadata` with no `nodeId`
 lists the file's pages; drill down from there. A file-level URL with one obvious

@@ -47,7 +47,7 @@
  * Usage:
  *   node scripts/freshness.mjs                      # capture age only
  *   FIGMA_TOKEN=figd_... node scripts/freshness.mjs # every layer it can reach
- *   node scripts/freshness.mjs --max-age 14         # stricter age budget
+ *   node scripts/freshness.mjs --max-age 14         # stricter age limit
  *   node scripts/freshness.mjs --offline            # never touch the network
  *   node scripts/freshness.mjs --strict             # an unreachable layer fails
  *   node scripts/freshness.mjs --json               # machine-readable
@@ -130,7 +130,7 @@ const phraseFor = (days) =>
   days === 0 ? 'captured today' : days === 1 ? 'captured yesterday' : `${days} days old`;
 
 // The three files are captured independently, so they age independently. The
-// budget is tested against the oldest of them: a current Annotation Kit says
+// age limit is tested against the oldest of them: a current Annotation Kit says
 // nothing about a Pushpin capture that has been sitting for two months.
 const captures = [
   {
@@ -184,14 +184,16 @@ const layer = (name, status, detail, mark) =>
 layer(
   'capture age',
   ageStale ? 'fail' : 'pass',
-  `${oldest.fileName} ${agePhrase}, ` +
-    `${ageStale ? 'past' : 'within'} the ${maxAge}-day budget`,
+  ageStale
+    ? `${oldest.fileName} ${agePhrase} — past the ${maxAge}-day refresh point`
+    : `${oldest.fileName} last captured ${oldest.capturedAt}, ${agePhrase}`,
   ageStale ? 'stale' : 'ok',
 );
 if (ageStale) {
   report.findings.push(
-    `The ${oldest.fileName} capture is ${ageDays} days old (budget ${maxAge}). Nothing is ` +
-      `known to have changed — only that it has been long enough that nobody has checked.`,
+    `The ${oldest.fileName} capture has not been taken in ${ageDays} days. Nothing is known ` +
+      `to have changed — only that it has been long enough that nobody has checked, so ` +
+      `re-capture it before trusting a value out of it.`,
   );
 }
 

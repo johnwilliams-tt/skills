@@ -1,25 +1,29 @@
 # A bare invoke
 
 `/pushpin` with nothing after it is a real request. It means "what should I do
-here?" Answer it with one line on freshness, two or three things worth doing,
-and a question. Run nothing else, and act on nothing until the user picks.
+here?" Answer it with two or three things worth doing and a question. Run
+nothing else, and act on nothing until the user picks.
 
-## The freshness line
+## Freshness, only when it matters
 
-Run `node scripts/freshness.mjs` and compress its answer into one sentence about
-the kit. The Annotation Kit's separate date, the layers it skipped, and the
-instructions for setting `FIGMA_TOKEN` are detail that does not belong in a
-greeting.
+`node scripts/freshness.mjs` still runs before the picks, the way Start here
+requires. What it adds to the greeting depends on what it finds.
 
-- Current: **Pushpin is up to date — the kit was captured 4 days ago.**
-- Over 30 days: **The Pushpin capture is 47 days old, so parts of it may have
-  moved since — refreshing is the first thing I'd do.**
+- Clean: **nothing.** Open on the picks. The kit being current is the expected
+  case, and a greeting that leads with it spends its best line on non-news.
+- Aged out or a key that no longer resolves: one sentence, first, then `refresh`
+  at the top of the picks — **The Pushpin kit was last pulled on June 12, so
+  parts of it may have moved since; refreshing is where I'd start.**
 
-If `node` is unavailable, take the age from `capturedAt` the way Start here
-already describes, and say the same sentence.
+Either way the Annotation Kit's separate date, the layers that were skipped, and
+the instructions for setting `FIGMA_TOKEN` stay out of it. If `node` is
+unavailable, take the age from `capturedAt` the way Start here already
+describes, and apply the same rule.
 
 ## What never appears
 
+- The capture date, its age, or a reassurance that the kit is current. When
+  there is nothing to refresh there is nothing to say.
 - Check counts, asset hashes, or whether the stylesheet still matches its source
   JSON. `verify.mjs` is a maintainer's tool and is not run here.
 - Which copy of the plugin is loaded.
@@ -69,10 +73,16 @@ Close with a single `AskQuestion` call rather than an open prompt, so choosing
 is one click. Its options are the picks in the order they were just made,
 followed by two constants:
 
-- **A prototype in the browser.** Your build tool builds it; Pushpin supplies
-  the tokens it has to build against, and `check` catches what drifted.
+- **Build it here and check it in the browser.** Your build tool builds it;
+  Pushpin supplies the tokens it has to build against, and `check` catches what
+  drifted.
 - **Something else.** An open-ended option, since the picks are inferences and
   can all be wrong.
+
+These are the same three surfaces as
+[Which surface](../SKILL.md#which-surface) — Figma, this project, or a straight
+answer from the tokens — worded the same way, so a user who lands here and a
+user who lands there are answering one question rather than two.
 
 Nothing runs before the answer. When it comes back, load the reference doc for
 that row of the Routing table and carry on.

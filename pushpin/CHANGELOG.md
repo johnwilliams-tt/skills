@@ -18,7 +18,42 @@ the toolchain, which `diff.mjs` has no category for.
 
 ## Unreleased
 
-Nothing yet.
+**Changed**
+
+- **The freshness check is silent when there is nothing to refresh.** Every
+  session used to open on some version of "capture is 5 days old (within
+  budget)" — a measurement, in the plugin's own vocabulary, answering a question
+  the user had not asked. Worse, it was reassurance on a schedule, and a green
+  line every session is exactly what teaches someone to skim past the one that
+  is not green. The check still runs first, before a layout is generated or a
+  hex is quoted; a clean result now produces no line at all, and a stale one
+  produces a sentence about what may have moved and what to do about it. Asking
+  for `/pushpin freshness` still prints the full layer table, because then it is
+  the thing being asked for.
+- **"Budget" is gone from the output.** The age layer reports the date it was
+  captured on the way through, and the day count only when that count is the
+  problem.
+- **Which surface the work happens on is settled before anything is routed.**
+  Pushpin governs two of them — a Figma canvas and a running project — and
+  almost every phrasing of "make me one of these" fits both. Three things settle
+  it: a link or the word Figma, a code file or an initialized repo, or the
+  request simply being a token question. Short of those it is one `AskQuestion`
+  before any other tool call, worded the same as the bare-invoke menu's, so both
+  entry points ask one question rather than two.
+
+**Fixed**
+
+- **A design request no longer means a Figma request.** The first row of the
+  routing table sent "mock up a booking screen" and "add a step to this flow"
+  straight to `generate`, which only writes to Figma, though neither phrasing
+  mentions it. The counterweight — "a link is required" — lives in
+  `reference/generate.md`, which is read only after that decision, so the agent
+  arrived believing it was in Figma and merely short an address. What followed
+  was a search: reads, and in one session two subagents, spent working out a
+  destination the user could have pasted in a single turn, and could not have
+  wanted in the first place if they meant to build in the browser. Destinations
+  are now asked for and never looked for, and the link is required before the
+  first call rather than before the first write.
 
 ## 0.5.0 — 2026-08-11
 

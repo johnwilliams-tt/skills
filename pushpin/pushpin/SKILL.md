@@ -1,7 +1,7 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.5.0
+version: 0.5.1
 argument-hint: "[generate|audit|figma|check · init|freshness · refresh] [target]"
 allowed-tools:
   - Bash(${CLAUDE_SKILL_DIR}/scripts/*)
@@ -24,18 +24,31 @@ The capture has a date, and it is not a live feed. Every local check compares
 months ago.
 
 So the first time Pushpin is picked up in a session, run
-`node scripts/freshness.mjs` and report the capture's age before anything
-consequential — generating a Figma layout, quoting an exact hex, stating a
-component's variant options. It needs no token and no network to answer that,
-and with `FIGMA_TOKEN` set it also asks Figma whether the import keys still
-resolve. If the capture is more than 30 days old, say so unprompted rather than
-presenting it as current.
+`node scripts/freshness.mjs` before anything consequential — generating a Figma
+layout, quoting an exact hex, stating a component's variant options. It needs no
+token and no network to answer, and with `FIGMA_TOKEN` set it also asks Figma
+whether the import keys still resolve.
+
+**A clean result is not news. Say nothing and carry on** — no date, no age, no
+account of which layers ran. A green line every session is what teaches people
+to skim past the one that is not green.
+
+**Speak only when a refresh would change what gets built**, and say it the way
+the user would: what may be wrong, what it costs, and the one thing to do about
+it. Not "capture", "budget", or "layer".
+
+- Aged out: **Pushpin's copy of the Figma kit was pulled on June 12, so a token
+  or component may have moved since — refreshing it is the first thing I'd do.**
+- A key that no longer resolves is the sharper case and gets named concretely:
+  which library it belongs to, and that a generation run against it dies partway
+  rather than at review.
 
 If the script cannot run — no `node` on the machine, most often — do not skip the
 obligation and do not stop. Read `capturedAt` from `assets/manifest.json`
-directly, report the age from that, and say that the key-resolution layers are
-unavailable until `node` is installed. The point of this rule is that nobody is
-told a stale capture is current, and a plain file read satisfies that.
+directly and apply the same rule: recent means silence, old means the sentence
+above, and only in that second case add that the key checks are unavailable
+until `node` is installed. The point of this rule is that nobody is told a stale
+capture is current, and a plain file read satisfies that.
 
 That is the whole obligation, and it is stated once. Nothing further down
 repeats it.
@@ -114,11 +127,40 @@ same ground from plain speech.
 Figma-to-React mapping question is answered by loading its reference doc, and
 routing does that without being asked.
 
+## Which surface
+
+Pushpin governs design on two surfaces — a Figma canvas and a running project —
+and almost every phrasing of "make me one of these" fits both. **Settle which
+one before routing.** Three things settle it, and nothing else does:
+
+- A figma.com URL anywhere in the conversation, or the request naming Figma, a
+  frame, or the canvas — **Figma**.
+- An attached or open code file, or a repo holding `pushpin.config.json`, with
+  the request phrased about code — **this project, in code and the browser**.
+- A token or component question — **neither**, just answer it.
+
+Short of those, ask, in a single `AskQuestion` call before any other tool call:
+mock it up in Figma, build it here and check it in the browser, or answer from
+the tokens. Add the open-ended option, because the read of the request that got
+you here can be wrong too.
+
+**Nothing is searched for.** No hunting for a Figma file, no
+`search_design_system` to work out where the work should land, no subagent sent
+looking. The destination is something the user has and you do not, so a search
+spends minutes arriving at a guess where a question spends one click arriving at
+a fact. This is the whole reason the question exists.
+
+**Figma with no link stops and waits.** Do not create a file, do not start in a
+scratch one, do not build and offer to move it. Nothing is written to a
+destination the user did not name — see
+[Where designs get written](#where-designs-get-written).
+
 ## Routing
 
 | The request sounds like | Capability | Load |
 |---|---|---|
-| "mock up a booking screen", "add a step to this flow", "make a Figma of this page" | `generate` | [reference/generate.md](reference/generate.md) |
+| "make me a booking screen", "add a step to this flow" — with no surface named | ask first | [above](#which-surface) |
+| the same request once Figma is settled — "mock this up in Figma", or a link to build against | `generate` | [reference/generate.md](reference/generate.md) |
 | "does this match Pushpin", "review this frame", is this Figma work on-system | `audit` | [reference/generate.md](reference/generate.md) |
 | a figma.com link where code is the goal — "build this screen", "what does this design use" | `figma` | [reference/figma.md](reference/figma.md) |
 | "what's our card radius", "which token for a disabled label", anything about dark mode | token question | [reference/tokens.md](reference/tokens.md) |
@@ -132,13 +174,14 @@ routing does that without being asked.
 | "Pushpin shipped a release", "the kit moved", `freshness` exited non-zero | `refresh` | [below](#refreshing-the-capture) |
 
 - **Bare `/pushpin`** — a real request meaning "what should I do here?" Answer
-  it with a friendly status line and a recommendation, following
+  it with two or three recommendations and a question, following
   [reference/start.md](reference/start.md).
 - **A clear signal** — take it and load the doc in its row. Ask once when two
   rows genuinely fit; when one is plainly stronger, pick it instead of asking.
-- **No signal** — ordinary design work under the hard rules below. Once a
-  project is initialized, plain speech is the whole interface and nothing here
-  needs to be invoked by name.
+- **No signal** — ordinary design work under the hard rules below, on whichever
+  surface [Which surface](#which-surface) settled. No signal is not a licence to
+  pick one. Once a project is initialized, plain speech is the whole interface
+  and nothing here needs to be invoked by name.
 
 ## Using it in a project
 
@@ -252,7 +295,7 @@ Load these as the task requires rather than up front.
 
 | Doc | When |
 |---|---|
-| [reference/start.md](reference/start.md) | A bare `/pushpin` with no argument: what to say about freshness, where to start given what is actually present, and the follow-up |
+| [reference/start.md](reference/start.md) | A bare `/pushpin` with no argument: where to start given what is actually present, when freshness is worth a line, and the follow-up |
 | [reference/generate.md](reference/generate.md) | **Building a layout in Figma.** Where the work gets written, how to place real component instances and bind real variables, when a `Proposed /` component is legal, and how to audit what you built |
 | [reference/annotate.md](reference/annotate.md) | Leaving notes on a canvas: arguing a proposed component, or writing an accessibility spec, using published Annotation Kit instances — the nested auto-layout that keeps notes readable beside a specimen of what they describe, and the drawn fallback for when that library is out of reach |
 | [reference/context.md](reference/context.md) | **Grounding in the page.** Which calls read a page and in what order, how to phrase the offer, how much to read once it is accepted, and how the gate on other pages is declined |
@@ -331,7 +374,7 @@ out of reach, so it is worth running even with nothing configured.
 ```bash
 node scripts/freshness.mjs                       # capture age; no token, no network
 FIGMA_TOKEN=figd_... node scripts/freshness.mjs  # also checks every import key
-node scripts/freshness.mjs --max-age 14          # stricter age budget
+node scripts/freshness.mjs --max-age 14          # stricter age limit
 node scripts/freshness.mjs --offline             # never touch the network
 node scripts/freshness.mjs --json                # machine-readable
 node scripts/freshness.mjs --strict              # an unreachable layer fails
