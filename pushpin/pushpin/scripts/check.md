@@ -199,9 +199,9 @@ components silently missing from the catalog.
 
 ## 5. Icon capture
 
-`fileKey: jjhhb3Kp6a7JrtBLCjrf6u` — the **older Thumbprint UI Kit**, not the
-Pushpin file. Icons are the one part of Pushpin published from somewhere else,
-which is why they need their own capture against their own file.
+`fileKey: jjhhb3Kp6a7JrtBLCjrf6u` — the **Thumbprint UI Kit**, not the Pushpin
+file. Icons are published from there by design rather than pending a move, which
+is why they need their own capture against their own file.
 
 Two reads, because neither alone distils:
 

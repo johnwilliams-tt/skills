@@ -35,10 +35,11 @@
  * or effect styles and its variables are not used, so it gets a component layer
  * and nothing else.
  *
- * The third file is the older Thumbprint UI Kit, which is where the icon set is
- * actually published — not the Pushpin file, despite icons being part of
- * Pushpin. Icons are placed early and everywhere, so a dead icon key takes a
- * run down near the start; it also gets a component layer and nothing else.
+ * The third file is the Thumbprint UI Kit, which is where the icon set is
+ * published — not the Pushpin file, despite icons being part of Pushpin, and by
+ * design rather than by omission. Icons are placed early and everywhere, so a
+ * dead icon key takes a run down near the start; it also gets a component layer
+ * and nothing else.
  *
  * Nothing here writes a file. For the capture itself, see pull-published.mjs
  * and scripts/check.md.

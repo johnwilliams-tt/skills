@@ -1,7 +1,7 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.4.1
+version: 0.5.0
 argument-hint: "[generate|audit|figma|check · init|freshness · refresh] [target]"
 allowed-tools:
   - Bash(${CLAUDE_SKILL_DIR}/scripts/*)
@@ -200,6 +200,11 @@ covered the case, which is worth noticing.
   cannot supply gets a marked placeholder and an open question, never an
   omission — and a child that could not be resolved never takes its parent with
   it.
+- **A library out of reach degrades the run rather than ending it.** Only
+  Pushpin itself is load-bearing enough to stop one. Unreachable icons become
+  placeholders and unreachable Annotation Kit means notes are drawn instead of
+  instanced — both reported, never quietly substituted. Abandoning a screen over
+  a library the design never needed is the worse answer.
 
 ## Where designs get written
 
@@ -249,7 +254,7 @@ Load these as the task requires rather than up front.
 |---|---|
 | [reference/start.md](reference/start.md) | A bare `/pushpin` with no argument: what to say about freshness, where to start given what is actually present, and the follow-up |
 | [reference/generate.md](reference/generate.md) | **Building a layout in Figma.** Where the work gets written, how to place real component instances and bind real variables, when a `Proposed /` component is legal, and how to audit what you built |
-| [reference/annotate.md](reference/annotate.md) | Leaving notes on a canvas: arguing a proposed component, or writing an accessibility spec, using published Annotation Kit instances |
+| [reference/annotate.md](reference/annotate.md) | Leaving notes on a canvas: arguing a proposed component, or writing an accessibility spec, using published Annotation Kit instances — the nested auto-layout that keeps notes readable beside a specimen of what they describe, and the drawn fallback for when that library is out of reach |
 | [reference/context.md](reference/context.md) | **Grounding in the page.** Which calls read a page and in what order, how to phrase the offer, how much to read once it is accepted, and how the gate on other pages is declined |
 | [reference/tokens.md](reference/tokens.md) | Choosing a token; need the full vocabulary or the dark-mode story |
 | [reference/components.md](reference/components.md) | Building UI in code; mapping Figma components to Thumbprint React |
@@ -262,9 +267,10 @@ guessable:
 - `assets/components.figma.json` — all 117 published components, their exact
   variant options, and the key to import each one.
 - `assets/icons.figma.json` — 227 icons at up to four sizes each, 899 import
-  keys. **Icons are published from the older Thumbprint UI Kit, not from
-  Pushpin** — searching the Pushpin library for a caret returns nothing and
-  reads as "no such icon". See [reference/generate.md](reference/generate.md).
+  keys. **Icons are published from the Thumbprint UI Kit, not from Pushpin,** and
+  deliberately so — one set of glyphs serves both systems. Searching the Pushpin
+  library for a caret returns nothing and reads as "no such icon". See
+  [reference/generate.md](reference/generate.md).
 - `assets/variable-keys.figma.json` — which of the kit's 299 variables can be
   bound from another file (131) and which are hidden from publishing (168).
 - `assets/styles.figma.json` — the 13 text styles and 6 effect styles, which are

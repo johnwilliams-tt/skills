@@ -5,10 +5,10 @@
  * omitting the icon or scaling one from the wrong size ramp.
  *
  * Icons are the one part of Pushpin that is not published from the Pushpin
- * file. They live on page `2:1` of the older Thumbprint UI Kit
- * (`jjhhb3Kp6a7JrtBLCjrf6u`) and are published from its library, which is why
- * they never appeared in components.figma.json and why nothing in the plugin
- * could place one.
+ * file. They live on page `2:1` of the Thumbprint UI Kit
+ * (`jjhhb3Kp6a7JrtBLCjrf6u`) and are published from its library — deliberately,
+ * so one set of glyphs serves both systems — which is why they never appeared in
+ * components.figma.json and why nothing in the plugin could place one.
  *
  * Two inputs, because neither alone is enough:
  *

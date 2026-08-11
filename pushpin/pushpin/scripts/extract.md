@@ -278,9 +278,10 @@ adding any, so there is nothing here corresponding to sections 2, 3 or 5.
 **Icons are not published from the Pushpin file.** They never were: the Pushpin
 kit's component dump holds 117 public entries and not one of them is an icon,
 which is why the plugin had no way to place one until this catalog existed. The
-set lives on the Icons page of the older Thumbprint UI Kit and publishes from
-that file's library. Capturing it against `VVRGrLgkPRU3vs765d5Q3r` returns
-nothing and looks like a kit that lost its icons.
+set lives on the Icons page of the Thumbprint UI Kit — deliberately, so one set
+of glyphs serves both systems — and publishes from that file's library. Capturing
+it against `VVRGrLgkPRU3vs765d5Q3r` returns nothing and looks like a kit that
+lost its icons.
 
 Two reads, neither sufficient alone:
 

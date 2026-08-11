@@ -126,17 +126,22 @@ else on this page:
 - A `Capstones` instance heading the annotated area.
 - One `Annotations` note per proposal, in the annotation column beside the
   frame.
+- **An instance of the proposed component beside its own note**, so the claim and
+  the thing being claimed about are read together instead of from memory.
 - An anchor tying the note to the local instance it is about — a pointer for a
   handful of notes, a number for more than three.
 - A short summary frame at the top of the column listing every proposal on the
   screen.
 
-**All of it goes in one auto-layout column, and none of it is positioned by
-hand.** Notes are 320 to 500 points wide and overlap each other the moment they
-are placed relative to what they describe; the column is what stops that.
-[annotate.md](annotate.md#placement) has the gutter, the gap, the ordering, and
-the numbering rule, and the audit fails on any annotation that overlaps another
-or the design.
+**All of it is nested auto-layout, and nothing in it is positioned by hand.**
+Notes are 320 to 500 points wide and overlap each other the moment they are
+placed relative to what they describe. One frame — the outermost — carries
+coordinates; the capstone, the gutter, the column width, and every note's
+alignment are set once on a parent and derived from there, so widening a note or
+reordering a proposal costs nothing.
+[annotate.md](annotate.md#placement) has the nesting, the gutter, the gap, the
+ordering, and the numbering rule, and the audit fails on any annotation that
+overlaps another or the design.
 
 The note body is key-value lines. It reads in the narrow 320px box and the audit
 can parse it:
@@ -172,6 +177,24 @@ unresolved atom in the same summary: a gap the design system owner can see is
 the point of both, and the two questions — "should we build this component?"
 and "what should this icon be?" — go to the same person. Nothing is written to
 disk.
+
+**Lead with any library the preflight could not reach**, above the proposals and
+the unresolved atoms, because it reframes everything under it. A screen full of
+`Placeholder / icon` is a different artifact depending on whether the icon set
+lacks those glyphs or this account simply cannot see the library, and the reader
+cannot tell the two apart from the canvas. Name the library, say what stood in
+for it, and say what would restore it:
+
+```markdown
+**The Thumbprint UI Kit was out of reach**, so all 6 icons on this screen are
+placeholders rather than missing glyphs — Pushpin's icons are published from
+that file. Notes are drawn rather than Annotation Kit instances for the same
+reason. Both are fixed by access to those files, not by a change to the design.
+```
+
+The failure mode this prevents is a reviewer concluding the design system is
+missing something it publishes, and a proposal being written for a component that
+already exists.
 
 ## Placing a component
 
@@ -253,10 +276,11 @@ Never set a property from memory.
 
 Icons are the part of the kit most likely to be got wrong, and all three ways of
 getting it wrong come from the same place: **the icon set is not published from
-the Pushpin file.** It lives in the older Thumbprint UI Kit
-(`jjhhb3Kp6a7JrtBLCjrf6u`), and a `search_design_system` call scoped to Pushpin
-returns nothing for `caret`. That reads as "Pushpin has no caret" and it is
-wrong — there are four, at four sizes each.
+the Pushpin file.** It is published from the Thumbprint UI Kit
+(`jjhhb3Kp6a7JrtBLCjrf6u`), where it lives deliberately — one set of glyphs
+serving both systems rather than a copy in each — and a `search_design_system`
+call scoped to Pushpin returns nothing for `caret`. That reads as "Pushpin has no
+caret" and it is wrong — there are four, at four sizes each.
 
 `assets/icons.figma.json` is the catalog: 227 icons across ten categories, 899
 import keys. Read it the same way you read the component catalog, and never
@@ -402,7 +426,8 @@ literal fills, no drawn lookalike of the thing that is missing.
 
 Each one gets a `Sticky Note Status` instance with `Theme: Open Question`,
 placed in the annotation column rather than on the frame —
-[annotate.md](annotate.md) has the placement. That component exists "to provide
+[annotate.md](annotate.md) has the placement, and its drawn stand-in for when the
+Annotation Kit is out of reach. That component exists "to provide
 information about a design that otherwise might be nested in comments", and an
 asset the system cannot supply is exactly such a question.
 
@@ -510,56 +535,90 @@ branch and the contribution flow, which this plugin documents in
 Keys are not per-user. File keys, library keys, and component keys belong to the
 file, the library, and the component, so the committed catalogs resolve
 identically for every account in the org. **Access is per-user** — whether this
-account can read those files, and whether the library is enabled in the file
-being generated into.
+account can read the file the component is published from.
 
 `freshness` cannot answer that. It validates keys against whatever credentials
 happen to be present, usually the maintainer's or none, so it reports clean while
-a teammate's generation dies mid-run inside `importComponentByKeyAsync`. The
-second and third libraries make that materially more likely: most product files
-subscribe to Pushpin and not to the Annotation Kit, and the icon library is the
-least likely of the three to be enabled, because nothing about it announces that
-Pushpin's icons live in the predecessor file.
+a teammate's generation dies mid-run inside `importComponentByKeyAsync`. Pushpin
+draws components from three separate libraries and a given account rarely reaches
+all three: most product files are set up against Pushpin alone, and the icon
+library is the least likely of the three to be within reach, because nothing
+about Pushpin announces that its icons are published from Thumbprint.
 
 So before creating any node, resolve one known key from each of the three.
 
 ```js
 const probes = [
-  ['Pushpin', 'set', 'ebc80753f095633977049c061a28a082816ef9c7'],       // Button
-  ['Icons', 'component', '9f82048ae8b63ce69e24cb84a5d3a514ba20dee7'],   // Caret-Left · Small
-  ['Annotation Kit', 'set', '<a COMPONENT_SET key from assets/annotations.figma.json>'],
+  ['pushpin', 'set', 'ebc80753f095633977049c061a28a082816ef9c7'],        // Button
+  ['icons', 'component', '9f82048ae8b63ce69e24cb84a5d3a514ba20dee7'],    // Caret-Left · Small
+  ['annotations', 'set', 'aa6e465a9c85c4067a897cc46408bd116d1e3e69'],    // Annotations
 ];
 
-const unreachable = [];
+const reach = {};
 for (const [library, kind, key] of probes) {
   try {
     await (kind === 'set'
       ? figma.importComponentSetByKeyAsync(key)
       : figma.importComponentByKeyAsync(key));
+    reach[library] = true;
   } catch (e) {
-    unreachable.push(`${library} — ${e.message}`);
+    reach[library] = e.message;
   }
 }
-return unreachable;
+return reach;
 ```
 
 Every icon is a plain `COMPONENT` rather than a set, which is why the icon probe
 uses `importComponentByKeyAsync`. Use the same call for any catalog entry whose
 `type` is `"COMPONENT"`.
 
-An unreachable icon library is the one failure worth calling out by name in the
-report, because the obvious reading of it — "Pushpin has no caret icon" — is
-wrong and sends the next person to propose a component that already exists.
+### One library stops the run, and it is not all of them
 
-Stop on failure, and report **which library was unreachable.** The next step is
-`whoami`, which Figma documents for exactly this class of access and rate-limit
-debugging. The fix is access to the file, or enabling that library in the target
-file — not a change to the catalog, and not a re-capture. Running `freshness`
-again will keep reporting clean.
+An earlier version of this page stopped on any of the three. That is the wrong
+trade in two of the three cases, and it produced the worst possible outcome for
+the most common setup: a file reaching Pushpin but not the Annotation Kit could
+not generate at all, including a layout with no proposals that would never have
+placed a note.
 
-Naming the library matters more than naming the key. "Enable the Thumbprint UI
-Kit in this file" is a thing a designer can do in thirty seconds; a raw
-`Component with key "9f8204…" not found` is not.
+| Unreachable | Consequence |
+|---|---|
+| **Pushpin** | **Stop.** Nothing can be placed. Every component, variable, and text style this page relies on is published from here, and a screen with none of them is not a degraded screen, it is an empty one. |
+| Icons | Continue. Every icon becomes a `Placeholder / icon · <Size>` by the rule in [Unresolved atoms](#unresolved-atoms-are-placed-never-dropped). |
+| Annotation Kit | Continue. Notes are drawn instead of instanced — the fallback is in [annotate.md](annotate.md#when-the-annotation-kit-is-out-of-reach). |
+
+Both degraded modes are recorded and reported, and neither fails the audit. That
+follows the rule the `unresolved` bucket already sets: a stated gap is an outcome
+worth handing over, and what fails is hiding one.
+
+So the preflight decides how the run proceeds rather than whether it proceeds:
+
+```js
+if (reach.pushpin !== true) return { stop: `Pushpin unreachable — ${reach.pushpin}` };
+
+const mode = {
+  icons: reach.icons === true ? 'library' : 'placeholder',
+  annotations: reach.annotations === true ? 'library' : 'drawn',
+};
+```
+
+Carry `mode` through the run. It decides what step 7 imports, and it is what the
+audit and the handoff report at the end.
+
+### Naming the library that was out of reach
+
+Whether it stopped the run or degraded it, **report which library** and carry it
+to the handoff. The next step is `whoami`, which Figma documents for exactly this
+class of access and rate-limit debugging. The fix is access to the file the
+component is published from — not a change to the catalog, and not a re-capture.
+Running `freshness` again will keep reporting clean.
+
+Naming the library matters more than naming the key. "You are not reaching the
+Thumbprint UI Kit, which is where Pushpin's icons are published" is something a
+designer can act on; a raw `Component with key "9f8204…" not found` is not.
+
+The icon library is the one to be loudest about, because the obvious reading of
+its absence — "Pushpin has no caret icon" — is wrong, and it sends the next
+person to propose a component that already exists.
 
 Failing here costs nothing. Failing halfway through leaves a partial screen that
 reads like a generation bug rather than a permissions one.
@@ -571,11 +630,14 @@ reads like a generation bug rather than a permissions one.
 2. **Read the page and offer it.** Walk up to the resolved frame's page, take
    its children, and offer the context naming what is on it —
    [context.md](context.md). Skip the offer when the page holds nothing else.
-3. **Run the access preflight.** Before any node is created.
+3. **Run the access preflight.** Before any node is created. Stop only if
+   Pushpin is unreachable; otherwise carry `mode` forward.
 4. **State in one line what will be duplicated and what the copy is named,**
    so the user can stop you before anything is written. This is also where
    every intended departure from the page's patterns is named, in one question
-   rather than several during the build.
+   rather than several during the build. Say here if the preflight degraded
+   anything, so the user learns their icons will be placeholders before the
+   screen is built rather than after.
 5. **Duplicate** the resolved frame beside the original, on the same page. The
    original stays untouched from here on.
 6. **Read the catalogs.** Identify which published components cover the layout,
@@ -584,47 +646,65 @@ reads like a generation bug rather than a permissions one.
    right library key from [figma.md](figma.md) — Pushpin for components, the
    Thumbprint UI Kit for icons.
 7. **Import each distinct component and icon once,** at the top of the script.
-   Reuse the imported main component for every instance.
+   Reuse the imported main component for every instance. Skip the icon imports
+   when `mode.icons` is `placeholder` and the annotation imports when
+   `mode.annotations` is `drawn` — importing a key from a library the preflight
+   just failed on throws, and the preflight ran so this step would not have to
+   guess.
 8. **Build the skeleton** with `figma.createAutoLayout()` containers and
    `placeholder = true` on each section.
 9. **Fill sections incrementally,** ten logical operations per `use_figma` call
    at most. Clear each `placeholder` as it completes. Nothing the design calls
    for is left out: what cannot be resolved gets a marked placeholder.
-10. **Audit before declaring done** — see below. Do not rely on a screenshot;
+10. **Annotate,** into the auto-layout bundle beside the frame: every proposal's
+    note, a specimen instance of the proposal next to it, its anchor, and an open
+    question for every unresolved atom. This precedes the audit rather than
+    following it, because the audit reads these notes — run it first and a
+    proposal whose note has not been placed yet is indistinguishable from one that
+    has no note at all, which is a defect.
+11. **Audit before declaring done** — see below. Do not rely on a screenshot;
     take one after the audit passes, as a visual check on top of the structural
-    one.
-11. **Annotate,** in one auto-layout column beside the frame: every proposal's
-    note and anchor, and an open question for every unresolved atom. Then print
-    the chat summary, listing proposals and unresolved atoms both.
+    one. Then print the chat summary, listing proposals, unresolved atoms, and any
+    library the preflight could not reach.
 12. **Offer the finalize pass.** Offer it; do not perform it unprompted.
 
 ## The audit
 
 This is the check that catches the failure this whole page is about. Run it on
 the generated frame before handing anything over. It sorts what it finds into
-four buckets:
+five buckets:
 
 - **Library** — instances that resolved to remote published components.
 - **Proposed** — local components named `Proposed / …` that have a parseable
   note on the page.
 - **Unresolved** — placeholders standing in for something the system could not
   supply.
+- **Degraded** — which libraries the preflight could not reach, and what was
+  substituted for them.
 - **Defects** — detached instances, lookalikes, undeclared local components,
   literal fills, resized icons, `Proposed /` components whose note is missing or
   incomplete or whose type and geometry drifted from the component they claim to
   extend, and overlapping annotations.
 
-The run fails on defects only. A populated `proposed` or `unresolved` bucket is
-a result to report, not a failure — this is a `use_figma` script, so "exit
-non-zero" means `report.ok === false`: do not hand the frame over, and do not
-offer the finalize pass.
+The run fails on defects only. A populated `proposed`, `unresolved`, or
+`degraded` bucket is a result to report, not a failure — this is a `use_figma`
+script, so "exit non-zero" means `report.ok === false`: do not hand the frame
+over, and do not offer the finalize pass.
 
 `unresolved` does not fail for the same reason `proposed` does not: both are
 the honest outcome of a gap in the system, and failing on them would push the
-next run back toward hiding the gap. What fails is hiding it.
+next run back toward hiding the gap. What fails is hiding it. `degraded` is the
+same bargain one level up — the gap is in what this account can reach rather than
+in what the system publishes, and failing on it would only bring back the
+stop-on-anything behaviour it replaced.
 
 ```js
 const root = await figma.getNodeByIdAsync('<generated frame id>');
+
+// This runs as its own use_figma call, so the preflight's result is not in
+// scope — paste it in the same way the frame id is pasted in. `library` for
+// anything that resolved normally.
+const mode = { icons: '<library|placeholder>', annotations: '<library|drawn>' };
 
 let page = root;
 while (page && page.type !== 'PAGE') page = page.parent;
@@ -640,7 +720,17 @@ for (const t of page.findAllWithCriteria({ types: ['TEXT'] })) {
   if (fields.Proposed) notes.set(fields.Proposed, fields);
 }
 
-const report = { library: 0, proposed: [], unresolved: [], defects: [] };
+// Recording what degraded is what keeps a drawn note or a placeholder icon from
+// reading as a generation bug later.
+const report = {
+  library: 0,
+  proposed: [],
+  unresolved: [],
+  degraded: Object.entries(mode)
+    .filter(([, how]) => how !== 'library')
+    .map(([what, how]) => `${what} — ${how}, library unreachable`),
+  defects: [],
+};
 const ancestor = (n, test) => {
   for (let p = n.parent; p; p = p.parent) if (test(p)) return true;
   return false;
@@ -724,10 +814,15 @@ for (const name of localMains.keys()) {
   }
 }
 
-// Lookalikes: shapes styled like components instead of being instances.
+// Lookalikes: shapes styled like components instead of being instances. A drawn
+// annotation is exempt: it is a sanctioned stand-in for a library component, and
+// a `Pointers · Number` stand-in is a 24px circle by definition.
+const DRAWN = /^Annotations \(drawn\) \//;
+const inDrawnAnnotation = (n) => DRAWN.test(n.name) || ancestor(n, (p) => DRAWN.test(p.name));
+
 for (const n of root.findAllWithCriteria({ types: ['FRAME', 'RECTANGLE'] })) {
   const r = typeof n.cornerRadius === 'number' ? n.cornerRadius : 0;
-  if (!inInstance(n) && !inProposed(n) && r >= 100) {
+  if (!inInstance(n) && !inProposed(n) && !inDrawnAnnotation(n) && r >= 100) {
     report.defects.push(`${n.name} — pill-shaped ${n.type}, not an instance`);
   }
 }
@@ -746,12 +841,23 @@ for (const n of root.findAllWithCriteria({ types: ['FRAME', 'RECTANGLE', 'TEXT']
 }
 for (const d of unbound) report.defects.push(d);
 
-// Annotations must be readable, which means nothing may cover anything. Only
-// top-level annotation instances are compared: their children are laid out by
-// the auto-layout column and cannot collide.
+// Annotations must be readable, which means nothing may cover anything. Only the
+// outermost annotation of each nest is compared: anything inside one is laid out
+// by an auto-layout parent, cannot collide, and would register as overlapping the
+// parent that contains it.
+//
+// Drawn stand-ins are FRAMEs rather than INSTANCEs, and an earlier version of
+// this query filtered on INSTANCE alone — which would have made a fallback note
+// invisible to the one check that exists to stop notes stacking up. Match on the
+// name and accept either type.
 const ANNOTATION = /^(Annotations|Capstones|Sticky Note)/;
-const notesOnPage = page.findAll((n) =>
-  n.type === 'INSTANCE' && ANNOTATION.test(n.name) && !inInstance(n));
+const annotations = page.findAll((n) =>
+  (n.type === 'INSTANCE' || n.type === 'FRAME') && ANNOTATION.test(n.name));
+// Dropping anything with an annotation ancestor covers a drawn note's own
+// children — `Annotations (drawn) / …` matches this pattern too — without a
+// separate rule for them.
+const notesOnPage = annotations.filter((n) =>
+  !inInstance(n) && !ancestor(n, (p) => annotations.includes(p)));
 const hits = (a, b) =>
   a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
 
@@ -764,9 +870,11 @@ for (let i = 0; i < notesOnPage.length; i++) {
       report.defects.push(`${notesOnPage[i].name} overlaps ${notesOnPage[j].name}`);
     }
   }
-  // A pointer belongs on the design; nothing else does.
+  // A pointer belongs on the design; nothing else does. Drawn or instanced, the
+  // number dot sits on the element it numbers.
   const box = root.absoluteBoundingBox;
-  if (box && hits(a, box) && !notesOnPage[i].name.startsWith('Annotations / Pointers')) {
+  const isPointer = /^Annotations( \(drawn\))? \/ Pointers/.test(notesOnPage[i].name);
+  if (box && hits(a, box) && !isPointer) {
     report.defects.push(`${notesOnPage[i].name} overlaps the design frame`);
   }
 }
@@ -779,9 +887,12 @@ Nodes inside an instance are skipped by both shape checks: their styling belongs
 to the library, and overriding it is already forbidden. Nodes inside a
 `Proposed / …` definition are exempt from the lookalike check — drawn shapes are
 how a component gets built — but not from the fill check, because a proposal
-built on literals cannot converge on a real component later.
+built on literals cannot converge on a real component later. An
+`Annotations (drawn) / …` frame is exempt from the same check for the same kind of
+reason, and likewise not from the fill check: a stand-in for a library component
+still binds its fills.
 
-Any pill-shaped frame outside those two cases is the exact bug this page exists
+Any pill-shaped frame outside those three cases is the exact bug this page exists
 to prevent: something that looks like a Pushpin component and isn't one.
 
 **A `Proposed /` component with no note is a defect, and so is a note without a
@@ -814,12 +925,34 @@ A real run of this workflow — a mobile screen with a TextInput, two Buttons, a
 a card — returns:
 
 ```
-{ library: 5, proposed: [], unresolved: [], defects: [], ok: true }
+{ library: 5, proposed: [], unresolved: [], degraded: [], defects: [], ok: true }
 ```
 
 Five instances resolved to remote main components (three placed directly, two
 nested inside them), nothing was drawn by hand, every icon is at its own size,
 and every fill on the hand-built containers was variable-bound.
+
+The same screen generated by an account that reaches Pushpin and nothing else
+returns `ok: true` as well, and says what it cost:
+
+```
+{
+  library: 5,
+  proposed: [],
+  unresolved: [{ name: 'Placeholder / icon · Small', width: 18, height: 18 }],
+  degraded: [
+    'icons — placeholder, library unreachable',
+    'annotations — drawn, library unreachable',
+  ],
+  defects: [],
+  ok: true,
+}
+```
+
+That is a worse screen than the first one and it is a screen. `ok: true` means
+nothing structural is wrong with what was built, not that nothing is missing —
+the two non-empty buckets are the report, and they are the part to lead with when
+handing it over.
 
 ## Custom work that is not a proposal
 

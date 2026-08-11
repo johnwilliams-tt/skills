@@ -5,15 +5,19 @@
 | File | Key | What it is |
 |---|---|---|
 | Pushpin Thumbprint UI Kit | `VVRGrLgkPRU3vs765d5Q3r` | **Canonical.** Tokens, components, styles. Source for most of `assets/`. |
-| Thumbprint UI Kit | `jjhhb3Kp6a7JrtBLCjrf6u` | Predecessor — **and where the icon set is published.** Also where Code Connect points. |
+| Thumbprint UI Kit | `jjhhb3Kp6a7JrtBLCjrf6u` | **Canonical for icons.** The icon set is published from here by design. Also where Code Connect points. |
 | Annotation Kit | `Qefv6O2RMPSBtSYBrCGcdI` | Notes, pointers, capstones. See [annotate.md](annotate.md). |
 
-**Icons come from the second file, not the first.** This is the one place
-Pushpin is not self-contained, and it is not obvious: the Pushpin kit publishes
-117 public components and not one of them is an icon. Searching the Pushpin
-library for a caret returns nothing, which reads as "no such icon" and is really
-"wrong library". The catalog is `assets/icons.figma.json`; the placement rules
-are in [generate.md](generate.md).
+**Icons come from the second file, not the first, and that is deliberate.** The
+icon set stayed in Thumbprint on purpose rather than being copied forward, so
+there is one set of glyphs for both systems and no second copy to drift. It is
+not a migration Pushpin has yet to finish, and it is not a gap — do not expect it
+to move, and do not propose an icon on the grounds that Pushpin lacks one.
+
+What it does mean is that the Pushpin kit publishes 117 public components and not
+one of them is an icon. Searching the Pushpin library for a caret returns nothing,
+which reads as "no such icon" and is really "wrong library". The catalog is
+`assets/icons.figma.json`; the placement rules are in [generate.md](generate.md).
 
 Library keys, for scoping `search_design_system` with `includeLibraryKeys`:
 

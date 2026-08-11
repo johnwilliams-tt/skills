@@ -20,6 +20,108 @@ the toolchain, which `diff.mjs` has no category for.
 
 Nothing yet.
 
+## 0.5.0 — 2026-08-11
+
+The access preflight was stopping a run when any of the three libraries was out
+of reach, and two thirds of that was the wrong trade. Reaching Pushpin without
+reaching the Annotation Kit is the ordinary setup, not the exotic one — so the
+common case was a layout built entirely from published components, proposing
+nothing and needing no note, refusing to generate over a library it would never
+have opened. The kit's own page said as much and stopped anyway.
+
+Annotations had a second problem with nothing to do with reachability: they
+arrived messy enough to need hand-cleaning every time. Two structural causes.
+The column's members were whatever width the kit publishes — 320 for
+`Multi-line`, 360 for `List Elelemt`, 500 for `Guide` — so it was ragged down its
+right edge by construction. And the gutter, the capstone's width, and the
+column's top were all arithmetic against the design frame's box, which goes stale
+the moment anything resizes. Neither is fixable by being careful, which is why
+being careful had not fixed it.
+
+**Added**
+
+- **A specimen beside every proposal's note.** `Delta: adds a count badge` is not
+  a readable claim unless the thing with the count badge is in view, and
+  numbering only ever answered *where on the design*. Each proposal is now a card
+  holding an instance of its `Proposed / <Name>` component next to its note —
+  beside it when it fits in the note's width, above it when it does not. The
+  instance comes from the component rather than being copied off the design, so a
+  reviewer sees the default that would land in the library rather than one
+  screen's overrides, and it is never resized: a scaled specimen misreports the
+  padding and type size that deriving a proposal exists to preserve. Specimens
+  live outside the design frame, so they do not inflate a proposal's instance
+  count.
+- **The annotated area is nested auto-layout with one set of coordinates.** A
+  bundle frame stacks the capstone over a body; the body sets the gutter between
+  the design and its notes; the column stacks the cards, each stretched to the
+  column's width. Four hand-computed values became four properties set once on a
+  parent — the gutter is `itemSpacing`, the column's top is
+  `counterAxisAlignItems`, the capstone's width is `layoutAlign = 'STRETCH'`, and
+  the air beneath it is the bundle's spacing. Moving the bundle moves the design,
+  its notes, and its heading together, and widening a note or reordering a
+  proposal costs nothing.
+
+- **Only Pushpin can stop a run now.** The preflight returns a `mode` rather than
+  a verdict: unreachable icons become `Placeholder / icon` by the rule that
+  already existed for an icon the set does not cover, and an unreachable
+  Annotation Kit means notes are drawn. Pushpin stays fatal because a screen with
+  none of its components, variables, or text styles is not a degraded screen, it
+  is an empty one.
+- **A drawn annotation fallback,** in
+  [`reference/annotate.md`](pushpin/reference/annotate.md). It mimics the real
+  component — same width, padding, and radius — so the column reads as it always
+  does, and it is held to every other rule on the page: bound fills, bound
+  padding and radius, a published `Text/3` for the body. The body text stays
+  byte-identical to what an instance would carry, which is what keeps the
+  `Tier` and `Derived` requirement working, since the audit finds proposal notes
+  by reading `TEXT` characters and never checks what kind of node they sit in.
+- **A `degraded` bucket in the audit,** naming which library was out of reach and
+  what stood in for it. It does not fail the run, for the same reason
+  `unresolved` does not: the gap is stated rather than hidden, and failing on it
+  would only bring back the behaviour it replaced.
+- **The handoff leads with the unreachable library.** A screen full of
+  `Placeholder / icon` is a different artifact depending on whether the set lacks
+  those glyphs or the account cannot see the library, and the canvas cannot tell
+  you which. Getting this wrong sends the next person to propose a component that
+  already exists.
+
+**Fixed**
+
+- **The audit could not see a drawn note.** The overlap check filtered on
+  `n.type === 'INSTANCE'`, so a fallback note — a `FRAME` — would have been
+  invisible to the one check that exists to stop notes stacking into an
+  unreadable pile. It now matches on the name and accepts either type. The
+  lookalike check gained the matching exemption, so a 24px circular
+  `Pointers · Number` stand-in cannot trip the pill-shape rule, and the
+  on-design exemption now recognises a drawn pointer as a pointer.
+- **The Annotation Kit probe was not a key.** Two of the three probes carried a
+  real key and the third carried `<a COMPONENT_SET key from
+  assets/annotations.figma.json>`, an instruction to go find one. A concrete key
+  was already sitting in `annotate.md`.
+- **The audit ran before the notes it reads.** The workflow put the audit at step
+  10 and annotation at step 11, and the audit fails a `Proposed /` component whose
+  note is missing — so a run that followed the steps in order reported every
+  proposal as undocumented, and the annotation overlap check, the one thing
+  standing between a reader and a pile of stacked notes, ran on a page with no
+  annotations on it. The two steps are swapped.
+- **A nested note no longer overlaps its own wrapper.** The overlap check compared
+  every annotation it could find by name, which was sound while notes were direct
+  children of the column and wrong the moment one sat inside a card. It now
+  compares the outermost annotation of each nest, which also subsumes the separate
+  rule that skipped a drawn note's children.
+- **Thumbprint is not a leftover.** Six places described the file the icons are
+  published from as the "older" or "predecessor" kit, which reads as a migration
+  Pushpin has yet to finish. The icons live there deliberately, so one set of
+  glyphs serves both systems, and the wording implied a gap that could be closed
+  by proposing an icon.
+
+**Changed**
+
+- **The preflight no longer claims a library must be enabled in the target
+  file.** Key-based import needs the component published and the account able to
+  reach it; file-level library enablement is not the gate, so advising a designer
+  to toggle it sent them somewhere that fixes nothing.
+
 ## 0.4.1 — 2026-08-11
 
 A release nobody receives is indistinguishable from no release. Claude Code

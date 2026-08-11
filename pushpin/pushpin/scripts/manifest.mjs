@@ -71,9 +71,9 @@ const manifest = {
     capturedAt: annotations.source.extractedAt,
   },
   // The third source, and the surprising one: icons are not published from the
-  // Pushpin file at all. They come from the older Thumbprint UI Kit, which is a
-  // library most product files do not subscribe to — so this key is what the
-  // generation preflight probes before it places anything.
+  // Pushpin file at all. They come from the Thumbprint UI Kit by design, one set
+  // of glyphs for both systems — and it is a library many accounts cannot reach,
+  // so this key is what the generation preflight probes before placing anything.
   iconLibrary: {
     fileKey: icons.source.fileKey,
     fileName: icons.source.fileName,
