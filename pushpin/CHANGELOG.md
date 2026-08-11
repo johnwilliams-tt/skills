@@ -20,6 +20,39 @@ the toolchain, which `diff.mjs` has no category for.
 
 Nothing yet.
 
+## 0.4.1 — 2026-08-11
+
+A release nobody receives is indistinguishable from no release. Claude Code
+keys its plugin cache on the version string and skips the update when it
+matches, and the version was written by hand in four files with the description
+in five. The documented trap is narrower still: a `version` in `plugin.json`
+silently shadows one in the marketplace entry, so the two disagreeing is worse
+than either being stale on its own. The proof it was already happening is in
+this repo — 0.4.0 shipped 227 icons, and three of the four descriptions never
+mentioned them.
+
+**Fixed**
+
+- **One place to write the version.** `pushpin/.claude-plugin/plugin.json` is
+  the authority. `scripts/version.mjs` bumps it and propagates to the Cursor
+  manifest, the `SKILL.md` frontmatter, and both marketplace entries;
+  `--check` fails when a copy has drifted. `SKILL.md`'s `description` is
+  deliberately left alone — it names the conditions under which the model
+  should load the skill, which is a different job from catalog copy.
+- **The version is gone from the marketplace entries,** which is what the
+  shadowing rule asks for. `plugin.json` was always the one being read.
+- **`.githooks/pre-commit` bumps the patch** when a commit touches the plugin
+  under a version that is already upstream. It compares against the tracked
+  branch rather than counting commits, so a deliberate `version.mjs minor`
+  before a breaking change stands and the rest of the push cycle rides on it.
+  Install with `git config core.hooksPath .githooks`.
+
+**Changed**
+
+- **The install instructions offer a sparse checkout.** This repository holds
+  several plugins and git operations are capped at 120 seconds, so
+  `--sparse .claude-plugin pushpin` is the cheaper path on a slow connection.
+
 ## 0.4.0 — 2026-08-11
 
 Four fidelity failures observed in real use, three of which turned out to be the

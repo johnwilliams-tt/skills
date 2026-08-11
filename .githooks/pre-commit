@@ -1,0 +1,74 @@
+#!/bin/bash
+# Bumps the patch version when a commit touches the plugin under a version that
+# has already been published, then re-syncs every copy of it.
+#
+# Claude Code keys its plugin cache on the version string and skips the update
+# when it matches, so shipping a change under a number someone already has is
+# indistinguishable from not shipping it at all. The failure is silent on both
+# ends: nothing warns you, and the user just keeps running the old kit.
+#
+# This makes that impossible to forget without taking the decision away from
+# you. It acts only when the working version still equals what is on the
+# upstream branch, so `version.mjs minor` run deliberately before a breaking
+# change stands, and every later commit in the same push cycle rides along on
+# that number instead of walking it forward one commit at a time.
+#
+# Install: git config core.hooksPath .githooks
+
+set -uo pipefail
+
+PLUGIN=pushpin
+MANIFEST="$PLUGIN/.claude-plugin/plugin.json"
+SYNC="$PLUGIN/$PLUGIN/scripts/version.mjs"
+
+# A merge or a rebase is replaying history, not authoring a release.
+if [ -e "$(git rev-parse --git-path MERGE_HEAD)" ]; then exit 0; fi
+if [ -e "$(git rev-parse --git-path rebase-merge)" ]; then exit 0; fi
+if [ -e "$(git rev-parse --git-path rebase-apply)" ]; then exit 0; fi
+
+# Only a commit that touches the plugin can require a release.
+if git diff --cached --quiet -- "$PLUGIN"; then exit 0; fi
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "pre-commit: node not found; skipping the version check." >&2
+  exit 0
+fi
+if [ ! -f "$SYNC" ]; then exit 0; fi
+
+version_in() { # <git-ref-or-empty>  — prints the manifest version
+  if [ -z "${1:-}" ]; then
+    node -pe 'JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).version' "$MANIFEST" 2>/dev/null
+  else
+    git show "$1:$MANIFEST" 2>/dev/null |
+      node -pe 'JSON.parse(require("fs").readFileSync(0,"utf8")).version' 2>/dev/null
+  fi
+}
+
+working=$(version_in "")
+if [ -z "$working" ]; then
+  echo "pre-commit: could not read a version from $MANIFEST; skipping." >&2
+  exit 0
+fi
+
+# Compare against the branch this one tracks, falling back to origin's default.
+upstream=$(git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>/dev/null || echo '')
+[ -n "$upstream" ] || upstream=origin/main
+published=$(version_in "$upstream")
+
+# No upstream to compare against (fresh clone, offline, first push): leave the
+# number alone rather than guess, but still make the copies agree.
+if [ -n "$published" ] && [ "$working" = "$published" ]; then
+  node "$SYNC" patch >/dev/null || exit 0
+  echo "pre-commit: $working was already published; bumped to $(version_in "")."
+else
+  node "$SYNC" >/dev/null || exit 0
+fi
+
+git add -- \
+  "$MANIFEST" \
+  "$PLUGIN/.cursor-plugin/plugin.json" \
+  "$PLUGIN/$PLUGIN/SKILL.md" \
+  .claude-plugin/marketplace.json \
+  .cursor-plugin/marketplace.json
+
+exit 0

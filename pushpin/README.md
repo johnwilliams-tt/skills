@@ -50,6 +50,18 @@ the moment you first try to generate something.
 /plugin install pushpin@johnwilliams-skills
 ```
 
+This repository holds several plugins, so that clones all of them. From the
+terminal you can take only what Pushpin needs, which matters on a slow
+connection because every git operation is capped at 120 seconds:
+
+```bash
+claude plugin marketplace add johnwilliams-tt/skills --sparse .claude-plugin pushpin
+claude plugin install pushpin@johnwilliams-skills
+```
+
+Updates arrive on their own either way — Claude Code refreshes the marketplace
+in the background at startup and installs a new version when the number moves.
+
 ### Cursor
 
 If your team has already imported this repository as a marketplace, install
