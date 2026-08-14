@@ -18,6 +18,7 @@ import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { renderDesignJson, renderDesignMd } from './impeccable-bridge.mjs';
+import { hookCommands, SHIM_REL, withoutHook } from './lib/hooks.mjs';
 import { inspectPin } from './pin.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -161,9 +162,15 @@ planFile('pushpin.config.json', 'Figma keys and the capture this project is pinn
         capturedAt: MANIFEST.capturedAt,
         css: './' + cssPath.split('\\').join('/'),
         cssHash: MANIFEST.hashes['pushpin.css'],
-        // Whether the edit hook was installed. Recorded so a later session can
-        // tell "declined the hook" from "predates it" instead of re-offering.
+        // Whether the hook was wanted, not whether it is installed — the
+        // manifests answer that themselves, and a recorded claim about them can
+        // go stale. This distinguishes a project that declined the hook with
+        // --no-hook, which no manifest can express, from one that lost it.
         checkHook: HOOK,
+        // The install that ran init, and the shim's first choice when locating
+        // the plugin. A hint rather than a dependency: it is checked for
+        // existence, and the host caches are searched when it is gone.
+        pluginPath: SKILL_DIR,
         figma: {
           fileKey: SOURCE.fileKey,
           fileName: SOURCE.fileName,
@@ -254,16 +261,43 @@ if (SHARE) planSettings();
 // model has to still be holding is a rule that decays over a long session.
 //
 // Both manifests are merged rather than replaced, and both are machine-local by
-// nature: the command carries an absolute path to this plugin, which is correct
-// for whoever ran `init` and meaningless to anyone else. A teammate without the
-// plugin gets a command that exits non-zero, which both harnesses fail open on,
-// so the worst case is a hook that does nothing.
-const HOOK_CMD = `node "${join(SKILL_DIR, 'scripts', 'hooks', 'pushpin-check.mjs')}"`;
-const HOOK_MARKER = 'pushpin-check.mjs';
+// nature: the command carries an absolute path, which is correct for whoever ran
+// `init` and meaningless to anyone else. A teammate without the plugin gets a
+// shim that finds nothing and exits 0 in silence, or a path that does not
+// resolve, which both harnesses fail open on. Either way the worst case is a
+// hook that does nothing.
+//
+// What they name is the project's own shim, not this plugin. The plugin lives in
+// a directory named after its version, and Cursor keeps exactly one, deleting the
+// old one when it updates itself — so a manifest naming the plugin directly stops
+// resolving on the next update, silently, because hooks fail open. The shim does
+// not move, and resolves the installed plugin at run time instead.
+const HOOK_CMD = `node "${join(target, SHIM_REL)}"`;
 const HOOK_TIMEOUT = 15;
+const SHIM_SRC = join(here, 'hooks', 'project-shim.mjs');
 
-/** Does this manifest already run our hook? Cheap and shape-agnostic. */
-const hasHook = (o) => JSON.stringify(o ?? {}).includes(HOOK_MARKER);
+/**
+ * The shim carries no user content, so it is refreshed whenever it differs from
+ * this plugin's copy rather than waiting for --force. That is what lets a project
+ * predating the shim, or holding an older one, heal on a plain --write.
+ */
+function planShim() {
+  const abs = join(target, SHIM_REL);
+  const want = readFileSync(SHIM_SRC, 'utf8');
+  if (existsSync(abs) && readFileSync(abs, 'utf8') === want) {
+    skipped.push(`${SHIM_REL} — already current`);
+    return;
+  }
+  plan.push({
+    rel: SHIM_REL,
+    describe: 'locates the installed plugin at run time, so a plugin update cannot break the hook',
+    abs,
+    writeFn: (a) => {
+      mkdirSync(dirname(a), { recursive: true });
+      writeFileSync(a, want);
+    },
+  });
+}
 
 function planHookManifest(rel, merge) {
   const abs = join(target, rel);
@@ -276,14 +310,24 @@ function planHookManifest(rel, merge) {
       return;
     }
   }
-  if (hasHook(existing) && !FORCE) {
+
+  // Only a manifest already naming the current shim is left alone. One that
+  // names anything else is repaired without --force: a command pointing at a
+  // deleted plugin directory is not a decision to preserve, and treating it as
+  // one is how the check ends up silently disabled.
+  const commands = hookCommands(existing ?? {});
+  const current = commands.length > 0 && commands.every((c) => c === HOOK_CMD);
+  if (current && !FORCE) {
     skipped.push(`${rel} — already runs the Pushpin check on edit`);
     return;
   }
   const next = merge(existing ?? {});
   plan.push({
     rel,
-    describe: 'run the Pushpin check after each edit, reporting off-system values in place',
+    describe:
+      commands.length && !current
+        ? 'repoint the edit check at the project shim, replacing a path into the plugin'
+        : 'run the Pushpin check after each edit, reporting off-system values in place',
     abs,
     writeFn: (a) => {
       mkdirSync(dirname(a), { recursive: true });
@@ -292,28 +336,33 @@ function planHookManifest(rel, merge) {
   });
 }
 
+// Prior entries of ours are dropped before the current one is added, which is
+// what makes installing and repairing the same operation and keeps a re-run from
+// stacking up duplicate hooks. Anything not ours is untouched.
 function planHooks() {
+  planShim();
+
   planHookManifest(join('.cursor', 'hooks.json'), (base) => ({
     ...base,
     version: base.version ?? 1,
     hooks: {
       ...(base.hooks ?? {}),
       afterFileEdit: [
-        ...(base.hooks?.afterFileEdit ?? []),
+        ...withoutHook(base.hooks?.afterFileEdit),
         { command: HOOK_CMD, timeout: HOOK_TIMEOUT },
       ],
     },
   }));
 
   // Claude Code's machine-local settings file, not the shared one: the command
-  // is an absolute path to this machine's plugin install, and committing that
-  // would hand every teammate a path that does not exist.
+  // is an absolute path on this machine, and committing that would hand every
+  // teammate a path that does not exist.
   planHookManifest(join('.claude', 'settings.local.json'), (base) => ({
     ...base,
     hooks: {
       ...(base.hooks ?? {}),
       PostToolUse: [
-        ...(base.hooks?.PostToolUse ?? []),
+        ...withoutHook(base.hooks?.PostToolUse),
         {
           matcher: 'Edit|Write|MultiEdit',
           hooks: [{ type: 'command', command: HOOK_CMD, timeout: HOOK_TIMEOUT }],
@@ -410,12 +459,33 @@ if (skipped.length) {
 if (stale.length) {
   console.log('\nThis project is behind:');
   for (const s of stale) console.log(`  ${s}`);
-  console.log('\n  Re-run with --write --force to bring it up to date.');
+  // The remedy only belongs here when this run is not about to apply it: a
+  // write with something to write reports its real outcome below instead. A
+  // --write that plans nothing still needs it, which is the case a plain
+  // `if (!WRITE)` would drop.
+  if (!WRITE || !plan.length) {
+    console.log('\n  Re-run with --write --force to bring it up to date.');
+  }
 }
 
 if (WRITE && plan.length) {
   for (const p of plan) p.writeFn(p.abs);
   console.log(`\nDone — ${plan.length} file(s) written.`);
+
+  // Re-asked rather than inferred: the findings above describe the project as it
+  // was found, and only the same comparison run again can say whether the writes
+  // actually resolved them.
+  if (stale.length) {
+    const after = inspectPin(target, { manifest: MANIFEST, pluginVersion: PLUGIN.version });
+    const remaining = after?.details ?? [];
+    if (remaining.length) {
+      console.log('\nStill behind:');
+      for (const s of remaining) console.log(`  ${s}`);
+      console.log('\n  Re-run with --write --force to bring it up to date.');
+    } else {
+      console.log('  This project is no longer behind.');
+    }
+  }
 
   console.log('\nNext:');
   console.log(`  1. Import the stylesheet once at your app root:`);

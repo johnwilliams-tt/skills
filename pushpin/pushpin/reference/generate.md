@@ -540,9 +540,11 @@ reads like a generation bug rather than a permissions one.
    screen is built rather than after.
 5. **Duplicate** the resolved frame beside the original, on the same page. The
    original stays untouched from here on.
-6. **Look up what the layout needs.** Identify which published components cover
-   it and which icons it calls for, then ask for those by name —
-   `node scripts/lookup.mjs <name>` per component, `--icon` per glyph. Scope any
+6. **Look up what the layout needs, in one call.** Identify which published
+   components cover it and which icons it calls for, then ask for all of them at
+   once — `node scripts/lookup.mjs Button,Card,Toast`, and `--icon` with the
+   glyphs comma-separated. A screen needs a dozen entries and each one asked
+   separately is a wasted round trip. Scope any
    `search_design_system` call with the right library key from
    [figma.md](figma.md) — Pushpin for components, the Thumbprint UI Kit for
    icons. When the source is code that declares its own components, resolve

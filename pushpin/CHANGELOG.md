@@ -20,6 +20,58 @@ the toolchain, which `diff.mjs` has no category for.
 
 Nothing yet.
 
+## 0.8.0 — 2026-08-14
+
+0.7.0 put five of Pushpin's eleven hard rules into a script that runs on every
+edit, on the argument that a rule re-stated when it breaks beats a rule the model
+has to keep holding. That only holds while the script actually runs — and it
+stopped running, silently, the first time the plugin updated itself.
+
+`init` recorded an absolute path to the plugin in each project's hook manifest.
+Cursor keys its plugin cache by commit hash and keeps exactly one, deleting the
+old directory on update, so the recorded path stopped resolving. Hooks fail open
+by design, which is right for a check that must never break a turn and wrong as
+the only signal that the check is gone: the command threw, both harnesses
+swallowed it, and nothing said so. Three separate things then reported the
+project as healthy. Cursor updates itself, so no one had to do anything to
+trigger it.
+
+**Fixed**
+
+- **The edit check survives a plugin update.** `init` now writes
+  `.pushpin/pushpin-check.mjs` into the project and points both hook manifests at
+  that instead of the plugin. The shim locates the installed plugin at run time —
+  `PUSHPIN_SKILL_DIR`, then the `pluginPath` now recorded in
+  `pushpin.config.json`, then both hosts' plugin caches, newest first — and keeps
+  the hook contract exactly: stdin in, stdout back, always exit 0, nothing
+  printed on any failure path.
+- **A broken hook is now visible.** The pin check reads the manifests and stats
+  what they name, so a command aimed at a deleted plugin directory is reported at
+  session start rather than passing as current. A hook that still names a plugin
+  version is reported too, as something that will break on the next update.
+- **`pushpin.config.json` no longer claims the hook is installed.** `checkHook`
+  recorded what was asked for and was written only under `--force`, so a project
+  could be told it had no hook forever, or that it had one after the target was
+  deleted. The manifests are self-verifying and now answer that question;
+  `checkHook` keeps only the job they cannot do, recording a deliberate
+  `--no-hook`.
+- **`init --write` repairs a broken hook without `--force`.** It previously
+  matched the filename alone and reported an unresolvable hook as "already runs
+  the Pushpin check on edit". Installing and repairing are one operation now, and
+  prior entries are replaced rather than appended, so a re-run cannot stack
+  duplicates.
+- **`init` reports what it did rather than what to do next.** A successful
+  `--write --force` ended by advising `--write --force`. It now re-checks after
+  writing and says whether the project is still behind.
+
+**Added**
+
+- **`lookup.mjs` answers several names in one call.** `lookup.mjs
+  Button,Card,Checkbox` returns a section per term. Composing a layout needs a
+  dozen lookups and each one was a separate round trip. Terms split on commas,
+  not spaces, so `Icon Button` stays one name; a term that matches nothing says
+  so instead of being dropped, and `--json` keys by term when there are several.
+
 ## 0.7.0 — 2026-08-14
 
 A Figma generation session paid roughly 40,700 tokens of preamble before any

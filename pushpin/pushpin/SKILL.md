@@ -1,7 +1,7 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.7.0
+version: 0.8.0
 argument-hint: "[generate|audit|figma|check · init|freshness · refresh] [target]"
 allowed-tools:
   - Bash(${CLAUDE_SKILL_DIR}/scripts/*)
@@ -173,11 +173,17 @@ file.**
 
 ```bash
 node scripts/lookup.mjs Button          # component: every property, its exact key, the import key
+node scripts/lookup.mjs Button,Card,Toast   # several at once — commas, one call
 node scripts/lookup.mjs --icon caret    # icon: one import key per size
 node scripts/lookup.mjs --token radius  # token: custom property, value, and whether it binds
 node scripts/lookup.mjs --style title-1 # the text and effect style keys
 node scripts/lookup.mjs --annotation a11y
 ```
+
+**A layout needs a dozen of these — comma-separate them and ask once.** Terms are
+split on commas, not spaces, so `Icon Button` stays one name and needs no quoting.
+Each term gets its own section, and one that matches nothing says so instead of
+being dropped.
 
 It searches every catalog unless narrowed, takes a Figma name or a `--pp-*`
 custom property, and answers a near-miss with the real names — which matters,

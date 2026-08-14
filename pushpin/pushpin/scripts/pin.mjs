@@ -7,6 +7,10 @@
  * session-start check and init's own "this project is behind" list cannot
  * disagree.
  *
+ * The edit hook is checked against the manifests themselves rather than against
+ * anything recorded, because the command they carry names a path that can stop
+ * resolving without either file changing.
+ *
  * Returns null when there is nothing to check: no config, or `dir` is inside
  * the plugin's own tree (the plugin is not a consumer of itself).
  */
@@ -16,6 +20,7 @@ import { dirname, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { hashAsset } from './canonical.mjs';
+import { inspectHooks } from './lib/hooks.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const PLUGIN_ROOT = resolve(here, '..', '..');
@@ -66,13 +71,37 @@ export function inspectPin(dir, { manifest, pluginVersion }) {
       }
     }
 
-    // A project set up before the edit hook existed has no `checkHook` key at
-    // all, which is a different thing from one that declined it with
-    // `--no-hook`. Only the first is worth mentioning, and only once: the
-    // re-run that installs it also writes the key.
-    if (prev.checkHook === undefined) {
-      details.push('check hook: not installed — this project predates it');
-      reasons.push('hook');
+    // Whether the hook is installed is answered by the manifests, not by
+    // `checkHook`: the key records what was wanted, and a recorded claim about
+    // files that another tool also edits can go stale. `checkHook === false` is
+    // the one thing the manifests cannot express — a deliberate `--no-hook` — and
+    // it is respected in silence.
+    if (prev.checkHook !== false) {
+      const hooks = inspectHooks(target);
+      const broken = hooks.filter((h) => !h.exists);
+      const legacy = hooks.filter((h) => h.exists && h.kind === 'plugin');
+
+      if (!hooks.length) {
+        // No key at all means the project predates the hook, which is a
+        // different thing from having lost one that was installed.
+        if (prev.checkHook === undefined) {
+          details.push('check hook: not installed — this project predates it');
+          reasons.push('hook');
+        } else {
+          details.push('check hook: recorded as installed, but neither manifest runs it');
+          reasons.push('hook-missing');
+        }
+      } else if (broken.length) {
+        for (const h of broken) {
+          details.push(`${h.rel}: runs a check that is no longer there — ${h.target}`);
+        }
+        reasons.push('hook-broken');
+      } else if (legacy.length) {
+        for (const h of legacy) {
+          details.push(`${h.rel}: names a plugin version directly, so the next update will break it`);
+        }
+        reasons.push('hook-legacy');
+      }
     }
 
     if (details.length === 0) {
@@ -85,13 +114,39 @@ export function inspectPin(dir, { manifest, pluginVersion }) {
       };
     }
 
-    const brief = reasons.includes('plugin')
-      ? `This project's Pushpin files were written by ${prev.pluginVersion} and the plugin is now ${pluginVersion} — re-running init with --write --force is the first thing I'd do.`
-      : reasons.includes('edited')
-        ? `This project's stylesheet has been edited since it was installed — re-running init with --write --force is the first thing I'd do.`
-        : reasons.length === 1 && reasons[0] === 'hook'
-          ? `This project was set up before Pushpin's edit check existed — running init with --write adds it, and off-system values get reported as you work.`
-          : `This project's Pushpin files were pinned to an older kit than the plugin now carries — re-running init with --write --force is the first thing I'd do.`;
+    // Ordered by how wrong the project currently is, not by how the findings were
+    // gathered. A hook pointing at a deleted directory is failing silently right
+    // now, which outranks a stylesheet that is merely a version behind.
+    const REMEDY = "re-running init with --write --force is the first thing I'd do";
+    const briefs = [
+      [
+        'hook-broken',
+        `This project's Pushpin edit check points at a plugin version that no longer exists, so nothing has been checking your edits — ${REMEDY}.`,
+      ],
+      [
+        'hook-legacy',
+        `This project's Pushpin edit check names a plugin version directly, so it will stop working the next time the plugin updates — ${REMEDY}.`,
+      ],
+      [
+        'hook-missing',
+        `This project's Pushpin edit check is recorded as installed but no longer runs — ${REMEDY}.`,
+      ],
+      [
+        'plugin',
+        `This project's Pushpin files were written by ${prev.pluginVersion} and the plugin is now ${pluginVersion} — ${REMEDY}.`,
+      ],
+      [
+        'edited',
+        `This project's stylesheet has been edited since it was installed — ${REMEDY}.`,
+      ],
+    ];
+
+    const matched = briefs.find(([r]) => reasons.includes(r));
+    const brief = matched
+      ? matched[1]
+      : reasons.length === 1 && reasons[0] === 'hook'
+        ? `This project was set up before Pushpin's edit check existed — running init with --write adds it, and off-system values get reported as you work.`
+        : `This project's Pushpin files were pinned to an older kit than the plugin now carries — ${REMEDY}.`;
 
     return {
       status: 'stale',

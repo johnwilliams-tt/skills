@@ -38,15 +38,33 @@ Two manifests, merged rather than replaced:
 | Cursor | `.cursor/hooks.json` | `afterFileEdit` |
 | Claude Code | `.claude/settings.local.json` | `PostToolUse` on `Edit\|Write\|MultiEdit` |
 
-Both are machine-local by nature: the command carries an absolute path to this
-plugin's install, which is correct for whoever ran `init` and meaningless to
-anyone else. `.claude/settings.local.json` is gitignored for exactly this
-reason. A teammate without the plugin gets a command that exits non-zero, which
-both harnesses fail open on, so the worst case is a hook that does nothing.
+What they name is `.pushpin/pushpin-check.mjs` in the project, not this plugin.
+The plugin lives in a directory named after its version — a commit hash under
+Cursor, a semver under Claude Code — and Cursor keeps exactly one, deleting the
+old one when it updates itself. A manifest naming the plugin directly therefore
+stops resolving on the next update, and because hooks fail open, the check goes
+silent rather than failing. The shim does not move, and locates the installed
+plugin at run time: `PUSHPIN_SKILL_DIR` if set, then the `pluginPath` recorded in
+`pushpin.config.json`, then a search of both hosts' plugin caches, newest first.
 
-`pushpin.config.json` records whether the hook was installed, which is how a
-later session tells a project that declined it from one set up before it
-existed. Only the second gets mentioned.
+Both manifests are still machine-local, because the path into the project is
+absolute: correct for whoever ran `init`, meaningless to anyone else.
+`.claude/settings.local.json` is gitignored for exactly this reason. A teammate
+without the plugin gets a shim that finds nothing and exits 0 in silence, so the
+worst case is a hook that does nothing.
+
+Installing and repairing are one operation. Prior entries of ours are dropped
+before the current one is added, so a re-run cannot stack duplicates, and a
+manifest naming anything other than the current shim is repointed **without
+`--force`** — a command aimed at a deleted directory is not a decision worth
+preserving.
+
+`pushpin.config.json` records whether the hook was *wanted*, not whether it is
+installed: the manifests answer that themselves, and a recorded claim about files
+another tool also edits can go stale. `checkHook: false` is the one thing they
+cannot express — a deliberate `--no-hook` — and it is respected in silence.
+Everything else is read from the manifests, so a session-start check can tell a
+project that predates the hook from one whose hook has quietly stopped working.
 
 It also writes a `DESIGN.md` and an `.impeccable/design.json` sidecar generated
 from the token capture. Together they are the token allowlist that `impeccable`
@@ -93,9 +111,13 @@ both files from scratch and replaces Pushpin with an invented visual world. The
 frontmatter keeps live mode from writing variants into it. When a staleness
 check flags either file, the fix is `pushpin init --write --force`.
 
-It never overwrites without `--force`, and it is safe to re-run. Re-running on a
-project already set up reports whether that project has fallen behind — the same
-comparison session start uses. If it detects Thumbprint it says so and warns
+It never overwrites content you could have authored without `--force`, and it is
+safe to re-run. The two exceptions are the hook shim and the hook manifests,
+which are machine-written and self-healing: both are brought back to the current
+form on a plain `--write`, because a broken hook is not a decision to preserve.
+Re-running on a project already set up reports whether that project has fallen
+behind — the same comparison session start uses — and after a `--write` it
+re-checks and reports what actually resolved rather than restating the advice. If it detects Thumbprint it says so and warns
 against per-component CSS overrides, which is the specific failure that made
 Pushpin hard to reuse in the first place.
 
