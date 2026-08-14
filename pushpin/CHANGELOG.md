@@ -20,6 +20,157 @@ the toolchain, which `diff.mjs` has no category for.
 
 Nothing yet.
 
+## 0.7.0 — 2026-08-14
+
+A Figma generation session paid roughly 40,700 tokens of preamble before any
+work happened: `SKILL.md`, then a 12,000-token `reference/generate.md`, then a
+whole-catalog read to find one component's property names. Almost none of it was
+the answer to the question being asked. This release cuts that to about 9,700 —
+and makes the cut to `SKILL.md` safe by moving the rules it dropped into a
+script that runs on every edit.
+
+**Added**
+
+- **`scripts/lookup.mjs` answers one question about the catalogs without reading
+  them.** `node scripts/lookup.mjs Button` returns Button's import key, every
+  property, its exact suffixed `key`, and all eight `theme` options in about
+  1,500 bytes, against a 97 KB catalog. Components, icons, tokens, styles, and
+  Annotation Kit entries, narrowed with `--icon` / `--token` / `--style` /
+  `--annotation`, or searched together. Takes a Figma name or a `--pp-*` custom
+  property, and answers a near-miss with the real names — which matters, because
+  `Button`, `Icon Button`, and `Brand / App / Download Buttons` are three
+  different entries and none of them is guessable.
+- **`scripts/check.mjs` reports what is off-system in code.** Raw color, pure
+  black text, off-scale spacing, off-ramp type and weight, a non-Rise family, a
+  control that is not a pill — plus the two findings no token allowlist can
+  express: markup that reads as a published component while declaring neither
+  `data-pp-component` nor `data-pp-proposed`, and a declaration resolving to
+  nothing real. Advisory; it changes nothing.
+- **An edit hook, installed per project by `init`.** `check.mjs` runs on the
+  file that was just written and hands its findings back as context. It reports
+  and never blocks — every failure path exits 0. `.cursor/hooks.json` and
+  `.claude/settings.local.json`, merged rather than replaced, and skippable with
+  `init --no-hook`.
+- **`reference/rules.md`** — the complete hard rules, with the reasoning that
+  makes each decidable in a case it does not name.
+- **`reference/audit.md`, `reference/propose.md`, and
+  `reference/annotate-fallback.md`**, split out of the two oversized docs along
+  the seams where separate commands were paying for each other.
+
+**Changed**
+
+- **`SKILL.md` is 38% smaller** — 16,147 bytes to 9,934. The Commands, Routing,
+  and Reference tables were the same mapping written three times and are now
+  one. The hard rules keep the five broken most often inline and the rest moved
+  to `reference/rules.md`. Naming and Type were duplicating `reference/tokens.md`
+  and now point at it. This is the file every session pays for, org-wide.
+- **`reference/generate.md` is 43% smaller** — 12,238 tokens to 6,933. `audit`
+  and `generate` are separate commands that each paid for the other's content;
+  the audit and the proposal gate now load only when they are the work.
+  `reference/annotate.md` splits the same way, down 39%.
+- **Every instruction to read a catalog is now an instruction to look one up.**
+  53 of them, across `SKILL.md` and five reference docs. The capture docs
+  (`scripts/extract.md`, `scripts/check.md`) still name the files, because they
+  are about writing them.
+- **`scripts/lib/tokens.mjs`** holds the token helpers `impeccable-bridge.mjs`
+  had unexported — the group-to-custom-property rule, alias resolution, and the
+  ramps — so `lookup.mjs` and `check.mjs` cannot disagree with the bridge about
+  what a token is called. `DESIGN.md` and the sidecar are byte-identical across
+  the change.
+- **`pushpin.config.json` records whether the edit hook was installed**, so a
+  later session can tell a project that declined it from one set up before it
+  existed. Only the second is mentioned, once.
+
+## 0.6.0 — 2026-08-14
+
+The bridge to `impeccable` fed four token rules and was on a weekly timer to
+delete itself. Fixing that turned into the wider question it was standing in
+for: browser work is pushed to Figma afterwards, and everything the browser
+phase knew about the design was being thrown away at that boundary and guessed
+at again.
+
+**Fixed**
+
+- **The sidecar no longer invites its own destruction.**
+  `.impeccable/design.json` carries `schemaVersion: 2`, a `title`, and
+  `generatedAt`. Without the version, impeccable's boot check read it as a
+  pre-v2 file, raised `design-sidecar-schema-outdated`, and offered `document`
+  to fix it — and `document` overwrites both generated files with an invented
+  visual world. This fired at every session boot, throttled weekly.
+- **Four featured colors were silently missing from the `DESIGN.md`
+  frontmatter.** `background-brand`, `text-brand`, `text-critical`, and
+  `text-success` named token paths the kit does not have, so they resolved to
+  null and were skipped. They now name real paths, and the readable core is 11
+  colors rather than 6.
+
+**Changed**
+
+- **`DESIGN.md` is written in the sections impeccable actually parses.**
+  Overview, Colors, Typography, Layout, Elevation & Depth, Shapes, Components,
+  and Do's and Don'ts, generated from the capture and the hard rules. The
+  previous headings matched none of the six canonical ones, so `colors`,
+  `typography`, and `components` all parsed as null: `design-md-coverage` fired,
+  the live panel rendered generic approximations, and the agent got no normative
+  guidance at the moment impeccable's own rule says the brief wins.
+- **The sidecar carries the rest of the capture** — shadows, motion, breakpoints,
+  per-step typography, and the do/don't narrative — and the frontmatter carries
+  the 13-step space scale. None are read by the detector; they are what any tool
+  reading this format renders instead of guessing.
+- **Both generated files are marked and defended.** An `@generated` comment in
+  the frontmatter keeps live mode from writing variants into `DESIGN.md`, and
+  the `AGENTS.md` note now says outright that `document` must not touch either
+  file and that a staleness flag means `init --write --force`.
+
+**Added**
+
+- **A component-identity convention for hand-rolled markup.**
+  `data-pp-component`, `data-pp-variant`, and `data-pp-proposed`, documented in
+  the generated `DESIGN.md` with the real names and variant options from the
+  catalog. Code Connect is not wired for Pushpin and cannot be published
+  unilaterally, so the code→Figma direction has had no component mapping and has
+  been inferring one from markup — weakest for the ten Pushpin components with
+  no React equivalent, which get composed from primitives. A declaration is a
+  hint resolved against `assets/components.figma.json`: on a miss it is
+  discarded and the inference runs as before, so a typo costs back the guess it
+  removed and nothing else.
+- **`check` reports two things a token allowlist cannot express** — an element
+  that reads as a published component while declaring nothing, and a declaration
+  naming a component, property, or option that is not in the catalog. Scoped to
+  hand-rolled markup; `<Button theme="primary">` already says what it is.
+  `tokens.md` now documents what `check` looks for, which it never did.
+- **Accessibility annotations are read off the markup a frame was pushed from,**
+  rather than inferred from the mock. Heading levels, landmarks, tab and reading
+  order, label and autocomplete associations, link targets, and alt text are all
+  in the source already. `annotate` only — `generate`'s annotation step is
+  unchanged — and placement is untouched, since the bundle is auto-layout to a
+  single origin and added cards cannot overlap.
+- **The onboarding order is written down** in the README, `reference/init.md`,
+  and `init`'s closing output: `pushpin init --write`, then `/impeccable init`
+  for `PRODUCT.md` only, then `/impeccable hooks on`. Pushpin does not generate
+  `PRODUCT.md`; that is product truth and impeccable interviews for it.
+
+## 0.5.4 — 2026-08-12
+
+The skill's first-load cost was the whole of `SKILL.md` plus a freshness table
+the agent was then told to throw away, and `init` was easy to mistake for
+something every new agent had to run.
+
+**Changed**
+
+- **Session start is `--offline --brief`.** Empty stdout when the capture is
+  current and the project pin matches. One sentence when a refresh or a re-init
+  would change what gets built. Asking for `/pushpin freshness` still prints the
+  full layer table, because then it is the thing being asked for.
+- **A project pin is checked on pickup, not re-initialized.**
+  `pushpin.config.json` is the marker. If it exists, `pluginVersion`,
+  `capturedAt`, and `cssHash` are compared to the plugin — the same comparison
+  `init` already used when re-run. Behind means one sentence and a re-run of
+  `init` with `--write --force`. No config is not a finding; that offer stays
+  on the bare-invoke menu for a code project that has none of it yet.
+- **`SKILL.md` is a router.** Maintainer procedure lives in
+  `reference/maintaining.md`, project setup in `reference/init.md`. Catalog
+  blurbs and restated generate/context sections no longer load on every pickup.
+
 ## 0.5.3 — 2026-08-11
 
 Two places where the plugin talked at the user instead of to them. Freshness

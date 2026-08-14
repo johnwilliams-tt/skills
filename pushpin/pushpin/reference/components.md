@@ -58,6 +58,37 @@ silently on the next upgrade, because the selectors match generated CSS-Module
 hashes that change with the build. There is a 253-line example of this failure
 mode in `tt-website-demo/styles/pushpin.scss`; don't add a second.
 
+## Declaring what hand-rolled markup is
+
+A React project on Thumbprint carries component identity already: `<Button
+theme="primary">` says what it is, and nothing below applies to it.
+
+Hand-rolled markup does not, and that matters at the push to Figma, where Code
+Connect is missing and the component has to be inferred from the markup — see
+[figma.md](figma.md). The ten components new in Pushpin have no React
+implementation, so they are exactly the ones that get composed from primitives
+and then guessed at.
+
+Name them instead, using the exact catalog name and real variant options:
+
+```html
+<button data-pp-component="Button" data-pp-variant="theme=primary, size=medium">
+```
+
+When nothing published fits, say that, and say what it extends and why:
+
+```html
+<div data-pp-proposed="FilterChip" data-pp-extends="Chip" data-pp-tier="better-experience">
+```
+
+A project set up by `init` has the legal names and options listed in its
+generated `DESIGN.md`, and `node scripts/lookup.mjs <name>` has them for
+everything else. The declaration is a hint: one that does not resolve against
+the catalog is discarded at push time rather than
+trusted, so a typo costs the guess back and nothing more. `check` reports both a
+declaration that names nothing real and an element that reads as a published
+component while declaring nothing at all.
+
 ## Reading a design with no Code Connect
 
 Until Code Connect covers the Pushpin file (see [figma.md](figma.md)),

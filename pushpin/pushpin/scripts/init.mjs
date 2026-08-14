@@ -3,21 +3,22 @@
  * Sets a project up to use Pushpin.
  *
  * Installs the token stylesheet, records the Figma keys so the bridge works
- * without re-deriving them, leaves a note for agents working in the repo
- * later, and offers the plugin to anyone else who opens the repo. Prints a
- * plan and changes nothing unless --write is passed.
+ * without re-deriving them, installs the edit hook that runs `check.mjs`,
+ * leaves a note for agents working in the repo later, and offers the plugin to
+ * anyone else who opens the repo. Prints a plan and changes nothing unless
+ * --write is passed.
  *
  * Usage:
  *   node scripts/init.mjs <project-dir> [--write] [--force] [--css-path <p>]
- *                                       [--no-share]
+ *                                       [--no-share] [--no-hook]
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { hashAsset } from './canonical.mjs';
 import { renderDesignJson, renderDesignMd } from './impeccable-bridge.mjs';
+import { inspectPin } from './pin.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const ASSETS = join(here, '..', 'assets');
@@ -30,6 +31,7 @@ const target = resolve(argv.find((a) => !a.startsWith('--') && argv[argv.indexOf
 const WRITE = flag('--write');
 const FORCE = flag('--force');
 const SHARE = !flag('--no-share');
+const HOOK = !flag('--no-hook');
 
 if (!existsSync(target)) {
   console.error(`No such directory: ${target}`);
@@ -40,6 +42,7 @@ const TOKENS = JSON.parse(readFileSync(join(ASSETS, 'tokens.figma.json'), 'utf8'
 const SOURCE = TOKENS.source;
 const KEYS = JSON.parse(readFileSync(join(ASSETS, 'variable-keys.figma.json'), 'utf8'));
 const MANIFEST = JSON.parse(readFileSync(join(ASSETS, 'manifest.json'), 'utf8'));
+const COMPONENTS = JSON.parse(readFileSync(join(ASSETS, 'components.figma.json'), 'utf8'));
 const PLUGIN = JSON.parse(
   readFileSync(join(here, '..', '..', '.claude-plugin', 'plugin.json'), 'utf8'),
 );
@@ -123,36 +126,12 @@ const cssPath = opt('--css-path', join(env.stylesDir, 'pushpin.css'));
 
 const plan = [];
 const skipped = [];
-const stale = [];
 
 // If the project was set up before, say whether it is behind rather than just
 // declining to overwrite. A silently outdated stylesheet is the failure this
-// whole plugin exists to prevent.
-const existingConfigPath = join(target, 'pushpin.config.json');
-if (existsSync(existingConfigPath)) {
-  try {
-    const prev = JSON.parse(readFileSync(existingConfigPath, 'utf8'));
-    if (prev.capturedAt && prev.capturedAt !== MANIFEST.capturedAt) {
-      stale.push(
-        `capture: project pinned to ${prev.capturedAt}, plugin now carries ${MANIFEST.capturedAt}`,
-      );
-    }
-    if (prev.pluginVersion && prev.pluginVersion !== PLUGIN.version) {
-      stale.push(`plugin: project written by ${prev.pluginVersion}, now ${PLUGIN.version}`);
-    }
-    const prevCss = prev.css && join(target, prev.css);
-    if (prev.cssHash && prevCss && existsSync(prevCss)) {
-      const actual = hashAsset(prevCss);
-      if (actual !== prev.cssHash) {
-        stale.push(`${prev.css}: has been edited since install (hash no longer matches)`);
-      } else if (prev.cssHash !== MANIFEST.hashes['pushpin.css']) {
-        stale.push(`${prev.css}: is an older build of the tokens`);
-      }
-    }
-  } catch {
-    stale.push('pushpin.config.json could not be parsed');
-  }
-}
+// whole plugin exists to prevent. Same comparison freshness.mjs uses on
+// session start, so the two cannot disagree about whether the pin is current.
+const stale = inspectPin(target, { manifest: MANIFEST, pluginVersion: PLUGIN.version })?.details ?? [];
 
 function planFile(rel, describe, writeFn) {
   const abs = join(target, rel);
@@ -182,6 +161,9 @@ planFile('pushpin.config.json', 'Figma keys and the capture this project is pinn
         capturedAt: MANIFEST.capturedAt,
         css: './' + cssPath.split('\\').join('/'),
         cssHash: MANIFEST.hashes['pushpin.css'],
+        // Whether the edit hook was installed. Recorded so a later session can
+        // tell "declined the hook" from "predates it" instead of re-offering.
+        checkHook: HOOK,
         figma: {
           fileKey: SOURCE.fileKey,
           fileName: SOURCE.fileName,
@@ -202,7 +184,11 @@ planFile('pushpin.config.json', 'Figma keys and the capture this project is pinn
 //
 // Written in this order deliberately: the detector compares mtimes and warns
 // when the markdown is newer than the sidecar, so the sidecar goes last.
-const bridgeMeta = { pluginVersion: PLUGIN.version, capturedAt: MANIFEST.capturedAt };
+const bridgeMeta = {
+  pluginVersion: PLUGIN.version,
+  capturedAt: MANIFEST.capturedAt,
+  components: COMPONENTS.components,
+};
 
 planFile('DESIGN.md', "Pushpin's tokens as design-system checks for the browser phase", (abs) =>
   writeFileSync(abs, renderDesignMd(TOKENS, bridgeMeta)),
@@ -263,6 +249,82 @@ function planSettings() {
 
 if (SHARE) planSettings();
 
+// The edit hook. `check.mjs` re-states a broken rule on the edit that broke it,
+// which is what lets SKILL.md carry five rules instead of eleven — a rule the
+// model has to still be holding is a rule that decays over a long session.
+//
+// Both manifests are merged rather than replaced, and both are machine-local by
+// nature: the command carries an absolute path to this plugin, which is correct
+// for whoever ran `init` and meaningless to anyone else. A teammate without the
+// plugin gets a command that exits non-zero, which both harnesses fail open on,
+// so the worst case is a hook that does nothing.
+const HOOK_CMD = `node "${join(SKILL_DIR, 'scripts', 'hooks', 'pushpin-check.mjs')}"`;
+const HOOK_MARKER = 'pushpin-check.mjs';
+const HOOK_TIMEOUT = 15;
+
+/** Does this manifest already run our hook? Cheap and shape-agnostic. */
+const hasHook = (o) => JSON.stringify(o ?? {}).includes(HOOK_MARKER);
+
+function planHookManifest(rel, merge) {
+  const abs = join(target, rel);
+  let existing = null;
+  if (existsSync(abs)) {
+    try {
+      existing = JSON.parse(readFileSync(abs, 'utf8'));
+    } catch {
+      skipped.push(`${rel} — could not be parsed, leaving it alone`);
+      return;
+    }
+  }
+  if (hasHook(existing) && !FORCE) {
+    skipped.push(`${rel} — already runs the Pushpin check on edit`);
+    return;
+  }
+  const next = merge(existing ?? {});
+  plan.push({
+    rel,
+    describe: 'run the Pushpin check after each edit, reporting off-system values in place',
+    abs,
+    writeFn: (a) => {
+      mkdirSync(dirname(a), { recursive: true });
+      writeFileSync(a, JSON.stringify(next, null, 2) + '\n');
+    },
+  });
+}
+
+function planHooks() {
+  planHookManifest(join('.cursor', 'hooks.json'), (base) => ({
+    ...base,
+    version: base.version ?? 1,
+    hooks: {
+      ...(base.hooks ?? {}),
+      afterFileEdit: [
+        ...(base.hooks?.afterFileEdit ?? []),
+        { command: HOOK_CMD, timeout: HOOK_TIMEOUT },
+      ],
+    },
+  }));
+
+  // Claude Code's machine-local settings file, not the shared one: the command
+  // is an absolute path to this machine's plugin install, and committing that
+  // would hand every teammate a path that does not exist.
+  planHookManifest(join('.claude', 'settings.local.json'), (base) => ({
+    ...base,
+    hooks: {
+      ...(base.hooks ?? {}),
+      PostToolUse: [
+        ...(base.hooks?.PostToolUse ?? []),
+        {
+          matcher: 'Edit|Write|MultiEdit',
+          hooks: [{ type: 'command', command: HOOK_CMD, timeout: HOOK_TIMEOUT }],
+        },
+      ],
+    },
+  }));
+}
+
+if (HOOK) planHooks();
+
 // A short, durable note so an agent opening this repo later knows the system is
 // in use and where the authority lives — the original point of packaging this.
 //
@@ -284,6 +346,21 @@ This project uses **Pushpin**, Thumbtack's design system.
 - \`DESIGN.md\` and \`.impeccable/design.json\` are generated from those tokens, so
   a hardcoded color, font, radius, or font size is flagged as drift while you
   work. Both are machine-written — fix the code, not the check.
+- **Never overwrite either file.** \`/impeccable document\` and any new-work flow
+  that writes a design brief must leave both alone; they carry Pushpin, and a
+  regenerated one carries an invented visual world instead.
+- If \`design-md-drift\` or a staleness check flags them, re-run
+  \`pushpin init --write --force\`. Never \`document\`.
+- Hand-rolled markup standing in for a published component names it:
+  \`data-pp-component="Button" data-pp-variant="theme=primary"\`. Markup standing in
+  for nothing published says \`data-pp-proposed\`. This is what tells a Figma push
+  which component to instance instead of guessing. See \`DESIGN.md\` § Components.
+- An edit hook reports off-system values in the file you just wrote. To ask for
+  the same report yourself, or to check a file the hook did not see:
+  \`node <pushpin>/scripts/check.mjs <path>\`.
+- Component and token names are case-sensitive and not guessable — look one up
+  with \`node <pushpin>/scripts/lookup.mjs <name>\` rather than typing it from
+  memory.
 - Figma source of truth: \`${SOURCE.fileName}\` (\`${SOURCE.fileKey}\`).
 - Full guidance lives in the \`pushpin\` skill. Load it before design work.
 `;
@@ -355,8 +432,15 @@ if (WRITE && plan.length) {
   if (plan.some((p) => p.rel === 'DESIGN.md')) {
     console.log(`\nDESIGN.md and .impeccable/design.json turn the tokens into live checks:`);
     console.log(`  a raw hex, font, radius, or font size that is not Pushpin is reported as`);
-    console.log(`  drift while you work, rather than at the Figma push. Both are generated —`);
-    console.log(`  re-run init after updating the plugin, and never hand-edit them.`);
+    console.log(`  drift while you work, rather than at the Figma push. DESIGN.md also carries`);
+    console.log(`  the rules a token allowlist cannot express, which is what impeccable reads`);
+    console.log(`  as the brief. Both are generated — re-run init after updating the plugin,`);
+    console.log(`  and never hand-edit them.`);
+    console.log(`\n  Finish the setup, in this order:`);
+    console.log(`    /impeccable init      PRODUCT.md only. Pushpin does not write product truth.`);
+    console.log(`    /impeccable hooks on  what makes the detector run on every edit.`);
+    console.log(`\n  Do not run /impeccable document — it replaces both files with an invented`);
+    console.log(`  design system. If a staleness check flags them, re-run init --write --force.`);
   }
 
   if (plan.some((p) => p.rel.endsWith('settings.json'))) {

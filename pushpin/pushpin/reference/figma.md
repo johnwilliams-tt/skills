@@ -16,8 +16,9 @@ to move, and do not propose an icon on the grounds that Pushpin lacks one.
 
 What it does mean is that the Pushpin kit publishes 117 public components and not
 one of them is an icon. Searching the Pushpin library for a caret returns nothing,
-which reads as "no such icon" and is really "wrong library". The catalog is
-`assets/icons.figma.json`; the placement rules are in [generate.md](generate.md).
+which reads as "no such icon" and is really "wrong library". Ask the catalog
+instead — `node scripts/lookup.mjs --icon caret` — and see
+[generate.md](generate.md) for the placement rules.
 
 Library keys, for scoping `search_design_system` with `includeLibraryKeys`:
 
@@ -57,7 +58,7 @@ additionally needs a concrete `nodeId`. To enumerate variables wholesale, use
 6. Icons resolve to the icon set, not to `<img>` of an exported PNG. A layer
    named `Caret-Left Icon · Small` is `@thumbtack/thumbprint-icons`'
    `NavigationCaretLeftSmall` — the category comes from
-   `assets/icons.figma.json`, and the size suffix carries through.
+   `lookup.mjs --icon Caret-Left`, and the size suffix carries through.
 
 ## Code → Figma
 

@@ -129,7 +129,6 @@ darkDecls.forEach((d) => p(`  ${d}`));
 p('  }');
 p('}');
 
-// Desktop type scale.
 p();
 p(`/* Desktop type scale — Figma's "${t.font.$modes[1]}" font mode. */`);
 p(`@media (min-width: ${px(t.breakpoint[TYPE_BREAKPOINT])}) {`);
@@ -144,7 +143,6 @@ for (const [name, def] of entries(t.font)) {
 p('  }');
 p('}');
 
-// Type utility classes, named after the Figma type ramp.
 p();
 p('/* Type ramp utilities. Class names match the Figma type scale. */');
 for (const [name] of entries(t.font)) {

@@ -6,19 +6,20 @@ nothing else, and act on nothing until the user picks.
 
 ## Freshness, only when it matters
 
-`node scripts/freshness.mjs` still runs before the picks, the way Start here
-requires. What it adds to the greeting depends on what it finds.
+`node scripts/freshness.mjs --offline --brief` still runs before the picks, the
+way Start here requires. Relay stdout verbatim.
 
-- Clean: **nothing.** Open on the picks. The kit being current is the expected
+- Empty: **nothing.** Open on the picks. The kit being current is the expected
   case, and a greeting that leads with it spends its best line on non-news.
-- Aged out or a key that no longer resolves: one sentence, first, then `refresh`
-  at the top of the picks — **The Pushpin kit was last pulled on June 12, so
-  parts of it may have moved since; refreshing is where I'd start.**
+- A sentence about the kit: that sentence first, then `refresh` at the top of
+  the picks.
+- A sentence about this project's files being behind: that sentence first, then
+  re-running `init` with `--write --force` at the top of the picks.
 
-Either way the Annotation Kit's separate date, the layers that were skipped, and
-the instructions for setting `FIGMA_TOKEN` stay out of it. If `node` is
-unavailable, take the age from `capturedAt` the way Start here already
-describes, and apply the same rule.
+Either way the layer table, skip counts, and `FIGMA_TOKEN` instructions stay
+out of it — `--brief` already omitted them. If `node` is unavailable, take the
+age and the pin from the files the way Start here already describes, and apply
+the same rule.
 
 ## What never appears
 
@@ -55,6 +56,7 @@ one a line on what to do and a line on why it is worth doing now.
 | A code project with no `pushpin.config.json` | `init`, then `generate` |
 | The plugin's own source tree — `assets/` and the skill itself are in it | never `init`, since the plugin is not a project that consumes itself; `refresh` if the capture is aging, otherwise ask what to design |
 | A code project already initialized | `check` over the files being worked on, or answer the token question directly |
+| This project's pin is behind | re-run `init` with `--write --force`, above everything else except an aged capture |
 | Neither a link nor a code project | `generate` — a Figma link is the only thing it needs — and a token or component question, which needs nothing set up at all: what the card radius is, which token a disabled label takes |
 | A capture over 30 days old | `refresh`, above everything else |
 

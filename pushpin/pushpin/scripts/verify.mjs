@@ -189,8 +189,9 @@ if (problems.length) {
   process.exit(1);
 }
 // The two totals count variables, not the token entries in tokens.figma.json —
-// the type ramp is one entry per step and three variables. Saying "every token"
-// invited the reading that 131 + 168 should come to 273, which it does not.
+// the type ramp is one entry per step and three variables. The sentence says
+// "color token" for that reason: 131 + 168 not summing to 273 would otherwise
+// read as an arithmetic bug.
 console.log(
   `All ${checked} checks pass — colors resolve to their Figma values, and every color token is ` +
     `accounted for in the ${bindableTotal + hiddenTotal} captured variable keys ` +

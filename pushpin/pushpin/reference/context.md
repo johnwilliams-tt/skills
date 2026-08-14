@@ -1,11 +1,33 @@
 # Grounding in the page
 
-The rule is in [../SKILL.md](../SKILL.md): the page a link resolves to is the
-context for the work, other pages are named rather than read, and what the page
-offers is advisory. This is how that gets carried out — which calls, in what
-order, and what to say.
+A resolved link names a page, and that page is the context for the work. Sibling
+frames are the same flow — evidence about layout, density, copy voice, and
+naming that no general prior can supply. The rule binds whoever is holding the
+pen, including any skill supplying craft floors or category defaults.
+
+Three things govern it, and the rest of this page is how they get carried out:
+
+- **Read the page, then offer to use it.** One read-only call returns the page's
+  frames — names, types, and boxes — and it runs without asking, because an
+  offer has to name what is on the page to be answerable. The yes governs
+  whether the page shapes the work, not whether the call happens, and it holds
+  for that page for the rest of the session.
+- **Other pages are named, not read.** Another page holds superseded versions
+  and parked ideas, and drifting into one is how a shelved idea gets rebuilt as
+  a new one. Read one when the user asks for it or links into it.
+- **What the page offers is advisory.** It never overrides a token, a published
+  component, or the icon set — a page built entirely of raw hex licenses nothing
+  — and it settles no question on its own. Name every intended departure in one
+  question before anything is built.
 
 ## Finding the page
+
+**Nothing is searched for.** No hunting for a Figma file, no
+`search_design_system` to work out where the work should land, no subagent sent
+looking. The destination is something the user has and you do not, so a search
+spends minutes arriving at a guess where a question spends one click arriving at
+a fact. What follows is how a page is reached from a link the user gave, not how
+one is found.
 
 A Figma frame URL carries a `node-id` for the frame and nothing about the page
 it sits on, and `get_metadata` returns a subtree rather than a path, so the page
@@ -108,8 +130,8 @@ bear on the work — the adjacent steps, the other states. Not the whole page.
 `get_design_context` is the expensive call and it is reserved for a frame the
 work will mirror structurally. It is also the one to be careful with, because
 what it returns is styling, and a neighbour's styling is not a source: tokens
-come from `assets/`, components from the catalog. Read a sibling to learn how
-the screen is composed, not what colour anything is.
+and components both come from `lookup.mjs`. Read a sibling to learn how the
+screen is composed, not what colour anything is.
 
 ## Declining another page
 

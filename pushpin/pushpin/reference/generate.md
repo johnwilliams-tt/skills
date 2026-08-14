@@ -17,10 +17,10 @@ obviously rough one, because nobody knows to check.
 kit genuinely falls short, define a real local component and argue for it on the
 canvas.**
 
-If `assets/components.figma.json` has an entry, use it. `figma.createFrame()`
-with a corner radius is only ever correct for layout containers — never for
-something the kit already publishes, and never as a quiet stand-in for something
-it doesn't.
+If `node scripts/lookup.mjs <name>` returns an entry, use it.
+`figma.createFrame()` with a corner radius is only ever correct for layout
+containers — never for something the kit already publishes, and never as a quiet
+stand-in for something it doesn't.
 
 This rule used to have no exception: always import, and every local component
 was a defect. That is too strict for a design system this young. It produces
@@ -36,170 +36,60 @@ declare a gap, not a way to draw one.
 
 ### The gate: two checks, in order
 
-**Check one — the published-API gap.** No published component expresses the
-interaction without lying about its API or breaking a hard Pushpin rule. A
-missing variant, a missing property, a component being used for something its
-name denies. Tier: `gap`.
+Two cases justify a local component instead of an import: nothing published
+expresses the interaction without lying about its API, or something could be
+stretched but a new component is clearly the better experience. Either way it is
+a real component definition named `Proposed / <Name>`, derived by detaching the
+closest published component, with its rationale annotated on canvas.
 
-**Check two — the better-experience case.** Something published could be
-stretched to cover it, but a new component would be clearly better. Tier:
-`better-experience`.
+The gate, the derivation, the note, and its exact fields are in
+[propose.md](propose.md). Load it only once the gate has opened — most runs
+never reach it.
 
-Both are legal. The tier is recorded because the two ask a reviewer to accept
-different arguments — "you can't build this" versus "you shouldn't have to build
-it this way" — and a reviewer who can't tell which one is being made can't
-evaluate either.
+## When the code already says what it is
 
-Before creating a local component, **name the closest published component and
-say why it falls short.** That sentence is the whole gate. If it can't be
-written, the answer to check one is that a component does express it, and the
-correct move is to import that component.
+Work pushed from a project set up by `init` may name its own components. Code
+Connect is not wired for Pushpin — see [figma.md](figma.md) — so without a
+declaration this direction has no code-to-component mapping and the choice of
+component is inferred from markup. That inference is weakest exactly where it
+matters most: Pushpin's ten new components have no React equivalent, so they get
+composed from primitives, and a hand-rolled pill is indistinguishable from a
+Button by the time it is read.
 
-## Proposing a component
+The convention is written into the project's generated `DESIGN.md`:
 
-A proposal is a **real local component definition** named `Proposed / <Name>`,
-with the variants and properties it would need if it were published. Two things
-it is not:
-
-- **A drawn lookalike.** A frame styled to resemble a component is a defect
-  whether or not a note is placed beside it. Nothing in this exception makes
-  drawing one legal.
-- **A composition of published instances.** Three Buttons in a row is three
-  Buttons in a row. Wrapping them in a frame and calling it a proposal makes the
-  gap harder to find, not easier.
-
-Name it exactly `Proposed / <Name>`, with the spaces around the slash — that is
-the form the audit matches. `Proposed/FilterChip` and `[proposed] FilterChip`
-read as undocumented local components and are reported as defects.
-
-### Derive it; do not rebuild it
-
-**A proposal that extends a published component starts as that component.**
-Instance the closest variant, detach it, and change only what the proposal is
-actually about.
-
-```js
-const set = await figma.importComponentSetByKeyAsync(closestKey);
-const inst = set.defaultVariant.createInstance();
-inst.setProperties({ theme: 'secondary', size: 'medium' });   // the closest variant
-
-const frame = inst.detachInstance();   // keeps type, padding, strokes, radius, bindings
-// …change only what Delta names…
-const proposed = figma.createComponentFromNode(frame);
-proposed.name = 'Proposed / FilterChip';
+```html
+<button data-pp-component="Button" data-pp-variant="theme=primary, size=medium">
+<div data-pp-proposed="FilterChip" data-pp-extends="Chip" data-pp-tier="better-experience">
 ```
 
-The gate above already made you name the closest published component and say why
-it falls short. That component is not just the argument — it is the **starting
-material**, and skipping this step is where proposals go wrong.
+**A declaration is a hint resolved against the catalog, never a substitute for
+it.** Look `data-pp-component` up. On a hit, that entry's `key` is what gets
+imported and each `data-pp-variant` pair is checked against the real variant
+options. On a miss — an unknown name, a
+property the entry does not have, an option outside its list — **discard the
+declaration and choose the component the way you would with no declaration at
+all**, then say so in the chat summary.
 
-Rebuilt from scratch, a proposal drifts immediately and invisibly. The type
-lands as raw font settings instead of a text style, the padding becomes round
-numbers instead of the kit's spacing, the border weight and radius are
-approximated, and the result looks approximately right in a screenshot while
-sharing nothing with the component it claims to extend. Every one of those is a
-decision nobody made — they are just what happens when you start from an empty
-frame. Detaching hands you all of them already correct, and narrows the work to
-the actual proposal.
+Discarding rather than trusting is the point. A declaration cannot cause an
+import the catalog does not already authorize, so the worst a typo can do is
+cost back the guess it was meant to remove. A declaration that resolves cannot
+make the result worse either: it names a real component, and everything after
+the import is unchanged.
 
-**Everything the note's `Delta` does not name is identical to the source.** That
-is what makes a proposal reviewable: the reviewer reads one line and knows the
-rest is the component they already approved. A proposal that differs in six ways
-and describes one is not a proposal, it is a redesign with a misleading label.
-
-For a **net-new** component with no closest relative — `Extends: none` — there is
-nothing to derive from. Build it the way the kit is built: bind every fill,
-radius, and gap to library variables, use published text and effect styles for
-type and elevation, and instance published components for the parts the kit
-already covers. A proposal built that way converges on the real component if one
-ever lands; one built from literals is just another thing to redo. The audit
-holds derived and net-new proposals to the same standard on styles and bindings;
-only the starting point differs.
-
-### Rationale on canvas
-
-A proposal nobody argued for is indistinguishable from somebody going
-off-system. Every proposal carries its case next to it, placed as **published
-Annotation Kit instances** rather than drawn boxes — the same rule as everything
-else on this page:
-
-- A `Capstones` instance heading the annotated area.
-- One `Annotations` note per proposal, in the annotation column beside the
-  frame.
-- **An instance of the proposed component beside its own note**, so the claim and
-  the thing being claimed about are read together instead of from memory.
-- An anchor tying the note to the local instance it is about — a pointer for a
-  handful of notes, a number for more than three.
-- A short summary frame at the top of the column listing every proposal on the
-  screen.
-
-**All of it is nested auto-layout, and nothing in it is positioned by hand.**
-Notes are 320 to 500 points wide and overlap each other the moment they are
-placed relative to what they describe. One frame — the outermost — carries
-coordinates; the capstone, the gutter, the column width, and every note's
-alignment are set once on a parent and derived from there, so widening a note or
-reordering a proposal costs nothing.
-[annotate.md](annotate.md#placement) has the nesting, the gutter, the gap, the
-ordering, and the numbering rule, and the audit fails on any annotation that
-overlaps another or the design.
-
-The note body is key-value lines. It reads in the narrow 320px box and the audit
-can parse it:
-
-```
-Proposed: FilterChip
-Extends: Chip
-Derived: Chip / theme=secondary, size=medium
-Tier: better-experience
-Delta: adds a count badge; Chip offers left/right icons only
-```
-
-An extension carries `Extends`, the `Derived` variant it was detached from, and
-a one-line `Delta`. A net-new component carries `Extends: none`,
-`Derived: none`, and a real `Case:` block — the business argument for adding it
-to the system, not a restatement of what it looks like.
-
-`Derived` names the exact variant, because "extends Chip" and "is a modified
-`Chip / theme=secondary, size=medium`" are different claims and only the second
-one can be checked.
-
-[annotate.md](annotate.md) holds the annotation vocabulary: what each type is
-for, the placement conventions, and what the promotion path into the kit
-involves. Read it before placing anything, and read
-`assets/annotations.figma.json` for the exact import keys and each property's
-`key` field. The Annotation Kit has the same trap as Pushpin — names are exact,
-and at least one published variant name is misspelled (`List Elelemt`) — so
-never type one from memory.
-
-After a push that introduces proposals, print the same fields as a markdown
-summary in chat, so the case can be pasted into Slack or Coda. List every
-unresolved atom in the same summary: a gap the design system owner can see is
-the point of both, and the two questions — "should we build this component?"
-and "what should this icon be?" — go to the same person. Nothing is written to
-disk.
-
-**Lead with any library the preflight could not reach**, above the proposals and
-the unresolved atoms, because it reframes everything under it. A screen full of
-`Placeholder / icon` is a different artifact depending on whether the icon set
-lacks those glyphs or this account simply cannot see the library, and the reader
-cannot tell the two apart from the canvas. Name the library, say what stood in
-for it, and say what would restore it:
-
-```markdown
-**The Thumbprint UI Kit was out of reach**, so all 6 icons on this screen are
-placeholders rather than missing glyphs — Pushpin's icons are published from
-that file. Notes are drawn rather than Annotation Kit instances for the same
-reason. Both are fixed by access to those files, not by a change to the design.
-```
-
-The failure mode this prevents is a reviewer concluding the design system is
-missing something it publishes, and a proposal being written for a component that
-already exists.
+`data-pp-proposed` carries the same weight in the other direction. A complete
+one — `data-pp-extends`, `data-pp-tier`, and enough to state the delta —
+pre-fills the [proposal note](propose.md#the-proposed-component-note)'s fields
+from where the decision was actually made, rather than having them invented here
+by whoever is furthest from it. An incomplete one is a signal that something was
+hand-built, not a licence to skip the gate: [the two checks](#the-gate-two-checks-in-order)
+still run, and a proposal still has to be derived rather than drawn.
 
 ## Placing a component
 
-Every entry in `assets/components.figma.json` carries the `key` needed to import
-it, and its `type` decides which import call to use.
+Every catalog entry carries the `key` needed to import it, and its `type`
+decides which import call to use. Both are the first two lines `lookup.mjs`
+prints.
 
 ```js
 // COMPONENT_SET — the common case. Button, TextInput, Checkbox, etc.
@@ -229,7 +119,8 @@ the same failure as drawing one, just harder to spot.
 ## Property names are exact
 
 They are case-sensitive, space-sensitive, and several contain emoji. These are
-not guessable, which is the reason the catalog exists. Button's real properties:
+not guessable, which is the reason the catalog exists — `node
+scripts/lookup.mjs Button` prints exactly this table for any component:
 
 | Property | Type | Values |
 |---|---|---|
@@ -269,8 +160,8 @@ combinations but publishes only 260 variants. Start from
 `set.defaultVariant.createInstance()` and change a few properties, rather than
 specifying every axis and hoping the combination was built.
 
-Always read the component's entry in the catalog before setting properties.
-Never set a property from memory.
+Always look the component up before setting properties. Never set one from
+memory.
 
 ## Icons
 
@@ -282,9 +173,9 @@ serving both systems rather than a copy in each — and a `search_design_system`
 call scoped to Pushpin returns nothing for `caret`. That reads as "Pushpin has no
 caret" and it is wrong — there are four, at four sizes each.
 
-`assets/icons.figma.json` is the catalog: 227 icons across ten categories, 899
-import keys. Read it the same way you read the component catalog, and never
-type an icon name from memory.
+The catalog holds 227 icons across ten categories and 899 import keys. Ask it
+for the one you need — `node scripts/lookup.mjs --icon caret` returns every
+match with a key per size — and never type an icon name from memory.
 
 ```js
 const caret = await figma.importComponentByKeyAsync(
@@ -359,10 +250,10 @@ an oversized icon is the first thing that breaks that.
 
 Five icons do not publish all four sizes, and the set does not cover everything
 a design might ask for. Neither case licenses dropping the icon — see
-[Unresolved atoms](#unresolved-atoms-are-placed-never-dropped) below. Check
-`incomplete` in the catalog before assuming a size exists, and reach for a
-nearby size only by placing it deliberately at its own correct dimensions, never
-by resizing.
+[Unresolved atoms](#unresolved-atoms-are-placed-never-dropped) below.
+`lookup.mjs --icon <name>` lists only the sizes that actually publish, so check
+it rather than assuming four, and reach for a nearby size only by placing it
+deliberately at its own correct dimensions, never by resizing.
 
 ## What you can and cannot bind
 
@@ -387,9 +278,9 @@ what [tokens.md](tokens.md) advises in code: reach for the semantic layer, not
 the primitives. The consequence for generation is that **type and elevation come
 from published styles, not variables.**
 
-`assets/variable-keys.figma.json` lists both sets, so check there before writing
-an import. `assets/styles.figma.json` has the 13 text styles and 6 effect
-styles.
+`lookup.mjs --token <name>` says which of the two a given token is, and prints
+its variable key when it binds — check before writing an import.
+`lookup.mjs --style <name>` covers the 13 text styles and 6 effect styles.
 
 ## Unresolved atoms are placed, never dropped
 
@@ -445,8 +336,8 @@ parent.appendChild(text);              // append BEFORE styling
 await text.setTextStyleIdAsync(title2.id);
 text.characters = 'Find a pro';
 
-const shadow200 = await figma.importStyleByKeyAsync('110e8ce03217f0a7f8e1ee59676b21992f07c61c');
-await card.setEffectStyleIdAsync(shadow200.id);
+const shadow100 = await figma.importStyleByKeyAsync('fc2b651ca823646ee3517a41d7ba95a5c1433cbd');
+await card.setEffectStyleIdAsync(shadow100.id);
 ```
 
 Load the font families first — `Thumbtack Rise` in `Regular`, `Medium`, and
@@ -457,7 +348,7 @@ describes weight numerically as 563 / 590 / 660.
 
 For anything the components don't cover — page backgrounds, custom containers,
 spacing between sections — bind to the library variable rather than writing a
-literal. Bindable keys are in `assets/variable-keys.figma.json`.
+literal. Bindable keys come from `lookup.mjs --token <name>`.
 
 ```js
 const brand = await figma.variables.importVariableByKeyAsync(
@@ -593,7 +484,7 @@ placed a note.
 |---|---|
 | **Pushpin** | **Stop.** Nothing can be placed. Every component, variable, and text style this page relies on is published from here, and a screen with none of them is not a degraded screen, it is an empty one. |
 | Icons | Continue. Every icon becomes a `Placeholder / icon · <Size>` by the rule in [Unresolved atoms](#unresolved-atoms-are-placed-never-dropped). |
-| Annotation Kit | Continue. Notes are drawn instead of instanced — the fallback is in [annotate.md](annotate.md#when-the-annotation-kit-is-out-of-reach). |
+| Annotation Kit | Continue. Notes are drawn instead of instanced — the fallback is in [annotate-fallback.md](annotate-fallback.md). |
 
 Both degraded modes are recorded and reported, and neither fails the audit. That
 follows the rule the `unresolved` bucket already sets: a stated gap is an outcome
@@ -649,11 +540,13 @@ reads like a generation bug rather than a permissions one.
    screen is built rather than after.
 5. **Duplicate** the resolved frame beside the original, on the same page. The
    original stays untouched from here on.
-6. **Read the catalogs.** Identify which published components cover the layout,
-   and which icons it needs. Load `assets/components.figma.json` and
-   `assets/icons.figma.json`; scope any `search_design_system` call with the
-   right library key from [figma.md](figma.md) — Pushpin for components, the
-   Thumbprint UI Kit for icons.
+6. **Look up what the layout needs.** Identify which published components cover
+   it and which icons it calls for, then ask for those by name —
+   `node scripts/lookup.mjs <name>` per component, `--icon` per glyph. Scope any
+   `search_design_system` call with the right library key from
+   [figma.md](figma.md) — Pushpin for components, the Thumbprint UI Kit for
+   icons. When the source is code that declares its own components, resolve
+   those declarations here — [above](#when-the-code-already-says-what-it-is).
 7. **Import each distinct component and icon once,** at the top of the script.
    Reuse the imported main component for every instance. Skip the icon imports
    when `mode.icons` is `placeholder` and the annotation imports when
@@ -673,310 +566,14 @@ reads like a generation bug rather than a permissions one.
     has no note at all, which is a defect.
 11. **Audit before declaring done** — see below. Do not rely on a screenshot;
     take one after the audit passes, as a visual check on top of the structural
-    one. Then print the chat summary, listing proposals, unresolved atoms, and any
-    library the preflight could not reach.
+    one. Then print the chat summary, listing proposals, unresolved atoms, any
+    library the preflight could not reach, and any declaration that did not
+    resolve against the catalog.
 12. **Offer the finalize pass.** Offer it; do not perform it unprompted.
 
 ## The audit
 
-This is the check that catches the failure this whole page is about. Run it on
-the generated frame before handing anything over. It sorts what it finds into
-five buckets:
-
-- **Library** — instances that resolved to remote published components.
-- **Proposed** — local components named `Proposed / …` that have a parseable
-  note on the page.
-- **Unresolved** — placeholders standing in for something the system could not
-  supply.
-- **Degraded** — which libraries the preflight could not reach, and what was
-  substituted for them.
-- **Defects** — detached instances, lookalikes, undeclared local components,
-  literal fills, resized icons, `Proposed /` components whose note is missing or
-  incomplete or whose type and geometry drifted from the component they claim to
-  extend, and overlapping annotations.
-
-The run fails on defects only. A populated `proposed`, `unresolved`, or
-`degraded` bucket is a result to report, not a failure — this is a `use_figma`
-script, so "exit non-zero" means `report.ok === false`: do not hand the frame
-over, and do not offer the finalize pass.
-
-`unresolved` does not fail for the same reason `proposed` does not: both are
-the honest outcome of a gap in the system, and failing on them would push the
-next run back toward hiding the gap. What fails is hiding it. `degraded` is the
-same bargain one level up — the gap is in what this account can reach rather than
-in what the system publishes, and failing on it would only bring back the
-stop-on-anything behaviour it replaced.
-
-```js
-const root = await figma.getNodeByIdAsync('<generated frame id>');
-
-// This runs as its own use_figma call, so the preflight's result is not in
-// scope — paste it in the same way the frame id is pasted in. `library` for
-// anything that resolved normally.
-const mode = { icons: '<library|placeholder>', annotations: '<library|drawn>' };
-
-let page = root;
-while (page && page.type !== 'PAGE') page = page.parent;
-
-const notes = new Map();
-for (const t of page.findAllWithCriteria({ types: ['TEXT'] })) {
-  if (!t.characters.includes('Proposed:')) continue;
-  const fields = {};
-  for (const line of t.characters.split('\n')) {
-    const i = line.indexOf(':');
-    if (i > 0) fields[line.slice(0, i).trim()] = line.slice(i + 1).trim();
-  }
-  if (fields.Proposed) notes.set(fields.Proposed, fields);
-}
-
-// Recording what degraded is what keeps a drawn note or a placeholder icon from
-// reading as a generation bug later.
-const report = {
-  library: 0,
-  proposed: [],
-  unresolved: [],
-  degraded: Object.entries(mode)
-    .filter(([, how]) => how !== 'library')
-    .map(([what, how]) => `${what} — ${how}, library unreachable`),
-  defects: [],
-};
-const ancestor = (n, test) => {
-  for (let p = n.parent; p; p = p.parent) if (test(p)) return true;
-  return false;
-};
-const inInstance = (n) => ancestor(n, (p) => p.type === 'INSTANCE');
-const inProposed = (n) => ancestor(n, (p) =>
-  (p.type === 'COMPONENT' || p.type === 'COMPONENT_SET') && p.name.startsWith('Proposed / '));
-
-const localMains = new Map();
-
-for (const inst of root.findAllWithCriteria({ types: ['INSTANCE'] })) {
-  const main = await inst.getMainComponentAsync();
-  if (!main) { report.defects.push(`${inst.name} — detached instance`); continue; }
-  // `remote` true means it came from a published library, not this file.
-  if (main.remote) { report.library++; continue; }
-  const set = main.parent && main.parent.type === 'COMPONENT_SET' ? main.parent : main;
-  if (!set.name.startsWith('Proposed / ')) {
-    report.defects.push(`${inst.name} — local component "${set.name}", neither published nor proposed`);
-    continue;
-  }
-  localMains.set(set.name, (localMains.get(set.name) || 0) + 1);
-}
-
-for (const [name, instances] of localMains) {
-  const fields = notes.get(name.slice('Proposed / '.length));
-  if (!fields) { report.defects.push(`${name} — no annotation note`); continue; }
-  const missing = ['Extends', 'Derived', 'Tier'].filter((k) => !fields[k]);
-  if (fields.Extends === 'none') { if (!fields.Case) missing.push('Case'); }
-  else if (!fields.Delta) missing.push('Delta');
-  if (fields.Tier && fields.Tier !== 'gap' && fields.Tier !== 'better-experience') {
-    missing.push(`Tier (got "${fields.Tier}")`);
-  }
-  // An extension that says it derived from nothing did not derive.
-  if (fields.Extends && fields.Extends !== 'none' && fields.Derived === 'none') {
-    missing.push('Derived (extends a component but claims no derivation)');
-  }
-  if (missing.length) report.defects.push(`${name} — note missing ${missing.join(', ')}`);
-  else report.proposed.push({ name, tier: fields.Tier, instances });
-}
-
-// Icons: the size is a different component, never a resize. `Caret-Left Icon ·
-// Small` that is not 18×18 was scaled, and a scaled icon carries the stroke
-// weight of the size it was drawn at.
-const ICON_PX = { Tiny: 14, Small: 18, Medium: 28, Large: 32 };
-for (const n of root.findAll((x) => / Icon · (Tiny|Small|Medium|Large)$/.test(x.name))) {
-  const px = ICON_PX[n.name.split(' · ').pop()];
-  if (Math.round(n.width) !== px || Math.round(n.height) !== px) {
-    report.defects.push(
-      `${n.name} — ${Math.round(n.width)}×${Math.round(n.height)}, should be ${px}×${px}; ` +
-        `swap the size variant instead of resizing`,
-    );
-  }
-}
-
-// Declared gaps. Reported, never failed — the rule is that a gap is stated.
-for (const n of root.findAll((x) => x.name.startsWith('Placeholder / '))) {
-  report.unresolved.push({ name: n.name, width: Math.round(n.width), height: Math.round(n.height) });
-}
-
-// Proposals must keep the type ramp and the token geometry of what they extend.
-// This is the drift that a rebuilt-from-scratch proposal shows first and that no
-// screenshot contradicts.
-for (const name of localMains.keys()) {
-  const def = page.findOne((n) =>
-    (n.type === 'COMPONENT' || n.type === 'COMPONENT_SET') && n.name === name);
-  if (!def) continue;
-  for (const t of def.findAllWithCriteria({ types: ['TEXT'] })) {
-    if (inInstance(t)) continue;               // the library owns nested instances
-    if (t.textStyleId === '' || t.textStyleId === figma.mixed) {
-      report.defects.push(`${name} / ${t.name} — raw font settings, not a published text style`);
-    }
-  }
-  for (const n of [def, ...def.findAllWithCriteria({ types: ['FRAME'] })]) {
-    if (inInstance(n)) continue;
-    const bound = n.boundVariables ?? {};
-    for (const prop of ['topLeftRadius', 'paddingLeft', 'paddingTop', 'itemSpacing']) {
-      if (n[prop] > 0 && !bound[prop]) {
-        report.defects.push(`${name} / ${n.name} — ${prop} ${n[prop]} is a literal, not a bound token`);
-      }
-    }
-  }
-}
-
-// Lookalikes: shapes styled like components instead of being instances. A drawn
-// annotation is exempt: it is a sanctioned stand-in for a library component, and
-// a `Pointers · Number` stand-in is a 24px circle by definition.
-const DRAWN = /^Annotations \(drawn\) \//;
-const inDrawnAnnotation = (n) => DRAWN.test(n.name) || ancestor(n, (p) => DRAWN.test(p.name));
-
-for (const n of root.findAllWithCriteria({ types: ['FRAME', 'RECTANGLE'] })) {
-  const r = typeof n.cornerRadius === 'number' ? n.cornerRadius : 0;
-  if (!inInstance(n) && !inProposed(n) && !inDrawnAnnotation(n) && r >= 100) {
-    report.defects.push(`${n.name} — pill-shaped ${n.type}, not an instance`);
-  }
-}
-
-// Literal fills that should have been variable bindings.
-const unbound = new Set();
-for (const n of root.findAllWithCriteria({ types: ['FRAME', 'RECTANGLE', 'TEXT'] })) {
-  const fills = n.fills;
-  if (!Array.isArray(fills) || inInstance(n)) continue;   // figma.mixed on multi-style text
-  for (const f of fills) {
-    if (f.type === 'SOLID' && !(f.boundVariables && f.boundVariables.color)) {
-      unbound.add(`${n.name} — literal fill, not a variable binding`);
-      break;
-    }
-  }
-}
-for (const d of unbound) report.defects.push(d);
-
-// Annotations must be readable, which means nothing may cover anything. Only the
-// outermost annotation of each nest is compared: anything inside one is laid out
-// by an auto-layout parent, cannot collide, and would register as overlapping the
-// parent that contains it.
-//
-// Drawn stand-ins are FRAMEs rather than INSTANCEs, and an earlier version of
-// this query filtered on INSTANCE alone — which would have made a fallback note
-// invisible to the one check that exists to stop notes stacking up. Match on the
-// name and accept either type.
-const ANNOTATION = /^(Annotations|Capstones|Sticky Note)/;
-const annotations = page.findAll((n) =>
-  (n.type === 'INSTANCE' || n.type === 'FRAME') && ANNOTATION.test(n.name));
-// Dropping anything with an annotation ancestor covers a drawn note's own
-// children — `Annotations (drawn) / …` matches this pattern too — without a
-// separate rule for them.
-const notesOnPage = annotations.filter((n) =>
-  !inInstance(n) && !ancestor(n, (p) => annotations.includes(p)));
-const hits = (a, b) =>
-  a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
-
-for (let i = 0; i < notesOnPage.length; i++) {
-  const a = notesOnPage[i].absoluteBoundingBox;
-  if (!a) continue;
-  for (let j = i + 1; j < notesOnPage.length; j++) {
-    const b = notesOnPage[j].absoluteBoundingBox;
-    if (b && hits(a, b)) {
-      report.defects.push(`${notesOnPage[i].name} overlaps ${notesOnPage[j].name}`);
-    }
-  }
-  // A pointer belongs on the design; nothing else does. Drawn or instanced, the
-  // number dot sits on the element it numbers.
-  const box = root.absoluteBoundingBox;
-  const isPointer = /^Annotations( \(drawn\))? \/ Pointers/.test(notesOnPage[i].name);
-  if (box && hits(a, box) && !isPointer) {
-    report.defects.push(`${notesOnPage[i].name} overlaps the design frame`);
-  }
-}
-
-report.ok = report.defects.length === 0;
-return report;
-```
-
-Nodes inside an instance are skipped by both shape checks: their styling belongs
-to the library, and overriding it is already forbidden. Nodes inside a
-`Proposed / …` definition are exempt from the lookalike check — drawn shapes are
-how a component gets built — but not from the fill check, because a proposal
-built on literals cannot converge on a real component later. An
-`Annotations (drawn) / …` frame is exempt from the same check for the same kind of
-reason, and likewise not from the fill check: a stand-in for a library component
-still binds its fills.
-
-Any pill-shaped frame outside those three cases is the exact bug this page exists
-to prevent: something that looks like a Pushpin component and isn't one.
-
-**A `Proposed /` component with no note is a defect, and so is a note without a
-`Tier` or a `Derived`.** Without that rule the annotation requirement is
-satisfiable with an empty sticky — the component exists, something is placed
-next to it, and the reviewer still cannot tell what is being proposed or which
-of the two arguments they are being asked to accept. The note is the entire
-reason local components are allowed at all; a proposal nobody argued for is an
-off-system element with better naming.
-
-**The derivation checks are the ones that catch drift.** A proposal built from
-scratch passes every structural check in the older version of this audit — it is
-a real component, it has a note, nothing about it is a lookalike — and is still
-wrong, because its type is raw font settings rather than a text style and its
-padding is a round number rather than a bound token. Those two checks are cheap
-and they are exactly the difference between "Chip plus a count badge" and
-"something Chip-shaped". A proposal that derived properly passes them without
-trying, because the detached instance arrives with all of it already correct.
-
-The icon check is the same idea one level down. `Caret-Left Icon · Small` that
-measures 32×32 is a Large that someone scaled, and a screenshot cannot tell you
-that — the stroke is wrong by an amount nobody notices until the whole screen
-looks slightly off.
-
-The fill check has legitimate exceptions — a photograph, a scrim built by hand.
-Bind what can be bound, and name the rest in the handoff. Silently ignoring the
-bucket defeats it.
-
-A real run of this workflow — a mobile screen with a TextInput, two Buttons, and
-a card — returns:
-
-```
-{ library: 5, proposed: [], unresolved: [], degraded: [], defects: [], ok: true }
-```
-
-Five instances resolved to remote main components (three placed directly, two
-nested inside them), nothing was drawn by hand, every icon is at its own size,
-and every fill on the hand-built containers was variable-bound.
-
-The same screen generated by an account that reaches Pushpin and nothing else
-returns `ok: true` as well, and says what it cost:
-
-```
-{
-  library: 5,
-  proposed: [],
-  unresolved: [{ name: 'Placeholder / icon · Small', width: 18, height: 18 }],
-  degraded: [
-    'icons — placeholder, library unreachable',
-    'annotations — drawn, library unreachable',
-  ],
-  defects: [],
-  ok: true,
-}
-```
-
-That is a worse screen than the first one and it is a screen. `ok: true` means
-nothing structural is wrong with what was built, not that nothing is missing —
-the two non-empty buckets are the report, and they are the part to lead with when
-handing it over.
-
-## Custom work that is not a proposal
-
-Not everything the kit leaves out is a missing component. One-off layout — a
-marketing hero, a section rhythm, an empty state used exactly once — is
-composition rather than componentry, and it needs no proposal and no note. Build
-it with auto-layout containers and bind every fill, radius, and gap to library
-variables. The audit holds it to that and to nothing else.
-
-The test is reuse. If the thing would be instanced again on another screen and
-would need variants to do it, it is a component and belongs behind the gate. If
-it exists once and always will, it is layout.
-
-Separately, ten Pushpin components are published in Figma with no React
-implementation — see [components.md](components.md). That is a handoff problem
-rather than a generation one. When a screen leans on one of them, say so
-explicitly. The value of "this part has no component in code yet" is high, and
-the cost of discovering it late is higher.
+Run it before declaring the work done. It sorts what it finds into library
+instances, proposals, unresolved atoms, degraded libraries, and defects, and it
+fails on defects only. The script and the five buckets are in
+[audit.md](audit.md).

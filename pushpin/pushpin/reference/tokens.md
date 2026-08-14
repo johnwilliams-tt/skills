@@ -150,7 +150,8 @@ wrong.
 
 When building in **Figma** rather than code, none of these size variables are
 bindable — the type ramp is published as 13 text styles (`Title/Hero`,
-`Title/1`–`Title/8`, `Text/1`–`Text/4`) listed in `assets/styles.figma.json`.
+`Title/1`–`Title/8`, `Text/1`–`Text/4`), whose keys come from
+`lookup.mjs --style`.
 Those styles use named font weights (Medium, Bold, Regular) rather than the
 numeric 563 / 590 / 660, and the styles are what actually renders.
 
@@ -161,8 +162,15 @@ Standalone ratios also exist for custom blocks: `--pp-leading-flat` (1),
 
 ## Elevation
 
-`--pp-shadow-100` through `--pp-shadow-400`. Cards typically `200`, raised
-surfaces `400`.
+Four steps, and they are a stacking order rather than a palette of moods. Pick
+the one that matches how far the surface actually sits from the page.
+
+| Token | Use |
+|---|---|
+| `--pp-shadow-100` | A card resting on the page |
+| `--pp-shadow-200` | A raised surface — hovered cards, sticky headers |
+| `--pp-shadow-300` | A popover, dropdown, or tooltip |
+| `--pp-shadow-400` | A modal or sheet, the top of the stack |
 
 Note the name collision: `--pp-shadow-1` is a *color* (the semantic
 `shadow/1` variable), while `--pp-shadow-100` is a complete `box-shadow`. Both
@@ -184,3 +192,45 @@ Breakpoints `--pp-breakpoint-small` 481, `-medium` 700, `-large` 1025, plus
 `--pp-wrap-max-width` 946 and `--pp-wrap-no-pad-width` 1010 are the content
 measure. Scrims: `--pp-scrim-light-80`, `--pp-scrim-dark-80`. Modal stacking:
 `--pp-z-modal` 200.
+
+## Checking code
+
+`check` reads a file or directory and reports what is off-system. It is
+advisory: it prints findings and changes nothing.
+
+**Values that are not tokens.**
+
+| Finding | What it looks like |
+|---|---|
+| Raw color | A hex, `rgb()`, or `hsl()` literal — flag it whether or not it matches a ramp. Matching a ramp means the token exists and was bypassed. |
+| Pure black text | `#000`, `black`, `rgb(0,0,0)` on text. Body text is `--pp-text-neutral-default`. |
+| Square corners on a control | A button, input, chip, or search bar without `--pp-radius-sides`. |
+| Off-scale spacing | A padding, margin, or gap in px that is not one of the 13 `--pp-space-*` steps. |
+| Off-ramp type | A `font-size` that is not a ramp step, or a family that is not Thumbtack Rise. |
+| Off-ramp weight | A weight outside 400 / 563 / 590 / 660 / 700. |
+
+If the project has been through `init`, most of these are already reported live
+by impeccable's detector, which reads the same tokens out of the generated
+`DESIGN.md`. `check` still earns its place on a repo that was never initialized,
+in a review, and for the two findings below, which no token allowlist can
+express.
+
+**Component identity.** Only in hand-rolled markup — a React project on
+Thumbprint components declares nothing and needs nothing. See
+[components.md](components.md#declaring-what-hand-rolled-markup-is).
+
+- **An undeclared lookalike.** An element that reads as a published component —
+  pill radius over a brand-strong fill, an input's border and padding, a chip's
+  geometry — carrying no `data-pp-component` and no `data-pp-proposed`. This is
+  the browser-side twin of the Figma audit's lookalike defect, and finding it
+  here is the cheap version: at push time the same element is a guess, and after
+  push it is a defect in someone's handoff.
+- **A declaration that names nothing real.** A `data-pp-component` absent from
+  the catalog, or a `data-pp-variant` naming a property or option that entry
+  does not have. The push discards these rather than trusting them, which is
+  safe and silent — this is where it gets said out loud.
+
+`node scripts/check.mjs <path>` reports both, and resolves every declaration
+against the catalog for you. Where you need to see an entry yourself, ask for
+it: `node scripts/lookup.mjs <name>`. Component names, property names, and
+variant options are case-sensitive and not guessable.

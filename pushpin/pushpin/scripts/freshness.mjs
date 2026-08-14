@@ -12,6 +12,7 @@
  * failing when a layer is out of reach:
  *
  *   capture age    always, no token, no network — how old the captures are
+ *   project pin    if cwd has pushpin.config.json — is this project behind
  *   components     FIGMA_TOKEN, any plan       — do our 117 import keys still exist
  *   styles         FIGMA_TOKEN, any plan       — do our text and effect style keys
  *   variables      FIGMA_TOKEN, Enterprise     — has the kit published since
@@ -51,6 +52,17 @@
  *   node scripts/freshness.mjs --offline            # never touch the network
  *   node scripts/freshness.mjs --strict             # an unreachable layer fails
  *   node scripts/freshness.mjs --json               # machine-readable
+ *   node scripts/freshness.mjs --brief              # silent on success; one sentence when not
+ *   node scripts/freshness.mjs --offline --brief    # session start: age + project pin, no network
+ *
+ * `--brief` is the session-start form. Empty stdout and exit 0 when nothing
+ * would change what gets built. On failure it prints only the sentence the
+ * agent should relay — no dates, layer names, or skip counts. `--json` still
+ * prints JSON even with `--brief`.
+ *
+ * If the current working directory holds a `pushpin.config.json`, a project-pin
+ * layer compares that pin to this plugin. No config is not a finding; init is
+ * offered elsewhere. The plugin's own tree is skipped — it is not a consumer.
  *
  * Exit 0 when nothing is known to have moved, 1 when something has.
  */
@@ -58,6 +70,8 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import { inspectPin } from './pin.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const ASSETS = join(here, '..', 'assets');
@@ -93,13 +107,15 @@ const styleKeyCount =
 
 if (has('--help') || has('-h')) {
   console.log(
-    'usage: node scripts/freshness.mjs [--max-age days] [--offline] [--strict] [--json]\n\n' +
+    'usage: node scripts/freshness.mjs [--max-age days] [--offline] [--strict] [--json] [--brief]\n\n' +
       'Reports how far the committed captures may have drifted from Figma.\n' +
       'Set FIGMA_TOKEN to check the import keys against the three live files: ' +
       `${real(catalog.components).length} components and ${styleKeyCount} styles in ` +
       `${manifest.figma.fileName}, ${real(annotationCatalog.components).length} ` +
       `components in ${manifest.annotationKit.fileName}, and ${iconKeyPairs.length} ` +
-      `icon keys in ${manifest.iconLibrary.fileName}.`,
+      `icon keys in ${manifest.iconLibrary.fileName}.\n` +
+      '--brief prints nothing when the capture is current and the project pin matches; ' +
+      'otherwise one sentence to relay. Session start is --offline --brief.',
   );
   process.exit(0);
 }
@@ -114,6 +130,38 @@ if (!Number.isFinite(maxAge) || maxAge < 0) {
 const asJson = has('--json');
 const strict = has('--strict');
 const offline = has('--offline');
+const brief = has('--brief');
+
+const PLUGIN = JSON.parse(
+  readFileSync(join(here, '..', '..', '.claude-plugin', 'plugin.json'), 'utf8'),
+);
+
+const MONTHS = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+const prettyDate = (iso) => {
+  const [, m, d] = iso.split('-').map(Number);
+  return `${MONTHS[m - 1]} ${d}`;
+};
+
+const LIBRARY = {
+  components: 'the Pushpin kit',
+  styles: 'the Pushpin kit',
+  annotations: 'the Annotation Kit',
+  icons: 'the icon library',
+  variables: 'the Pushpin kit',
+};
 
 // ---------------------------------------------------------------- capture age
 
@@ -166,6 +214,8 @@ const report = {
   layers: [],
   findings: [],
   notes: [],
+  brief: [],
+  project: null,
 };
 
 /**
@@ -195,6 +245,27 @@ if (ageStale) {
       `to have changed — only that it has been long enough that nobody has checked, so ` +
       `re-capture it before trusting a value out of it.`,
   );
+  report.brief.push(
+    oldest.fileName === manifest.figma.fileName
+      ? `Pushpin's copy of the Figma kit was pulled on ${prettyDate(oldest.capturedAt)}, so a token or component may have moved since — refreshing it is the first thing I'd do.`
+      : `The ${oldest.fileName} was last pulled on ${prettyDate(oldest.capturedAt)}, so a token or component may have moved since — refreshing it is the first thing I'd do.`,
+  );
+}
+
+const pin = inspectPin(process.cwd(), { manifest, pluginVersion: PLUGIN.version });
+report.project = pin;
+if (pin) {
+  if (pin.status === 'ok') {
+    layer(
+      'project pin',
+      'pass',
+      `plugin ${PLUGIN.version}, capture ${manifest.capturedAt}`,
+    );
+  } else {
+    layer('project pin', 'fail', pin.details.join('; '), 'behind');
+    report.findings.push(...pin.details);
+    if (pin.brief) report.brief.push(pin.brief);
+  }
 }
 
 // -------------------------------------------------------------- live evidence
@@ -257,6 +328,9 @@ function compareKeys(name, committed, liveKeys, expectedTotal, liveTotal) {
           .map(([n]) => `    ${n}`)
           .join('\n') +
         (missing.length > 10 ? `\n    ...and ${missing.length - 10} more` : ''),
+    );
+    report.brief.push(
+      `A ${noun} in ${LIBRARY[name] ?? 'the kit'} is no longer published, so a generation run against it dies partway rather than at review — refreshing is the first thing I'd do.`,
     );
     return;
   }
@@ -360,6 +434,9 @@ if (offline) {
         `import key still resolves, but variant options and property keys may have ` +
         `moved, and a changed property key breaks setProperties.`,
     );
+    report.brief.push(
+      `A component in ${what} changed after the capture, so a generation run against it may die partway rather than at review — refreshing is the first thing I'd do.`,
+    );
   }
 
   // Components. Any plan, file_read scope. The catalog keeps 117 public entries
@@ -423,6 +500,9 @@ if (offline) {
           `${capturedAt}:\n` +
           moved.map((c) => `    ${c.name} — ${c.updatedAt.slice(0, 10)}`).join('\n'),
       );
+      report.brief.push(
+        `A token in the Pushpin kit has moved since the capture, so a value quoted from it may be wrong — refreshing is the first thing I'd do.`,
+      );
     } else {
       layer('variables', 'pass', `nothing published since ${capturedAt}`);
     }
@@ -473,7 +553,7 @@ if (offline) {
 
   // A token that reaches nothing is worse than no token, because the run still
   // ends in a reassuring sentence. Say plainly that it proved nothing.
-  const networkLayers = report.layers.filter((l) => l.name !== 'capture age');
+  const networkLayers = report.layers.filter((l) => NETWORK_LAYERS.includes(l.name));
   if (networkLayers.every((l) => l.status === 'skipped')) {
     report.notes.push(
       'FIGMA_TOKEN was set but no layer could use it, so this run proved nothing beyond ' +
@@ -497,6 +577,11 @@ report.exitCode = report.stale || (strict && skipped.length) ? 1 : 0;
 
 if (asJson) {
   console.log(JSON.stringify(report, null, 2));
+  process.exit(report.exitCode);
+}
+
+if (brief) {
+  if (report.brief.length) console.log(report.brief.join('\n'));
   process.exit(report.exitCode);
 }
 

@@ -11,16 +11,17 @@ file was assembled rather than composed.
 **One exception, and it is decided by the preflight rather than by preference.**
 When the access preflight in [generate.md](generate.md#the-access-preflight)
 reports the Annotation Kit out of reach, notes are drawn — see [When the
-Annotation Kit is out of reach](#when-the-annotation-kit-is-out-of-reach). The
+Annotation Kit is out of reach](annotate-fallback.md). The
 alternative was abandoning the whole run over a library the design may never have
 needed, which is a worse answer than an imperfect note. This is not a license to
 draw when the kit is available: if the import succeeds, drawing a note is the
 defect it always was.
 
-`assets/annotations.figma.json` is the catalog: 91 published components across
-the kit's four pages, each with its import key and each property's exact `key`
-field. Read a name and a variant option out of it rather than typing one. Some
-published names are misspelled in the file, and the misspelling is load-bearing:
+The catalog holds 91 published components across the kit's four pages, each with
+its import key and each property's exact `key` field. Ask for one —
+`node scripts/lookup.mjs --annotation <name>` — rather than typing a name or a
+variant option. Some published names are misspelled, and the misspelling is
+load-bearing:
 `Annotations` has a variant literally named `List Elelemt`, and three of
 `Motion Tokens`' variants end in `[Anrdoid]`. Pass the corrected spelling and
 `setProperties` throws.
@@ -134,6 +135,48 @@ states (`Active`, `Hover`, `Focus`, `Disabled`, …) and the other carries
 `A11y / Annotation / Spec [1193:410]` and `[1193:431]` for that reason. Look at
 the variant options to tell which one you want; the name will not tell you.
 
+#### Read them off the markup, not off the mock
+
+When the frame was pushed to Figma from code in this project, the intent these
+annotations exist to record is already written down. Heading levels, landmarks,
+label associations, and focus order are in the markup — much of it put there
+deliberately, by a hardening pass. Inferring them back out of a picture of that
+markup throws away the one authoritative source and guesses at it instead.
+
+So annotate from the source. Each of these is a direct read:
+
+| In the markup | Annotation | Variant |
+|---|---|---|
+| `<h1>`…`<h6>` | `A11y / Annotation / Headings` | `Heading Level` — `H1` … `H6` |
+| `<nav>`, `<main>`, `<header>`, `<footer>`, `<aside>`, `<form>`, `role="search"` | `A11y / Annotation / Landmark` | `Type`, and `Named: True` when it carries an accessible name |
+| `tabindex`, or a focus order the DOM order does not give | `A11y / Annotation / Order` | `Type: Tab Order` |
+| A reading order that departs from source order | `A11y / Annotation / Order` | `Type: Reading Order` |
+| `<label for>` or `aria-label` on a field, and its `autocomplete` | `A11y / Annotation / Label` | `Autocomplete` and `Autocomplete type` |
+| `<a>` with `target="_blank"` | `A11y / Annotation / Link` | `Link target: Link new window` |
+| `<img alt>` | `A11y / Annotation / Image` | `Alt Label: True` |
+
+Three limits, and they are what keep this from adding noise:
+
+- **This is `annotate`, not `generate`.** A generated screen's annotation step
+  covers proposals, specimens, and open questions, and it stays that way.
+  Accessibility annotations are placed when annotating is what was asked for.
+- **Annotate what the markup states, never what it implies.** A `<div>` that
+  behaves like navigation is not a `Navigation` landmark; it is a finding to
+  raise. An input with no label gets a `Sticky Note Status` open question, not a
+  guessed one. Reading intent off the source is only worth more than inferring
+  it from the mock if it stays a read.
+- **Placement does not change.** These are cards in the same column as every
+  other note, in the [bundle](#the-annotated-bundle) below. The arrangement has
+  a single origin and is auto-layout all the way to the top, which is what makes
+  adding a dozen cards safe: they cannot overlap each other or the design, and
+  the audit's overlapping-annotation defect is unaffected.
+
+Volume is still worth a thought. Annotating all six heading levels on a page
+that has fourteen headings produces a column nobody reads. Annotate the
+structure — the landmarks, the heading spine, the fields, anything whose
+intended behaviour the mock does not show — rather than every element that could
+carry a marker.
+
 ### The rest of the General page
 
 Not annotation vocabulary, but published from the same library and worth knowing
@@ -142,48 +185,6 @@ exists rather than rebuilding: `Framing Cards` for the why behind a project,
 `Figma file structure` for page naming, `Gesture / …` and `Cursor / …` for
 interaction diagrams, `Motion Tokens`, `Line`, `Endpoint`, `Studio Feedback`,
 `Team Member`, and `Deprecated` for overlaying work that is no longer in use.
-
-## The proposed-component note
-
-When the plugin creates a local `Proposed / <Name>` component — the gate for
-that is in [generate.md](generate.md) — it states the case on the canvas next to
-it. The body is key-value lines: it reads in a 320px box, and the audit parses
-it to tell a documented proposal from an undocumented lookalike.
-
-```
-Proposed: FilterChip
-Extends: Chip
-Derived: Chip / theme=secondary, size=medium
-Tier: better-experience
-Delta: adds a count badge; Chip offers left/right icons only
-```
-
-| Field | Required | Content |
-|---|---|---|
-| `Proposed:` | always | The component name, matching the local component after `Proposed / ` |
-| `Extends:` | always | The closest published Pushpin component, or `none` |
-| `Derived:` | always | The exact variant the component was detached from, or `none` |
-| `Tier:` | always | `gap` or `better-experience` |
-| `Delta:` | extensions | One line on what the published component cannot express |
-| `Case:` | net-new | The business argument for adding it to the system |
-
-`Derived` records that the proposal was built by detaching a real instance
-rather than drawn from scratch — the rule is in
-[generate.md](generate.md#derive-it-do-not-rebuild-it). It matters to a reviewer
-because it is the difference between "Chip plus a count badge" and "something
-Chip-shaped", and the second one quietly loses the type ramp, the padding, and
-the border weight on its way to looking similar.
-
-`Tier` records which argument the reviewer is being asked to accept. `gap` means
-no published component covers the interaction without lying about its API or
-breaking a Pushpin rule. `better-experience` means something could be stretched
-to cover it and a new component would be clearly better. Both are legal; they
-are not the same claim, and a reviewer who cannot tell them apart cannot weigh
-either.
-
-A note missing `Tier` or `Derived`, or a `Proposed /` component with no note at
-all, is a defect. The annotation requirement is not satisfied by an empty
-sticky.
 
 ## Placement
 
@@ -296,59 +297,6 @@ every proposal on the screen, so a reviewer can count them without hunting —
 then one card per proposal in the order a reader meets their subjects on the
 design, then an open question for each unresolved atom.
 
-### Each proposal is a card, and the card carries a specimen
-
-`Delta: adds a count badge` is not a readable claim unless the thing with the
-count badge is in view. Numbering answers *where on the design*; it does not
-answer *what does it look like*, so a note on its own asks the reviewer to hold
-the component in their head while reading five lines about it, or to scroll back
-and forth to compare. That is the same failure as an overlapping note arriving by
-a different route.
-
-So a proposal's note never sits in the column alone. **An instance of the
-`Proposed / <Name>` component goes beside it, in one auto-layout with it.**
-
-```js
-const card = figma.createFrame();
-card.name = `Proposal — ${name}`;     // not `Annotations …`: see Nothing overlaps
-card.layoutMode = specimen.width <= 320 ? 'HORIZONTAL' : 'VERTICAL';
-card.primaryAxisSizingMode = 'AUTO';
-card.counterAxisSizingMode = 'AUTO';
-card.counterAxisAlignItems = 'MIN';
-card.itemSpacing = 16;
-card.fills = [];
-card.appendChild(specimen);
-card.appendChild(note);
-card.layoutAlign = 'STRETCH';         // as every child of the column does
-```
-
-- **Beside the note when it fits, above it when it does not.** Derived from the
-  specimen's width against the note's 320, not chosen. A 375-wide banner set
-  beside a 320 note makes the commentary wider than the design it comments on.
-- **An instance of the local component**, from `main.createInstance()` — not a
-  copy of the instance already on the design. A copy carries that instance's
-  overrides, and what a reviewer is being asked to approve is the component's
-  default, because the default is what would land in the library.
-- **At its natural size.** Never resized to fit the column. A specimen scaled to
-  fit misreports its padding and its type size, which are exactly the details
-  [deriving rather than rebuilding](generate.md#derive-it-do-not-rebuild-it)
-  exists to preserve — a scaled specimen hides the drift the specimen was added
-  to expose.
-- **One specimen per variant** when the proposal is a component set, in a nested
-  horizontal auto-layout inside the card, so the axis the proposal adds is
-  visible rather than asserted in prose.
-- **A specimen is not usage.** The audit counts instances inside the design
-  frame, and the column is a sibling of the frame rather than a descendant, so a
-  specimen never inflates a proposal's instance count. Do not move the column
-  inside the design frame to keep them together; the bundle already does that,
-  and nesting it there would both corrupt that count and put annotations inside
-  the thing they annotate.
-
-The card is also what a person moves. Dragging a proposal to the top of the
-column takes its specimen and its note along, and nothing needs re-aligning
-afterwards, which is the difference between a layout that survives review and one
-that gets cleaned up by hand once and then abandoned.
-
 ### Anchoring: number, don't point
 
 A pointer aimed across 400 points of canvas is the other half of the mess. Past
@@ -428,137 +376,3 @@ Nothing is written into the Annotation Kit itself. It is a shared library, and
 the plugin refuses to write into shared libraries for the same reason it refuses
 to write into the Pushpin kit.
 
-## When the Annotation Kit is out of reach
-
-The access preflight in [generate.md](generate.md#the-access-preflight) resolves
-one Annotation Kit key before anything is built. When that import fails, the run
-does not stop — it draws the notes instead, and says so. Only an unreachable
-Pushpin stops a run, because Pushpin is the only one of the three whose absence
-leaves nothing to place.
-
-The reasoning is worth stating, because it runs against this page's own rule.
-Reaching Pushpin without reaching the Annotation Kit is the ordinary case, not
-the exotic one. Refusing to generate in that setup meant a layout built entirely
-from published components, proposing nothing and needing no note, still failed —
-over a library it would never have opened. A drawn note is worth less than an
-instanced one. It is worth far more than no screen.
-
-### What to draw, and what not to
-
-Only the working set this workflow actually places. The kit publishes 91
-components and approximating all of them would be a second design system nobody
-asked for.
-
-| Instead of | Draw | Sized |
-|---|---|---|
-| `Annotations` · `Multi-line` | `Annotations (drawn) / Multi-line` | 320 wide, height hugs, 288 text column |
-| `Annotations` · `List Elelemt` | `Annotations (drawn) / List Elelemt` | 360 wide, height hugs, a number and a body |
-| `Annotations / Pointers` · `Number` | `Annotations (drawn) / Pointers · Number` | 24×24, `cornerRadius/full` |
-| `Sticky Note Status` · `Open Question` | `Annotations (drawn) / Sticky Note Status` | 320 wide, height hugs |
-| `Capstones` | `Annotations (drawn) / Capstones` | the width of the block it heads, 112 tall |
-
-**Do not approximate the rest.** The accessibility annotations, `Guide`,
-`Framing Cards`, the Thumbprint contribution components, and everything else on
-the General page carry meaning in their own structure — an `A11y / Annotation /
-Spec` says "this is an `h2`" because of which published component it is, and a
-drawn box saying `h2` is a different and much weaker claim. If one of those is
-what was asked for and the kit is out of reach, say the kit is out of reach.
-
-Directional `Pointers` are also not drawn. A pointer's whole job is to aim, an
-approximated arrow aims badly, and the numbering scheme in [Anchoring](#anchoring-number-dont-point)
-already removes the need for one. **When notes are drawn, number them regardless
-of how few there are** — the three-or-fewer case that allows pointers assumes a
-real `Pointers` instance.
-
-### Drawing one
-
-The stand-in mimics the real component: same width, same padding, same corner
-radius, so the column reads as it always does and a reviewer is not asked to
-decode a new visual language on top of reviewing a design.
-
-```js
-const note = figma.createFrame();
-note.name = 'Annotations (drawn) / Multi-line';
-note.layoutMode = 'VERTICAL';
-note.counterAxisSizingMode = 'FIXED';      // 320 wide, like the real one
-note.resize(320, 1);
-note.primaryAxisSizingMode = 'AUTO';       // height hugs the text
-```
-
-Everything after that is the ordinary rules of this plugin, which is the point —
-a drawn note is held to the same standard as anything else generated here:
-
-- **Bind the fill.** `background/neutral/default` with a
-  `border/neutral/default` stroke. The audit's fill check is scoped to the design
-  frame, and a note in the column sits outside it, so nothing will catch a literal
-  here for you — which is a reason to be careful with it rather than a licence. A
-  drawn `Pointers · Number` does sit on the design and is checked.
-- **Bind padding and radius.** `space/4` padding and `cornerRadius/medium`, never
-  literal numbers. Same rule as any frame this plugin creates.
-- **Use a published text style.** `Text/3` for the body via
-  `setTextStyleIdAsync`, from `assets/styles.figma.json`. Raw font settings are
-  what a rebuilt-from-scratch proposal shows first, and the same applies here.
-- **Keep the body text byte-identical** to what an instanced note would carry.
-  The audit finds proposal notes by reading `TEXT` characters for `Proposed:`
-  anywhere on the page and never checks what kind of node they sit in, so a drawn
-  note satisfies the `Tier` and `Derived` requirement exactly as an instance
-  does. Do not reformat it because it is drawn.
-
-Placement does not change at all. Auto-layout lays out frames and instances
-identically, so the bundle, the gutter, the gap, the ordering, and the no-overlap
-guarantee all hold without modification. A drawn note goes in a
-[proposal card](#each-proposal-is-a-card-and-the-card-carries-a-specimen) beside
-its specimen exactly as an instanced one does — the specimen is an instance of a
-local component and needs no library at all, so it is the one part of an
-annotation that never degrades.
-
-### It is reported, not hidden
-
-Drawn notes go in the audit's `degraded` bucket, which does not fail the run, and
-the chat handoff names the library that was out of reach. That is the whole
-bargain: the notes are honest about being second-best, and the reader is told why
-in the one place they are certain to look.
-
-The naming carries it on canvas. `Annotations (drawn) / Multi-line` tells the
-next person who opens the file what happened, and it is what the audit matches
-on — which is why the prefix is not optional and not `Note` or `Annotation`.
-
-## The promotion path, which this plugin does not walk
-
-A proposal annotated on a product file is not a contribution to Thumbprint. The
-Annotation Kit's **Thumbprint page** documents what an actual contribution
-involves, and the plugin records it here so the next step is known — it does not
-place any of it and does not perform any of it.
-
-The page holds three sections:
-
-- **Tokens** — 43 published swatch components (`Color / Blue`, `Font / Title 1`,
-  `Space [Web]`, `Shadow`, `Corner Radius`, `Duration`, and so on) for calling
-  out a token on canvas. These document Pushpin's variables; they are not a
-  second source of truth for token values. [tokens.md](tokens.md) and
-  `assets/tokens.figma.json` are.
-- **Thumbprint** — `Contributing`, `Contributing / Pages`,
-  `Contributing / Instructions`, and `Contribution / Checklist`.
-- **Cheatsheets** — `Branching`.
-
-The flow those components describe:
-
-1. **Branch the library.** From the dropdown next to the library name, create a
-   branch named `Component / intent` — the component as the prefix, then the
-   reason for the change; the file's own worked example is a tooltip gaining a
-   top-border option. Changes on a branch do not affect the main file.
-2. **Make a `🤖 Handoff` page** in the branch and insert
-   `Contribution / Checklist` on it.
-3. **Fill in the checklist's six items**, marking each `Done` as you go:
-   *Internal audit* (screenshots of the pattern already in Thumbtack apps and
-   sites), *External audit* (the same pattern in other products), *Explorations*
-   (at least two or three options, with feedback from Thumbprint platform leads),
-   *Figma component* (the component that will actually be added to the library),
-   *Specs & spacing*, and *Examples* (mocks of the proposal in product context).
-4. **Request review** from the design system lead through the branch review
-   modal.
-
-Steps 1 and 3 are the ones that matter for an agent-authored proposal: the audit
-and exploration work is human judgment about whether Thumbtack should own this
-component, and an on-canvas `Proposed /` note is the raw material for it, not a
-substitute.
