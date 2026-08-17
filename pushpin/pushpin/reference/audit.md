@@ -20,9 +20,9 @@ Five buckets:
 - **Degraded** — which libraries the preflight could not reach, and what was
   substituted for them.
 - **Defects** — detached instances, lookalikes, undeclared local components,
-  literal fills, resized icons, `Proposed /` components whose note is missing or
-  incomplete or whose type and geometry drifted from the component they claim to
-  extend, and overlapping annotations.
+  literal fills, resized icons, nodes left shimmering, `Proposed /` components
+  whose note is missing or incomplete or whose type and geometry drifted from the
+  component they claim to extend, and overlapping annotations.
 
 The run fails on defects only. A populated `proposed`, `unresolved`, or
 `degraded` bucket is a result to report, not a failure — this is a `use_figma`
@@ -81,8 +81,16 @@ const inProposed = (n) => ancestor(n, (p) =>
 
 const localMains = new Map();
 
-for (const inst of root.findAllWithCriteria({ types: ['INSTANCE'] })) {
-  const main = await inst.getMainComponentAsync();
+// One round of awaits for the whole frame rather than one per instance, which on
+// a thirty-instance screen is thirty sequential waits inside the script. Zipped
+// back against `instanceNodes` by index, so the defects below come out in the
+// order a serial loop produced them.
+const instanceNodes = root.findAllWithCriteria({ types: ['INSTANCE'] });
+const mains = await Promise.all(instanceNodes.map((inst) => inst.getMainComponentAsync()));
+
+for (let i = 0; i < instanceNodes.length; i++) {
+  const inst = instanceNodes[i];
+  const main = mains[i];
   if (!main) { report.defects.push(`${inst.name} — detached instance`); continue; }
   // `remote` true means it came from a published library, not this file.
   if (main.remote) { report.library++; continue; }
@@ -111,31 +119,60 @@ for (const [name, instances] of localMains) {
   else report.proposed.push({ name, tier: fields.Tier, instances });
 }
 
-// Icons: the size is a different component, never a resize. `Caret-Left Icon ·
-// Small` that is not 18×18 was scaled, and a scaled icon carries the stroke
-// weight of the size it was drawn at.
+// `findAll` does not include the node it is called on, so the frame itself is
+// checked here. A whole frame left shimmering is the case where no fill call
+// landed at all.
+if (root.placeholder === true) {
+  report.defects.push(`${root.name} — still shimmering, placeholder was never cleared`);
+}
+
+// Three per-node checks over one walk, because every `findAll` is a full
+// pre-order traversal of the frame.
 const ICON_PX = { Tiny: 14, Small: 18, Medium: 28, Large: 32 };
-for (const n of root.findAll((x) => / Icon · (Tiny|Small|Medium|Large)$/.test(x.name))) {
-  const px = ICON_PX[n.name.split(' · ').pop()];
-  if (Math.round(n.width) !== px || Math.round(n.height) !== px) {
-    report.defects.push(
-      `${n.name} — ${Math.round(n.width)}×${Math.round(n.height)}, should be ${px}×${px}; ` +
-        `swap the size variant instead of resizing`,
-    );
+const ICON_SIZE = / Icon · (Tiny|Small|Medium|Large)$/;
+for (const n of root.findAll(
+  (x) => ICON_SIZE.test(x.name) || x.name.startsWith('Placeholder / ') || x.placeholder === true,
+)) {
+  // Icons: the size is a different component, never a resize. `Caret-Left Icon ·
+  // Small` that is not 18×18 was scaled, and a scaled icon carries the stroke
+  // weight of the size it was drawn at.
+  if (ICON_SIZE.test(n.name)) {
+    const px = ICON_PX[n.name.split(' · ').pop()];
+    if (Math.round(n.width) !== px || Math.round(n.height) !== px) {
+      report.defects.push(
+        `${n.name} — ${Math.round(n.width)}×${Math.round(n.height)}, should be ${px}×${px}; ` +
+          `swap the size variant instead of resizing`,
+      );
+    }
+  }
+
+  // Declared gaps. Reported, never failed — the rule is that a gap is stated.
+  if (n.name.startsWith('Placeholder / ')) {
+    report.unresolved.push({ name: n.name, width: Math.round(n.width), height: Math.round(n.height) });
+  }
+
+  // The shimmer overlay, which is a different thing from the `Placeholder / …`
+  // name above and a defect rather than a declared gap. `=== true` rather than
+  // truthiness, so a node that does not carry the property cannot invent one.
+  if (n.placeholder === true) {
+    report.defects.push(`${n.name} — still shimmering, placeholder was never cleared`);
   }
 }
 
-// Declared gaps. Reported, never failed — the rule is that a gap is stated.
-for (const n of root.findAll((x) => x.name.startsWith('Placeholder / '))) {
-  report.unresolved.push({ name: n.name, width: Math.round(n.width), height: Math.round(n.height) });
+// One indexed pass over the page, keyed by name, replaces a `findOne` per
+// proposal. `findOne` returns the first match in pre-order and
+// `findAllWithCriteria` walks in that same order, so the first occurrence of a
+// name is the node `findOne` would have returned — never overwrite it.
+const defs = new Map();
+for (const d of page.findAllWithCriteria({ types: ['COMPONENT', 'COMPONENT_SET'] })) {
+  if (!defs.has(d.name)) defs.set(d.name, d);
 }
 
 // Proposals must keep the type ramp and the token geometry of what they extend.
 // This is the drift that a rebuilt-from-scratch proposal shows first and that no
 // screenshot contradicts.
 for (const name of localMains.keys()) {
-  const def = page.findOne((n) =>
-    (n.type === 'COMPONENT' || n.type === 'COMPONENT_SET') && n.name === name);
+  const def = defs.get(name);
   if (!def) continue;
   for (const t of def.findAllWithCriteria({ types: ['TEXT'] })) {
     if (inInstance(t)) continue;               // the library owns nested instances
@@ -189,10 +226,13 @@ for (const d of unbound) report.defects.push(d);
 // Drawn stand-ins are FRAMEs rather than INSTANCEs, and an earlier version of
 // this query filtered on INSTANCE alone — which would have made a fallback note
 // invisible to the one check that exists to stop notes stacking up. Match on the
-// name and accept either type.
+// name and accept either type: the indexed type lookup narrows to both types, the
+// name test does the rest, and the pre-order is the same as that of the predicate
+// walk this replaces.
 const ANNOTATION = /^(Annotations|Capstones|Sticky Note)/;
-const annotations = page.findAll((n) =>
-  (n.type === 'INSTANCE' || n.type === 'FRAME') && ANNOTATION.test(n.name));
+const annotations = page
+  .findAllWithCriteria({ types: ['INSTANCE', 'FRAME'] })
+  .filter((n) => ANNOTATION.test(n.name));
 // Dropping anything with an annotation ancestor covers a drawn note's own
 // children — `Annotations (drawn) / …` matches this pattern too — without a
 // separate rule for them.
@@ -220,6 +260,10 @@ for (let i = 0; i < notesOnPage.length; i++) {
 }
 
 report.ok = report.defects.length === 0;
+// The verdict is settled by everything above before the picture exists, and the
+// picture is taken only once the structure passed — a screenshot sitting beside a
+// defect list is an invitation to argue with the list.
+if (report.ok) await root.screenshot();
 return report;
 ```
 
@@ -263,6 +307,20 @@ The fill check has legitimate exceptions — a photograph, a scrim built by hand
 Bind what can be bound, and name the rest in the handoff. Silently ignoring the
 bucket defeats it.
 
+**A node still carrying its shimmer is a section nothing ever wrote to.** The
+skeleton sets `placeholder = true` on every section before any content exists and
+each fill clears its own as it finishes. A fill that failed executes nothing at
+all, so the section it was handed is left exactly as the skeleton made it: empty,
+and still shimmering. Every other check here passes on that frame — the sections
+that did land are on-system, and the one that did not raises no error and takes up
+no space, so it reviews as finished for the same reason a dropped atom does. This
+check is the only thing standing between that and a handoff. `placeholder` is
+readable as well as settable, so the signal is the shimmer state itself rather
+than something standing in for it. Do not confuse it with the `Placeholder / …`
+naming convention: that is a gap someone declared on purpose and it belongs in
+`unresolved`, while an uncleared shimmer is a claim of progress that never
+happened.
+
 ## What a real run returns
 
 A mobile screen with a TextInput, two Buttons, and a card:
@@ -273,7 +331,9 @@ A mobile screen with a TextInput, two Buttons, and a card:
 
 Five instances resolved to remote main components (three placed directly, two
 nested inside them), nothing was drawn by hand, every icon is at its own size,
-and every fill on the hand-built containers was variable-bound.
+and every fill on the hand-built containers was variable-bound. A run that passes
+also returns the frame's picture, which is where clipped text and overlap show up
+— the failures structure cannot rule out.
 
 The same screen generated by an account that reaches Pushpin and nothing else
 returns `ok: true` as well, and says what it cost:

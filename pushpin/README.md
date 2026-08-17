@@ -8,48 +8,67 @@ scripts that move a design between Figma and code.
 
 - **Node 18+.** macOS ships no version of it. Download the macOS installer from
   [nodejs.org](https://nodejs.org), open the `.pkg`, enter your Mac password.
-  Homebrew, `nvm`, `fnm`, and `mise` work too. The plugin has no dependencies
-  and builds nothing.
-- **Claude Code or Cursor.**
-- **Figma's MCP server, connected to that agent.** Every Figma read and write
-  goes through it.
-- **Two Figma libraries, enabled in the file you're working in** — the Pushpin
-  Thumbprint UI Kit and the Annotation Kit. Most product files don't subscribe
-  to the Annotation Kit; the plugin checks both before it builds anything.
+- **Claude Code (a terminal or the Claude desktop app) or Cursor.**
+- **Figma's MCP server, connected to that agent.**
+- **The Pushpin Thumbprint UI Kit and the Annotation Kit, both enabled in the
+  Figma file you're working in.** Most product files don't subscribe to the
+  Annotation Kit.
 - **The Thumbtack Rise font.** Without it, generated text renders in a fallback.
 
 ## Install
 
 ### Claude Code
 
-```
-/plugin marketplace add johnwilliams-tt/skills
-/plugin install pushpin@johnwilliams-skills
-```
-
-That clones every plugin in the repo. To take only Pushpin:
+Run this in a terminal, or in the Claude Code tab of the Claude desktop app:
 
 ```bash
-claude plugin marketplace add johnwilliams-tt/skills --sparse .claude-plugin pushpin
-claude plugin install pushpin@johnwilliams-skills
+claude plugin marketplace add https://github.com/johnwilliams-tt/skills.git --sparse .claude-plugin pushpin && claude plugin install pushpin@johnwilliams-skills
 ```
 
-Either way, updates install themselves at startup.
+Check it landed:
+
+```bash
+claude plugin list
+```
+
+It should show `pushpin@johnwilliams-skills`. `pushpin@skills-dir` means the
+plugin was copied in as a folder and will never update.
+
+Turn auto-update on: add `"autoUpdate": true` to the `johnwilliams-skills` entry
+in `~/.claude/settings.json`. It is off by default, and an install that never
+updates drifts away from the Figma kit. A project set up by `/pushpin setup`
+already has it on. Without it, update by hand, then restart:
+
+```bash
+claude plugin update pushpin@johnwilliams-skills
+```
+
+Opening a project a teammate already set up prompts you to install Pushpin.
+Accept it.
+
+If the command won't run, paste this at any Claude Code agent:
+
+```
+Install the Pushpin plugin from the marketplace at
+https://github.com/johnwilliams-tt/skills — add that repo as a plugin
+marketplace, then install the plugin `pushpin@johnwilliams-skills` from it. Do
+not clone the repo or copy files into ~/.claude/skills. When you're done, run
+`claude plugin list` and show me the output.
+```
 
 ### Cursor
-
-If your team already imported this repository as a marketplace, install Pushpin
-from **Customize** in the sidebar. To import it yourself:
 
 1. Open **Dashboard → Plugins**, and under **Team Marketplaces** choose **Add
    Marketplace**, then **Import from Repo**.
 2. Give it `https://github.com/johnwilliams-tt/skills`.
-3. Install Pushpin from **Customize**.
+3. Install Pushpin from **Customize** in the sidebar.
 
-**Enable Auto Refresh** sends new captures to the team without anyone
-reinstalling. Team marketplaces need a Teams or Enterprise plan, on Enterprise
-only an administrator can add one, and Auto Refresh needs the Cursor GitHub App
-on the repository.
+If your team already imported the repository, go straight to step 3. Adding a
+team marketplace needs a Teams or Enterprise plan, and on Enterprise only an
+administrator can add one.
+
+**Enable Auto Refresh**, so new captures reach the team without anyone
+reinstalling. It needs the Cursor GitHub App on the repository.
 
 To load it off disk instead:
 
@@ -62,34 +81,19 @@ Then restart Cursor, or run **Developer: Reload Window**.
 
 ## Set up a project
 
-Run `/pushpin setup` in the project. It reads the project, asks only what it
-can't detect, and writes the token stylesheet, `pushpin.config.json`,
-`DESIGN.md`, `.impeccable/design.json`, an `AGENTS.md` section, and an edit
-hook. It then hands off to `impeccable` for `PRODUCT.md`:
+Run `/pushpin setup` in the project. It asks only what it can't detect, writes
+the token stylesheet, `pushpin.config.json`, `DESIGN.md`, an `AGENTS.md`
+section, and an edit hook, then hands off to `/impeccable init` for
+`PRODUCT.md`.
 
-```
-/impeccable init        # PRODUCT.md only — Pushpin does not write product truth
-```
+Commit `.claude/settings.json`. It offers Pushpin to anyone who opens the
+project, and the plugin stays unloaded until they accept.
 
-For a re-run, a repair, or an update, run `init` directly. It prints a plan and
-changes nothing until you pass `--write`:
+From then on, the edit hook flags raw hex, off-scale spacing, square controls,
+and markup posing as a published component as you write. It reports and never
+blocks.
 
-```bash
-node pushpin/scripts/init.mjs ~/Projects/some-app
-node pushpin/scripts/init.mjs ~/Projects/some-app --write
-```
-
-Files that already exist are left alone unless you add `--force`. `--no-hook`
-skips the edit hook, which flags raw hex, off-scale spacing, square controls,
-and markup posing as a published component; it reports and never blocks. The
-exception is a Cursor write guard that blocks replacement of `DESIGN.md` and
-`.impeccable/design.json`.
-
-To see what a project actually has:
-
-```bash
-node pushpin/scripts/setup.mjs ~/Projects/some-app --verify
-```
+Run `/pushpin init` to re-run, repair, or update a project already set up.
 
 ## Use it
 
@@ -110,12 +114,13 @@ are shortcuts for the same routes:
 
 ## Scripts
 
-Run from a checkout of this repo.
+Run from `pushpin/` in a checkout of this repo. `<dir>` is the project you're
+pointing them at.
 
 ```bash
 node pushpin/scripts/lookup.mjs Button        # one catalog entry: properties, keys, import key
 node pushpin/scripts/lookup.mjs --icon caret  # one import key per icon size
-node pushpin/scripts/check.mjs src/           # off-system values in code
+node pushpin/scripts/check.mjs <dir>          # off-system values in code
 node pushpin/scripts/freshness.mjs            # capture age, layer by layer
 node pushpin/scripts/setup.mjs <dir> --verify # what a project actually has
 node pushpin/scripts/init.mjs <dir> --write   # set up, repair, or update a project
@@ -158,10 +163,11 @@ node pushpin/scripts/init.mjs <dir> --write   # set up, repair, or update a proj
 - **Component, property, and variant names are case-sensitive and not
   guessable.** `Button`, `Icon Button`, and `Brand / App / Download Buttons` are
   three different entries. Use `lookup.mjs` rather than reading the catalogs.
-- **`init` refuses to run against this repo.** Point it at the project that
-  consumes Pushpin.
+- **`/pushpin setup` pre-approves its own read-only scripts**, so Claude Code
+  stops asking before every catalog lookup. Keep `.claude/settings.local.json`
+  out of git — it names paths on one machine — and run `/pushpin init` after a
+  plugin update.
 - **Nothing in `pushpin/assets/` is hand-written.** It is captured from the
-  Figma kit per [`scripts/extract.md`](pushpin/scripts/extract.md) and
-  transformed deterministically. Refresh it per
+  Figma kit. Refresh it per
   [`reference/maintaining.md`](pushpin/reference/maintaining.md); every refresh
   lands in [`CHANGELOG.md`](CHANGELOG.md).

@@ -330,6 +330,10 @@ discovers the hole at build time.
 ## Applying type and elevation
 
 ```js
+await Promise.all(['Regular', 'Medium', 'Bold'].map(
+  (style) => figma.loadFontAsync({ family: 'Thumbtack Rise', style }),
+));
+
 const title2 = await figma.importStyleByKeyAsync('c22f9ef014b478e395a0f659ea00c93e01ee4a10');
 const text = figma.createText();
 parent.appendChild(text);              // append BEFORE styling
@@ -340,9 +344,12 @@ const shadow100 = await figma.importStyleByKeyAsync('fc2b651ca823646ee3517a41d7b
 await card.setEffectStyleIdAsync(shadow100.id);
 ```
 
-Load the font families first — `Thumbtack Rise` in `Regular`, `Medium`, and
-`Bold`. The text styles use those named styles even though the token layer
-describes weight numerically as 563 / 590 / 660.
+The font load comes first and all three weights go in one `Promise.all`. Writing
+`characters` against an unloaded weight throws `Cannot write to node with
+unloaded font`, and the second load does not depend on the first, so awaiting
+them one at a time buys nothing but two more waits. `Thumbtack Rise` in
+`Regular`, `Medium`, and `Bold` is the whole set the text styles reach for, even
+though the token layer describes weight numerically as 563 / 590 / 660.
 
 ## Binding variables
 
@@ -454,19 +461,26 @@ const probes = [
   ['annotations', 'set', 'aa6e465a9c85c4067a897cc46408bd116d1e3e69'],    // Annotations
 ];
 
+const settled = await Promise.allSettled(
+  probes.map(([, kind, key]) => (kind === 'set'
+    ? figma.importComponentSetByKeyAsync(key)
+    : figma.importComponentByKeyAsync(key))),
+);
+
 const reach = {};
-for (const [library, kind, key] of probes) {
-  try {
-    await (kind === 'set'
-      ? figma.importComponentSetByKeyAsync(key)
-      : figma.importComponentByKeyAsync(key));
-    reach[library] = true;
-  } catch (e) {
-    reach[library] = e.message;
-  }
-}
+probes.forEach(([library], i) => {
+  reach[library] = settled[i].status === 'fulfilled'
+    ? true
+    : settled[i].reason.message;
+});
 return reach;
 ```
+
+The three probes are three separate libraries and no one of them tells you
+anything about the next, so they go out together rather than as three awaits in a
+row. `allSettled` rather than `all`: a probe failing is the expected outcome
+here, not an error. `all` rejects on the first failure and throws away the other
+two answers, which are the whole reason the preflight runs.
 
 Every icon is a plain `COMPONENT` rather than a set, which is why the icon probe
 uses `importComponentByKeyAsync`. Use the same call for any catalog entry whose
@@ -501,8 +515,8 @@ const mode = {
 };
 ```
 
-Carry `mode` through the run. It decides what step 7 imports, and it is what the
-audit and the handoff report at the end.
+Carry `mode` through the run. It decides which keys go into the import batch, and
+it is what the audit and the handoff report at the end.
 
 ### Naming the library that was out of reach
 
@@ -523,55 +537,175 @@ person to propose a component that already exists.
 Failing here costs nothing. Failing halfway through leaves a partial screen that
 reads like a generation bug rather than a permissions one.
 
+## The imports go in one batch
+
+A screen needs a dozen imports — a few component sets, the icons, the variables
+the containers bind, the text and effect styles — and each one is an independent
+`await` against a library. Awaited in a row they are a dozen waits inside one
+script, which is most of what the script spends its time on. None of them depends
+on the answer to any other, so they go out together, at the top of the script
+that uses them.
+
+```js
+const wanted = [
+  ['Button', figma.importComponentSetByKeyAsync('ebc80753f095633977049c061a28a082816ef9c7')],
+  ['Caret-Left · Small', figma.importComponentByKeyAsync('9f82048ae8b63ce69e24cb84a5d3a514ba20dee7')],
+  ['background/brand/strong', figma.variables.importVariableByKeyAsync('5590797dbf024c26c95f50687c2b1c61c78248b3')],
+  ['title-2', figma.importStyleByKeyAsync('c22f9ef014b478e395a0f659ea00c93e01ee4a10')],
+];
+
+const settled = await Promise.allSettled(wanted.map(([, pending]) => pending));
+
+const imported = {};
+const missing = [];
+wanted.forEach(([name], i) => {
+  if (settled[i].status === 'fulfilled') imported[name] = settled[i].value;
+  else missing.push(`${name} — ${settled[i].reason.message}`);
+});
+```
+
+`allSettled` again, and for the same reason as the preflight: the failure has to
+name the entry that could not be reached. A rejected `Promise.all` hands back
+`Component with key "9f8204…" not found` and nothing else, which is the message
+[Naming the library that was out of reach](#naming-the-library-that-was-out-of-reach)
+argues a designer cannot act on. `missing` carries the name it was asked for.
+
+Import each distinct key once and reuse the main component for every instance —
+one `Button` import serves eleven buttons. And leave out of the batch what the
+preflight already ruled out: the icon keys when `mode.icons` is `placeholder`,
+the annotation keys when `mode.annotations` is `drawn`. Importing a key from a
+library the preflight just failed on throws, and the preflight ran so this step
+would not have to guess.
+
+## Filling the sections in parallel
+
+The skeleton call claims its region of canvas once, up front — the duplicated
+frame, and the section containers inside it, each shimmering with
+`placeholder = true`. Everything after it writes *inside* that region, which is
+what makes the sections fillable at the same time: one `use_figma` call per
+section, all of them issued as tool calls in a single message.
+
+**The invariant that makes it safe is that no fill call scans the canvas,
+positions a top-level node, or touches a node outside the section it was
+handed.** Lanes write to disjoint subtrees, so they cannot collide with each
+other or with work that was already on the page. The moment one reaches outside
+its section — to find a node by name across the page, to place something beside
+the frame — the guarantee is gone and the fills have to go back to running one
+after another.
+
+The speedup does not depend on Figma running the scripts concurrently. Even fully
+serialized on that side, issuing N calls in one message removes N-1 model round
+trips, and the round trips are where the time goes.
+
+Sections are filled in place rather than built off to one side and composed at
+the end, and the sizing rule is the reason. `layoutSizingHorizontal = 'FILL'` is
+only valid on a child of an auto-layout frame, so a node is appended into its
+section first and sized after — a section built in isolation could not be sized
+until assembly, and a lane that failed on the way there would leave an orphan
+frame on the canvas rather than leaving nothing behind at all.
+
+Four rules for the lanes:
+
+- **At most about six.** Past that, group sections into one lane rather than
+  opening more.
+- **A section needing more than ten logical operations splits sequentially
+  within its own lane,** never into a second lane. The ten-operation ceiling is
+  per call; two lanes writing into one section is the collision the invariant
+  exists to rule out.
+- **Every lane sets up its own world.** `figma.currentPage` starts on the file's
+  first page at the beginning of every call, so a lane opens by switching to the
+  page the skeleton returned. Nothing else carries either — the imports and the
+  font loads from the skeleton call went with its scope — so each lane runs its
+  own import batch and loads `Thumbtack Rise` itself. Ids from the skeleton's
+  return get pasted in as string literals; a variable from an earlier call does
+  not exist here.
+- **Each lane clears its own shimmer** as its last act, and returns the ids it
+  touched.
+
+```js
+const page = await figma.getNodeByIdAsync('0:1');       // pageId, from the skeleton
+await figma.setCurrentPageAsync(page);
+const section = await figma.getNodeByIdAsync('12:340'); // this lane's section
+
+// … this lane's import batch, its font load, then its ten operations …
+
+section.placeholder = false;
+return { mutatedNodeIds: [section.id /* , … */] };
+```
+
+### When a lane fails
+
+`use_figma` is atomic: a script that errors executes nothing. A failed lane
+leaves its section exactly as the skeleton left it — empty, still shimmering —
+and leaves every other lane alone. There are no partial nodes and nothing to
+clean up, so recovery is re-issuing that one lane rather than rebuilding the
+screen.
+
+Read the error before re-issuing. A failed lane is a script to fix, and a second
+identical call fails identically.
+
+A lane that failed unnoticed does not reach the handoff looking finished either.
+A node left carrying `placeholder === true` is a defect the audit reports — see
+[audit.md](audit.md) — so a section nobody filled fails the run instead of
+passing as done.
+
 ## Workflow
 
-1. **Resolve the link** to a concrete frame, by traversal, per the section
-   above.
-2. **Read the page and offer it.** Walk up to the resolved frame's page, take
-   its children, and offer the context naming what is on it —
-   [context.md](context.md). Skip the offer when the page holds nothing else.
-3. **Run the access preflight.** Before any node is created. Stop only if
-   Pushpin is unreachable; otherwise carry `mode` forward.
-4. **State in one line what will be duplicated and what the copy is named,**
-   so the user can stop you before anything is written. This is also where
-   every intended departure from the page's patterns is named, in one question
-   rather than several during the build. Say here if the preflight degraded
-   anything, so the user learns their icons will be placeholders before the
-   screen is built rather than after.
-5. **Duplicate** the resolved frame beside the original, on the same page. The
-   original stays untouched from here on.
-6. **Look up what the layout needs, in one call.** Identify which published
-   components cover it and which icons it calls for, then ask for all of them at
-   once — `node scripts/lookup.mjs Button,Card,Toast`, and `--icon` with the
-   glyphs comma-separated. A screen needs a dozen entries and each one asked
-   separately is a wasted round trip. Scope any
-   `search_design_system` call with the right library key from
-   [figma.md](figma.md) — Pushpin for components, the Thumbprint UI Kit for
-   icons. When the source is code that declares its own components, resolve
-   those declarations here — [above](#when-the-code-already-says-what-it-is).
-7. **Import each distinct component and icon once,** at the top of the script.
-   Reuse the imported main component for every instance. Skip the icon imports
-   when `mode.icons` is `placeholder` and the annotation imports when
-   `mode.annotations` is `drawn` — importing a key from a library the preflight
-   just failed on throws, and the preflight ran so this step would not have to
-   guess.
-8. **Build the skeleton** with `figma.createAutoLayout()` containers and
-   `placeholder = true` on each section.
-9. **Fill sections incrementally,** ten logical operations per `use_figma` call
-   at most. Clear each `placeholder` as it completes. Nothing the design calls
-   for is left out: what cannot be resolved gets a marked placeholder.
-10. **Annotate,** into the auto-layout bundle beside the frame: every proposal's
-    note, a specimen instance of the proposal next to it, its anchor, and an open
-    question for every unresolved atom. This precedes the audit rather than
-    following it, because the audit reads these notes — run it first and a
-    proposal whose note has not been placed yet is indistinguishable from one that
-    has no note at all, which is a defect.
-11. **Audit before declaring done** — see below. Do not rely on a screenshot;
-    take one after the audit passes, as a visual check on top of the structural
-    one. Then print the chat summary, listing proposals, unresolved atoms, any
-    library the preflight could not reach, and any declaration that did not
-    resolve against the catalog.
-12. **Offer the finalize pass.** Offer it; do not perform it unprompted.
+1. **Resolve the link and run the access preflight, in one message.** Traversal
+   to a concrete frame, per the section above, and the preflight beside it: the
+   preflight needs nothing from the traversal, only the file the link names. The
+   link still comes first, as ever — nothing in this message can be issued
+   without it, and it is never searched for. Both are reads, so the preflight
+   still lands before any node exists, which is the point of running it early.
+   Stop only if Pushpin is unreachable; otherwise carry `mode` forward.
+2. **Read the page.** Walk up to the resolved frame's page and take its children
+   — [context.md](context.md). When the link carried a `node-id`, this rides in
+   the first message too, since the walk starts from that id and needs nothing
+   from the traversal either.
+3. **One checkpoint, before anything is written.** Offer the page context,
+   naming what is on it. State in one line what will be duplicated and what the
+   copy is named, so the user can stop you. Name every intended departure from
+   the page's patterns here, in one question rather than several during the
+   build. And say if the preflight degraded anything, so the user learns their
+   icons will be placeholders before the screen is built rather than after.
+   This used to be two turns — the offer, then the statement — both waiting on
+   the same answer: go ahead as described, or not. Skip the offer when the page
+   holds nothing else; the statement is not optional.
+4. **Look up what the layout needs, and claim the canvas, in one message.** Two
+   calls, with no dependency between them.
+   - The catalog, asked for everything at once: `node scripts/lookup.mjs
+     Button,Card,Toast`, and `--icon` with the glyphs comma-separated. A screen
+     needs a dozen entries and each one asked separately is a wasted round trip.
+     Scope any `search_design_system` call with the right library key from
+     [figma.md](figma.md) — Pushpin for components, the Thumbprint UI Kit for
+     icons. When the source is code that declares its own components, resolve
+     those declarations here — [above](#when-the-code-already-says-what-it-is).
+   - One `use_figma` call that duplicates the resolved frame beside the original
+     on the same page, builds the skeleton inside the copy with
+     `figma.createAutoLayout()` containers and `placeholder = true` on each
+     section, and returns `{ frameId, pageId, sections: [{ id, name }] }`. The
+     original stays untouched from here on. The skeleton is containers rather
+     than components, so it needs nothing the lookup is fetching — which is why
+     the two fit in one message — and the ids it returns are what the fill lanes
+     are handed.
+5. **Fill the sections in parallel,** one `use_figma` call per section, all of
+   them in one message — [above](#filling-the-sections-in-parallel). Each lane
+   batches its own imports, stays inside the section it was handed, and clears
+   that section's `placeholder` as it finishes. Nothing the design calls for is
+   left out: what cannot be resolved gets a marked placeholder.
+6. **Annotate,** into the auto-layout bundle beside the frame: every proposal's
+   note, a specimen instance of the proposal next to it, its anchor, and an open
+   question for every unresolved atom. This precedes the audit rather than
+   following it, because the audit reads these notes — run it first and a
+   proposal whose note has not been placed yet is indistinguishable from one that
+   has no note at all, which is a defect.
+7. **Audit before declaring done** — see below. It returns the frame's picture
+   with the report when it passes, so the verdict is settled before there is
+   anything to look at; the picture is a visual check on top of the structural
+   one, never a substitute for it. Then print the chat summary, listing
+   proposals, unresolved atoms, any library the preflight could not reach, and
+   any declaration that did not resolve against the catalog.
+8. **Offer the finalize pass.** Offer it; do not perform it unprompted.
 
 ## The audit
 

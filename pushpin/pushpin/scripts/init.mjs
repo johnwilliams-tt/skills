@@ -21,6 +21,7 @@ import { canonical, hashAsset, hashText } from './canonical.mjs';
 import { renderDesignJson, renderDesignMd } from './impeccable-bridge.mjs';
 import { DESIGN_REL, SIDECAR_REL } from './lib/generated.mjs';
 import { GUARD_FLAG, hookCommands, SHIM_REL, withoutHook } from './lib/hooks.mjs';
+import { ALLOWED_SCRIPTS, allowRules, SETTINGS_REL } from './lib/permissions.mjs';
 import { describeStack, detectStack } from './lib/project.mjs';
 import { inspectPin } from './pin.mjs';
 
@@ -57,16 +58,46 @@ const PLUGIN = JSON.parse(
 // it is reachable and authoritative, so a rename fails here rather than
 // sending every project a marketplace name that no longer resolves.
 const MARKETPLACE = 'johnwilliams-skills';
-const REPO = PLUGIN.repository.replace(/^https:\/\/github\.com\//, '').replace(/\.git$/, '');
+// A clone URL, not `owner/repo`. Claude Code probes for a working GitHub SSH
+// setup and clones the short form over SSH when it finds one, falling back to
+// HTTPS only after that clone fails — and each git attempt carries a 120-second
+// timeout, so a key that authenticates to GitHub but cannot reach this repo can
+// burn the whole timeout before the fallback starts. The full URL is taken as
+// HTTPS outright, and resolves to the same marketplace name, so PLUGIN_REF is
+// unaffected.
+const REPO_URL = `${PLUGIN.repository.replace(/\.git$/, '')}.git`;
 const PLUGIN_REF = `${PLUGIN.name}@${MARKETPLACE}`;
+// Which directories the marketplace clone holds: the manifest, and the plugin it
+// points at. Without this the clone takes the whole repo — the other plugin
+// directories, `.cursor-plugin`, `.githooks` — none of which a project consuming
+// Pushpin has any use for. Cone-mode sparse checkout, so these are directory
+// prefixes rather than globs, and `.claude-plugin` is required because that is
+// where the CLI looks for marketplace.json when no explicit path is declared.
+const SPARSE_PATHS = ['.claude-plugin', PLUGIN.name];
 
 const marketplacePath = join(here, '..', '..', '..', '.claude-plugin', 'marketplace.json');
 if (existsSync(marketplacePath)) {
-  const { name } = JSON.parse(readFileSync(marketplacePath, 'utf8'));
+  const { name, plugins } = JSON.parse(readFileSync(marketplacePath, 'utf8'));
   if (name !== MARKETPLACE) {
     console.error(
       `Marketplace is named "${name}" but init.mjs writes "${MARKETPLACE}".\n` +
         'Update MARKETPLACE in scripts/init.mjs, or projects will be pointed at a name that does not resolve.',
+    );
+    process.exit(1);
+  }
+  // SPARSE_PATHS names this plugin by its directory in the repo, and the manifest
+  // is the only thing that says what that directory is. They coincide today. If
+  // they stop, the sparse clone resolves to a marketplace whose one plugin is not
+  // in the checkout — an install that fails after the clone succeeds — so a
+  // rename fails here instead, on the same reasoning as the name check above.
+  const dir = plugins?.find((p) => p.name === PLUGIN.name)?.source;
+  const top = typeof dir === 'string' ? dir.replace(/^\.\//, '').split('/')[0] : null;
+  if (top && !SPARSE_PATHS.includes(top)) {
+    console.error(
+      `The marketplace declares ${PLUGIN.name} at "${dir}" but init.mjs clones ` +
+        `${SPARSE_PATHS.map((p) => `"${p}"`).join(' and ')}.\n` +
+        'Add that directory to SPARSE_PATHS in scripts/init.mjs, or every project set up from ' +
+        'here gets a marketplace clone with no plugin in it.',
     );
     process.exit(1);
   }
@@ -239,25 +270,64 @@ function planSettings() {
   const base = existing ?? {};
   const marketplaces = base.extraKnownMarketplaces ?? {};
   const enabled = base.enabledPlugins ?? {};
-  const source = { source: 'github', repo: REPO };
+  const current = marketplaces[MARKETPLACE];
 
-  const pointsHere = JSON.stringify(marketplaces[MARKETPLACE]?.source) === JSON.stringify(source);
-  if (pointsHere && enabled[PLUGIN_REF] === true && !FORCE) {
+  // `sparsePaths` belongs inside `source`; `autoUpdate` is a sibling of it, one
+  // level up. That is the shape the CLI's own schema declares and the shape it
+  // writes back when someone toggles auto-update, so the two levels are not
+  // interchangeable — read together they are one declaration, but a settings file
+  // is validated key by key.
+  const source = { source: 'git', url: REPO_URL, sparsePaths: SPARSE_PATHS };
+
+  // Off by default here: the CLI enables auto-update on its own only for
+  // Anthropic's own marketplaces, and every other one — this included — resolves
+  // to false when the key is absent. Absent is therefore a frozen install, not a
+  // choice, and a frozen install is how a project's tokens quietly stop matching
+  // the Figma kit. An explicit `false` is the choice, and is left alone even under
+  // --force: re-enabling background updates for a whole team is not a repair.
+  const autoUpdate = current?.autoUpdate ?? true;
+
+  const sourceCurrent = JSON.stringify(current?.source) === JSON.stringify(source);
+  const declared = sourceCurrent && current?.autoUpdate !== undefined;
+  if (declared && enabled[PLUGIN_REF] === true && !FORCE) {
     skipped.push(`${rel} — already offers Pushpin to anyone who opens this repo`);
     return;
   }
 
   const next = {
     ...base,
-    extraKnownMarketplaces: { ...marketplaces, [MARKETPLACE]: { source } },
+    extraKnownMarketplaces: {
+      ...marketplaces,
+      // Spread first so anything else already on the entry survives —
+      // `installLocation` is legal here and is not ours to drop.
+      [MARKETPLACE]: { ...current, source, autoUpdate },
+    },
     enabledPlugins: { ...enabled, [PLUGIN_REF]: true },
   };
 
+  // Named one at a time rather than as "update the declaration", because the three
+  // arrive on different runs: a project from before the clone URL needs all three,
+  // one written between then and now needs the last two, and saying it repointed a
+  // URL it never changed is how a plan stops being worth reading.
+  const gains = !current
+    ? []
+    : [
+        current.source?.url === REPO_URL ? null : 'a clone URL, so the install cannot stall on SSH',
+        JSON.stringify(current.source?.sparsePaths) === JSON.stringify(SPARSE_PATHS)
+          ? null
+          : 'a sparse checkout, so the clone holds this plugin instead of the whole repo',
+        current.autoUpdate === undefined
+          ? 'auto-update, which is off by default for a marketplace that is not Anthropic-owned'
+          : null,
+      ].filter(Boolean);
+
   plan.push({
     rel,
-    describe: existing
-      ? `add ${PLUGIN_REF} to the plugins this repo offers`
-      : `offer ${PLUGIN_REF} to anyone who opens this repo, no CLI needed`,
+    describe: !existing
+      ? `offer ${PLUGIN_REF} to anyone who opens this repo, no CLI needed`
+      : gains.length
+        ? `give the ${MARKETPLACE} declaration ${gains.join('; ')}`
+        : `add ${PLUGIN_REF} to the plugins this repo offers`,
     abs,
     writeFn: (a) => {
       mkdirSync(dirname(a), { recursive: true });
@@ -297,6 +367,8 @@ const SHIM_SRC = join(here, 'hooks', 'project-shim.mjs');
 // before the write instead of after it.
 const GUARD_CMD = `node "${join(target, SHIM_REL)}" ${GUARD_FLAG}`;
 const GUARD_TIMEOUT = 10;
+
+const ALLOW_RULES = allowRules();
 
 /**
  * The shim carries no user content, so it is refreshed whenever it differs from
@@ -389,35 +461,113 @@ function planHooks() {
       },
     }),
   );
+}
 
-  // Claude Code's machine-local settings file, not the shared one: the command
-  // is an absolute path on this machine, and committing that would hand every
-  // teammate a path that does not exist.
-  //
-  // No guard here. This is the post-write event, so a deny would arrive after
-  // the file was already replaced; the same edit reports the overwrite through
-  // the check instead, and the recorded hashes catch it at session start.
-  planHookManifest(
-    join('.claude', 'settings.local.json'),
-    [HOOK_CMD],
-    'run the Pushpin check after each edit, reporting off-system values in place',
-    (base) => ({
-      ...base,
+/**
+ * Claude Code's machine-local settings file, not the shared one. Both things it
+ * carries are absolute paths on this machine — the hook command, and the allow
+ * rules from `lib/permissions.mjs` — and committing either would hand every
+ * teammate a path that does not exist. It is also the file Claude Code writes
+ * itself when someone answers "yes, don't ask again", so the rules land where
+ * that answer would have put them.
+ *
+ * The allow rules go here rather than in the shared `.claude/settings.json` for
+ * a second reason: allow rules in project settings grant capability, so Claude
+ * Code holds them until the workspace trust dialog is accepted, and that file is
+ * the one init tells people to commit.
+ *
+ * One planner for both halves because they land in the same file. Two plan
+ * entries writing the same path would each compute their merge from disk, and
+ * the second would drop the first.
+ *
+ * No write guard in this half. Claude Code's is a post-write event, so a deny
+ * would arrive after the file was already replaced; the same edit reports the
+ * overwrite through the check instead, and the recorded hashes catch it at
+ * session start.
+ */
+function planClaudeLocal() {
+  const rel = SETTINGS_REL;
+  const abs = join(target, rel);
+
+  let existing = null;
+  if (existsSync(abs)) {
+    try {
+      existing = JSON.parse(readFileSync(abs, 'utf8'));
+    } catch {
+      skipped.push(`${rel} — could not be parsed, leaving it alone`);
+      return;
+    }
+  }
+
+  const base = existing ?? {};
+
+  // With --no-hook there is nothing to install and nothing to repair, so the
+  // hooks already here are left exactly as found and only the rules are merged.
+  const commands = hookCommands(base);
+  const hookCurrent = !HOOK || (commands.length === 1 && commands[0] === HOOK_CMD);
+
+  const allow = base.permissions?.allow ?? [];
+  const missing = ALLOW_RULES.filter((r) => !allow.includes(r));
+
+  if (hookCurrent && !missing.length && !FORCE) {
+    skipped.push(`${rel} — already runs the Pushpin check and allows its read-only scripts`);
+    return;
+  }
+
+  let next = base;
+  if (HOOK) {
+    next = {
+      ...next,
       hooks: {
-        ...(base.hooks ?? {}),
+        ...(next.hooks ?? {}),
         PostToolUse: [
-          ...withoutHook(base.hooks?.PostToolUse),
+          ...withoutHook(next.hooks?.PostToolUse),
           {
             matcher: 'Edit|Write|MultiEdit',
             hooks: [{ type: 'command', command: HOOK_CMD, timeout: HOOK_TIMEOUT }],
           },
         ],
       },
-    }),
-  );
+    };
+  }
+
+  // Appended, never replaced: a rule someone else added is theirs, and this
+  // file is where Claude Code keeps every approval the user has ever granted.
+  next = {
+    ...next,
+    permissions: { ...(next.permissions ?? {}), allow: [...allow, ...missing] },
+  };
+
+  const describe =
+    [
+      HOOK && !hookCurrent
+        ? commands.length
+          ? 'repoint the Pushpin check at the project shim'
+          : 'run the Pushpin check after each edit, reporting off-system values in place'
+        : null,
+      missing.length
+        ? `let Pushpin's ${ALLOWED_SCRIPTS.length} read-only scripts run without a permission prompt`
+        : null,
+    ]
+      .filter(Boolean)
+      .join('; ') || 'refresh the Pushpin hook and allow rules';
+
+  plan.push({
+    rel,
+    describe,
+    abs,
+    writeFn: (a) => {
+      mkdirSync(dirname(a), { recursive: true });
+      writeFileSync(a, JSON.stringify(next, null, 2) + '\n');
+    },
+  });
 }
 
 if (HOOK) planHooks();
+
+// Not gated on the hook. Declining the per-edit check is not a decision to keep
+// being asked whether a catalog lookup may run.
+planClaudeLocal();
 
 // A short, durable note so an agent opening this repo later knows the system is
 // in use and where the authority lives — the original point of packaging this.
@@ -539,6 +689,16 @@ if (WRITE && plan.length) {
   }
   console.log(`  3. Thumbtack Rise is not bundled here — install it or set --pp-font-family.`);
 
+  if (plan.some((p) => p.rel === SETTINGS_REL)) {
+    console.log(
+      `\nGranted: Pushpin's ${ALLOWED_SCRIPTS.length} read-only scripts (${ALLOWED_SCRIPTS.join(', ')}) now run`,
+    );
+    console.log(`  without a permission prompt, because they are asked for constantly and only`);
+    console.log(`  ever read. Named by full path in .claude/settings.local.json — add that file`);
+    console.log(`  to .gitignore, because nothing else will, and those paths are this machine's.`);
+    console.log(`  Nothing else was granted — init still asks before it writes.`);
+  }
+
   if (plan.some((p) => p.rel === 'DESIGN.md')) {
     console.log(`\nDESIGN.md and .impeccable/design.json turn the tokens into live checks:`);
     console.log(`  a raw hex, font, radius, or font size that is not Pushpin is reported as`);
@@ -560,6 +720,9 @@ if (WRITE && plan.length) {
     console.log(`  Anyone who opens this repo is prompted to install it when they trust the`);
     console.log(`  folder — no terminal needed. The plugin stays unloaded until they accept,`);
     console.log(`  so tell them to say yes.`);
+    console.log(`  It asks for auto-update too, which is off by default for this marketplace,`);
+    console.log(`  so nobody ends up holding a capture that has quietly stopped matching the`);
+    console.log(`  kit. Turning it off lands in this same shared file, so that is a team call.`);
   }
 } else if (!WRITE && plan.length) {
   console.log('\nRe-run with --write to apply.');

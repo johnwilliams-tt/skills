@@ -1,10 +1,13 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.9.0
+version: 0.9.1
 argument-hint: "[generate|audit|figma|check · setup|init|freshness · refresh] [target]"
 allowed-tools:
-  - Bash(${CLAUDE_SKILL_DIR}/scripts/*)
+  - Bash(node ${CLAUDE_SKILL_DIR}/scripts/check.mjs *)
+  - Bash(node ${CLAUDE_SKILL_DIR}/scripts/freshness.mjs *)
+  - Bash(node ${CLAUDE_SKILL_DIR}/scripts/lookup.mjs *)
+  - Bash(node ${CLAUDE_SKILL_DIR}/scripts/setup.mjs *)
 ---
 
 Pushpin is Thumbtack's current design system — the successor to Thumbprint.
@@ -19,10 +22,17 @@ bug to fix rather than a variant to preserve. See
 
 ## Start here
 
+Every `node` command in this skill and its reference docs runs a script inside
+the skill's own directory, with the working directory left where the user is —
+never `cd` into the skill. `${CLAUDE_SKILL_DIR}` is that directory: Claude Code
+expands it before you read this, Cursor does not. Where a path still carries an
+unexpanded placeholder, or is written relative like `scripts/lookup.mjs`,
+substitute the directory you loaded this SKILL.md from.
+
 The first time Pushpin is picked up in a session, before anything consequential:
 
 ```bash
-node scripts/freshness.mjs --offline --brief
+node ${CLAUDE_SKILL_DIR}/scripts/freshness.mjs --offline --brief
 ```
 
 Relay stdout verbatim. Empty output is the expected case — say nothing and
@@ -174,12 +184,12 @@ catalogs that hold them are large. **Ask for the one entry; never read the
 file.**
 
 ```bash
-node scripts/lookup.mjs Button          # component: every property, its exact key, the import key
-node scripts/lookup.mjs Button,Card,Toast   # several at once — commas, one call
-node scripts/lookup.mjs --icon caret    # icon: one import key per size
-node scripts/lookup.mjs --token radius  # token: custom property, value, and whether it binds
-node scripts/lookup.mjs --style title-1 # the text and effect style keys
-node scripts/lookup.mjs --annotation a11y
+node ${CLAUDE_SKILL_DIR}/scripts/lookup.mjs Button          # component: every property, its exact key, the import key
+node ${CLAUDE_SKILL_DIR}/scripts/lookup.mjs Button,Card,Toast   # several at once — commas, one call
+node ${CLAUDE_SKILL_DIR}/scripts/lookup.mjs --icon caret    # icon: one import key per size
+node ${CLAUDE_SKILL_DIR}/scripts/lookup.mjs --token radius  # token: custom property, value, and whether it binds
+node ${CLAUDE_SKILL_DIR}/scripts/lookup.mjs --style title-1 # the text and effect style keys
+node ${CLAUDE_SKILL_DIR}/scripts/lookup.mjs --annotation a11y
 ```
 
 **A layout needs a dozen of these — comma-separate them and ask once.** Terms are

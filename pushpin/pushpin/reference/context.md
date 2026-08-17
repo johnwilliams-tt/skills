@@ -125,7 +125,10 @@ against the same page does not get asked again; a different page does.
 ## How much to read once it is accepted
 
 The page dump, plus `get_screenshot` on the two or three siblings that actually
-bear on the work — the adjacent steps, the other states. Not the whole page.
+bear on the work — the adjacent steps, the other states. Not the whole page. Those
+screenshots go out as one call per sibling in a single message; no one of them
+tells you anything about the next, so asking them in turn spends a round trip
+apiece for one answer.
 
 `get_design_context` is the expensive call and it is reserved for a frame the
 work will mirror structurally. It is also the one to be careful with, because
@@ -152,7 +155,7 @@ interrogation. If it would take an argument to establish that a pattern exists,
 it does not.
 
 Every intended departure goes into a single question before anything is
-written, folded into the statement at step 4 of the workflow in
+written, folded into the checkpoint at step 3 of the workflow in
 [generate.md](generate.md#workflow). Each one carries its reason — a list of
 differences with no reasoning is not answerable either.
 

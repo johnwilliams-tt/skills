@@ -31,6 +31,7 @@ import { fileURLToPath } from 'node:url';
 import { hashAsset } from './canonical.mjs';
 import { GENERATED, generatedState } from './lib/generated.mjs';
 import { inspectHooks } from './lib/hooks.mjs';
+import { ALLOWED_SCRIPTS, missingAllowRules, SETTINGS_REL } from './lib/permissions.mjs';
 import { describeStack, detectStack } from './lib/project.mjs';
 import { inspectPin } from './pin.mjs';
 
@@ -330,6 +331,24 @@ function verify() {
   for (const h of broken) {
     row(MISSING, 'hook target', `${h.rel} names something that is not there — ${h.target}`);
     advice.push(`\`node scripts/init.mjs ${target} --write\` repairs the hook in ${h.rel}.`);
+  }
+
+  // The allow rules name this plugin by full path, so a plugin update leaves
+  // them naming a build that is gone and the prompts come back. Nothing else
+  // notices: a rule that matches nothing grants nothing, and grants nothing
+  // quietly.
+  const missingRules = missingAllowRules(target);
+  row(
+    missingRules.length ? NOTE : OK,
+    'prompts',
+    missingRules.length
+      ? 'not pre-approved here, so a catalog lookup asks permission every time it runs'
+      : `Pushpin's ${ALLOWED_SCRIPTS.length} read-only scripts run without asking — ${SETTINGS_REL}`,
+  );
+  if (missingRules.length) {
+    advice.push(
+      `\`node scripts/init.mjs ${target} --write\` pre-approves Pushpin's read-only scripts, so a catalog lookup stops asking.`,
+    );
   }
 
   const agents = join(target, 'AGENTS.md');

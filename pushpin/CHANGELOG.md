@@ -28,6 +28,73 @@ the toolchain, which `diff.mjs` has no category for.
   `version.mjs` now mirrors `displayName` the way it already mirrors the version
   and the description, so the catalog name is written once — in
   `pushpin/.claude-plugin/plugin.json` — and `--check` fails when a copy drifts.
+- **Generating a screen was twelve steps, and most of what they cost was round
+  trips rather than work.** It is eight. What collapsed is everything that was
+  awaited in a row without needing the answer to the call before it: the
+  preflight's three library probes, a screen's component, icon, variable, and
+  style imports, the three weights of `Thumbtack Rise`, and the sibling
+  screenshots that ground a run in the page it was pointed at. The preflight and
+  the import batch use `Promise.allSettled` rather than `Promise.all`
+  deliberately — a rejected `all` hands back the first failure and throws away
+  the other answers, and naming which library was out of reach is the entire
+  reason the preflight runs. The largest of these is that the sections of a
+  screen are now filled by several `use_figma` calls issued in one message
+  instead of one after another. The skeleton call claims its region of canvas
+  once, up front, and hands each lane the id of the section it owns, so lanes
+  write only inside disjoint subtrees; `use_figma` is atomic, so a lane that
+  fails executes nothing, leaves its section untouched and still shimmering, and
+  is recovered by re-issuing that one call. That safety rests on the API's
+  guarantees and on lanes never reaching outside their section, which
+  [`reference/generate.md`](pushpin/reference/generate.md) states as an
+  invariant. It has not been exercised against a live file yet.
+- **The audit fails a node that is still shimmering.** The skeleton marks every
+  section `placeholder = true` and each fill clears its own, so a fill that
+  never landed leaves a section that raises no error, takes up no space, and
+  passes every other check on the page — it reviews as finished for the same
+  reason a dropped atom does. Parallel fills make that the failure mode worth
+  guarding, and it is now a defect rather than a handoff. The audit's own
+  traversal is cheaper by an amount that changes nothing it reports: one round
+  of `getMainComponentAsync` for the whole frame instead of one per instance,
+  three per-node checks folded into a single walk of it, indexed type lookups
+  where predicate walks were doing the same narrowing, and one indexed pass over
+  the page in place of a `findOne` per proposal. The script also takes the
+  frame's picture itself once the report passes, so the verdict is settled
+  before there is anything to look at.
+- **A marketplace declared as `owner/repo` is cloned over SSH first.** Verified
+  by running it: Claude Code probes for a working GitHub SSH setup and uses it
+  when it finds one, falling back to HTTPS only after that clone has failed. So
+  the person who pays for the short form is not the designer with no key — that
+  probe fails and the CLI goes straight to HTTPS — but the one whose key
+  authenticates to GitHub and cannot reach this repo, who waits out a git
+  timeout before the fallback starts. A full HTTPS clone URL is taken as given
+  and resolves to the same marketplace name, so nothing downstream of
+  `johnwilliams-skills` changes; the README and `init.mjs` both write that form
+  now. `init` also declares `sparsePaths`, so the settings route clones the
+  manifest and this plugin rather than every plugin published from the repo, and
+  it refuses to run at all if the marketplace manifest ever moves Pushpin to a
+  directory that is not in that list — a sparse clone whose one plugin is missing
+  fails only after the clone has succeeded, which is the worst place to find out.
+- **Setting a project up asked for permission over and over.** Claude Code
+  prompts before every Bash command outside its own built-in read-only set,
+  `node` is not in that set, and `Accept edits` does not cover it — so a single
+  layout, which wants a dozen catalog lookups, costs a dozen approvals, and
+  setup opens with a run of them, which reads to a designer as a plugin asking
+  for far more than it needs. `init` now writes an allow rule per read-only
+  script into `.claude/settings.local.json` — `check.mjs`, `freshness.mjs`,
+  `lookup.mjs`, and `setup.mjs`, each named by full path. `init.mjs` is
+  deliberately not among them: it is the script that can replace a stylesheet,
+  and the prompt in front of a `--force` is worth keeping. Nor is any wildcard,
+  since `Bash(node *)` would approve arbitrary code execution, which is not a
+  design system plugin's to grant on someone's behalf. Rules rather than a
+  permission mode, for the same reason — they hold in `Manual` too, and nobody
+  has to widen what their agent may run for a whole session to stop being asked
+  whether a lookup may read a catalog. They are appended around whatever is
+  already in that file, and written whether or not the edit hook was declined,
+  since declining the per-edit check is not a decision to keep being prompted.
+  The paths carry a version directory, so a plugin update leaves them naming a
+  build that is gone: that costs only the prompts coming back, but it costs it
+  silently, so `setup.mjs --verify` grew a `prompts` row and a plain
+  `init --write` rewrites them.
 
 **Fixed**
 
@@ -44,6 +111,66 @@ the toolchain, which `diff.mjs` has no category for.
   `pull-published.mjs` sets. `SKILL.md` names the same installer in the one place
   the agent reports `node` missing, since telling a designer a binary is absent
   without saying where to get it is the same gap one layer down.
+- **The install began with a command that does not exist where the people it is
+  written for are.** `/plugin` is a terminal-session command; in the Claude Code
+  tab of the Claude desktop app it answers `/plugin is not available in this
+  environment`. The `claude plugin` form that works in both was already
+  on the page, but it was introduced as the way to avoid cloning every plugin in
+  the repo — a bandwidth footnote — so nobody who had just hit that wall would
+  read it as the way out. The section now leads with the case that costs nothing,
+  a teammate having already run `/pushpin setup`, so opening the project offers
+  the plugin; then one chained `claude plugin` command that works in a terminal
+  and in the desktop app; then the `/plugin` pair, marked terminal-only; then a
+  `~/.claude/settings.json` merge for installing without running a command at
+  all. Below those is a plain-language fallback to paste at any agent, which ends
+  by having the agent run `claude plugin list` and show the output — because the
+  way this goes wrong is an agent being helpful and copying the repo into
+  `~/.claude/skills` instead, and the one thing that tells you it happened is
+  `claude plugin list` answering `pushpin@skills-dir`: a folder that will never
+  update, wearing the name of an install.
+- **"Updates install themselves at startup" was untrue of every install made
+  from these instructions.** Claude Code turns auto-update on by itself only for
+  Anthropic's own marketplaces; every other one, `johnwilliams-skills` included,
+  resolves to `false` when the key is absent. Confirmed from the CLI's own
+  resolver rather than its documentation. An absent `autoUpdate` was therefore
+  never "decide later" — it was a permanent pin to whatever commit the
+  marketplace was first cloned at, which is exactly how a project's tokens stop
+  matching the Figma kit while every check downstream keeps passing. The key is
+  written now: by `init` into each project's `.claude/settings.json`, and by hand
+  in the README's settings-file route, which reaches it without `/plugin`. It is
+  a real trade and the docs say so, since a plugin can now change under a team
+  without anyone asking for it. An `autoUpdate` already set to `false` is left
+  exactly as found, including under `--force`: that one is a team's decision
+  about a shared committed file rather than a gap to repair, and leaving it is
+  also what lets a project that opted out re-run `init` without the setting
+  flipping back and the plan reporting a change forever.
+- **The skill's own pre-approval had never matched a single command.**
+  `SKILL.md` declared `allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)`. A
+  Bash rule matches the command string, and every invocation this skill
+  documents begins with `node ` — so the pattern could not fire, and the prompts
+  it existed to remove were being paid in full by everyone. Counted rather than
+  assumed: the four rules that replace it, one per read-only script and each
+  beginning `Bash(node `, cover all seven `node` invocations `SKILL.md`
+  documents. The old rule covered none of them.
+- **`${CLAUDE_SKILL_DIR}` is a Claude Code expansion, and Cursor does not do
+  it.** The variable appears nowhere in Cursor's bundle and is unset in the shell
+  it spawns, so writing every path in the absolute form would have fixed one
+  harness at the cost of the other. One paragraph in `SKILL.md` now tells the
+  agent to substitute the directory it loaded that file from wherever a path
+  still carries an unexpanded placeholder or is written relative — which also
+  repairs the bare `scripts/lookup.mjs` form used throughout the reference docs,
+  broken on both harnesses, since the working directory is the user's project
+  and is supposed to stay there.
+- **`reference/init.md` said `.claude/settings.local.json` "is gitignored".
+  Nothing makes that true.** Claude Code labels the settings scope "project,
+  gitignored", which reads like a guarantee but only describes what the scope is
+  for; it never writes the entry, and neither does `init`. That file now holds
+  the allow rules as well as the hook command, and both name this machine's
+  directories by absolute path, so a committed copy hands every teammate paths
+  from someone else's disk. Nothing announces it — a hook that does not resolve
+  fails open, a rule that matches nothing grants nothing — so the entire cost of
+  the wrong belief was paid in silence. The doc says to add the entry yourself,
+  and `init` says the same after a run that touched the file.
 
 ## 0.9.0 — 2026-08-14
 

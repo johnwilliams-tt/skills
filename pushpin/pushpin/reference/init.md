@@ -13,11 +13,12 @@ behind.
 
 It installs the token stylesheet somewhere idiomatic for the stack it detects,
 writes `pushpin.config.json` with the Figma keys so the bridge works without
-re-deriving them, installs the edit hook that runs `check.mjs`, adds a short
-`AGENTS.md` section so an agent opening the repo later knows the system is in
-use and outranks its own defaults, and declares this marketplace in
-`.claude/settings.json` so the next person to open the repo is offered the
-plugin.
+re-deriving them, installs the edit hook that runs `check.mjs`, pre-approves the
+scripts that only read so they stop asking, adds a short `AGENTS.md` section so
+an agent opening the repo later knows the system is in use and outranks its own
+defaults, and declares this marketplace in `.claude/settings.json`, with
+auto-update on, so the next person to open the repo is offered the plugin and
+nobody ends up pinned to a capture that has stopped matching the kit.
 
 ```bash
 node scripts/init.mjs <project-dir>             # print a plan, change nothing
@@ -58,10 +59,19 @@ project keeps one file current instead of two and one filename still identifies
 every hook of ours.
 
 Both manifests are still machine-local, because the path into the project is
-absolute: correct for whoever ran `init`, meaningless to anyone else.
-`.claude/settings.local.json` is gitignored for exactly this reason. A teammate
+absolute: correct for whoever ran `init`, meaningless to anyone else. A teammate
 without the plugin gets a shim that finds nothing and exits 0 in silence, so the
 worst case is a hook that does nothing.
+
+**Add `.claude/settings.local.json` to the project's `.gitignore` yourself.**
+Nothing does it for you. Claude Code labels that settings scope "project,
+gitignored", which reads like a guarantee but only describes what the scope is
+for; it never writes the entry, and neither does `init`. The file holds the allow
+rules as well as the hook, and those name this plugin's install by full path, so a
+committed copy points every teammate at a directory on somebody else's disk.
+Nothing breaks loudly when that happens — a rule matching nothing grants nothing,
+and a hook path that does not resolve fails open — which is why it is worth doing
+deliberately instead of discovering later.
 
 Installing and repairing are one operation. Prior entries of ours are dropped
 before the current one is added, so a re-run cannot stack duplicates, and a
@@ -75,6 +85,50 @@ another tool also edits can go stale. `checkHook: false` is the one thing they
 cannot express — a deliberate `--no-hook` — and it is respected in silence.
 Everything else is read from the manifests, so a session-start check can tell a
 project that predates the hook from one whose hook has quietly stopped working.
+
+## The permission prompts
+
+Claude Code asks before every shell command outside its own built-in read-only
+set, and `node` is not in that set — so `lookup.mjs` asked once per call, a dozen
+times while one layout was built, and setup asked for a run of approvals in the
+first five minutes. **`Accept edits` does not help.** It auto-approves file edits
+and a fixed list of filesystem commands; every other shell command still prompts.
+A designer reading that as a sign something is wrong is reading it correctly.
+
+`init` writes an allow rule per read-only script into
+`.claude/settings.local.json`:
+
+| Script | What it does |
+|---|---|
+| `check.mjs` | reports off-system values in a file |
+| `freshness.mjs` | compares the captures against Figma |
+| `lookup.mjs` | answers one catalog entry |
+| `setup.mjs` | reads the project; `--backup` copies aside |
+
+**`init.mjs` is deliberately not on that list.** It is the script that can
+replace a stylesheet, and one prompt in front of a `--force` is worth keeping.
+Neither is any wildcard: `Bash(node *)` would approve arbitrary code execution,
+and quietly widening what a person's agent may run is not a design system
+plugin's to grant. Each rule names one file this plugin ships, by full path.
+
+Rules rather than a permission mode, for the same reason. A mode is a global
+choice someone makes for all their work in a session; these are a narrow,
+durable grant for this plugin's own commands, and they hold in every mode —
+including `Manual`. Nobody has to lower their guard to stop being asked whether
+a catalog lookup may run.
+
+The file is the machine-local one for the same reason the hook is: the rules
+carry an absolute path. It is also where Claude Code itself saves an approval
+when you answer *yes, don't ask again*, so they land where that answer would have
+put them. Allow rules in the shared `.claude/settings.json` would be worse on
+both counts — they grant capability, so Claude Code holds them until the
+workspace trust dialog is accepted, and that file is the one meant to be
+committed.
+
+Those paths carry a version directory, so a plugin update leaves them naming a
+build that is gone. Nothing breaks — a rule matching nothing grants nothing — but
+the prompts come back silently, so `setup.mjs --verify` reports it as a
+`prompts` row and a plain `--write` rewrites them.
 
 ## The generated files
 
@@ -160,9 +214,13 @@ token ramps and not the component catalog. The decision is made per run, not at
 install time, so the order the two are installed in does not matter.
 
 It never overwrites content you could have authored without `--force`, and it is
-safe to re-run. The two exceptions are the hook shim and the hook manifests,
-which are machine-written and self-healing: both are brought back to the current
-form on a plain `--write`, because a broken hook is not a decision to preserve.
+safe to re-run. The exceptions are the hook shim, the hook manifests, the allow
+rules, and the marketplace declaration, which are machine-written and
+self-healing: all are brought back to the current form on a plain `--write`,
+because a broken hook is not a decision to preserve, and neither is a rule aimed
+at a plugin directory that is gone or a marketplace entry that clones the wrong
+thing. Rules someone else added are appended around, never replaced, and so is
+everything else in either settings file.
 Re-running on a project already set up reports whether that project has fallen
 behind — the same comparison session start uses — and after a `--write` it
 re-checks and reports what actually resolved rather than restating the advice. If it detects Thumbprint it says so and warns
@@ -175,6 +233,60 @@ Pushpin when they trust the folder — no terminal, no marketplace to find. The
 plugin does not load until they accept that prompt, so say so when handing the
 repo over. `init` merges into the file rather than replacing it, and leaves it
 alone entirely if it cannot be parsed.
+
+What it writes is one `extraKnownMarketplaces` entry and one `enabledPlugins`
+entry:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "johnwilliams-skills": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/johnwilliams-tt/skills.git",
+        "sparsePaths": [".claude-plugin", "pushpin"]
+      },
+      "autoUpdate": true
+    }
+  },
+  "enabledPlugins": { "pushpin@johnwilliams-skills": true }
+}
+```
+
+The two nesting levels are not interchangeable: `sparsePaths` describes how to
+fetch the source and belongs inside it, while `autoUpdate` is a property of the
+marketplace itself and sits beside it. Each of the three is load-bearing.
+
+**A clone URL rather than `owner/repo`.** Claude Code probes for a working GitHub
+SSH setup and clones the short form over SSH when it finds one, falling back to
+HTTPS only after that clone fails. Each git attempt carries a 120-second timeout,
+so a key that authenticates to GitHub but cannot reach this repo can burn the
+whole timeout before the fallback starts. A full HTTPS URL is taken as given, and
+names the same marketplace either way.
+
+**`sparsePaths`.** A cone-mode sparse checkout, so the marketplace clone holds
+the manifest and this plugin and nothing else. Without it the clone takes the
+whole repository, including the other plugins published from it, none of which a
+project consuming Pushpin has any use for. `.claude-plugin` has to be in the list
+because that is where the CLI looks for `marketplace.json` when no explicit path
+is declared.
+
+**`autoUpdate`.** Claude Code enables auto-update on its own only for
+Anthropic's own marketplaces; every other one, this included, resolves to `false`
+when the key is absent. So omitting it does not mean "decide later" — it means
+the install is pinned to whatever commit it was first cloned at, indefinitely and
+silently. That is the expensive default here, because a pinned Pushpin is a
+stylesheet that drifts away from the Figma kit while every check downstream keeps
+passing, which is the failure the whole plugin exists to catch. Writing it is a
+real trade and worth naming as one: the plugin can change under a team without
+anyone asking for it. It is written because a design system that has quietly
+stopped matching the design system is the worse of the two.
+
+An `autoUpdate` already set to `false` is left exactly as found, including under
+`--force`. That one is a decision rather than a gap — re-enabling background
+updates for a whole team is not a repair — so only an absent key is filled in.
+That is also what lets a project that opted out re-run `init` without the setting
+flipping back and the run reporting a change every time.
 
 There is no user-global cache. The stylesheet, `AGENTS.md`, `DESIGN.md`, and
 `.claude/settings.json` have to live in the repo so a later agent — including
