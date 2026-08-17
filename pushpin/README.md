@@ -81,10 +81,9 @@ Then restart Cursor, or run **Developer: Reload Window**.
 
 ## Set up a project
 
-Run `/pushpin setup` in the project. It asks only what it can't detect, writes
-the token stylesheet, `pushpin.config.json`, `DESIGN.md`, an `AGENTS.md`
-section, and an edit hook, then hands off to `/impeccable init` for
-`PRODUCT.md`.
+Run `/pushpin setup` in the project. It asks only what it can't detect — on a
+fresh folder, nothing — and writes the token stylesheet, `pushpin.config.json`,
+`DESIGN.md`, an `AGENTS.md` section, and an edit hook.
 
 Commit `.claude/settings.json`. It offers Pushpin to anyone who opens the
 project, and the plugin stays unloaded until they accept.

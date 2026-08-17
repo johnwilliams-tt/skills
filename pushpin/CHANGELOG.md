@@ -95,6 +95,93 @@ the toolchain, which `diff.mjs` has no category for.
   build that is gone: that costs only the prompts coming back, but it costs it
   silently, so `setup.mjs --verify` grew a `prompts` row and a plain
   `init --write` rewrites them.
+- **Binding spacing to tokens was prescribed everywhere and demonstrated
+  nowhere, and the examples taught the opposite.** The only `setBoundVariable`
+  sample on the generation page covered `itemSpacing` and `topLeftRadius` in
+  isolation, the audit enforced binding only inside `Proposed /` definitions, and
+  `paddingRight`, `paddingBottom`, and `counterAxisSpacing` appeared nowhere in
+  the repo — so spacing leaked through the sides nobody had written down, on
+  exactly the one-off layout that needs no proposal and gets no second look.
+  The most-copied examples were worse than silent: the annotation bundle's
+  gutter was 80 and its capstone's air 84, and
+  [`reference/tokens.md`](pushpin/reference/tokens.md) says outright there is no
+  80 on the scale. Every gap and padding now goes through one `space()` helper
+  that snaps to the nearest of the thirteen steps, imports that step's variable,
+  and binds it — all four paddings and the gap on every frame, plus
+  `counterAxisSpacing` when the frame wraps, and radius through all four corners,
+  since binding `topLeftRadius` alone leaves three literals under a frame that
+  looks entirely correct. Ties round up, so 80 lands on 96 rather than
+  64: cramped is the more common failure, and a layout that rounds down twice in
+  a row reads as a mistake rather than as a decision. `0` is left alone and never
+  bound, because there is no zero token and zero padding is a choice. The audit
+  holds every hand-built frame to this rather than only the proposals, matching
+  how the literal-fill check already worked. The thirteen keys are embedded in
+  the doc so a fill lane can inline the helper without a lookup first, which
+  makes them a second copy of the capture and the one copy that fails silently —
+  a wrong key is a perfectly valid key for a different step, and the frame it
+  binds looks deliberate at the wrong size — so `verify.mjs` now checks them, and
+  the radius keys beside them, against `variable-keys.figma.json`.
+- **A value that snapped is recorded on the node and disclosed on the canvas.**
+  Correcting an off-scale number silently would be its own failure: the design
+  ships with spacing nobody asked for and nothing on the page says so, which is
+  how a scale gets renegotiated by accident. Each snap appends
+  `{ prop, from, to, source }` to a list in the node's plugin data — a list
+  rather than a single record, because a frame is bound one property at a time
+  and one key holding one object keeps only the last property to move, which
+  would leave the audit under-reporting the frame that drifted most. `source`
+  names where the original number came from, the Figma file or pushed prototype
+  code or the run's own intent, because "this gap moved from 80 to 96" is a fact
+  about the file and "the prototype asked for 80" is something a person can
+  decide about. After the fill lanes, one `Dev Note` titled `Token drift` lists
+  every snap; it is a direct child of the annotation column, so the auto-layout
+  that already keeps notes off the design keeps this one off too, and a run that
+  drifted with nothing else to annotate builds the column anyway rather than
+  reaching for coordinates. Drawn, when the Annotation Kit is out of reach, it
+  carries the `Annotations (drawn) / ` prefix like every other stand-in, and the
+  audit accepts either name as disclosure. Nothing drifted, no note — an empty
+  note spends a reviewer's attention and teaches them to skip the next one. The
+  audit gained a `drift` bucket, which reports and does not fail because the
+  value was snapped and bound before it ever ran, and a defect for drift recorded
+  with no `Token drift` note on the page, which is the whole point. The record
+  goes in **shared** plugin data under the `pushpin` namespace: `setPluginData`
+  is rejected by this host runtime as private-plugin-only, and it fails in the
+  costliest way available, since the method is present — `typeof` answers
+  `'function'` — so a guard written to skip it passes and the call then throws,
+  taking a whole atomic lane down over one record. Verified against a live file:
+  every gap and padding bound, `84` landed on `96` and `40` on `48`, three snaps
+  on one frame produced three records that a later call read back off the node,
+  and a deliberately unbound frame raised four defects including
+  `counterAxisSpacing` under `WRAP`.
+- **Setup asked three questions and two of them had one real answer.** `scope` —
+  prototype or real project — was always asked, because nothing in a directory
+  reveals it, and it decided whether the project got the `.claude/settings.json`
+  entry and a `PRODUCT.md` interview. Neither turned out to be worth a question.
+  That entry carries `autoUpdate`, which is what keeps a folder's tokens from
+  freezing against a capture that has stopped matching the kit, and a scratch
+  folder needs that as much as a shared repository does; every project gets it
+  now, and `init --no-share` still skips it for anyone who asks for that. The
+  `stylesheet` question fired whenever no known styles directory was
+  recognized — which describes a flat prototype, a page linking a stylesheet
+  beside it, the exact layout `SKILL.md` documents — so it spent a turn inventing
+  a `styles/` folder to hold one file. The destination is read off the project
+  instead: a recognized styles directory, or the root when an HTML file is there,
+  with the fallback reaching only a directory that says nothing at all. What is
+  left is `overwrite`, asked only when Pushpin files are already present, because
+  it is the one thing here that cannot be undone. On a fresh folder, setup now
+  asks nothing.
+- **Annotation text could never have been written by an agent.** The kit is set
+  in Helvetica Neue, which is a system font rather than one published to the
+  file, so it is present on a designer's Mac and absent from the runtime a
+  script runs in — 1,945 families reachable and not one of them Helvetica.
+  `loadFontAsync` on the node's own font is the first call in the recipe and it
+  throws, and the script is atomic, so nothing downstream of it has ever run.
+  The text now falls back to Thumbtack Rise at the same weight, then to its
+  Regular: the brand's own face, already loaded for the design the note sits
+  beside, carrying every weight the kit asks for. The swap is reported in
+  `degraded`, beside a library that was out of reach, because a note whose
+  typography quietly stopped matching the kit is worth one line at handoff.
+  Pushpin's own type is unaffected — Thumbtack Rise is published to the file,
+  and a `Title/2` style imports, applies, and renders.
 
 **Fixed**
 
@@ -171,6 +258,14 @@ the toolchain, which `diff.mjs` has no category for.
   fails open, a rule that matches nothing grants nothing — so the entire cost of
   the wrong belief was paid in silence. The doc says to add the entry yourself,
   and `init` says the same after a run that touched the file.
+- **`setup.mjs --verify` failed a project over a file Pushpin must not write.**
+  An absent `PRODUCT.md` was a `missing` row, and one missing row is what makes
+  `--verify` exit non-zero. That was defensible while setup conducted the
+  `impeccable` interview as a step; it is not now that `/impeccable init` writes
+  the file on request instead. Every prototype folder was reporting itself
+  unfinished over product truth that is not Pushpin's to generate, which is the
+  sort of red row that teaches people to stop reading the output. It is a note:
+  reported, so the option stays visible, and not counted against the project.
 
 ## 0.9.0 — 2026-08-14
 

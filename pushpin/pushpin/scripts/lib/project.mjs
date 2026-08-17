@@ -7,7 +7,7 @@
  * user one destination and writing to another.
  */
 
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 /**
@@ -16,8 +16,17 @@ import { join } from 'node:path';
  */
 const STYLE_DIRS = ['src/styles', 'app/styles', 'styles', 'src/app', 'app', 'src', 'assets'];
 
-/** The fallback when no known layout matches. */
+/** The fallback when nothing in the project says where a stylesheet goes. */
 const STYLE_FALLBACK = 'styles';
+
+/** Whether a page at the root would be the thing linking the stylesheet. */
+function hasRootHtml(target) {
+  try {
+    return readdirSync(target).some((f) => f.endsWith('.html'));
+  } catch {
+    return false;
+  }
+}
 
 export function detectStack(target) {
   const pkgPath = join(target, 'package.json');
@@ -34,6 +43,12 @@ export function detectStack(target) {
   const has = (n) => Object.keys(deps).some((d) => d === n || d.startsWith(n + '/'));
 
   const found = STYLE_DIRS.find((d) => existsSync(join(target, d)));
+  // A flat prototype is a page linking a stylesheet beside it —
+  // `<link rel="stylesheet" href="pushpin.css">`, the usage SKILL.md documents —
+  // so an HTML file at the root answers this as definitely as a styles
+  // directory does. Inventing a `styles/` folder to hold one file would
+  // contradict that example in the one case it comes up.
+  const flat = !found && hasRootHtml(target);
 
   return {
     name: pkg?.name ?? null,
@@ -41,11 +56,11 @@ export function detectStack(target) {
     next: has('next'),
     tailwind: has('tailwindcss'),
     thumbprint: Object.keys(deps).some((d) => d.includes('thumbprint')),
-    stylesDir: found ?? STYLE_FALLBACK,
-    // Whether the directory was recognized or guessed. The caller asks the user
-    // where the stylesheet goes only in the second case; asking in the first
-    // spends a question on an answer the project already gave.
-    stylesDirGuessed: !found,
+    stylesDir: found ?? (flat ? '' : STYLE_FALLBACK),
+    // Whether the destination was read off the project or fallen back to. Only
+    // reported, never asked about: an empty directory is the only case that
+    // reaches the fallback, and there every answer is equally correct.
+    stylesDirGuessed: !found && !flat,
   };
 }
 

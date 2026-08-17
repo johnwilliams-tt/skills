@@ -127,6 +127,63 @@ if (hiddenTotal !== keys.source.hiddenCount) {
   problems.push(`hidden count is ${hiddenTotal}, header claims ${keys.source.hiddenCount}`);
 }
 
+// The spacing keys are embedded in reference/generate.md so a generation lane
+// can inline the snap-and-bind helper without a lookup first. That makes them a
+// second copy of the capture, and it is the one copy that fails silently: every
+// key is 40 hex characters, a wrong one is a perfectly valid key for a different
+// step, and the frame it binds looks deliberate at the wrong size.
+const generate = readFileSync(join(here, '..', 'reference', 'generate.md'), 'utf8');
+const spaceBlock = generate.match(/const SPACE = \{([^}]*)\}/);
+checked++;
+if (!spaceBlock) {
+  problems.push('reference/generate.md: no `const SPACE = { … }` block to check');
+} else {
+  // Keyed by pixels in the doc, by step in the capture — which is the mapping
+  // the check exists to hold, since `space/4` is the fourth step and 16px.
+  const quoted = new Map();
+  for (const m of spaceBlock[1].matchAll(/(\d+):\s*'([0-9a-f]{40})'/g)) {
+    quoted.set(Number(m[1]), m[2]);
+  }
+  const steps = Object.entries(t.space).filter(([step]) => !step.startsWith('$'));
+  checked++;
+  if (quoted.size !== steps.length) {
+    problems.push(
+      `reference/generate.md quotes ${quoted.size} spacing keys, the scale has ${steps.length}`,
+    );
+  }
+  for (const [step, px] of steps) {
+    checked++;
+    const expected = keys.bindable.Space[step];
+    if (!quoted.has(px)) {
+      problems.push(`reference/generate.md: no key quoted for ${px}px (space/${step})`);
+    } else if (quoted.get(px) !== expected) {
+      problems.push(
+        `reference/generate.md: ${px}px (space/${step}) quotes ${quoted.get(px)}, ` +
+          `variable-keys.figma.json has ${expected}`,
+      );
+    }
+  }
+}
+
+// Radius keys are quoted by name, so the comment beside each one is enough to
+// check it against. The count is asserted because the match is what finds them:
+// reworded the comment and this check would pass by inspecting nothing.
+const radiusQuoted = [...generate.matchAll(/'([0-9a-f]{40})',\s*\/\/ corner-radius\/([a-z]+)/g)];
+checked++;
+if (!radiusQuoted.length) {
+  problems.push('reference/generate.md: no `// corner-radius/<name>` key to check');
+}
+for (const [, key, name] of radiusQuoted) {
+  checked++;
+  const expected = keys.bindable['Corner Radius'][name];
+  if (expected !== key) {
+    problems.push(
+      `reference/generate.md: corner-radius/${name} quotes ${key}, ` +
+        `variable-keys.figma.json has ${expected ?? 'no such token'}`,
+    );
+  }
+}
+
 // The icon catalog states three counts in its header and they are the only
 // thing standing between it and a silently lossy merge — two icons published
 // under one name, or a size dropped, would otherwise look like a smaller kit

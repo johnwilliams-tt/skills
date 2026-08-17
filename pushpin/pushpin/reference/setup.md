@@ -1,14 +1,13 @@
 # Setting a project up, start to finish
 
 `setup` is the front door. It is one command for the whole job — tokens, the
-generated files, the edit check, the write guard, and the product context
-`impeccable` owns — so nobody has to know that three commands exist or which
-order they go in.
+generated files, the edit check, and the write guard — so nobody has to know
+that three commands exist or which order they go in.
 
 `init` is still the thing that writes Pushpin's artifacts, and it is still the
 right call on its own for a re-run, a repair, or an update after the plugin
-moves. `setup` is for the first time, and for anyone who would rather answer
-three questions than read a flag list.
+moves. `setup` is for the first time, and for anyone who would rather answer a
+question than read a flag list.
 
 Why it exists: `init` ended by printing two more commands to run and had no way
 to tell whether they were ever run. That is how a project ends up half
@@ -20,10 +19,9 @@ running. Setup asks, acts, and then checks what is actually true.
 
 ```bash
 node scripts/setup.mjs <project-dir>            # 1. read the project
-node scripts/setup.mjs <project-dir> --backup   # 2. only if the answers call for it
-node scripts/init.mjs  <project-dir> --write    # 3. write, with the flags the answers imply
-                                                # 4. /impeccable init, for PRODUCT.md
-node scripts/setup.mjs <project-dir> --verify   # 5. report what is true
+node scripts/setup.mjs <project-dir> --backup   # 2. only if the answer calls for it
+node scripts/init.mjs  <project-dir> --write    # 3. write, with the flags it implies
+node scripts/setup.mjs <project-dir> --verify   # 4. report what is true
 ```
 
 ## 1. Read the project first
@@ -33,20 +31,11 @@ already there, whether git could undo an overwrite, whether `impeccable` is
 installed, and — last — an `Ask:` block.
 
 **Ask exactly the questions in that block, and no others.** It lists only what
-the project cannot answer for itself. A question with one real answer is not a
-question, and asking where the stylesheet goes when the project has a `styles/`
-directory is how a short setup starts feeling like a form.
+the project cannot answer for itself, which on a directory holding no Pushpin
+files is nothing at all. A question with one real answer is not a question, and
+asking it is how a short setup starts feeling like a form.
 
-## 2. One round of questions
-
-All of them in a single `AskQuestion` call. Never one at a time.
-
-- **`scope` — is this a prototype or a real project?** The only question always
-  asked, because nothing in a directory reveals the answer and it decides two
-  others. A prototype gets tokens, the checks, and `AGENTS.md`; it skips the
-  `.claude/settings.json` team-sharing entry and the `PRODUCT.md` interview,
-  which are ceremony on a folder that exists to answer one question. A real
-  project gets everything.
+## 2. The one question
 
 - **`overwrite` — Pushpin files are already here.** Offer, in this order: back
   them up and replace, replace without a backup, or leave them and write only
@@ -55,22 +44,24 @@ All of them in a single `AskQuestion` call. Never one at a time.
   prototype folder frequently is not a repository, and that is exactly where an
   unrecoverable overwrite lands.
 
-- **`stylesheet` — where should the tokens go?** Only when no known styles
-  directory was recognized. Offer the guess first.
+Replace adds `--force` to the `init` call, preceded by `setup.mjs --backup` when
+they asked for one. Nothing else in setup turns on an answer.
 
-Then map the answers onto one `init` call:
+Every project gets the `.claude/settings.json` entry, a scratch folder included.
+It is what offers the plugin to a teammate who never opens a terminal, and it
+carries `autoUpdate`, which is what keeps a folder's tokens from freezing
+against a capture that has stopped matching the kit. `init --no-share` still
+skips it for anyone who asks for that; setup does not choose it.
 
-- prototype adds `--no-share`
-- replace adds `--force`, preceded by `setup.mjs --backup` when they asked for one
-- a chosen path adds `--css-path <path>`
+The stylesheet destination is read off the project — a recognized styles
+directory, or beside a page at the root when there is no such directory — so
+there is nothing to ask there either.
 
 ## 3. PRODUCT.md, which is not ours to write
 
-For a real project, go straight into `impeccable`'s own `init` — load its
-`reference/init.md` and conduct that interview in the same turn. Do not stop and
-tell the user to run `/impeccable init` themselves; continuity is the entire
-point of this command, and a handoff the user has to perform is the thing setup
-replaces.
+Setup does not conduct that interview. `/impeccable init` writes `PRODUCT.md` on
+request, for whoever wants it, and `--verify` reports whether the file is there —
+which is how the option stays visible without setup spending a turn on it.
 
 **Pushpin must not generate `PRODUCT.md`.** It is product truth, not design
 truth. Pushpin knows the tokens and nothing about who the product is for, and a

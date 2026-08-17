@@ -706,7 +706,7 @@ if (WRITE && plan.length) {
     console.log(`  the rules a token allowlist cannot express, which is what impeccable reads`);
     console.log(`  as the brief. Both are generated — re-run init after updating the plugin,`);
     console.log(`  and never hand-edit them.`);
-    console.log(`\n  What is left, if this is a real project:`);
+    console.log(`\n  Available, and not ours to write:`);
     console.log(`    /impeccable init   PRODUCT.md only. Pushpin does not write product truth.`);
     console.log(`\n  Do not run /impeccable document — it replaces both files with an invented`);
     console.log(`  design system. That is now refused on Cursor and reported everywhere; if a`);

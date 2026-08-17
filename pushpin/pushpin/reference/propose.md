@@ -83,10 +83,12 @@ and describes one is not a proposal, it is a redesign with a misleading label.
 
 For a **net-new** component with no closest relative — `Extends: none` — there is
 nothing to derive from. Build it the way the kit is built: bind every fill,
-radius, and gap to library variables, use published text and effect styles for
-type and elevation, and instance published components for the parts the kit
-already covers. A proposal built that way converges on the real component if one
-ever lands; one built from literals is just another thing to redo. The audit
+radius, and gap to library variables — gaps and padding through
+[`space()`](generate.md#spacing-goes-through-space), radius through all four
+corners — use published text and effect styles for type and elevation, and
+instance published components for the parts the kit already covers. A proposal
+built that way converges on the real component if one ever lands; one built from
+literals is just another thing to redo. The audit
 holds derived and net-new proposals to the same standard on styles and bindings;
 only the starting point differs.
 
@@ -229,8 +231,8 @@ card.layoutMode = specimen.width <= 320 ? 'HORIZONTAL' : 'VERTICAL';
 card.primaryAxisSizingMode = 'AUTO';
 card.counterAxisSizingMode = 'AUTO';
 card.counterAxisAlignItems = 'MIN';
-card.itemSpacing = 16;
 card.fills = [];
+await bindSpacing(card, { itemSpacing: 16 }, 'intent');   // bound, like any frame's gap
 card.appendChild(specimen);
 card.appendChild(note);
 card.layoutAlign = 'STRETCH';         // as every child of the column does

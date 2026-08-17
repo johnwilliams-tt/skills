@@ -31,9 +31,18 @@ asked for.
 |---|---|---|
 | `Annotations` · `Multi-line` | `Annotations (drawn) / Multi-line` | 320 wide, height hugs, 288 text column |
 | `Annotations` · `List Elelemt` | `Annotations (drawn) / List Elelemt` | 360 wide, height hugs, a number and a body |
-| `Annotations / Pointers` · `Number` | `Annotations (drawn) / Pointers · Number` | 24×24, `cornerRadius/full` |
+| `Annotations / Pointers` · `Number` | `Annotations (drawn) / Pointers · Number` | 24×24, `corner-radius/full` |
 | `Sticky Note Status` · `Open Question` | `Annotations (drawn) / Sticky Note Status` | 320 wide, height hugs |
 | `Capstones` | `Annotations (drawn) / Capstones` | the width of the block it heads, 112 tall |
+| `Annotations` · `Dev Note` | `Annotations (drawn) / Token drift` | 300 wide, height hugs, a title over a body |
+
+The last row is named for its content rather than for the component it stands
+in for, because the drift note is the only `Dev Note` this plugin ever places and
+the audit looks for it by that title — see
+[One Dev Note when something drifted](generate.md#one-dev-note-when-something-drifted).
+The prefix still leads, as it does on every other row: the audit's disclosure
+check accepts `Token drift` and `Annotations (drawn) / Token drift` equally, so
+there was never a name match to buy by dropping it.
 
 **Do not approximate the rest.** The accessibility annotations, `Guide`,
 `Framing Cards`, the Thumbprint contribution components, and everything else on
@@ -71,8 +80,10 @@ a drawn note is held to the same standard as anything else generated here:
   frame, and a note in the column sits outside it, so nothing will catch a literal
   here for you — which is a reason to be careful with it rather than a licence. A
   drawn `Pointers · Number` does sit on the design and is checked.
-- **Bind padding and radius.** `space/4` padding and `cornerRadius/medium`, never
-  literal numbers. Same rule as any frame this plugin creates.
+- **Bind padding and radius.** 16px of padding — `space/4`, the fourth step —
+  through [`space()`](generate.md#spacing-goes-through-space), and
+  `corner-radius/medium` on all four corners. Never literal numbers. Same rule as
+  any frame this plugin creates.
 - **Use a published text style.** `Text/3` for the body via
   `setTextStyleIdAsync`, its key from `lookup.mjs --style Text/3`. Raw font
   settings are what a rebuilt-from-scratch proposal shows first, and the same

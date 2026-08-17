@@ -42,9 +42,45 @@ const note = set.defaultVariant.createInstance();
 note.setProperties({ Type: 'Multi-line' });
 
 const body = note.findOne((n) => n.type === 'TEXT');
-await figma.loadFontAsync(body.fontName);
+const swapped = await loadOrSubstitute(body);
 body.characters = 'Proposed: FilterChip\nExtends: Chip\n…';
 ```
+
+**The Annotation Kit is set in Helvetica Neue, and an agent does not have it.**
+Pushpin's own Thumbtack Rise is published to the file and loads; Helvetica Neue
+is a system font, so it is present on a designer's Mac and absent from the
+runtime a script runs in — 1,945 families available and not one of them
+Helvetica. `loadFontAsync` on the node's own font therefore throws, and because
+the script is atomic it takes the whole annotation pass with it. This is the
+first call in the recipe, so nothing downstream of it has ever run.
+
+Substitute rather than fail. The note stays a library instance, the text is
+legible, and the only loss is the face it is set in:
+
+```js
+async function loadOrSubstitute(t) {
+  const want = t.fontName;                       // annotation text is single-style
+  try { await figma.loadFontAsync(want); return null; } catch { /* not present */ }
+  // Same weight first, then the family's Regular, so a style the kit uses and
+  // Rise does not have still lands somewhere legible.
+  for (const style of [want.style, 'Regular']) {
+    try {
+      const alt = { family: 'Thumbtack Rise', style };
+      await figma.loadFontAsync(alt);
+      t.fontName = alt;
+      return `${want.family} ${want.style} → ${alt.family} ${style}`;
+    } catch { /* try the next */ }
+  }
+  throw new Error(`No font for ${want.family} ${want.style}`);
+}
+```
+
+Thumbtack Rise rather than a neutral like Inter: it is the brand's own face, it
+is already loaded for the design the annotation sits beside, and it carries
+Bold, Medium and Regular, which is every weight the kit asks for. **Report what
+was swapped** — it belongs in the `degraded` bucket beside a library that was
+out of reach, for the same reason. A note whose typography quietly stopped
+matching the kit is worth one line at handoff.
 
 Which node to reach for depends on whether the layer was named by a designer or
 auto-named by Figma from its own content:
@@ -221,8 +257,8 @@ bundle.name = `${target.name} — annotated`;
 bundle.layoutMode = 'VERTICAL';
 bundle.primaryAxisSizingMode = 'AUTO';
 bundle.counterAxisSizingMode = 'AUTO';
-bundle.itemSpacing = 84;              // the capstone's air, applied once
 bundle.fills = [];
+await bindSpacing(bundle, { itemSpacing: 96 }, 'intent');   // the capstone's air, bound once
 bundle.x = target.x;                  // the only coordinates in the arrangement
 bundle.y = target.y;
 
@@ -232,13 +268,21 @@ body.layoutMode = 'HORIZONTAL';
 body.primaryAxisSizingMode = 'AUTO';
 body.counterAxisSizingMode = 'AUTO';
 body.counterAxisAlignItems = 'MIN';   // top-aligned, not centred
-body.itemSpacing = 80;                // the gutter, applied once
 body.fills = [];
+await bindSpacing(body, { itemSpacing: 96 }, 'intent');     // the gutter, bound once
 
 bundle.appendChild(body);
 body.appendChild(target);             // the duplicate, at its own size
 body.appendChild(col);                // the column, built below
 ```
+
+`bindSpacing()` is the helper from [generate.md](generate.md#spacing-goes-through-space),
+inlined here as it is in every lane. The gutter and the capstone's air were 80
+and 84 — neither is a step on the scale, and [tokens.md](tokens.md#spacing) says
+outright there is no 80 — so the helper would snap both to 96 and record a drift
+every run. Both are written as 96 instead. This is the plugin's own arrangement
+rather than a number read off a file, and the skill's most-copied example was
+teaching exactly what the audit exists to catch.
 
 `target` keeps its own width and height: leave `layoutAlign` at `INHERIT` and
 `layoutGrow` at 0 and the design is not resized by being adopted. Moving the
@@ -254,12 +298,12 @@ frame's box, and each one was a thing that silently went stale:
 
 | Was computed | Is now set once |
 |---|---|
-| `col.x = target.x + target.width + 80` | `body.itemSpacing = 80` |
+| `col.x = target.x + target.width + 80` | `bindSpacing(body, { itemSpacing: 96 })` |
 | `col.y = target.y` | `body.counterAxisAlignItems = 'MIN'` |
 | capstone x, plus frame + gutter + column for its width | `capstone.layoutAlign = 'STRETCH'` |
-| ~84 points of air under the capstone | `bundle.itemSpacing = 84` |
+| ~84 points of air under the capstone | `bindSpacing(bundle, { itemSpacing: 96 })` |
 
-- **Gutter 80** between the design's right edge and the column. Wide enough that
+- **Gutter 96** between the design's right edge and the column. Wide enough that
   the column reads as commentary rather than as part of the design.
 - **Right of the design**, unless the page's own convention is otherwise or the
   right side is occupied — in which case reorder the body's two children and the
@@ -276,11 +320,11 @@ col.name = `${target.name} — notes`;
 col.layoutMode = 'VERTICAL';
 col.primaryAxisSizingMode = 'AUTO';   // grows with its contents
 col.counterAxisSizingMode = 'AUTO';   // as wide as its widest member
-col.itemSpacing = 24;                 // the gap, applied once
 col.fills = [];
+await bindSpacing(col, { itemSpacing: 24 }, 'intent');   // the gap, bound once
 ```
 
-- **Gap 24** between items, set on the column and never on an item.
+- **Gap 24** between items, bound on the column and never set on an item.
 - **Every direct child stretches.** `layoutAlign = 'STRETCH'` on each one, so the
   column takes the width of its widest member and every member takes the width of
   the column. Without it the kit's own width differences — 320 for `Multi-line`,
@@ -295,7 +339,12 @@ it does not. It is not a component and needs no proposal.
 Order inside it: the summary frame first when there is one — a short list of
 every proposal on the screen, so a reviewer can count them without hunting —
 then one card per proposal in the order a reader meets their subjects on the
-design, then an open question for each unresolved atom.
+design, then an open question for each unresolved atom, then the
+[`Token drift` note](generate.md#one-dev-note-when-something-drifted) when the
+run snapped anything. Drift goes last because it is about the whole frame rather
+than about any element on it, and it is a direct child like the rest — a member
+of this column is the only place a note is ever put, including on a run that has
+nothing else to say and would otherwise have no column at all.
 
 ### Anchoring: number, don't point
 
@@ -351,9 +400,9 @@ measured:
   column spans both because the body is what it stretches to, so widening either
   one keeps the heading correct instead of leaving it short.
 - **Above the block with clear air beneath it** — the Icons page leaves about 84
-  points, which is `bundle.itemSpacing`. Never overlapping what it heads, and
-  never inside it; being a sibling above the body in a vertical auto-layout makes
-  both impossible rather than merely discouraged.
+  points, and 96 is the nearest step, which is `bundle.itemSpacing`. Never
+  overlapping what it heads, and never inside it; being a sibling above the body
+  in a vertical auto-layout makes both impossible rather than merely discouraged.
 
 ### Nothing overlaps
 

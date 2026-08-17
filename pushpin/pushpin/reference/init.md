@@ -1,10 +1,9 @@
 # Setting a project up
 
 **For a project's first time, use [setup.md](setup.md).** `/pushpin setup` asks
-what it cannot detect, runs this, hands off to `impeccable` for `PRODUCT.md`,
-and then checks what is actually true. `init` is the mechanical half of that,
-and the right call on its own for a re-run, a repair, or an update after the
-plugin moves.
+what it cannot detect, runs this, and then checks what is actually true. `init`
+is the mechanical half of that, and the right call on its own for a re-run, a
+repair, or an update after the plugin moves.
 
 `init` is once per project, not once per agent. The marker is
 `pushpin.config.json`. A later session does not re-run this; it pin-checks on
@@ -177,15 +176,16 @@ exactly. When a staleness check flags either one, that is the fix. Never
 
 ## The order it goes in
 
-Two commands, once per project, and `/pushpin setup` runs both for you:
+One command, once per project, and `/pushpin setup` runs it for you:
+`/pushpin init --write` — tokens, the two generated files, `AGENTS.md`, and the
+Pushpin hooks.
 
-1. `/pushpin init --write` — tokens, the two generated files, `AGENTS.md`, and
-   the Pushpin hooks.
-2. `/impeccable init` — **`PRODUCT.md` only.** Pushpin must not generate that
-   file: it is product truth, not design truth, and `impeccable` boot emits
-   `NO_PRODUCT_MD` and routes into its own interview to get it right.
+`/impeccable init` is separate, and is run on request rather than as a step of
+setup. It writes **`PRODUCT.md` only.** Pushpin must not generate that file: it
+is product truth, not design truth, and `impeccable` boot emits `NO_PRODUCT_MD`
+and routes into its own interview to get it right.
 
-### Why `/impeccable hooks on` is not step three
+### Why `/impeccable hooks on` is not part of this
 
 It used to be listed here as "what actually makes the detector run per edit."
 That is wrong for most installs, and worth stating plainly because the gap it

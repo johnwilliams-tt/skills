@@ -369,22 +369,220 @@ const paint = figma.variables.setBoundVariableForPaint(
   brand,
 );
 frame.fills = [paint];
-
-// Numeric properties bind directly.
-const space4 = await figma.variables.importVariableByKeyAsync(
-  'e4617564161f3df6bca0282e2de5d1c80e1fd7bf',   // space/4
-);
-frame.setBoundVariable('itemSpacing', space4);
-
-const radius = await figma.variables.importVariableByKeyAsync(
-  '8e4635576b1b8eb2f8c78d500761ea8e055f7028',   // corner-radius/sides
-);
-frame.setBoundVariable('topLeftRadius', radius);
 ```
 
 A bound fill follows the library through theme switches and token changes. A
 literal `#07344a` is correct exactly once — at the moment you type it — and is
 the thing that quietly rots.
+
+### Spacing goes through `space()`
+
+Numeric properties bind directly, so nothing stands between a lane and
+`frame.itemSpacing = 80` — a number that is not on the scale at all, bound to
+nothing, and invisible in a screenshot. Every gap and every padding goes through
+one helper instead: it snaps the number to the nearest step, binds that step's
+variable, and records the move. Inline it in every lane that creates a frame.
+
+```js
+// The library names these by step — `space/4` is the fourth step, 16px — and the
+// helper is keyed by pixels, which is the one place the two get confused.
+const SPACE = {
+  4: '508b4df732de7688c49c238c4ccff6389db6e8c3',
+  8: '0575ded655ec9be4b15e83de002a3f52060ac6ea',
+  12: 'fc6a3aaf2998c4608670849a3f7612709c2c377c',
+  16: 'e4617564161f3df6bca0282e2de5d1c80e1fd7bf',
+  20: '5451fcc7b4d3eb1f4aa13eb974161b84a513f209',
+  24: 'e6fecbc153fb91da6d648b5b95d494de1efdef51',
+  32: 'f406fafa903b932d24dc78f5269350706c9f2131',
+  48: 'd08ebc8e5d493307ce5bcb97f30336c3b922cdba',
+  64: '0441d0b2b91d1310c587cf05e9d60318f33ee1d3',
+  96: 'b0b24b11f3ec2078666e52825463965fe1f1c525',
+  128: '432de4ce5ba79eba0f69e8bc6172a6131dba7dfa',
+  192: '0827263a347c8fb4e19b02afbfa6574213789817',
+  256: 'bde07daf541c6b3b172c5c90de5d6c7a984f0fb5',
+};
+
+// `<=` walking ascending steps is what makes a tie take the larger one.
+const STEPS = Object.keys(SPACE).map(Number).sort((a, b) => a - b);
+const snap = (px) => STEPS.reduce(
+  (best, s) => (Math.abs(s - px) <= Math.abs(best - px) ? s : best),
+  STEPS[0],
+);
+
+// Shared plugin data is namespaced, and the namespace has to be stable across
+// every lane and the audit or the record cannot be found again.
+const NS = 'pushpin';
+
+const spaceVars = new Map();
+const drift = [];
+
+// `source` is where the number came from: 'figma', 'prototype', or 'intent'.
+async function space(node, prop, px, source) {
+  if (px === 0) { node[prop] = 0; return; }
+  const step = snap(px);
+  if (!spaceVars.has(step)) {
+    spaceVars.set(step, await figma.variables.importVariableByKeyAsync(SPACE[step]));
+  }
+  node.setBoundVariable(prop, spaceVars.get(step));
+  if (step === px) return;
+  const record = { prop, from: px, to: step, source };
+  // Append rather than overwrite: one node is bound property by property, and a
+  // key holding one record would keep only the last of them.
+  let recorded;
+  try { recorded = JSON.parse(node.getSharedPluginData(NS, 'drift') || '[]'); } catch { recorded = []; }
+  if (!Array.isArray(recorded)) recorded = [];
+  recorded.push(record);
+  node.setSharedPluginData(NS, 'drift', JSON.stringify(recorded));
+  drift.push({ node: node.name, ...record });
+}
+```
+
+Four rules it encodes:
+
+- **`0` is left alone and never bound.** There is no zero token, and zero
+  padding is a choice rather than a value someone forgot to set.
+- **Below 4 lands on 4, above 256 lands on 256.** Both fall out of the reduce
+  rather than being special cases.
+- **A tie takes the larger step**: 28 → 32, 40 → 48, 56 → 64, 80 → 96,
+  112 → 128, 160 → 192, 224 → 256. Cramped is the more common failure, and a
+  layout that rounds down twice in a row reads as a mistake rather than as a
+  decision.
+- **Every value binds; only a value that moved drifts.** An exact 24 gets the
+  same binding as a snapped 22. The drift record is the only thing separating
+  them, which is why an exact hit is not worth a special path.
+
+The imports are lazy and cached rather than part of [the batch](#the-imports-go-in-one-batch),
+because which steps a layout needs is not known until it is laid out. A lane
+pays one wait per distinct step and none for the fifth frame that reuses one.
+
+### Six properties, four corners
+
+Spacing leaks through the side nobody wrote down. Bind `paddingLeft`,
+`paddingRight`, `paddingTop`, `paddingBottom`, `itemSpacing`, and —
+when `layoutWrap === 'WRAP'` — `counterAxisSpacing`, on every frame this plugin
+creates. One call per frame, so a side cannot be skipped by being forgotten:
+
+```js
+async function bindSpacing(node, px, source) {
+  const props = ['paddingLeft', 'paddingRight', 'paddingTop', 'paddingBottom', 'itemSpacing'];
+  if (node.layoutWrap === 'WRAP') props.push('counterAxisSpacing');
+  for (const prop of props) await space(node, prop, px[prop] ?? 0, source);
+}
+
+const card = figma.createFrame();
+card.layoutMode = 'VERTICAL';
+await bindSpacing(card, {
+  paddingLeft: 24, paddingRight: 24, paddingTop: 32, paddingBottom: 32, itemSpacing: 16,
+}, 'intent');
+```
+
+An unnamed side is 0, which is Figma's own default and is what the helper sets.
+`counterAxisSpacing` only exists under `WRAP`, and binding it on a frame that
+does not wrap throws — hence the test rather than a sixth entry in the list.
+
+Radius binds through all four corners:
+
+```js
+const radius = await figma.variables.importVariableByKeyAsync(
+  '8e4635576b1b8eb2f8c78d500761ea8e055f7028',   // corner-radius/sides
+);
+for (const corner of ['topLeftRadius', 'topRightRadius', 'bottomLeftRadius', 'bottomRightRadius']) {
+  card.setBoundVariable(corner, radius);
+}
+```
+
+There is no bindable `cornerRadius`. Writing the shorthand sets four literals,
+and binding `topLeftRadius` alone leaves the other three literal while the frame
+looks entirely correct. Radius does not snap either: the scale is named — `none`
+through `full`, keys under `"Corner Radius"` — so there is no nearest step to
+compute, only the right token to pick.
+
+### The drift record lives on the node
+
+Section fills run as several concurrent `use_figma` calls, so there is no place
+between them for a drift list to live: each lane's scope ends with its call. The
+record goes on the node it happened to, and the lane returns its own list as
+well.
+
+```js
+node.setSharedPluginData('pushpin', 'drift', JSON.stringify([
+  { prop, from, to, source },   // one entry per property that moved on this node
+]));
+```
+
+**Shared plugin data, not `setPluginData`.** The plain one is not reachable from
+here — "only private plugins on web can use it" — and it fails in the way that
+costs the most: the method is present, so `typeof node.setPluginData` answers
+`'function'` and a guard written to skip it passes, and then the call throws and
+takes the whole atomic lane down over one record. The shared variant works, and
+its namespace has to match the one the audit reads with.
+
+**The payload is an array, and the write is a read-modify-write.** A frame is
+bound one property at a time, so a card whose top padding snapped and whose gap
+also snapped writes the key twice — and one key holding one record keeps the
+second and loses the first. The audit would then under-report the very thing it
+exists to catch, on the frame that drifted most. Reading the existing value back
+before appending is what makes what the node carries match what happened to it.
+
+An array rather than a key per property, because a reader hunting
+`pushpinDriftPaddingLeft` and five siblings has to know all six names to find
+them all, and one parse is cheaper than six reads that mostly come back empty.
+
+`source` is what makes the record actionable at handoff. "This gap moved from 80
+to 96" is a fact about the file; "the prototype asked for 80" is something a
+person can decide about. Three values: `figma` for a number read off the file
+being worked in, `prototype` for one inherited from pushed code, `intent` for
+one this run chose.
+
+The audit collects these by walking the tree — [audit.md](audit.md) — so what it
+reports is what the file carries rather than what a lane remembered. The note is
+written from the returned lists, which are in hand at that point and save a walk
+of a tree the audit is about to walk anyway.
+
+### One Dev Note when something drifted
+
+After the fill lanes and before the audit, the returned lists become a single
+`Annotations` · `Dev Note` instance — 300×128, the kit's engineering-facing note
+per [annotate.md](annotate.md#annotations) — named and titled `Token drift`. One
+note for the run, never one per snap. Its title is the first `TEXT` node and its
+body the second, and the body is one row per snap:
+
+```
+Source: prototype
+Hero · paddingTop 84 → 96
+Service list · itemSpacing 40 → 48
+```
+
+The source is named once at the top when the run has one, and per row when it
+does not.
+
+**It is a direct child of the annotation column, appended last and stretched
+like every other member** — [the annotated bundle](annotate.md#the-annotated-bundle).
+Nothing about it is positioned: the column's auto-layout is what keeps it clear
+of the other notes, and the body's gutter is what keeps it clear of the design,
+so the audit's rule that no annotation overlaps another or the design holds
+without anything being measured. It needs no card of its own, having no specimen
+to sit beside.
+
+**A run whose only annotation is this note still builds the bundle.** That is the
+one case where the arrangement does not already exist — no proposals, no
+unresolved atoms, nothing else to place — and it is exactly where reaching for
+`x` and `y` beside the frame looks reasonable. Coordinates are what the overlap
+defect is for. Build the bundle, the body, and the column as
+[annotate.md](annotate.md#the-annotated-bundle) has them, with the note as the
+column's only member.
+
+When the Annotation Kit is out of reach it is drawn instead, by the rules in
+[annotate-fallback.md](annotate-fallback.md), and it takes that page's prefix
+like every other stand-in: `Annotations (drawn) / Token drift`. The prefix is
+how a reader and the audit tell a drawn shape from an instance, and a note that
+dropped it to satisfy a name match would be the one drawn thing on the page
+claiming to be library work. The audit's disclosure check accepts either name.
+That it was drawn is reported in the `degraded` bucket, as every other drawn note
+is.
+
+**When nothing drifted, write no note.** An empty note spends a reviewer's
+attention and returns nothing, and it teaches them to skip the next one.
 
 ## Where the work gets written
 
@@ -620,7 +818,7 @@ Four rules for the lanes:
   return get pasted in as string literals; a variable from an earlier call does
   not exist here.
 - **Each lane clears its own shimmer** as its last act, and returns the ids it
-  touched.
+  touched along with every spacing value that snapped.
 
 ```js
 const page = await figma.getNodeByIdAsync('0:1');       // pageId, from the skeleton
@@ -630,7 +828,7 @@ const section = await figma.getNodeByIdAsync('12:340'); // this lane's section
 // … this lane's import batch, its font load, then its ten operations …
 
 section.placeholder = false;
-return { mutatedNodeIds: [section.id /* , … */] };
+return { mutatedNodeIds: [section.id /* , … */], drift };
 ```
 
 ### When a lane fails
@@ -690,26 +888,30 @@ passing as done.
      are handed.
 5. **Fill the sections in parallel,** one `use_figma` call per section, all of
    them in one message — [above](#filling-the-sections-in-parallel). Each lane
-   batches its own imports, stays inside the section it was handed, and clears
-   that section's `placeholder` as it finishes. Nothing the design calls for is
+   batches its own imports, stays inside the section it was handed, binds its
+   spacing through [`space()`](#spacing-goes-through-space), and clears that
+   section's `placeholder` as it finishes. Nothing the design calls for is
    left out: what cannot be resolved gets a marked placeholder.
 6. **Annotate,** into the auto-layout bundle beside the frame: every proposal's
-   note, a specimen instance of the proposal next to it, its anchor, and an open
-   question for every unresolved atom. This precedes the audit rather than
-   following it, because the audit reads these notes — run it first and a
-   proposal whose note has not been placed yet is indistinguishable from one that
-   has no note at all, which is a defect.
+   note, a specimen instance of the proposal next to it, its anchor, an open
+   question for every unresolved atom, and the
+   [`Token drift` note](#one-dev-note-when-something-drifted) when any lane
+   returned a snap. This precedes the audit rather than following it, because the
+   audit reads these notes — run it first and a proposal whose note has not been
+   placed yet is indistinguishable from one that has no note at all, which is a
+   defect.
 7. **Audit before declaring done** — see below. It returns the frame's picture
    with the report when it passes, so the verdict is settled before there is
    anything to look at; the picture is a visual check on top of the structural
    one, never a substitute for it. Then print the chat summary, listing
-   proposals, unresolved atoms, any library the preflight could not reach, and
-   any declaration that did not resolve against the catalog.
+   proposals, unresolved atoms, any spacing that snapped, any library the
+   preflight could not reach, and any declaration that did not resolve against
+   the catalog.
 8. **Offer the finalize pass.** Offer it; do not perform it unprompted.
 
 ## The audit
 
 Run it before declaring the work done. It sorts what it finds into library
-instances, proposals, unresolved atoms, degraded libraries, and defects, and it
-fails on defects only. The script and the five buckets are in
+instances, proposals, unresolved atoms, degraded libraries, snapped spacing, and
+defects, and it fails on defects only. The script and the six buckets are in
 [audit.md](audit.md).

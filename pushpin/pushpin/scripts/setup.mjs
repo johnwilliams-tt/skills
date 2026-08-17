@@ -4,8 +4,8 @@
  * before anything is written, and checking what is actually true afterwards.
  *
  * `init.mjs` remains the only thing that writes Pushpin's artifacts. This reads.
- * The middle of setup — the questions, and the handoff to impeccable for
- * PRODUCT.md — is a conversation, and lives in reference/setup.md.
+ * The middle of setup — the one question a project can still leave open — is a
+ * conversation, and lives in reference/setup.md.
  *
  * Why it exists at all: `init` prints good advice, and advice is where the
  * onboarding was failing. It told people to run two more commands and could not
@@ -178,20 +178,14 @@ function assess() {
 
   // Only questions the project has not already answered. A question with one
   // real answer is not a question, and asking it is how a short setup starts
-  // feeling like a form.
+  // feeling like a form — so an overwrite, the one thing here that cannot be
+  // undone, is all that is ever asked.
   const ask = [];
-  ask.push({
-    id: 'scope',
-    why: 'decides whether this gets the team-sharing entry and a PRODUCT.md interview',
-  });
   if (existing.length) {
     ask.push({
       id: 'overwrite',
       why: `${existing.length} Pushpin file${existing.length === 1 ? '' : 's'} already ${existing.length === 1 ? 'exists' : 'exist'} — ${git.note}`,
     });
-  }
-  if (env.stylesDirGuessed && !config?.css) {
-    ask.push({ id: 'stylesheet', why: 'no known styles directory, so the destination is a guess' });
   }
 
   return {
@@ -217,7 +211,9 @@ function printAssess(a) {
   );
   if (a.pin?.details?.length) for (const d of a.pin.details) console.log(`  ${d}`);
 
-  console.log(`\nStylesheet: ${a.css.rel}${a.css.guessed ? ' (guessed — no known styles directory)' : ''}`);
+  console.log(
+    `\nStylesheet: ${a.css.rel}${a.css.guessed ? ' (guessed — nothing here says where a stylesheet goes)' : ''}`,
+  );
 
   if (a.existing.length) {
     console.log(`\nAlready present, and replaced only with --force:`);
@@ -232,7 +228,8 @@ function printAssess(a) {
 
   console.log(`\nAsk:`);
   if (!a.ask.length) console.log('  nothing — the project answers every open question itself');
-  for (const q of a.ask) console.log(`  ${q.id.padEnd(11)} ${q.why}`);
+  const idPad = a.ask.length ? Math.max(...a.ask.map((q) => q.id.length)) : 0;
+  for (const q of a.ask) console.log(`  ${q.id.padEnd(idPad)}  ${q.why}`);
 }
 
 // -------------------------------------------------------------------- verify
@@ -358,8 +355,13 @@ function verify() {
   // Impeccable. Reported as its own thing, and honestly: the per-edit detector
   // not being installed is the expected outcome of a user-global install, not a
   // fault, and calling it one sends people looking for a bug.
+  //
+  // A note rather than a fault for the same reason. Setup does not run the
+  // interview, so its absence is a project that has not asked for one — and
+  // marking it missing would leave every prototype folder reporting itself
+  // unfinished, and exiting non-zero, over a file Pushpin must not write.
   row(
-    productMd ? OK : MISSING,
+    productMd ? OK : NOTE,
     'PRODUCT.md',
     productMd
       ? 'present'

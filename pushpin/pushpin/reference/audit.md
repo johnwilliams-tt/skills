@@ -10,7 +10,7 @@ inspects lives in the Figma document.
 
 ## What it sorts into
 
-Five buckets:
+Six buckets:
 
 - **Library** — instances that resolved to remote published components.
 - **Proposed** — local components named `Proposed / …` that have a parseable
@@ -19,13 +19,18 @@ Five buckets:
   supply.
 - **Degraded** — which libraries the preflight could not reach, and what was
   substituted for them.
+- **Drift** — spacing values that were off the scale and were snapped onto it,
+  read back from the plugin data generation left on each node. One entry per
+  property that moved, so a frame that snapped on two sides appears twice.
 - **Defects** — detached instances, lookalikes, undeclared local components,
-  literal fills, resized icons, nodes left shimmering, `Proposed /` components
-  whose note is missing or incomplete or whose type and geometry drifted from the
-  component they claim to extend, and overlapping annotations.
+  literal fills, unbound spacing and radius, resized icons, nodes left
+  shimmering, drift that no `Token drift` note discloses, drift recorded in a
+  form this cannot read, `Proposed /` components whose note is missing or
+  incomplete or whose type and geometry drifted from the component they claim to
+  extend, and overlapping annotations.
 
-The run fails on defects only. A populated `proposed`, `unresolved`, or
-`degraded` bucket is a result to report, not a failure — this is a `use_figma`
+The run fails on defects only. A populated `proposed`, `unresolved`, `degraded`,
+or `drift` bucket is a result to report, not a failure — this is a `use_figma`
 script, so "exit non-zero" means `report.ok === false`: do not hand the frame
 over, and do not offer the finalize pass.
 
@@ -34,7 +39,9 @@ the honest outcome of a gap in the system, and failing on them would push the
 next run back toward hiding the gap. What fails is hiding it. `degraded` is the
 same bargain one level up — the gap is in what this account can reach rather than
 in what the system publishes, and failing on it would only bring back the
-stop-on-anything behaviour it replaced.
+stop-on-anything behaviour it replaced. `drift` is not that bargain: the value
+was snapped onto the scale and bound before the audit ever ran, so there is
+nothing left to fail on. What can still be wrong is that it went unmentioned.
 
 ## The script
 
@@ -69,6 +76,7 @@ const report = {
   degraded: Object.entries(mode)
     .filter(([, how]) => how !== 'library')
     .map(([what, how]) => `${what} — ${how}, library unreachable`),
+  drift: [],
   defects: [],
 };
 const ancestor = (n, test) => {
@@ -78,6 +86,49 @@ const ancestor = (n, test) => {
 const inInstance = (n) => ancestor(n, (p) => p.type === 'INSTANCE');
 const inProposed = (n) => ancestor(n, (p) =>
   (p.type === 'COMPONENT' || p.type === 'COMPONENT_SET') && p.name.startsWith('Proposed / '));
+
+// Every gap, pad, and corner a container can carry. All four corners rather than
+// `topLeftRadius` alone, and both sides of each axis, because a value bound on
+// one side and literal on the other is the state that reads as bound.
+//
+// `0` is exempt: there is no zero step on the spacing scale, and zero padding is
+// a decision rather than a number someone forgot to bind. `counterAxisSpacing`
+// is the distance between wrapped rows and only means anything under
+// `layoutWrap === 'WRAP'`; checked on anything else it reports a value no
+// binding could apply to.
+const SPACING = [
+  'paddingLeft', 'paddingRight', 'paddingTop', 'paddingBottom', 'itemSpacing',
+  'topLeftRadius', 'topRightRadius', 'bottomLeftRadius', 'bottomRightRadius',
+];
+const literalSpacing = (n, label) => {
+  const bound = n.boundVariables ?? {};
+  const props = n.layoutWrap === 'WRAP' ? [...SPACING, 'counterAxisSpacing'] : SPACING;
+  for (const prop of props) {
+    if (n[prop] > 0 && !bound[prop]) {
+      report.defects.push(`${label} — ${prop} ${n[prop]} is a literal, not a bound token`);
+    }
+  }
+};
+
+// Generation writes this as it snaps. Reading it back off the node means the
+// record survives the parallel fill lanes, which no lane's return value does.
+// A list rather than one record, because a node is bound property by property
+// and a single object would keep only the last property to move — which would
+// under-report the frame that drifted most. Guarded because this script is
+// atomic too: an unreadable record is worth a defect, not the loss of every
+// other check on the frame. The namespace matches what generate.md writes with;
+// plain plugin data is not reachable from this runtime.
+const collectDrift = (n) => {
+  const snaps = n.getSharedPluginData('pushpin', 'drift');
+  if (!snaps) return;
+  let records;
+  try { records = JSON.parse(snaps); } catch { records = null; }
+  if (!Array.isArray(records)) {
+    report.defects.push(`${n.name} — drift record is unreadable`);
+    return;
+  }
+  for (const d of records) report.drift.push({ node: n.name, ...d });
+};
 
 const localMains = new Map();
 
@@ -169,7 +220,7 @@ for (const d of page.findAllWithCriteria({ types: ['COMPONENT', 'COMPONENT_SET']
 }
 
 // Proposals must keep the type ramp and the token geometry of what they extend.
-// This is the drift that a rebuilt-from-scratch proposal shows first and that no
+// This is what a rebuilt-from-scratch proposal gets wrong first and what no
 // screenshot contradicts.
 for (const name of localMains.keys()) {
   const def = defs.get(name);
@@ -180,14 +231,11 @@ for (const name of localMains.keys()) {
       report.defects.push(`${name} / ${t.name} — raw font settings, not a published text style`);
     }
   }
+  // The definitions sit on the page rather than inside the frame, so the walk
+  // over `root` below does not reach them. Same check, second entry point.
   for (const n of [def, ...def.findAllWithCriteria({ types: ['FRAME'] })]) {
     if (inInstance(n)) continue;
-    const bound = n.boundVariables ?? {};
-    for (const prop of ['topLeftRadius', 'paddingLeft', 'paddingTop', 'itemSpacing']) {
-      if (n[prop] > 0 && !bound[prop]) {
-        report.defects.push(`${name} / ${n.name} — ${prop} ${n[prop]} is a literal, not a bound token`);
-      }
-    }
+    literalSpacing(n, `${name} / ${n.name}`);
   }
 }
 
@@ -204,11 +252,25 @@ for (const n of root.findAllWithCriteria({ types: ['FRAME', 'RECTANGLE'] })) {
   }
 }
 
-// Literal fills that should have been variable bindings.
+// `findAllWithCriteria` does not include the node it is called on, and the frame
+// itself is the container most likely to carry padding — so it is also the one
+// most likely to have snapped, and its record would go uncollected by a walk
+// that starts at its children.
+literalSpacing(root, root.name);
+collectDrift(root);
+
+// Literal fills, literal spacing, and recorded drift, over one walk. All three
+// skip nodes inside an instance for the same reason: the library owns that
+// styling, so flagging it would fail every screen that placed a component.
 const unbound = new Set();
 for (const n of root.findAllWithCriteria({ types: ['FRAME', 'RECTANGLE', 'TEXT'] })) {
+  if (inInstance(n)) continue;
+
+  collectDrift(n);
+  literalSpacing(n, n.name);
+
   const fills = n.fills;
-  if (!Array.isArray(fills) || inInstance(n)) continue;   // figma.mixed on multi-style text
+  if (!Array.isArray(fills)) continue;                    // figma.mixed on multi-style text
   for (const f of fills) {
     if (f.type === 'SOLID' && !(f.boundVariables && f.boundVariables.color)) {
       unbound.add(`${n.name} — literal fill, not a variable binding`);
@@ -229,7 +291,12 @@ for (const d of unbound) report.defects.push(d);
 // name and accept either type: the indexed type lookup narrows to both types, the
 // name test does the rest, and the pre-order is the same as that of the predicate
 // walk this replaces.
-const ANNOTATION = /^(Annotations|Capstones|Sticky Note)/;
+//
+// `Token drift` is in the pattern because that note is a `Dev Note` renamed off
+// the kit's own naming, and a name the pattern misses is a note free to sit on
+// the design. Its drawn stand-in is `Annotations (drawn) / Token drift`, which
+// the first alternative already covers.
+const ANNOTATION = /^(Annotations|Capstones|Sticky Note|Token drift)/;
 const annotations = page
   .findAllWithCriteria({ types: ['INSTANCE', 'FRAME'] })
   .filter((n) => ANNOTATION.test(n.name));
@@ -257,6 +324,21 @@ for (let i = 0; i < notesOnPage.length; i++) {
   if (box && hits(a, box) && !isPointer) {
     report.defects.push(`${notesOnPage[i].name} overlaps the design frame`);
   }
+}
+
+// A snap that was corrected and disclosed is a result. A snap that was corrected
+// silently is a design whose spacing is not the spacing anyone asked for, with
+// nothing on the canvas saying so.
+//
+// Either name discloses it: the instance is `Token drift`, and the drawn
+// stand-in carries the `Annotations (drawn) / ` prefix every other stand-in
+// carries. Requiring the bare name would have made the fallback undisclosable.
+const DRIFT_NOTE = /^(Annotations \(drawn\) \/ )?Token drift$/;
+if (report.drift.length && !annotations.some((n) => DRIFT_NOTE.test(n.name))) {
+  report.defects.push(
+    `${report.drift.length} snapped value${report.drift.length === 1 ? '' : 's'} recorded, ` +
+      `no Token drift note on the page`,
+  );
 }
 
 report.ok = report.defects.length === 0;
@@ -289,12 +371,12 @@ of the two arguments they are being asked to accept. The note is the entire
 reason local components are allowed at all; a proposal nobody argued for is an
 off-system element with better naming.
 
-**The derivation checks are the ones that catch drift.** A proposal built from
-scratch passes every structural check in the older version of this audit — it is
-a real component, it has a note, nothing about it is a lookalike — and is still
-wrong, because its type is raw font settings rather than a text style and its
-padding is a round number rather than a bound token. Those two checks are cheap
-and they are exactly the difference between "Chip plus a count badge" and
+**The derivation checks are the ones that catch a rebuild.** A proposal built
+from scratch passes every structural check in the older version of this audit —
+it is a real component, it has a note, nothing about it is a lookalike — and is
+still wrong, because its type is raw font settings rather than a text style and
+its padding is a round number rather than a bound token. Those two checks are
+cheap and they are exactly the difference between "Chip plus a count badge" and
 "something Chip-shaped". A proposal that derived properly passes them without
 trying, because the detached instance arrives with all of it already correct.
 
@@ -306,6 +388,23 @@ looks slightly off.
 The fill check has legitimate exceptions — a photograph, a scrim built by hand.
 Bind what can be bound, and name the rest in the handoff. Silently ignoring the
 bucket defeats it.
+
+**Spacing is held to the same standard as fills, everywhere rather than only
+inside proposals.** A padding of 24 that happens to equal the token is
+indistinguishable from the token in a screenshot and stops equalling it the first
+time the scale moves — and one-off layout, which needs no proposal and no note,
+is exactly where that goes unnoticed. This is the check that makes "bind every
+fill, radius, and gap" a rule rather than an intention.
+
+**Drift is the record of a value that was not on the scale.** Generation snaps to
+the nearest step and appends what it moved to a list on the node, so the audit
+reads the file rather than trusting what a fill lane remembered — and a frame
+that moved on its padding and its gap reports both rather than whichever was
+bound last. The snap itself is not a defect: it is already corrected and the
+binding is real. The defect is silence. A `Token drift` note is the only place
+the person receiving the design learns that the 80 in the brief is a 96 on the
+canvas, and a correction nobody was told about is the one way a spacing scale
+gets quietly renegotiated.
 
 **A node still carrying its shimmer is a section nothing ever wrote to.** The
 skeleton sets `placeholder = true` on every section before any content exists and
@@ -326,14 +425,15 @@ happened.
 A mobile screen with a TextInput, two Buttons, and a card:
 
 ```
-{ library: 5, proposed: [], unresolved: [], degraded: [], defects: [], ok: true }
+{ library: 5, proposed: [], unresolved: [], degraded: [], drift: [], defects: [], ok: true }
 ```
 
 Five instances resolved to remote main components (three placed directly, two
 nested inside them), nothing was drawn by hand, every icon is at its own size,
-and every fill on the hand-built containers was variable-bound. A run that passes
-also returns the frame's picture, which is where clipped text and overlap show up
-— the failures structure cannot rule out.
+every gap and corner asked for a value the scale already had, and every fill on
+the hand-built containers was variable-bound. A run that passes also returns the
+frame's picture, which is where clipped text and overlap show up — the failures
+structure cannot rule out.
 
 The same screen generated by an account that reaches Pushpin and nothing else
 returns `ok: true` as well, and says what it cost:
@@ -347,6 +447,7 @@ returns `ok: true` as well, and says what it cost:
     'icons — placeholder, library unreachable',
     'annotations — drawn, library unreachable',
   ],
+  drift: [{ node: 'Hero', prop: 'itemSpacing', from: 80, to: 96, source: 'intent' }],
   defects: [],
   ok: true,
 }
@@ -354,8 +455,11 @@ returns `ok: true` as well, and says what it cost:
 
 That is a worse screen than the first one and it is a screen. `ok: true` means
 nothing structural is wrong with what was built, not that nothing is missing —
-the two non-empty buckets are the report, and they are the part to lead with when
-handing it over.
+the three non-empty buckets are the report, and they are the part to lead with
+when handing it over. `drift` passed because the note is on the page — drawn,
+in this run, so named `Annotations (drawn) / Token drift`, which discloses the
+snap exactly as the instance would. The same run without that note is a defect
+and does not hand over.
 
 ## Custom work that is not a proposal
 
