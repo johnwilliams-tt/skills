@@ -14,8 +14,15 @@ import { join, resolve } from 'node:path';
  * The filename is the marker, so a command is recognizable as ours whether it
  * names the plugin's own copy or the project shim that stands in for it. Both
  * are called `pushpin-check.mjs` deliberately.
+ *
+ * The write guard runs through the same shim with `--guard` rather than as a
+ * second file, so one marker still finds every hook of ours and a project holds
+ * one thing to keep current instead of two.
  */
 export const HOOK_MARKER = 'pushpin-check.mjs';
+
+/** Tells the shim which delegate to run, and a manifest entry which job it does. */
+export const GUARD_FLAG = '--guard';
 
 /** Where the shim lives inside a project. */
 export const SHIM_REL = join('.pushpin', 'pushpin-check.mjs');
@@ -77,7 +84,7 @@ const samePath = (a, b) => {
  *
  * @param {string} dir
  * @returns {{ rel: string, harness: string, command: string, target: string | null,
- *             exists: boolean, kind: 'shim' | 'plugin' }[]}
+ *             exists: boolean, kind: 'shim' | 'plugin', role: 'check' | 'guard' }[]}
  */
 export function inspectHooks(dir) {
   const out = [];
@@ -101,6 +108,7 @@ export function inspectHooks(dir) {
         target,
         exists: Boolean(target && existsSync(target)),
         kind: target && samePath(target, shimAbs) ? 'shim' : 'plugin',
+        role: command.includes(GUARD_FLAG) ? 'guard' : 'check',
       });
     }
   }

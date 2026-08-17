@@ -1,5 +1,11 @@
 # Setting a project up
 
+**For a project's first time, use [setup.md](setup.md).** `/pushpin setup` asks
+what it cannot detect, runs this, hands off to `impeccable` for `PRODUCT.md`,
+and then checks what is actually true. `init` is the mechanical half of that,
+and the right call on its own for a re-run, a repair, or an update after the
+plugin moves.
+
 `init` is once per project, not once per agent. The marker is
 `pushpin.config.json`. A later session does not re-run this; it pin-checks on
 pickup via `freshness.mjs --offline --brief`, and speaks only when that pin is
@@ -33,10 +39,11 @@ session; a rule a script re-states on the edit that broke it does not.
 
 Two manifests, merged rather than replaced:
 
-| Harness | File | Event |
-|---|---|---|
-| Cursor | `.cursor/hooks.json` | `afterFileEdit` |
-| Claude Code | `.claude/settings.local.json` | `PostToolUse` on `Edit\|Write\|MultiEdit` |
+| Harness | File | Event | Hook |
+|---|---|---|---|
+| Cursor | `.cursor/hooks.json` | `afterFileEdit` | edit check |
+| Cursor | `.cursor/hooks.json` | `preToolUse` | write guard |
+| Claude Code | `.claude/settings.local.json` | `PostToolUse` on `Edit\|Write\|MultiEdit` | edit check |
 
 What they name is `.pushpin/pushpin-check.mjs` in the project, not this plugin.
 The plugin lives in a directory named after its version — a commit hash under
@@ -46,6 +53,9 @@ stops resolving on the next update, and because hooks fail open, the check goes
 silent rather than failing. The shim does not move, and locates the installed
 plugin at run time: `PUSHPIN_SKILL_DIR` if set, then the `pluginPath` recorded in
 `pushpin.config.json`, then a search of both hosts' plugin caches, newest first.
+The guard reaches the plugin through the same shim, called with `--guard`, so a
+project keeps one file current instead of two and one filename still identifies
+every hook of ours.
 
 Both manifests are still machine-local, because the path into the project is
 absolute: correct for whoever ran `init`, meaningless to anyone else.
@@ -66,6 +76,8 @@ cannot express — a deliberate `--no-hook` — and it is respected in silence.
 Everything else is read from the manifests, so a session-start check can tell a
 project that predates the hook from one whose hook has quietly stopped working.
 
+## The generated files
+
 It also writes a `DESIGN.md` and an `.impeccable/design.json` sidecar generated
 from the token capture. Together they are the token allowlist that `impeccable`
 and other tools reading that format check against, which makes a hardcoded
@@ -82,34 +94,70 @@ own doctrine says the brief wins, so a generated Overview, Colors, Typography,
 Layout, Elevation, Shapes, Components, and Do's and Don'ts is how Pushpin
 governs the decisions no allowlist can express.
 
+### Neither is allowed to be replaced
+
+`impeccable init` leaves an existing `DESIGN.md` alone. `/impeccable document`
+does not: it regenerates both files from scratch and replaces Pushpin with an
+invented visual world, and every check downstream keeps passing against the
+wrong system. This is not a hypothetical misuse — impeccable's own
+`design-md-drift` finding recommends `document` by name when the visual source
+directories have moved on, so the suggestion arrives with authority.
+
+Three things now stop it, in order of how much they can be relied on:
+
+1. **The recorded hashes.** `init` writes `designHash` and `sidecarHash` into
+   `pushpin.config.json`, so a replaced or hand-edited file is reported by the
+   edit hook on the edit that caused it, and by the pin check at session start.
+   This is the layer that carries the weight: it works on every harness, adds no
+   new hook, and catches a write however it arrived.
+2. **The write guard**, on Cursor's `preToolUse`, which refuses a whole-file
+   write that would strip the generated marker. The only layer that prevents
+   rather than reports, and the weakest — one harness, and hooks fail open.
+3. **The `AGENTS.md` note and the `@generated` marker**, which is what an agent
+   reads before it tries.
+
+Nothing is lost by refusing, which is what makes a block affordable here: both
+files are machine-written, and `pushpin init --write --force` reproduces them
+exactly. When a staleness check flags either one, that is the fix. Never
+`document`.
+
 ## The order it goes in
 
-`impeccable` is assumed installed. Run the three in this order, once per
-project:
+Two commands, once per project, and `/pushpin setup` runs both for you:
 
 1. `/pushpin init --write` — tokens, the two generated files, `AGENTS.md`, and
-   the Pushpin edit hook.
+   the Pushpin hooks.
 2. `/impeccable init` — **`PRODUCT.md` only.** Pushpin must not generate that
    file: it is product truth, not design truth, and `impeccable` boot emits
    `NO_PRODUCT_MD` and routes into its own interview to get it right.
-3. `/impeccable hooks on` — what actually makes the detector run per edit.
-   Without it the two generated files are read at boot and little else.
 
-Step 3 last is what keeps the two hooks from saying the same thing twice.
-`check.mjs` looks for `.impeccable/design.json` alongside an installed
-impeccable hook, and where it finds both it drops the token half of its own
-report and keeps only the component findings — the undeclared lookalike and the
-declaration that names nothing real, which impeccable structurally cannot make
-because it knows the token ramps and not the component catalog. Turning
-impeccable's hooks on after Pushpin's is therefore free; the deduplication is
-decided per run, not at install time.
+### Why `/impeccable hooks on` is not step three
 
-Running `init` second is deliberate. `impeccable init` leaves an existing
-`DESIGN.md` alone; what does not is `/impeccable document`, which regenerates
-both files from scratch and replaces Pushpin with an invented visual world. The
-`AGENTS.md` note says so, and the `@generated` marker in the `DESIGN.md`
-frontmatter keeps live mode from writing variants into it. When a staleness
-check flags either file, the fix is `pushpin init --write --force`.
+It used to be listed here as "what actually makes the detector run per edit."
+That is wrong for most installs, and worth stating plainly because the gap it
+leaves behind looks like a bug.
+
+`hook-admin.mjs` skips every manifest target unless the project holds a provider
+folder for it — `.cursor/skills/impeccable`, `.claude/skills/impeccable`, and so
+on. With the usual user-global install there is no such folder, so the command
+finds nothing to act on and installs nothing. Running it is harmless and
+achieves nothing.
+
+**Pushpin does not wire it up, and the absence costs almost nothing.**
+`check.mjs` reports the token half itself — the raw hex, the square control, the
+off-ramp font — and steps aside only when it finds an impeccable hook already
+installed, which it detects from the manifests rather than assuming. So the
+token coverage is there either way, and what an installed impeccable hook would
+add is its non-token rules plus a block in place of a report. That is not worth
+Pushpin writing a hook into a path another skill owns.
+
+The deduplication still works where the hook does exist: `check.mjs` looks for
+`.impeccable/design.json` alongside an installed impeccable hook, and where it
+finds both it drops the token half of its own report and keeps only the
+component findings — the undeclared lookalike and the declaration that names
+nothing real, which impeccable structurally cannot make because it knows the
+token ramps and not the component catalog. The decision is made per run, not at
+install time, so the order the two are installed in does not matter.
 
 It never overwrites content you could have authored without `--force`, and it is
 safe to re-run. The two exceptions are the hook shim and the hook manifests,

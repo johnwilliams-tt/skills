@@ -20,6 +20,7 @@ import { dirname, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { hashAsset } from './canonical.mjs';
+import { GENERATED, generatedState } from './lib/generated.mjs';
 import { inspectHooks } from './lib/hooks.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -71,6 +72,26 @@ export function inspectPin(dir, { manifest, pluginVersion }) {
       }
     }
 
+    // The two generated files. Both are read as the design system, and
+    // `/impeccable document` replaces them with an invented one — so an
+    // overwrite has to be noticed, and this is the check that notices it on any
+    // harness rather than only where a hook happens to be installed. A missing
+    // recorded hash means the project predates them, which is silence.
+    for (const g of GENERATED) {
+      const recorded = g.kind === 'design' ? prev.designHash : prev.sidecarHash;
+      const state = generatedState(target, g.rel, recorded, hashAsset);
+      if (state === 'absent') {
+        details.push(`${g.label}: is gone — the design system it carries is not being read`);
+        reasons.push('generated-absent');
+      } else if (state === 'replaced') {
+        details.push(`${g.label}: no longer carries Pushpin — it has been replaced`);
+        reasons.push('generated-replaced');
+      } else if (state === 'edited') {
+        details.push(`${g.label}: has been edited since it was written (hash no longer matches)`);
+        reasons.push('generated-edited');
+      }
+    }
+
     // Whether the hook is installed is answered by the manifests, not by
     // `checkHook`: the key records what was wanted, and a recorded claim about
     // files that another tool also edits can go stale. `checkHook === false` is
@@ -119,6 +140,17 @@ export function inspectPin(dir, { manifest, pluginVersion }) {
     // now, which outranks a stylesheet that is merely a version behind.
     const REMEDY = "re-running init with --write --force is the first thing I'd do";
     const briefs = [
+      // A design brief that is no longer Pushpin outranks every other finding:
+      // the rest describe checks that have stopped working, while this one is
+      // actively handing a different design system to everything that reads it.
+      [
+        'generated-replaced',
+        `This project's generated Pushpin design files have been replaced with a different design system, so anything reading them is building against the wrong one — ${REMEDY}, and never /impeccable document.`,
+      ],
+      [
+        'generated-absent',
+        `This project's generated Pushpin design files are gone, so tools that read them will invent a design system in their place — ${REMEDY}.`,
+      ],
       [
         'hook-broken',
         `This project's Pushpin edit check points at a plugin version that no longer exists, so nothing has been checking your edits — ${REMEDY}.`,
@@ -134,6 +166,10 @@ export function inspectPin(dir, { manifest, pluginVersion }) {
       [
         'plugin',
         `This project's Pushpin files were written by ${prev.pluginVersion} and the plugin is now ${pluginVersion} — ${REMEDY}.`,
+      ],
+      [
+        'generated-edited',
+        `This project's generated Pushpin design files have been hand-edited, which only makes the design-system checks disagree with the design system — ${REMEDY}.`,
       ],
       [
         'edited',

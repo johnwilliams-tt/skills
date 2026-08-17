@@ -40,7 +40,7 @@ offers to scaffold, serve, or screenshot a prototype. That is the user's build
 tool's work. Pushpin supplies the stylesheet, the rules, and the audit
 afterwards.
 
-This is also why `init` leads for a code project that has none of it yet. It is
+This is also why `setup` leads for a code project that has none of it yet. It is
 not a file-copying chore: it records Pushpin as this project's truth, so a tool
 that opens the repo later — in a session Pushpin never enters — follows the
 tokens rather than its own defaults.
@@ -53,17 +53,17 @@ one a line on what to do and a line on why it is worth doing now.
 | What is present | Lead with |
 |---|---|
 | A Figma link in the conversation | `generate` if the link is where new work should land; `audit` if the frame already exists and the question is whether it is on-system; `figma` if the design is settled and the goal is reading it out into code |
-| A code project with no `pushpin.config.json` | `init`, then `generate` |
-| The plugin's own source tree — `assets/` and the skill itself are in it | never `init`, since the plugin is not a project that consumes itself; `refresh` if the capture is aging, otherwise ask what to design |
-| A code project already initialized | `check` over the files being worked on, or answer the token question directly |
+| A code project with no `pushpin.config.json` | `setup`, then `generate` |
+| The plugin's own source tree — `assets/` and the skill itself are in it | never `setup` or `init`, since the plugin is not a project that consumes itself; `refresh` if the capture is aging, otherwise ask what to design |
+| A code project already set up | `check` over the files being worked on, or answer the token question directly |
 | This project's pin is behind | re-run `init` with `--write --force`, above everything else except an aged capture |
 | Neither a link nor a code project | `generate` — a Figma link is the only thing it needs — and a token or component question, which needs nothing set up at all: what the card radius is, which token a disabled label takes |
 | A capture over 30 days old | `refresh`, above everything else |
 
 Phrase each pick the way the user would say it rather than as a command to type
 — "mock up the booking screen in Figma", "check this directory for off-token
-values." Once a project is initialized, plain speech is the whole interface, and
-the menu should read that way from the start.
+values." Once a project is set up, plain speech is the whole interface, and the
+menu should read that way from the start.
 
 Two or three picks, no more. The fuller list is the Commands table in
 [../SKILL.md](../SKILL.md), plus the token and component questions that are not

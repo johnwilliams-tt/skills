@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
- * Makes pushpin/.claude-plugin/plugin.json the one place the version and the
- * catalog description are written, and pushes both everywhere else they appear.
+ * Makes pushpin/.claude-plugin/plugin.json the one place the version, the
+ * catalog description, and the display name are written, and pushes all three
+ * everywhere else they appear.
  *
  * The version lived in four files and the description in five, which is four
  * and five chances to publish a release nobody receives. Claude Code keys its
@@ -63,7 +64,7 @@ function bump(version, how) {
  * rather than performing the write lets --check and the real run share one
  * description of where things live, so they cannot disagree about it.
  */
-function mirrors(version, description, name) {
+function mirrors(version, description, displayName, name) {
   const cursorPlugin = readJson(CURSOR_PLUGIN);
   const claudeMarket = readJson(CLAUDE_MARKET);
   const cursorMarket = readJson(CURSOR_MARKET);
@@ -91,6 +92,13 @@ function mirrors(version, description, name) {
       set: () => writeJson(CURSOR_PLUGIN, { ...cursorPlugin, version, description }),
     },
     {
+      what: `${show(CURSOR_PLUGIN)} displayName`,
+      is: cursorPlugin.displayName ?? null,
+      want: displayName,
+      set: () =>
+        writeJson(CURSOR_PLUGIN, { ...cursorPlugin, version, description, displayName }),
+    },
+    {
       what: `${show(SKILL)} version`,
       is: skillVersion[1].trim(),
       want: version,
@@ -105,6 +113,15 @@ function mirrors(version, description, name) {
         claudeEntry.description = description;
         // A version here would be shadowed by plugin.json without warning.
         delete claudeEntry.version;
+        writeJson(CLAUDE_MARKET, claudeMarket);
+      },
+    },
+    {
+      what: `${show(CLAUDE_MARKET)} displayName`,
+      is: claudeEntry.displayName ?? null,
+      want: displayName,
+      set: () => {
+        claudeEntry.displayName = displayName;
         writeJson(CLAUDE_MARKET, claudeMarket);
       },
     },
@@ -126,6 +143,15 @@ function mirrors(version, description, name) {
         writeJson(CURSOR_MARKET, cursorMarket);
       },
     },
+    {
+      what: `${show(CURSOR_MARKET)} displayName`,
+      is: cursorEntry.displayName ?? null,
+      want: displayName,
+      set: () => {
+        cursorEntry.displayName = displayName;
+        writeJson(CURSOR_MARKET, cursorMarket);
+      },
+    },
   ];
 }
 
@@ -135,6 +161,7 @@ const name = source.name;
 
 let version = source.version;
 if (!version) throw new Error(`${show(SOURCE)} has no version`);
+if (!source.displayName) throw new Error(`${show(SOURCE)} has no displayName`);
 
 if (arg && arg !== '--check') {
   if (!['major', 'minor', 'patch'].includes(arg) && !SEMVER.test(arg)) {
@@ -145,7 +172,9 @@ if (arg && arg !== '--check') {
   writeJson(SOURCE, { ...source, version });
 }
 
-const drifted = mirrors(version, source.description, name).filter((m) => m.is !== m.want);
+const drifted = mirrors(version, source.description, source.displayName, name).filter(
+  (m) => m.is !== m.want,
+);
 
 if (arg === '--check') {
   if (source.version !== version || drifted.length) {

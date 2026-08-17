@@ -1,8 +1,8 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.8.0
-argument-hint: "[generate|audit|figma|check · init|freshness · refresh] [target]"
+version: 0.9.0
+argument-hint: "[generate|audit|figma|check · setup|init|freshness · refresh] [target]"
 allowed-tools:
   - Bash(${CLAUDE_SKILL_DIR}/scripts/*)
 ---
@@ -34,7 +34,8 @@ If `node` is missing, do not skip the obligation and do not stop. Read
 `pushpin.config.json`, compare `pluginVersion`, `capturedAt`, and `cssHash` to
 the plugin's manifest and `.claude-plugin/plugin.json`. Recent and matching
 means silence. Old or behind means one sentence in the user's voice, and only
-then add that the key checks are unavailable until `node` is installed.
+then add that the key checks stay unavailable until Node is installed — for a
+designer that is the `.pkg` from nodejs.org, not a terminal session.
 
 That is the whole obligation, and it is stated once. Nothing further down
 repeats it. Asking for `/pushpin freshness` still prints the full layer table —
@@ -82,7 +83,7 @@ create a file, start in a scratch one, or build and offer to move it — see
 
 ## Routing
 
-Seven commands, and after `init` none of them need typing — the left column
+Eight commands, and after `setup` none of them need typing — the left column
 covers the same ground from plain speech. Load one doc, not the table.
 
 | The request sounds like | Load |
@@ -92,7 +93,8 @@ covers the same ground from plain speech. Load one doc, not the table.
 | **`audit`** — "does this match Pushpin", "review this frame" | [audit.md](reference/audit.md) |
 | **`figma`** — a figma.com link where code is the goal, "build this screen" | [figma.md](reference/figma.md) |
 | **`check`** — raw hex, square corners, off-token spacing, or an undeclared lookalike in a repo | [tokens.md](reference/tokens.md) |
-| **`init`** — "set this repo up", a project with no `pushpin.config.json`. Once per project | [init.md](reference/init.md) |
+| **`setup`** — "set this repo up", "start a project", no `pushpin.config.json`. Once per project | [setup.md](reference/setup.md) |
+| **`init`** — re-run, repair, or update a project already set up | [init.md](reference/init.md) |
 | **`freshness`** — "can I trust this", "when was this captured" | [maintaining.md](reference/maintaining.md) |
 | **`refresh`** — "Pushpin shipped a release", the kit moved, `freshness` exited non-zero | [maintaining.md](reference/maintaining.md) |
 | "what's our card radius", "which token for a disabled label", dark mode | [tokens.md](reference/tokens.md) |
@@ -109,8 +111,8 @@ covers the same ground from plain speech. Load one doc, not the table.
   rows genuinely fit; when one is plainly stronger, pick it instead of asking.
 - **No signal** — ordinary design work under the hard rules below, on whichever
   surface [Which surface](#which-surface) settled. No signal is not a licence to
-  pick one. Once a project is initialized, plain speech is the whole interface
-  and nothing here needs to be invoked by name.
+  pick one. Once a project is set up, plain speech is the whole interface and
+  nothing here needs to be invoked by name.
 
 ## Using it in a project
 

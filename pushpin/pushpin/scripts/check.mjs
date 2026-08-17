@@ -5,10 +5,13 @@
  *
  * Two classes, matching reference/tokens.md § Checking code:
  *
- * - **Token findings** — a value that bypassed a token. In a project that ran
- *   `init` and turned impeccable's hooks on, these are already reported live by
- *   its detector reading the same ramps out of the generated DESIGN.md, so
- *   `--component-only` turns them off rather than saying everything twice.
+ * - **Token findings** — a value that bypassed a token. Where an impeccable hook
+ *   is actually installed, its detector already reports these live from the same
+ *   ramps in the generated DESIGN.md, so `--component-only` turns them off rather
+ *   than saying everything twice. That is the uncommon case — impeccable's hook
+ *   installer only acts on projects holding a provider folder of its own — so
+ *   this half is usually ours to report, and `impeccableIsLive` reads the
+ *   manifests rather than assuming either way.
  * - **Component identity** — markup that reads as a published component while
  *   declaring nothing, and declarations that name nothing real. This is the
  *   half no token allowlist can express, and the half impeccable structurally

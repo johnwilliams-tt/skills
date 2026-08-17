@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 /**
- * Project-local stand-in for the plugin's edit hook. Copied into a project as
+ * Project-local stand-in for the plugin's hooks. Copied into a project as
  * `.pushpin/pushpin-check.mjs` by `init.mjs`, and named in both hook manifests
  * instead of the plugin's own path.
+ *
+ * It stands in for two of them: the edit check by default, and the write guard
+ * when called with `--guard`.
  *
  * The plugin lives in a directory named after its version — a commit hash under
  * Cursor, a semver under Claude Code — and Cursor keeps exactly one, deleting
@@ -27,7 +30,13 @@ import { fileURLToPath } from 'node:url';
 
 const SELF = fileURLToPath(import.meta.url);
 const HERE = dirname(SELF);
-const HOOK_REL = join('scripts', 'hooks', 'pushpin-check.mjs');
+
+// Two hooks reach the plugin through this one file: the edit check, and the
+// write guard that runs before a write lands. One shim rather than two because
+// the manifests recognize our hooks by this filename, and a project has one
+// thing to keep current instead of two.
+const GUARD = process.argv.slice(2).includes('--guard');
+const HOOK_REL = join('scripts', 'hooks', GUARD ? 'pushpin-guard.mjs' : 'pushpin-check.mjs');
 
 /** Exit quietly. The only exit this script has. */
 const done = (payload) => {

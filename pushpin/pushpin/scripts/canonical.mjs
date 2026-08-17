@@ -24,8 +24,11 @@ export function canonical(v) {
   return JSON.stringify(v);
 }
 
+export function hashText(body) {
+  return createHash('sha256').update(body).digest('hex').slice(0, 16);
+}
+
 export function hashAsset(path) {
   const raw = readFileSync(path, 'utf8');
-  const body = path.endsWith('.json') ? canonical(JSON.parse(raw)) : raw;
-  return createHash('sha256').update(body).digest('hex').slice(0, 16);
+  return hashText(path.endsWith('.json') ? canonical(JSON.parse(raw)) : raw);
 }

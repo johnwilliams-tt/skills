@@ -18,7 +18,92 @@ the toolchain, which `diff.mjs` has no category for.
 
 ## Unreleased
 
-Nothing yet.
+**Changed**
+
+- **The plugin is presented as "Pushpin Design System".** The identifier is
+  untouched: `name` stays `pushpin`, so `/pushpin`, `pushpin@johnwilliams-skills`,
+  the `enabledPlugins` entry `init` writes into `.claude/settings.json`, and every
+  install already out there keep resolving. Only `displayName` changed, in both
+  plugin manifests and both marketplace entries, along with the README's title.
+  `version.mjs` now mirrors `displayName` the way it already mirrors the version
+  and the description, so the catalog name is written once — in
+  `pushpin/.claude-plugin/plugin.json` — and `--check` fails when a copy drifts.
+
+**Fixed**
+
+- **The one prerequisite that stops a new user was listed last, and installed
+  with a command that assumes another prerequisite.** macOS ships neither Node
+  nor Homebrew, on any version, so `brew install node` was three undocumented
+  steps away from running: Xcode Command Line Tools, the Homebrew install script,
+  and a `shellenv` line in `~/.zprofile` without which the next command reports
+  `brew: command not found`. Node now leads "Before you start" and is installed by
+  downloading the `.pkg` from nodejs.org — a double-click and a Mac password, no
+  terminal at any point, and not blocked on a managed Mac. Homebrew and the
+  version managers stay as an aside for people who already have them, alongside
+  the Node 18 floor that global `fetch` in `freshness.mjs` and
+  `pull-published.mjs` sets. `SKILL.md` names the same installer in the one place
+  the agent reports `node` missing, since telling a designer a binary is absent
+  without saying where to get it is the same gap one layer down.
+
+## 0.9.0 — 2026-08-14
+
+Setting a project up was four commands in a particular order, one of which does
+nothing on most installs, and it ended by printing advice nobody could verify
+had been taken. The people this is built for are designers, and the failure was
+not that the steps were hard — it is that a project could sit half configured
+with every individual check reporting health.
+
+The other half of this release is the rule `AGENTS.md` has always stated and
+nothing enforced: `/impeccable document` replaces `DESIGN.md` and
+`.impeccable/design.json` with an invented design system, and every check
+downstream keeps passing against the wrong one. That rule was a sentence in a
+file, competing with impeccable's own staleness finding, which recommends
+`document` by name.
+
+**Added**
+
+- **`/pushpin setup`, the front door.** One command for the whole job. It reads
+  the project first and asks only what the project cannot answer itself —
+  whether this is a prototype or a real one, what to do about files that are
+  already there, and where the stylesheet goes when no styles directory is
+  recognizable. Then it runs `init`, hands off to `impeccable` for `PRODUCT.md`
+  rather than inventing product truth, and finishes by reporting what is
+  actually true instead of what to do next. `init` is unchanged and remains the
+  right call for a re-run, a repair, or an update.
+- **A backup that does not assume git.** `setup.mjs --backup` copies aside
+  everything `--force` would replace, into `.pushpin/backups/`. Offered whenever
+  there is no repository or the files are uncommitted, which is the common case
+  for the prototype folders this gets pointed at and exactly where an
+  overwrite is unrecoverable.
+- **The generated files are protected in three layers.** `init` records
+  `designHash` and `sidecarHash`, so an overwrite is reported by the edit hook on
+  the edit that caused it and by the pin check at session start, on every
+  harness. A write guard on Cursor's `preToolUse` refuses a whole-file write that
+  would strip the generated marker before it lands. Nothing is lost by refusing:
+  both files are machine-written and `init --write --force` reproduces them
+  exactly, which is what makes a block affordable in a plugin whose other hooks
+  never block. The hashes are the layer that carries the weight; the guard is one
+  harness and hooks fail open.
+- **The guard runs through the existing shim**, called with `--guard`, rather
+  than as a second file. One filename still identifies every hook of ours, so
+  `inspectHooks` and the repair path needed no new concept, and a project keeps
+  one thing current instead of two.
+
+**Fixed**
+
+- **`/impeccable hooks on` is no longer presented as step three.** It was
+  documented as "what actually makes the detector run per edit," and for a
+  user-global impeccable it installs nothing: its installer skips every manifest
+  target unless the project holds a provider folder such as
+  `.cursor/skills/impeccable`. Verified against a real initialized project, which
+  had no impeccable hook and no `.impeccable/config.json` despite having been set
+  up exactly as instructed. Pushpin does not wire it up — `check.mjs` already
+  reports the token half whenever impeccable's hook is absent, and steps aside
+  only when it finds one — so `setup --verify` states the true end state and the
+  docs no longer describe a gap that is working as designed.
+- **A re-run cannot report a manifest with two of our hooks as drift.** The
+  comparison was against a single expected command; it is against the expected
+  set per manifest now.
 
 ## 0.8.0 — 2026-08-14
 
