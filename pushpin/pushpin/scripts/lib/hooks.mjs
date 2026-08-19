@@ -15,14 +15,22 @@ import { join, resolve } from 'node:path';
  * names the plugin's own copy or the project shim that stands in for it. Both
  * are called `pushpin-check.mjs` deliberately.
  *
- * The write guard runs through the same shim with `--guard` rather than as a
- * second file, so one marker still finds every hook of ours and a project holds
- * one thing to keep current instead of two.
+ * The write guard and the preview run through the same shim with a flag rather
+ * than as separate files, so one marker still finds every hook of ours and a
+ * project holds one thing to keep current instead of three.
  */
 export const HOOK_MARKER = 'pushpin-check.mjs';
 
 /** Tells the shim which delegate to run, and a manifest entry which job it does. */
 export const GUARD_FLAG = '--guard';
+
+/**
+ * Brings the preview up. Unlike the other two this is never installed in a
+ * manifest — the edit check ensures the preview itself, so an edit does not
+ * need a second hook — and exists so a session can ask for the preview without
+ * knowing where the plugin is installed.
+ */
+export const PREVIEW_FLAG = '--preview';
 
 /** Where the shim lives inside a project. */
 export const SHIM_REL = join('.pushpin', 'pushpin-check.mjs');

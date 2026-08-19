@@ -123,7 +123,13 @@ node pushpin/scripts/check.mjs <dir>          # off-system values in code
 node pushpin/scripts/freshness.mjs            # capture age, layer by layer
 node pushpin/scripts/setup.mjs <dir> --verify # what a project actually has
 node pushpin/scripts/init.mjs <dir> --write   # set up, repair, or update a project
+node pushpin/scripts/preview.mjs --root <dir> # serve a prototype with caching off
 ```
+
+A project that has been set up does not need that last one: the edit hook starts
+the preview and restarts it whenever it has stopped. Run
+`node .pushpin/pushpin-check.mjs --preview` inside the project to bring it up
+without editing a file first.
 
 ## Project layout
 

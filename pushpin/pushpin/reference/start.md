@@ -36,9 +36,18 @@ the same rule.
 
 Pushpin's job is to make whatever does the building reference the system
 correctly — a browser prototype, a Figma push, a React screen. So the menu never
-offers to scaffold, serve, or screenshot a prototype. That is the user's build
-tool's work. Pushpin supplies the stylesheet, the rules, and the audit
-afterwards.
+offers to scaffold a prototype, design an app, or screenshot one. That is the
+user's build tool's work. Pushpin supplies the stylesheet, the rules, and the
+audit afterwards.
+
+Serving a flat prototype is the exception, and a narrow one. A project with a
+dev server of its own keeps it — Pushpin records the port and says when nothing
+answers there, and starts nothing. A project with no such server gets one from
+Pushpin, on the recorded port, restarted on the edit that finds it stopped. That
+is not building: nothing is scaffolded and no decision about the prototype is
+made. It is keeping the browser reachable, and the browser is where `check.mjs`
+and the token allowlist do their work and where the push back to Figma starts.
+See [init.md](init.md) § The preview.
 
 This is also why `setup` leads for a code project that has none of it yet. It is
 not a file-copying chore: it records Pushpin as this project's truth, so a tool
@@ -56,6 +65,7 @@ one a line on what to do and a line on why it is worth doing now.
 | A code project with no `pushpin.config.json` | `setup`, then `generate` |
 | The plugin's own source tree — `assets/` and the skill itself are in it | never `setup` or `init`, since the plugin is not a project that consumes itself; `refresh` if the capture is aging, otherwise ask what to design |
 | A code project already set up | `check` over the files being worked on, or answer the token question directly |
+| A project set up before the preview existed — `setup --verify` says it is not recorded | re-running `init` with `--write --force`, which is what starts keeping the prototype server up |
 | This project's pin is behind | re-run `init` with `--write --force`, above everything else except an aged capture |
 | Neither a link nor a code project | `generate` — a Figma link is the only thing it needs — and a token or component question, which needs nothing set up at all: what the card radius is, which token a disabled label takes |
 | A capture over 30 days old | `refresh`, above everything else |
@@ -76,8 +86,8 @@ is one click. Its options are the picks in the order they were just made,
 followed by two constants:
 
 - **Build it here and check it in the browser.** Your build tool builds it;
-  Pushpin supplies the tokens it has to build against, and `check` catches what
-  drifted.
+  Pushpin supplies the tokens it has to build against, keeps the preview
+  reachable, and `check` catches what drifted.
 - **Something else.** An open-ended option, since the picks are inferences and
   can all be wrong.
 

@@ -4,8 +4,9 @@
  * `.pushpin/pushpin-check.mjs` by `init.mjs`, and named in both hook manifests
  * instead of the plugin's own path.
  *
- * It stands in for two of them: the edit check by default, and the write guard
- * when called with `--guard`.
+ * It stands in for three of them: the edit check by default, the write guard
+ * when called with `--guard`, and the browser preview when called with
+ * `--preview`.
  *
  * The plugin lives in a directory named after its version — a commit hash under
  * Cursor, a semver under Claude Code — and Cursor keeps exactly one, deleting
@@ -31,12 +32,17 @@ import { fileURLToPath } from 'node:url';
 const SELF = fileURLToPath(import.meta.url);
 const HERE = dirname(SELF);
 
-// Two hooks reach the plugin through this one file: the edit check, and the
-// write guard that runs before a write lands. One shim rather than two because
-// the manifests recognize our hooks by this filename, and a project has one
-// thing to keep current instead of two.
-const GUARD = process.argv.slice(2).includes('--guard');
-const HOOK_REL = join('scripts', 'hooks', GUARD ? 'pushpin-guard.mjs' : 'pushpin-check.mjs');
+// Three hooks reach the plugin through this one file: the edit check, the write
+// guard that runs before a write lands, and the preview that keeps the browser
+// reachable. One shim rather than three because the manifests recognize our
+// hooks by this filename, and a project has one thing to keep current.
+const argv = process.argv.slice(2);
+const DELEGATE = argv.includes('--guard')
+  ? 'pushpin-guard.mjs'
+  : argv.includes('--preview')
+    ? 'pushpin-preview.mjs'
+    : 'pushpin-check.mjs';
+const HOOK_REL = join('scripts', 'hooks', DELEGATE);
 
 /** Exit quietly. The only exit this script has. */
 const done = (payload) => {
@@ -144,6 +150,10 @@ async function main() {
     out = execFileSync(process.execPath, [hook], {
       input,
       encoding: 'utf8',
+      // This file always sits in <project>/.pushpin/, so the directory above it
+      // is the project — which is what a delegate falls back to when the event
+      // does not name one, as it does not when the shim is run by hand.
+      cwd: resolve(HERE, '..'),
       // Under the harness timeout of 15s, and above the 10s the hook allows
       // check.mjs, so a slow check is reported rather than killed here.
       timeout: 12_000,

@@ -18,6 +18,36 @@ the toolchain, which `diff.mjs` has no category for.
 
 ## Unreleased
 
+**Added**
+
+- **The browser preview is Pushpin's to keep up.** A prototype server started as
+  an agent's shell job dies with that job — an interrupted turn, a torn-down
+  terminal, someone hitting stop — and nothing notices, so the next edit lands
+  against a page that cannot be reloaded and the reasonable repair is a second
+  server racing the first on the same port. `init` now records a `preview` block
+  in `pushpin.config.json`, and the edit hook asks whether the port is answering
+  and starts `scripts/preview.mjs` when it is not: detached into its own session,
+  so it outlives the turn, and serving `Cache-Control: no-store` on every
+  response. That header is why a server is shipped at all rather than a command
+  suggested — `python3 -m http.server` sends no `Cache-Control`, so the browser
+  guesses a freshness lifetime from the file's age and answers a reload from a
+  copy of the file that has since changed, which reads as the edit not working.
+  A project with a `dev` script of its own keeps it: the port is recorded, the
+  absence of an answer is reported, and nothing is started, because running
+  someone's `next dev` detached and out of sight of the terminal they expect it
+  in is not a design system's business. Nothing holding a port is ever killed —
+  a port answering something else, including a preview of a different directory,
+  is reported with `--preview-port` as the remedy and left alone. The preview
+  rides inside the existing edit check rather than as a fourth manifest entry, so
+  a project that already installed the hook gets it without re-running anything,
+  and `.pushpin/pushpin-check.mjs --preview` brings it up without editing
+  something first. This narrows the standing rule that Pushpin governs but does
+  not build, and the narrowing is deliberate: the browser is where `check.mjs`
+  and the token allowlist do their work and where the push back to Figma starts,
+  so keeping it reachable is governing rather than building. `--no-preview`
+  declines it, and a project set up before this existed records nothing until
+  `init --write --force`, which `setup --verify` now says.
+
 **Changed**
 
 - **The plugin is presented as "Pushpin Design System".** The identifier is

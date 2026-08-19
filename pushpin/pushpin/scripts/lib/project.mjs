@@ -1,6 +1,6 @@
 /**
- * What can be read off a project without asking: its stack, and where a
- * stylesheet would go.
+ * What can be read off a project without asking: its stack, where a stylesheet
+ * would go, and whether it already has a dev server of its own.
  *
  * Shared by `init.mjs`, which acts on it, and `setup.mjs`, which reports it
  * before anything is written. Two copies of this would drift into telling the
@@ -28,6 +28,29 @@ function hasRootHtml(target) {
   }
 }
 
+/** How this project runs a script, taken from whichever lockfile is present. */
+function runner(target) {
+  if (existsSync(join(target, 'pnpm-lock.yaml'))) return 'pnpm dev';
+  if (existsSync(join(target, 'yarn.lock'))) return 'yarn dev';
+  if (existsSync(join(target, 'bun.lockb'))) return 'bun run dev';
+  return 'npm run dev';
+}
+
+/**
+ * The port a framework's dev server takes by default. Guessed from the
+ * dependency rather than parsed out of the script, because the script is where
+ * a port is overridden and a wrong guess there would be stated as fact. An
+ * unknown port is recorded as null, which leaves the preview silent about a
+ * server it cannot find — the honest answer.
+ */
+function devPort(has) {
+  if (has('next')) return 3000;
+  if (has('vite')) return 5173;
+  if (has('@remix-run/dev')) return 3000;
+  if (has('react-scripts')) return 3000;
+  return null;
+}
+
 export function detectStack(target) {
   const pkgPath = join(target, 'package.json');
   let pkg = null;
@@ -50,12 +73,19 @@ export function detectStack(target) {
   // contradict that example in the one case it comes up.
   const flat = !found && hasRootHtml(target);
 
+  // A project that already has a way to serve itself keeps it. Pushpin's own
+  // preview is for the flat prototype that has none, where the alternative is
+  // an agent re-deriving a static server per project.
+  const hasDevScript = typeof pkg?.scripts?.dev === 'string' && pkg.scripts.dev.trim().length > 0;
+
   return {
     name: pkg?.name ?? null,
     react: has('react'),
     next: has('next'),
     tailwind: has('tailwindcss'),
     thumbprint: Object.keys(deps).some((d) => d.includes('thumbprint')),
+    devCommand: hasDevScript ? runner(target) : null,
+    devPort: hasDevScript ? devPort(has) : null,
     stylesDir: found ?? (flat ? '' : STYLE_FALLBACK),
     // Whether the destination was read off the project or fallen back to. Only
     // reported, never asked about: an empty directory is the only case that

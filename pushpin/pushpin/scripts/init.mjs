@@ -4,13 +4,14 @@
  *
  * Installs the token stylesheet, records the Figma keys so the bridge works
  * without re-deriving them, installs the edit hook that runs `check.mjs`,
- * leaves a note for agents working in the repo later, and offers the plugin to
- * anyone else who opens the repo. Prints a plan and changes nothing unless
- * --write is passed.
+ * records where the browser preview lives, leaves a note for agents working in
+ * the repo later, and offers the plugin to anyone else who opens the repo.
+ * Prints a plan and changes nothing unless --write is passed.
  *
  * Usage:
  *   node scripts/init.mjs <project-dir> [--write] [--force] [--css-path <p>]
  *                                       [--no-share] [--no-hook]
+ *                                       [--no-preview] [--preview-port <n>]
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync } from 'node:fs';
@@ -20,8 +21,9 @@ import { fileURLToPath } from 'node:url';
 import { canonical, hashAsset, hashText } from './canonical.mjs';
 import { renderDesignJson, renderDesignMd } from './impeccable-bridge.mjs';
 import { DESIGN_REL, SIDECAR_REL } from './lib/generated.mjs';
-import { GUARD_FLAG, hookCommands, SHIM_REL, withoutHook } from './lib/hooks.mjs';
+import { GUARD_FLAG, hookCommands, PREVIEW_FLAG, SHIM_REL, withoutHook } from './lib/hooks.mjs';
 import { ALLOWED_SCRIPTS, allowRules, SETTINGS_REL } from './lib/permissions.mjs';
+import { DEFAULT_PORT, previewUrl } from './lib/preview.mjs';
 import { describeStack, detectStack } from './lib/project.mjs';
 import { inspectPin } from './pin.mjs';
 
@@ -31,15 +33,25 @@ const ASSETS = join(here, '..', 'assets');
 const argv = process.argv.slice(2);
 const flag = (n) => argv.includes(n);
 const opt = (n, d) => (argv.includes(n) ? argv[argv.indexOf(n) + 1] : d);
-const target = resolve(argv.find((a) => !a.startsWith('--') && argv[argv.indexOf(a) - 1] !== '--css-path') ?? '.');
+/** Flags whose value follows them, so it is not mistaken for the target directory. */
+const VALUE_FLAGS = new Set(['--css-path', '--preview-port']);
+const target = resolve(argv.find((a, i) => !a.startsWith('--') && !VALUE_FLAGS.has(argv[i - 1])) ?? '.');
 
 const WRITE = flag('--write');
 const FORCE = flag('--force');
 const SHARE = !flag('--no-share');
 const HOOK = !flag('--no-hook');
+const PREVIEW = !flag('--no-preview');
+const PREVIEW_PORT_GIVEN = flag('--preview-port');
+const PREVIEW_PORT = Number(opt('--preview-port', DEFAULT_PORT));
 
 if (!existsSync(target)) {
   console.error(`No such directory: ${target}`);
+  process.exit(1);
+}
+
+if (!Number.isInteger(PREVIEW_PORT) || PREVIEW_PORT < 1 || PREVIEW_PORT > 65535) {
+  console.error(`--preview-port needs a port number, got: ${opt('--preview-port', '')}`);
   process.exit(1);
 }
 
@@ -139,6 +151,28 @@ if (ownTree) {
 const env = detectStack(target);
 const cssPath = opt('--css-path', join(env.stylesDir, 'pushpin.css'));
 
+/**
+ * Where this project's prototype is looked at, and whether Pushpin may start
+ * it.
+ *
+ * A project with a dev server of its own keeps it: running someone's `next dev`
+ * detached, out of sight of the terminal they expect it in, is not a design
+ * system's business, and those servers already watch and reload. The port is
+ * still recorded so the preview can say when nothing is answering there.
+ *
+ * A flat prototype has no such server, which is why every one of them ends up
+ * with a hand-written one that dies with the shell that started it. That is the
+ * case Pushpin serves.
+ *
+ * An explicit `--preview-port` says the static preview is wanted regardless,
+ * which is also the remedy offered when something else already holds the port.
+ */
+const preview = !PREVIEW
+  ? false
+  : env.devCommand && !PREVIEW_PORT_GIVEN
+    ? { port: env.devPort, command: env.devCommand, autostart: false }
+    : { port: PREVIEW_PORT, root: '.', autostart: true };
+
 const plan = [];
 const skipped = [];
 
@@ -209,7 +243,8 @@ planFile('pushpin.config.json', 'Figma keys and the capture this project is pinn
           '`capturedAt` and `pluginVersion` record which snapshot of the kit this stylesheet ' +
           'came from — compare them against the plugin to find out if it is behind. ' +
           '`designHash` and `sidecarHash` are what the two generated files hashed to when ' +
-          'they were written, which is what lets an overwrite of either be noticed.',
+          'they were written, which is what lets an overwrite of either be noticed. ' +
+          '`preview` is where the prototype is served and whether Pushpin may start it.',
         designSystem: 'pushpin',
         pluginVersion: PLUGIN.version,
         capturedAt: MANIFEST.capturedAt,
@@ -222,6 +257,10 @@ planFile('pushpin.config.json', 'Figma keys and the capture this project is pinn
         // go stale. This distinguishes a project that declined the hook with
         // --no-hook, which no manifest can express, from one that lost it.
         checkHook: HOOK,
+        // Where the prototype is served and who may start it. `false` is a
+        // deliberate --no-preview, and absent means a project set up before the
+        // preview existed — which is why the two are not the same value.
+        preview,
         // The install that ran init, and the shim's first choice when locating
         // the plugin. A hint rather than a dependency: it is checked for
         // existence, and the host caches are searched when it is gone.
@@ -575,6 +614,30 @@ planClaudeLocal();
 // The precedence line belongs here rather than only in SKILL.md because the
 // skills it constrains — impeccable, frontend-design, ui-ux-pro-max — can be
 // loaded into a session this skill never enters. AGENTS.md is read either way.
+/**
+ * What an agent opening this repo later needs to know about the preview.
+ *
+ * Naming the URL is the point. Without it the reasonable move on finding a
+ * dead page is to start a server — on a port of its own choosing, or on this
+ * one, racing the copy already there — which is how a project ends up with
+ * three of them and a browser tab pointed at whichever won.
+ */
+function previewNote() {
+  if (!preview) return '';
+  if (preview.autostart) {
+    return (
+      `- The prototype is served at ${previewUrl(preview.port)}, started and restarted for you\n` +
+      `  on edit, detached, with caching off. Do not start a second server for this project,\n` +
+      `  and do not kill whatever holds the port. To bring it up without editing anything:\n` +
+      `  \`node ${SHIM_REL} ${PREVIEW_FLAG}\`.\n`
+    );
+  }
+  return (
+    `- This project is served by its own dev server (\`${preview.command}\`), which Pushpin\n` +
+    `  does not start or stop.\n`
+  );
+}
+
 const NOTE = `## Design system
 
 This project uses **Pushpin**, Thumbtack's design system.
@@ -607,7 +670,7 @@ This project uses **Pushpin**, Thumbtack's design system.
 - An edit hook reports off-system values in the file you just wrote. To ask for
   the same report yourself, or to check a file the hook did not see:
   \`node <pushpin>/scripts/check.mjs <path>\`.
-- Component and token names are case-sensitive and not guessable — look one up
+${previewNote()}- Component and token names are case-sensitive and not guessable — look one up
   with \`node <pushpin>/scripts/lookup.mjs <name>\` rather than typing it from
   memory.
 - Figma source of truth: \`${SOURCE.fileName}\` (\`${SOURCE.fileKey}\`).
@@ -688,6 +751,18 @@ if (WRITE && plan.length) {
     console.log(`  2. Build with the custom properties; see the skill's reference/tokens.md.`);
   }
   console.log(`  3. Thumbtack Rise is not bundled here — install it or set --pp-font-family.`);
+
+  if (preview && preview.autostart) {
+    console.log(`\nPreview: ${previewUrl(preview.port)}`);
+    console.log(`  Started for you on the next edit, and restarted whenever it has stopped —`);
+    console.log(`  detached, so it survives the turn that started it. Caching is off, so a`);
+    console.log(`  reload cannot answer from the file you just changed.`);
+    console.log(`  Add .pushpin/preview.log and .pushpin/preview.pid to .gitignore.`);
+  } else if (preview && preview.command) {
+    console.log(`\nPreview: this project has its own dev server — \`${preview.command}\`.`);
+    console.log(`  Pushpin does not start it. It says so when nothing answers${preview.port ? ` on port ${preview.port}` : ''},`);
+    console.log(`  and \`--preview-port <n>\` puts Pushpin's own static preview alongside it.`);
+  }
 
   if (plan.some((p) => p.rel === SETTINGS_REL)) {
     console.log(

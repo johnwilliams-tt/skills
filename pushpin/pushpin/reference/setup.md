@@ -55,7 +55,9 @@ skips it for anyone who asks for that; setup does not choose it.
 
 The stylesheet destination is read off the project — a recognized styles
 directory, or beside a page at the root when there is no such directory — so
-there is nothing to ask there either.
+there is nothing to ask there either. Neither is the preview: a project with a
+`dev` script keeps its own server and Pushpin only reports on it, and one
+without gets Pushpin's. `--assess` prints which of the two it will be.
 
 ## 3. PRODUCT.md, which is not ours to write
 
@@ -80,6 +82,13 @@ things: everything done, working but improvable, and unfinished. Do not upgrade
 the middle one — a project set up before the generated-file hashes existed is
 genuinely working and genuinely unprotected, and telling someone their files are
 guarded when they are not is the specific failure this command was built after.
+
+The `preview` row is asked of the port rather than read out of the config, so it
+reports what a browser would actually find there. A preview that is simply not
+running yet is a note, not a fault — the next edit starts it. A port answering
+something else is a fault, because the URL the user has open is showing them
+another project, and the remedy is `--preview-port`, never killing whatever
+holds it. See [init.md](init.md) § The preview.
 
 ## What to say about impeccable's per-edit detector
 

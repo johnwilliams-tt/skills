@@ -12,18 +12,21 @@ behind.
 
 It installs the token stylesheet somewhere idiomatic for the stack it detects,
 writes `pushpin.config.json` with the Figma keys so the bridge works without
-re-deriving them, installs the edit hook that runs `check.mjs`, pre-approves the
-scripts that only read so they stop asking, adds a short `AGENTS.md` section so
-an agent opening the repo later knows the system is in use and outranks its own
-defaults, and declares this marketplace in `.claude/settings.json`, with
-auto-update on, so the next person to open the repo is offered the plugin and
-nobody ends up pinned to a capture that has stopped matching the kit.
+re-deriving them, installs the edit hook that runs `check.mjs`, records where
+the browser preview lives, pre-approves the scripts that only read so they stop
+asking, adds a short `AGENTS.md` section so an agent opening the repo later
+knows the system is in use and outranks its own defaults, and declares this
+marketplace in `.claude/settings.json`, with auto-update on, so the next person
+to open the repo is offered the plugin and nobody ends up pinned to a capture
+that has stopped matching the kit.
 
 ```bash
-node scripts/init.mjs <project-dir>             # print a plan, change nothing
-node scripts/init.mjs <project-dir> --write     # apply it
-node scripts/init.mjs <project-dir> --no-share  # skip .claude/settings.json
-node scripts/init.mjs <project-dir> --no-hook   # skip the edit hook
+node scripts/init.mjs <project-dir>                    # print a plan, change nothing
+node scripts/init.mjs <project-dir> --write            # apply it
+node scripts/init.mjs <project-dir> --no-share         # skip .claude/settings.json
+node scripts/init.mjs <project-dir> --no-hook          # skip the edit hook
+node scripts/init.mjs <project-dir> --no-preview       # skip the browser preview
+node scripts/init.mjs <project-dir> --preview-port 8200  # put the preview somewhere else
 ```
 
 ## The edit hook
@@ -84,6 +87,62 @@ another tool also edits can go stale. `checkHook: false` is the one thing they
 cannot express — a deliberate `--no-hook` — and it is respected in silence.
 Everything else is read from the manifests, so a session-start check can tell a
 project that predates the hook from one whose hook has quietly stopped working.
+
+## The preview
+
+A prototype server started as an agent's shell job dies with that job — when the
+turn is interrupted, when the terminal is torn down, when someone hits stop.
+Nothing notices, so the next edit lands against a page that cannot be reloaded,
+and the reasonable repair is to start a second copy on the same port and race
+the first. The failure is cheap to cause and expensive to read: the page looks
+broken in a way that resembles the edit not working.
+
+So the same hook that reports off-system values also asks whether the preview is
+answering, and starts it when it is not. It rides along inside the edit check
+rather than as a second manifest entry, which means a project that already
+installed the hook gets this without re-running anything.
+
+What it starts is `scripts/preview.mjs`: a static server on loopback with
+`Cache-Control: no-store` on every response. That header is the point of
+shipping a server at all. `python3 -m http.server` sends `Last-Modified` and no
+`Cache-Control`, which leaves the browser free to guess a freshness lifetime
+from the file's age and answer a reload from its own copy of a file that has
+since changed — so the page runs an old build while the source on screen says
+otherwise, and the next fix is aimed at the wrong thing.
+
+`preview` in `pushpin.config.json` records the decision:
+
+| The project | What is recorded | What happens |
+|---|---|---|
+| A flat prototype, no `dev` script | `{ port, root, autostart: true }` | Pushpin serves it and restarts it |
+| Its own dev server — `next dev`, `vite`, any `dev` script | `{ port, command, autostart: false }` | Pushpin says when nothing answers, and starts nothing |
+| `--no-preview` | `false` | Nothing, in silence |
+| Set up before this existed | the key is absent | Nothing, until `init --write --force` records it |
+
+**A framework's dev server is not Pushpin's to run.** Those already watch and
+reload, and starting someone's `next dev` detached, out of sight of the terminal
+they expect it in, is not a design system's business. `--preview-port` overrides
+the detection where the static preview is wanted anyway.
+
+Detached is what makes it survive: the server is spawned in its own session and
+reparented, so nothing that cleans up after the hook, the turn, or the terminal
+can reach it. Two edits landing together take a lock in `.pushpin/`, so a burst
+starts one server rather than a race.
+
+**Nothing holding the port is ever killed.** A port answering something that is
+not this project's preview — another tool, or a preview of a different directory
+— is reported with the remedy (`--preview-port`) and left alone. Killing a
+process the plugin did not start is not a recovery anyone asked for.
+
+Add `.pushpin/preview.log` and `.pushpin/preview.pid` to `.gitignore`; they are
+this machine's. To bring the preview up without editing anything:
+
+```bash
+node .pushpin/pushpin-check.mjs --preview
+```
+
+That is the project shim again, with a third role beside the check and the
+guard, so a project still keeps one file current rather than three.
 
 ## The permission prompts
 

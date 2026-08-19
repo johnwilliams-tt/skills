@@ -32,6 +32,7 @@ import { hashAsset } from './canonical.mjs';
 import { GENERATED, generatedState } from './lib/generated.mjs';
 import { inspectHooks } from './lib/hooks.mjs';
 import { ALLOWED_SCRIPTS, missingAllowRules, SETTINGS_REL } from './lib/permissions.mjs';
+import { DEFAULT_PORT, previewUrl, probe, readPreview, servesRoot } from './lib/preview.mjs';
 import { describeStack, detectStack } from './lib/project.mjs';
 import { inspectPin } from './pin.mjs';
 
@@ -171,6 +172,30 @@ function existingArtifacts() {
   return candidates.filter((rel) => existsSync(join(target, rel)));
 }
 
+/**
+ * The preview this project has, or the one init would give it.
+ *
+ * `declined` and `absent` are different answers: the first is a --no-preview
+ * that is respected, the second is a project set up before the preview existed.
+ */
+function plannedPreview() {
+  if (config?.preview === false) return { state: 'declined' };
+  const recorded = readPreview(target);
+  if (recorded) {
+    return {
+      state: 'recorded',
+      ...recorded,
+      url: recorded.port ? previewUrl(recorded.port) : null,
+    };
+  }
+  if (config) return { state: 'absent' };
+  // Never set up. Same decision init.mjs makes, so the two cannot disagree
+  // about what setup is about to do.
+  return env.devCommand
+    ? { state: 'planned', port: env.devPort, command: env.devCommand, autostart: false, url: env.devPort ? previewUrl(env.devPort) : null }
+    : { state: 'planned', port: DEFAULT_PORT, root: '.', autostart: true, command: null, url: previewUrl(DEFAULT_PORT) };
+}
+
 function assess() {
   const existing = existingArtifacts();
   const git = gitSafety(existing);
@@ -196,6 +221,11 @@ function assess() {
     state: config ? 'initialized' : 'fresh',
     pin: pin ? { status: pin.status, details: pin.details } : null,
     css: { rel: config?.css?.replace(/^\.\//, '') ?? cssRel, guessed: env.stylesDirGuessed },
+    // What the preview will be, whether it is already recorded or is about to
+    // be read off the project. Reported for the same reason the stylesheet
+    // destination is: it is decided without asking, so it is shown rather than
+    // discovered afterwards.
+    preview: plannedPreview(),
     existing,
     git,
     impeccable: { ...impeccable, productMd },
@@ -213,6 +243,19 @@ function printAssess(a) {
 
   console.log(
     `\nStylesheet: ${a.css.rel}${a.css.guessed ? ' (guessed — nothing here says where a stylesheet goes)' : ''}`,
+  );
+
+  const p = a.preview;
+  console.log(
+    `Preview: ${
+      p.state === 'declined'
+        ? 'declined with --no-preview'
+        : p.state === 'absent'
+          ? 'not recorded — this project was set up before the preview existed'
+          : p.autostart
+            ? `${p.url}, served by Pushpin`
+            : `\`${p.command}\`, this project's own — Pushpin does not start it`
+    }`,
   );
 
   if (a.existing.length) {
@@ -238,7 +281,7 @@ const OK = 'ok';
 const MISSING = 'missing';
 const NOTE = '--';
 
-function verify() {
+async function verify() {
   const rows = [];
   const advice = [];
   const row = (mark, name, detail) => rows.push({ mark, name, detail });
@@ -346,6 +389,51 @@ function verify() {
     advice.push(
       `\`node scripts/init.mjs ${target} --write\` pre-approves Pushpin's read-only scripts, so a catalog lookup stops asking.`,
     );
+  }
+
+  // The preview, asked of the port rather than of the config. What is recorded
+  // says where to look; only the answer on the port says whether looking there
+  // shows this project.
+  const pv = readPreview(target);
+  if (config.preview === false) {
+    row(NOTE, 'preview', 'declined with --no-preview, and respected');
+  } else if (!pv) {
+    row(NOTE, 'preview', 'not recorded, so nothing keeps the prototype server up');
+    advice.push(
+      `\`node scripts/init.mjs ${target} --write --force\` records the preview, which is what restarts the prototype server after it stops.`,
+    );
+  } else if (!pv.port) {
+    row(NOTE, 'preview', `served by \`${pv.command}\` on a port Pushpin cannot guess, so it says nothing about it`);
+  } else if (!pv.autostart) {
+    // Their dev server does not answer our identity route, so anything
+    // listening at all is the good answer here.
+    const state = (await probe(pv.port)).state;
+    row(
+      state === 'dead' ? NOTE : OK,
+      'preview',
+      state === 'dead'
+        ? `\`${pv.command}\` is not running on port ${pv.port}. Pushpin does not start it`
+        : `\`${pv.command}\` is answering on ${previewUrl(pv.port)}`,
+    );
+  } else {
+    const state = await probe(pv.port);
+    const expected = resolve(target, pv.root);
+    if (state.state === 'ours' && servesRoot(state.root, expected)) {
+      row(OK, 'preview', `serving at ${previewUrl(pv.port)}`);
+    } else if (state.state === 'dead') {
+      row(NOTE, 'preview', `not running — the next edit starts it at ${previewUrl(pv.port)}`);
+    } else {
+      row(
+        MISSING,
+        'preview',
+        state.state === 'ours'
+          ? `port ${pv.port} is serving ${state.root}, not this project`
+          : `port ${pv.port} is held by something that is not the Pushpin preview`,
+      );
+      advice.push(
+        `\`node scripts/init.mjs ${target} --write --force --preview-port <n>\` moves the preview to a free port. Nothing holding the current one is killed.`,
+      );
+    }
   }
 
   const agents = join(target, 'AGENTS.md');
@@ -460,7 +548,7 @@ if (BACKUP) {
   if (JSON_OUT) console.log(JSON.stringify(result, null, 2));
   else printBackup(result);
 } else if (VERIFY) {
-  result = verify();
+  result = await verify();
   if (JSON_OUT) console.log(JSON.stringify(result, null, 2));
   else printVerify(result);
   process.exit(result.ready ? 0 : 1);

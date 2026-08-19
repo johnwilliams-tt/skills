@@ -1,13 +1,14 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.9.2
+version: 0.9.3
 argument-hint: "[generate|audit|figma|check · setup|init|freshness · refresh] [target]"
 allowed-tools:
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/check.mjs *)
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/freshness.mjs *)
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/lookup.mjs *)
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/setup.mjs *)
+  - Bash(node .pushpin/pushpin-check.mjs *)
 ---
 
 Pushpin is Thumbtack's current design system — the successor to Thumbprint.
@@ -135,6 +136,15 @@ Link the generated stylesheet, then build with the custom properties:
 `assets/pushpin.css` defines 300 custom properties across colors (light and
 dark), spacing, radius, the type ramp, elevation, motion, and breakpoints, plus
 `.pp-*` type utilities. No dependencies and no build step.
+
+**A project that has been set up serves itself.** `init` records a preview port,
+and the edit hook restarts the server whenever an edit finds it stopped —
+detached, so it survives the turn, with caching off so a reload cannot answer
+from the file that was just changed. Do not start a second server, and do not
+kill whatever holds the port. `node .pushpin/pushpin-check.mjs --preview` brings
+it up without editing anything. A project with a dev server of its own keeps it;
+Pushpin only reports when nothing is answering. See
+[reference/init.md](reference/init.md) § The preview.
 
 **Names mirror Figma variable paths with `/` replaced by `-`** — the variable
 `background/brand/strong` is `--pp-background-brand-strong`. That is a hard rule
