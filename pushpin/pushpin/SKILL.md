@@ -1,10 +1,11 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.9.3
-argument-hint: "[generate|audit|figma|check · setup|init|freshness · refresh] [target]"
+version: 0.10.0
+argument-hint: "[generate|audit|figma|check|copy · setup|init|freshness · refresh] [target]"
 allowed-tools:
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/check.mjs *)
+  - Bash(node ${CLAUDE_SKILL_DIR}/scripts/copy.mjs *)
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/freshness.mjs *)
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/lookup.mjs *)
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/setup.mjs *)
@@ -14,12 +15,13 @@ allowed-tools:
 Pushpin is Thumbtack's current design system — the successor to Thumbprint.
 Rounder, softer, pill-first, built on a near-navy brand blue.
 
-**The Figma file is the source of truth.** Everything in `assets/` is generated
-from the Pushpin Thumbprint UI Kit (`VVRGrLgkPRU3vs765d5Q3r`). Where any other
-description of Pushpin disagrees with these tokens — a doc, an exported bundle,
-a hardcoded hex in an existing repo — the tokens win, and the disagreement is a
-bug to fix rather than a variant to preserve. See
-[reference/provenance.md](reference/provenance.md).
+**The Figma file is the source of truth.** The tokens, components, styles, and
+icons in `assets/` are generated from the Pushpin Thumbprint UI Kit
+(`VVRGrLgkPRU3vs765d5Q3r`). Where any other description of Pushpin disagrees
+with these tokens — a doc, an exported bundle, a hardcoded hex in an existing
+repo — the tokens win, and the disagreement is a bug to fix rather than a
+variant to preserve. Copy has a source of its own, captured under the same
+discipline. See [reference/provenance.md](reference/provenance.md).
 
 ## Start here
 
@@ -64,9 +66,13 @@ never around them** — none of them outranks a token, a published component, or
 the icon set, and extending the system has one legal route: a `Proposed / …`
 component, argued on canvas.
 
+**The words are Pushpin's too.** Thumbtack's content design rules are vendored
+here beside the tokens, and they govern copy on every surface for the whole
+session, with nothing to invoke — [reference/copy.md](reference/copy.md).
+
 What Pushpin leaves open is genuinely open, and those skills decide it. The
-tokens do not choose a layout, a hierarchy, a piece of copy, or a moment of
-motion, and deferring those to Pushpin is as much a mistake as overriding it.
+tokens do not choose a layout, a hierarchy, or a moment of motion, and deferring
+those to Pushpin is as much a mistake as overriding it.
 
 ## Which surface
 
@@ -94,7 +100,7 @@ create a file, start in a scratch one, or build and offer to move it — see
 
 ## Routing
 
-Eight commands, and after `setup` none of them need typing — the left column
+Nine commands, and after `setup` none of them need typing — the left column
 covers the same ground from plain speech. Load one doc, not the table.
 
 | The request sounds like | Load |
@@ -103,13 +109,15 @@ covers the same ground from plain speech. Load one doc, not the table.
 | **`generate`** — "mock this up in Figma", or a link to build against | [generate.md](reference/generate.md) |
 | **`audit`** — "does this match Pushpin", "review this frame" | [audit.md](reference/audit.md) |
 | **`figma`** — a figma.com link where code is the goal, "build this screen" | [figma.md](reference/figma.md) |
-| **`check`** — raw hex, square corners, off-token spacing, or an undeclared lookalike in a repo | [tokens.md](reference/tokens.md) |
+| **`check`** — raw hex, square corners, off-token spacing, an undeclared lookalike, or off-guideline copy in a repo | [tokens.md](reference/tokens.md) |
+| **`copy`** — text pasted in, a draft file, or the words on a frame | [copy.md](reference/copy.md) |
 | **`setup`** — "set this repo up", "start a project", no `pushpin.config.json`. Once per project | [setup.md](reference/setup.md) |
 | **`init`** — re-run, repair, or update a project already set up | [init.md](reference/init.md) |
 | **`freshness`** — "can I trust this", "when was this captured" | [maintaining.md](reference/maintaining.md) |
 | **`refresh`** — "Pushpin shipped a release", the kit moved, `freshness` exited non-zero | [maintaining.md](reference/maintaining.md) |
 | "what's our card radius", "which token for a disabled label", dark mode | [tokens.md](reference/tokens.md) |
 | "which Thumbprint component is this", building the same UI in React | [components.md](reference/components.md) |
+| "does this sound like us", "check this copy", a label that reads wrong | [copy.md](reference/copy.md) |
 | nothing published fits — proposing a new component | [propose.md](reference/propose.md) |
 | "leave notes on this", an accessibility spec | [annotate.md](reference/annotate.md) |
 | an Annotation Kit import failed | [annotate-fallback.md](reference/annotate-fallback.md) |
@@ -200,6 +208,7 @@ node ${CLAUDE_SKILL_DIR}/scripts/lookup.mjs --icon caret    # icon: one import k
 node ${CLAUDE_SKILL_DIR}/scripts/lookup.mjs --token radius  # token: custom property, value, and whether it binds
 node ${CLAUDE_SKILL_DIR}/scripts/lookup.mjs --style title-1 # the text and effect style keys
 node ${CLAUDE_SKILL_DIR}/scripts/lookup.mjs --annotation a11y
+node ${CLAUDE_SKILL_DIR}/scripts/lookup.mjs --copy pro      # copy rule: a length limit, a preferred term, a banned phrase
 ```
 
 **A layout needs a dozen of these — comma-separate them and ask once.** Terms are

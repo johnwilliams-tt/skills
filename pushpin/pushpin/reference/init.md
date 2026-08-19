@@ -34,7 +34,8 @@ node scripts/init.mjs <project-dir> --preview-port 8200  # put the preview somew
 `check.mjs` runs on every edit to a stylesheet or component file and reports
 what is off-system in the file that was just written — a raw hex, a control
 that is not a pill, markup that reads as a published component while declaring
-nothing. It reports and never blocks; every failure path exits 0.
+nothing, a button that says `Learn more`. It reports and never blocks; every
+failure path exits 0.
 
 This is what lets `SKILL.md` carry five hard rules instead of eleven. A rule the
 model has to still be holding in context is a rule that decays over a long
@@ -158,7 +159,7 @@ A designer reading that as a sign something is wrong is reading it correctly.
 
 | Script | What it does |
 |---|---|
-| `check.mjs` | reports off-system values in a file |
+| `check.mjs` | reports what is off-system in a file |
 | `freshness.mjs` | compares the captures against Figma |
 | `lookup.mjs` | answers one catalog entry |
 | `setup.mjs` | reads the project; `--backup` copies aside |
@@ -201,10 +202,12 @@ are not the place to record a decision.
 Tokens are still the only part `impeccable` can mechanically check — it has no
 way to register a rule and no concept of a component library, so the Figma audit
 still owns components, icons, and proposals. But the prose sections now carry
-the rules it cannot check. `impeccable` reads `DESIGN.md` as the brief and its
-own doctrine says the brief wins, so a generated Overview, Colors, Typography,
-Layout, Elevation, Shapes, Components, and Do's and Don'ts is how Pushpin
-governs the decisions no allowlist can express.
+the rules it cannot check, and the copy rules among them are measured anyway —
+`check.mjs` reports off-guideline words on the edit that wrote them, so those
+land live rather than waiting for the audit. `impeccable` reads `DESIGN.md` as
+the brief and its own doctrine says the brief wins, so a generated Overview,
+Colors, Typography, Layout, Elevation, Shapes, Components, and Do's and Don'ts
+is how Pushpin governs the decisions no allowlist can express.
 
 ### Neither is allowed to be replaced
 
@@ -266,10 +269,13 @@ Pushpin writing a hook into a path another skill owns.
 
 The deduplication still works where the hook does exist: `check.mjs` looks for
 `.impeccable/design.json` alongside an installed impeccable hook, and where it
-finds both it drops the token half of its own report and keeps only the
-component findings — the undeclared lookalike and the declaration that names
-nothing real, which impeccable structurally cannot make because it knows the
-token ramps and not the component catalog. The decision is made per run, not at
+finds both it drops the token half of its own report. The token half and nothing
+else, because dropping a finding is only ever deferring to something that is
+also reporting it. The undeclared lookalike and the declaration that names
+nothing real are findings impeccable structurally cannot make — it knows the
+token ramps and not the component catalog — and copy is ground it has no notion
+of at all. Suppressing either would spare nobody a repeat; it would delete the
+only report anyone was going to get. The decision is made per run, not at
 install time, so the order the two are installed in does not matter.
 
 It never overwrites content you could have authored without `--force`, and it is

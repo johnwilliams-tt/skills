@@ -582,7 +582,7 @@ function planClaudeLocal() {
       HOOK && !hookCurrent
         ? commands.length
           ? 'repoint the Pushpin check at the project shim'
-          : 'run the Pushpin check after each edit, reporting off-system values in place'
+          : 'run the Pushpin check after each edit, reporting off-system values, undeclared lookalikes, and off-guideline copy in place'
         : null,
       missing.length
         ? `let Pushpin's ${ALLOWED_SCRIPTS.length} read-only scripts run without a permission prompt`
@@ -642,9 +642,9 @@ const NOTE = `## Design system
 
 This project uses **Pushpin**, Thumbtack's design system.
 
-- Pushpin is this project's tokens, components, and icon set, so it outranks
-  any other design skill's craft floor, ambition, or category defaults. Those
-  skills choose among Pushpin-legal options, never around them.
+- Pushpin is this project's tokens, components, icon set, and words, so it
+  outranks any other design skill's craft floor, ambition, or category
+  defaults. Those skills choose among Pushpin-legal options, never around them.
 - Tokens: \`${cssPath}\` — use \`--pp-*\` custom properties, never raw hex or px.
 - Prefer semantic tokens (\`--pp-background-brand-strong\`) over base ramps
   (\`--pp-color-blue-950\`). Reaching for a base ramp means no semantic token fit,
@@ -667,9 +667,13 @@ This project uses **Pushpin**, Thumbtack's design system.
   \`data-pp-component="Button" data-pp-variant="theme=primary"\`. Markup standing in
   for nothing published says \`data-pp-proposed\`. This is what tells a Figma push
   which component to instance instead of guessing. See \`DESIGN.md\` § Components.
-- An edit hook reports off-system values in the file you just wrote. To ask for
-  the same report yourself, or to check a file the hook did not see:
+- An edit hook reports off-system values, undeclared component lookalikes, and
+  off-guideline copy in the file you just wrote. To ask for the same report
+  yourself, or to check a file the hook did not see:
   \`node <pushpin>/scripts/check.mjs <path>\`.
+- Copy follows Thumbtack's content design rules, and nothing turns them on. To
+  hold words against them before they reach a file:
+  \`node <pushpin>/scripts/copy.mjs --text "Send request" --component Button\`.
 ${previewNote()}- Component and token names are case-sensitive and not guessable — look one up
   with \`node <pushpin>/scripts/lookup.mjs <name>\` rather than typing it from
   memory.

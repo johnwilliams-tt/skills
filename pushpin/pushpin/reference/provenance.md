@@ -1,6 +1,12 @@
 # Provenance
 
-## The chain
+Two sources, and they do not overlap. **The Figma kit is truth for tokens,
+components, icons, and styles; the content design source is truth for copy.**
+Each arrives by a chain of the same shape — a verbatim capture, a deterministic
+transform, and a `--check` that fails the moment the generated file stops
+matching a fresh build of the capture.
+
+## The token chain
 
 ```
 Pushpin Thumbprint UI Kit (Figma, VVRGrLgkPRU3vs765d5Q3r)
@@ -20,6 +26,50 @@ match a fresh build, so the two cannot drift apart unnoticed.
 Names survive the whole chain. Figma's `background/brand/strong` becomes
 `--pp-background-brand-strong` and nothing else, so a value in a rendered page
 can be traced back to a variable in the kit without a lookup table.
+
+## The copy chain
+
+```
+content-design-assistant.md (jallard-code/content-design-assistant, GitHub)
+  └─ scripts/pull-copy.mjs       fetch the blob, record repo, path, ref, and sha
+      └─ assets/copy.source.md       verbatim capture, committed
+          └─ scripts/build-copy.mjs      deterministic parse through an adapter
+              └─ assets/copy.json            generated, never hand-edited
+                  ├─ assets/copy-map.json    hand-authored join to the catalog
+                  └─ scripts/lib/copy.mjs    one engine, every consumer
+```
+
+The same two properties, held the same way. `copy.source.md` is the bytes GitHub
+returned; the provenance rides alongside in `copy.source.json` rather than
+inside the capture, because a capture that annotates itself is no longer
+verbatim. `build-copy.mjs` recomputes the blob sha from the bytes and refuses to
+run when the two disagree, so a hand-edit of the capture is a build failure
+rather than a quiet rewriting of the rules, and `build-copy.mjs --check` fails
+when the committed JSON does not match a fresh parse.
+
+**`jallard-code/content-design-assistant` is Jody Allard's, and it carries no
+license.** The rules are Thumbtack's; the file holding them is one person's
+work, vendored here with the repo named as its source and credited as such.
+Nothing about that is left implicit — the descriptor records the repo, the path,
+the ref, and the blob sha, and `freshness` asks GitHub whether that blob has
+moved.
+
+**It is named in one place, so it can be replaced.**
+`scripts/lib/copy-sources.mjs` exports `SOURCE` and a parser keyed by its
+`kind`. Moving the rules — into the Thumbprint guide pages, or wherever Content
+Design would rather own them — is a descriptor edit plus one adapter emitting
+the same schema. Every consumer reads `copy.json` and never learns which format
+it came from.
+
+**`assets/copy-map.json` is the one part no upstream can supply**: the join from
+the generic component names in the rules to real entries in
+`assets/components.figma.json`. It is hand-authored, it survives a swap, and a
+row with no counterpart is recorded as an empty list and a note saying why,
+because a stated gap is honest and an invented mapping is a defect. `verify.mjs`
+asserts every mapped name still exists in the catalog, so a kit refresh that
+renames a component fails loudly instead of silently un-limiting it.
+
+What the rules mean for the work is in [copy.md](copy.md).
 
 ## What is not authoritative
 
@@ -82,8 +132,10 @@ type ramp, dark mode). Those are exactly the parts a project needs to get right
 to look like Pushpin rather than like a generic rounded theme.
 
 Its **non-token assets remain useful**: the ~60-icon set, the Thumbtack Rise
-`woff2`, the logo lockups, and the voice-and-tone guidance, none of which are
-expressible as Figma variables.
+`woff2`, and the logo lockups, none of which are expressible as Figma variables.
+Its voice-and-tone guidance is not among them: that ground has an authoritative
+source of its own, and a hand-written restatement sitting beside one is exactly
+the failure the rest of this page is about.
 
 ## When the kit changes
 
@@ -92,3 +144,25 @@ expressible as Figma variables.
    *name* is a breaking change for every consumer and worth a note.
 3. `node scripts/build-css.mjs`.
 4. Commit the JSON and the CSS together. They are one unit.
+
+## When the copy source changes
+
+`freshness` carries its own layer for it, deliberately outside the capture-age
+verdict the Figma files share: a markdown file going stale in a GitHub repo is
+no reason to tell anyone to re-capture the kit.
+
+```bash
+node scripts/pull-copy.mjs --check    # has the blob moved upstream?
+node scripts/pull-copy.mjs && node scripts/build-copy.mjs
+node scripts/manifest.mjs             # rehash the capture, copy.json, and the map
+node scripts/verify.mjs               # every check, including the copy-map join
+```
+
+Read the diff on `copy.source.md` before rebuilding. A changed limit or a new
+banned phrase is a decision Content Design made and the rebuild carries it
+through. A *renamed row* is the breaking one: it leaves `copy-map.json` joining
+to a name that no longer exists, and that is a hand edit rather than a
+regeneration.
+
+Commit the capture, the descriptor, the built JSON, and the manifest together,
+for the same reason the token chain does.

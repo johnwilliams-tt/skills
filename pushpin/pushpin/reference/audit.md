@@ -6,11 +6,13 @@ plugin generated before handing anything over, and on any existing frame when
 the question is whether it is on-system.
 
 It is a `use_figma` script rather than a shell command, because everything it
-inspects lives in the Figma document.
+inspects lives in the Figma document. Copy is the one exception: the rules it is
+held against are a file, not a property of a node, so the run ends in a shell
+command — argued below rather than assumed.
 
 ## What it sorts into
 
-Six buckets:
+Seven buckets:
 
 - **Library** — instances that resolved to remote published components.
 - **Proposed** — local components named `Proposed / …` that have a parseable
@@ -22,17 +24,21 @@ Six buckets:
 - **Drift** — spacing values that were off the scale and were snapped onto it,
   read back from the plugin data generation left on each node. One entry per
   property that moved, so a frame that snapped on two sides appears twice.
+- **Copy** — the words the frame owns, held against the content design rules.
+  The `use_figma` call gathers them and a shell command settles them, so this
+  bucket holds strings until the second step has run and findings after it.
 - **Defects** — detached instances, lookalikes, undeclared local components,
   literal fills, unbound spacing and radius, resized icons, nodes left
   shimmering, drift that no `Token drift` note discloses, drift recorded in a
   form this cannot read, `Proposed /` components whose note is missing or
   incomplete or whose type and geometry drifted from the component they claim to
-  extend, and overlapping annotations.
+  extend, overlapping annotations, and copy that breaks a rule the rubric calls
+  critical.
 
 The run fails on defects only. A populated `proposed`, `unresolved`, `degraded`,
-or `drift` bucket is a result to report, not a failure — this is a `use_figma`
-script, so "exit non-zero" means `report.ok === false`: do not hand the frame
-over, and do not offer the finalize pass.
+`drift`, or `copy` bucket is a result to report, not a failure — this is a
+`use_figma` script, so "exit non-zero" means `report.ok === false`: do not hand
+the frame over, and do not offer the finalize pass.
 
 `unresolved` does not fail for the same reason `proposed` does not: both are
 the honest outcome of a gap in the system, and failing on them would push the
@@ -42,6 +48,15 @@ in what the system publishes, and failing on it would only bring back the
 stop-on-anything behaviour it replaced. `drift` is not that bargain: the value
 was snapped onto the scale and bound before the audit ever ran, so there is
 nothing left to fail on. What can still be wrong is that it went unmentioned.
+
+`copy` is the one bucket that divides by tier rather than by kind, because the
+rules it reads already do. A major is a sentence that would read better —
+passive voice, title case, a label three words over its limit — and stopping a
+handoff over one would be this audit deciding a question the person receiving
+the frame is better placed to decide with the words in front of them. A critical
+is not that: the forbidden list is short, none of it is a matter of taste, and a
+frame this plugin generated wrote those words itself. So a critical goes to
+`defects` and the frame does not hand over, and everything else reports.
 
 ## The script
 
@@ -77,13 +92,21 @@ const report = {
     .filter(([, how]) => how !== 'library')
     .map(([what, how]) => `${what} — ${how}, library unreachable`),
   drift: [],
+  copy: [],
   defects: [],
 };
 const ancestor = (n, test) => {
   for (let p = n.parent; p; p = p.parent) if (test(p)) return true;
   return false;
 };
-const inInstance = (n) => ancestor(n, (p) => p.type === 'INSTANCE');
+// The nearest one rather than any one: a Button inside a Card is governed by
+// Button's copy limit, which is the tighter of the two and the one that is
+// about the words in front of you.
+const enclosingInstance = (n) => {
+  for (let p = n.parent; p; p = p.parent) if (p.type === 'INSTANCE') return p;
+  return null;
+};
+const inInstance = (n) => enclosingInstance(n) !== null;
 const inProposed = (n) => ancestor(n, (p) =>
   (p.type === 'COMPONENT' || p.type === 'COMPONENT_SET') && p.name.startsWith('Proposed / '));
 
@@ -131,6 +154,7 @@ const collectDrift = (n) => {
 };
 
 const localMains = new Map();
+const componentOf = new Map();
 
 // One round of awaits for the whole frame rather than one per instance, which on
 // a thirty-instance screen is thirty sequential waits inside the script. Zipped
@@ -143,9 +167,14 @@ for (let i = 0; i < instanceNodes.length; i++) {
   const inst = instanceNodes[i];
   const main = mains[i];
   if (!main) { report.defects.push(`${inst.name} — detached instance`); continue; }
+  // A variant's own name is its property list, so the set is what the catalog
+  // and the copy map both know it by. Recorded before the remote check rather
+  // than after it, because the published components are precisely the ones the
+  // copy rules carry a length limit for.
+  const set = main.parent && main.parent.type === 'COMPONENT_SET' ? main.parent : main;
+  componentOf.set(inst.id, set.name);
   // `remote` true means it came from a published library, not this file.
   if (main.remote) { report.library++; continue; }
-  const set = main.parent && main.parent.type === 'COMPONENT_SET' ? main.parent : main;
   if (!set.name.startsWith('Proposed / ')) {
     report.defects.push(`${inst.name} — local component "${set.name}", neither published nor proposed`);
     continue;
@@ -341,6 +370,87 @@ if (report.drift.length && !annotations.some((n) => DRIFT_NOTE.test(n.name))) {
   );
 }
 
+// Copy is gathered here and judged in Node. The rules are a generated file,
+// this runtime has no filesystem, and the only way to decide them inside Figma
+// is to keep a second copy of them in this script — the one move provenance.md
+// says has never once survived contact with the source it restates. So the walk
+// collects the words and what carries them, and "Settling the copy bucket"
+// below finishes the run.
+//
+// Annotations are exempt whichever form they took: a note to a reviewer and a
+// pointer number are not the product's words. A `Placeholder / …` stand-in is
+// exempt for a nearer reason — its label belongs to the component the run
+// already reports as missing under `unresolved`.
+const notCopy = (n) =>
+  ANNOTATION.test(n.name) ||
+  n.name.startsWith('Placeholder / ') ||
+  ancestor(n, (p) => ANNOTATION.test(p.name) || p.name.startsWith('Placeholder / '));
+
+// Which words on the frame are the frame's own. A plain text layer inside an
+// instance belongs to the library until this frame overrode it: flagging what
+// it left alone would fail every screen that placed a component, over copy no
+// one here is permitted to edit anyway — the same call the fill and spacing
+// checks make one level up. A text property is the other way round. It is a
+// slot the component published in order to be filled, so whatever sits in it is
+// this screen's copy, and a label still reading the main's placeholder is a
+// copy bug rather than the library's.
+const overridden = new Set();
+for (const inst of instanceNodes) {
+  for (const o of inst.overrides ?? []) {
+    if (o.overriddenFields.includes('characters')) overridden.add(o.id);
+  }
+}
+
+// Keyed on what the engine will be handed rather than on where it came from, so
+// two buttons reading `Get estimates` cost one scan and report as one entry
+// that says it happened twice. A text property and the layer it fills carry the
+// same name, so an instance reached down both paths collapses here instead of
+// answering for the same words twice.
+const copy = new Map();
+const gather = (node, component, text) => {
+  if (typeof text !== 'string' || !text.trim()) return;
+  const key = `${component}\u0000${node}\u0000${text}`;
+  const prior = copy.get(key);
+  if (prior) prior.count++;
+  else copy.set(key, { node, component, text, count: 1 });
+};
+
+for (let i = 0; i < instanceNodes.length; i++) {
+  const inst = instanceNodes[i];
+  if (!mains[i] || notCopy(inst)) continue;
+  // A property name carries a `#` and a unique id, which is Figma's plumbing
+  // and not something the rules or a reader want to see. A value bound to a
+  // variable arrives as an alias rather than a string, and `gather` takes only
+  // strings — there is nothing to check in a reference to text held elsewhere.
+  for (const [prop, value] of Object.entries(inst.componentProperties)) {
+    if (value.type === 'TEXT') {
+      gather(prop.split('#')[0], componentOf.get(inst.id) ?? null, value.value);
+    }
+  }
+}
+
+for (const t of root.findAllWithCriteria({ types: ['TEXT'] })) {
+  if (notCopy(t)) continue;
+  const inst = enclosingInstance(t);
+  if (inst && !overridden.has(t.id)) continue;
+  // No enclosing instance means no length to check and every other rule still
+  // applying: a heading is a text node on the type ramp rather than a
+  // component, so nothing in the document says which row of the rules it is.
+  gather(t.name, inst ? componentOf.get(inst.id) ?? null : null, t.characters);
+}
+
+report.copy = [...copy.values()];
+
+// A frame carrying copy is not settled here, so this call does not pretend to
+// settle it. Reporting the structural verdict as the verdict would hand
+// anything that stopped reading at this return an `ok: true` that no one
+// checked the words for, and the whole point of a copy critical failing a run
+// is that it fails the run.
+if (report.copy.length) {
+  report.pending = 'copy';
+  return report;
+}
+
 report.ok = report.defects.length === 0;
 // The verdict is settled by everything above before the picture exists, and the
 // picture is taken only once the structure passed — a screenshot sitting beside a
@@ -348,6 +458,69 @@ report.ok = report.defects.length === 0;
 if (report.ok) await root.screenshot();
 return report;
 ```
+
+## Settling the copy bucket
+
+The rules the copy is held to live in `assets/copy.json`, built from the
+vendored content design source and never hand-edited. A `use_figma` script
+cannot read a file, so there were two ways to check copy on a frame: paste a
+distilled ruleset into the script above, or gather the words there and decide
+them where the rules already are.
+
+The paste loses. Every hand-maintained restatement of a generated source this
+repo has gone looking for has drifted from it — [provenance.md](provenance.md)
+keeps the list, and it is the reason `build-css.mjs --check` exists — and a rule
+block inside a markdown fence has nothing equivalent holding it in step. A
+generated block would fix the drift and buy a new problem: several hundred
+banned phrases, forbidden words, preferred terms and length limits pasted into a
+call that already asks the caller to paste a frame id, going stale the moment
+someone copies the script into a chat. What is actually lost by splitting is
+atomicity, and this call gave that up before copy existed — the `mode` object at
+the top is a prior call's result carried in by hand. A second step that carries
+machine output into a machine is the same shape as the step already there, and
+carries no restatement at all.
+
+So the script gathers and `copy.mjs` decides. Write `report.copy` out as a
+labelled deck, one line per entry — `[component]` when the text sits in one,
+`[node]` when it does not, then the words — and run it in one call:
+
+```
+node scripts/copy.mjs --json <<'EOF'
+[Button] Get estimates
+[Button] See how it works
+[TextInput] ZIP code
+[Header] Find a pro for any project
+EOF
+```
+
+The label is how the text reaches its rule: a catalog name resolves through
+`copy-map.json` — `TextInput` to placeholder and helper text — and a layer named
+`Header` resolves to the header rule directly, which is the only thing on a
+frame that says what an unenclosed text node is. Blocks come back in the order
+the deck was written, so `blocks[i]` is `copy[i]`, and a layer whose name the
+label grammar will not take goes through on its own with `--text`.
+
+Then fold the findings back in:
+
+- A `critical` becomes a defect, phrased the way the rest of them are:
+  `Button / Label — "guaranteed" is on the forbidden list`.
+- Everything else replaces its entry in `copy`, keeping `node`, `component` and
+  `text` and adding the finding's `code` and `message`.
+- `ok` is `defects.length === 0`, the rule it has always been.
+- A run that passed takes its picture, in a call of its own, because the picture
+  still waits for the whole verdict rather than most of it:
+
+```js
+const root = await figma.getNodeByIdAsync('<generated frame id>');
+await root.screenshot();
+```
+
+`notes` in that output names every entry whose length went unmeasured, which is
+what a rule that limits its parts separately leaves behind: `Toast` limits a
+header and a body, and a text node says which of them it is only when its layer
+is named for one. Re-run those with the slot in the label — `[Toast body]` — and
+if the frame cannot say, the length is genuinely unknown and belongs in the
+handoff rather than in a guess.
 
 ## Why each check is there
 
@@ -420,23 +593,70 @@ naming convention: that is a gap someone declared on purpose and it belongs in
 `unresolved`, while an uncleared shimmer is a claim of progress that never
 happened.
 
+**Copy is checked here because the frame is the last place anyone reads it.** By
+review time the words on a screen have been looked at as shapes for long enough
+to stop being words — a button reading `Submit Request` is furniture, and every
+other check on this page passes on the frame carrying it. What that lets
+through is a screen that is on-system in every respect and says something
+Thumbtack does not say, and it survives handoff, because the markup is written
+from the frame and the string arrives in code as a decision somebody already
+made. On the canvas it costs a text edit. After the build it costs a
+conversation with the person who designed it.
+
+Copy inside an instance splits where the ownership splits, which is a finer line
+than the shape and fill checks draw. Those skip instance interiors outright: a
+screen may not restyle a library component, so a finding there is one nobody is
+allowed to act on. A label the frame left at the library's default is the same
+kind of finding and is skipped for the same reason. The two ways a frame does
+set copy are not — a text property is a slot the component published in order to
+be filled, and an overridden text layer is this frame typing into a component
+that publishes no property, which is how `Link` carries its text. Both are the
+frame's words, both are checked, and everything else on the instance belongs to
+whoever published it.
+
 ## What a real run returns
 
-A mobile screen with a TextInput, two Buttons, and a card:
+A mobile screen with a TextInput, two Buttons, and a card. The `use_figma` call
+returns this:
 
 ```
-{ library: 5, proposed: [], unresolved: [], degraded: [], drift: [], defects: [], ok: true }
+{
+  library: 5,
+  proposed: [],
+  unresolved: [],
+  degraded: [],
+  drift: [],
+  copy: [
+    { node: 'Label', component: 'Button', text: 'Get estimates', count: 1 },
+    { node: 'Label', component: 'Button', text: 'See how it works', count: 1 },
+    { node: 'value', component: 'TextInput', text: 'ZIP code', count: 1 },
+    { node: 'Header', component: null, text: 'Find a pro for any project', count: 1 },
+  ],
+  defects: [],
+  pending: 'copy',
+}
+```
+
+There is no `ok` in that return and no picture, which is the point of `pending`:
+four strings have been gathered and nothing has read them yet. They are the deck
+in the section above and they run clean, so the settled report is the one to
+hand over:
+
+```
+{ library: 5, proposed: [], unresolved: [], degraded: [], drift: [], copy: [], defects: [], ok: true }
 ```
 
 Five instances resolved to remote main components (three placed directly, two
 nested inside them), nothing was drawn by hand, every icon is at its own size,
-every gap and corner asked for a value the scale already had, and every fill on
-the hand-built containers was variable-bound. A run that passes also returns the
-frame's picture, which is where clipped text and overlap show up — the failures
-structure cannot rule out.
+every gap and corner asked for a value the scale already had, every fill on the
+hand-built containers was variable-bound, and the four strings the frame owns
+are inside their limits. A run that passes also returns the frame's picture,
+which is where clipped text and overlap show up — the failures structure cannot
+rule out.
 
 The same screen generated by an account that reaches Pushpin and nothing else
-returns `ok: true` as well, and says what it cost:
+settles to `ok: true` as well — its copy is the first run's copy and clears the
+same way — and says what it cost:
 
 ```
 {
@@ -448,6 +668,7 @@ returns `ok: true` as well, and says what it cost:
     'annotations — drawn, library unreachable',
   ],
   drift: [{ node: 'Hero', prop: 'itemSpacing', from: 80, to: 96, source: 'intent' }],
+  copy: [],
   defects: [],
   ok: true,
 }
@@ -459,7 +680,39 @@ the three non-empty buckets are the report, and they are the part to lead with
 when handing it over. `drift` passed because the note is on the page — drawn,
 in this run, so named `Annotations (drawn) / Token drift`, which discloses the
 snap exactly as the instance would. The same run without that note is a defect
-and does not hand over.
+and does not hand over. Neither of the two things this run added reached the
+deck: the placeholder icon carries no words, and a drawn `Token drift` note is a
+note rather than product copy.
+
+A third screen, structurally identical to the first, is where the bucket earns
+its place:
+
+```
+{
+  library: 5,
+  proposed: [],
+  unresolved: [],
+  degraded: [],
+  drift: [],
+  copy: [
+    {
+      node: 'Header',
+      component: null,
+      text: 'Find The Right Pro',
+      code: 'M1',
+      message: 'title case on "Right", "Pro" — sentence case unless it is a confirmed brand name',
+    },
+  ],
+  defects: ['Button / Label — "guaranteed" is on the forbidden list'],
+  ok: false,
+}
+```
+
+Nothing on that frame is off-system. Every instance resolved, every fill and gap
+is bound, and a screenshot of it would look like the first screen. It does not
+hand over, because one button promises something Thumbtack does not promise —
+and the header, which is a major, is in the report the fix goes out with rather
+than in the reason the run failed.
 
 ## Custom work that is not a proposal
 

@@ -500,7 +500,7 @@ function printVerify(v) {
   }
   console.log(
     v.complete
-      ? '\nThis project is set up. Pushpin governs its tokens, an edit check reports off-system values as you work, and the generated files are protected.'
+      ? '\nThis project is set up. Pushpin governs its tokens, components, and words, an edit check reports what drifts from them as you work, and the generated files are protected.'
       : v.ready
         ? '\nThis project is set up and working. Nothing is broken; the lines above are what would make it stronger.'
         : '\nThis project is not finished — the lines marked missing above say what is left.',

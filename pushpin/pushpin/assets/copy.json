@@ -1,0 +1,817 @@
+{
+  "$comment": "Thumbtack content design rules, parsed from assets/copy.source.md and joined to the component catalog through assets/copy-map.json. GENERATED FILE. Do not edit by hand; rebuild with node scripts/build-copy.mjs. The upstream is a review skill that scores content 1-5 and answers with a rewrite block; neither the score nor the response format is carried here, because no Pushpin lane produces a review. The severity codes are, and they are what scripts/lib/copy.mjs acts on.",
+  "source": {
+    "kind": "skill-md",
+    "repo": "jallard-code/content-design-assistant",
+    "path": "content-design-assistant.md",
+    "ref": "main",
+    "sha": "94a057494588b09e0f684dcee353611b4ad209db",
+    "extractedAt": "2026-08-19",
+    "url": "https://github.com/jallard-code/content-design-assistant/blob/main/content-design-assistant.md"
+  },
+  "codes": {
+    "C1": {
+      "tier": "critical",
+      "description": "Misleading or false claim"
+    },
+    "C2": {
+      "tier": "critical",
+      "description": "Error/blocking state with no recovery instruction"
+    },
+    "C3": {
+      "tier": "critical",
+      "description": "Forbidden word or phrase (see list below)"
+    },
+    "C4": {
+      "tier": "critical",
+      "description": "Email/GTM content with no identifiable value prop"
+    },
+    "M1": {
+      "tier": "major",
+      "description": "Non-brand word uses title case"
+    },
+    "M2": {
+      "tier": "major",
+      "description": "Passive voice (\"has been confirmed\", \"was sent\", \"is required\")"
+    },
+    "M3": {
+      "tier": "major",
+      "description": "Generic standalone CTA (\"Submit\", \"Learn more\", \"Get started\", \"Click here\", \"See more\", \"Proceed\")"
+    },
+    "M4": {
+      "tier": "major",
+      "description": "Banned phrase (\"In order to\", \"Please be advised\", \"At this time\", \"Utilize\", \"Prior to\", \"Reach out to\", \"We are unable to\", \"You will be required to\")"
+    },
+    "M5": {
+      "tier": "major",
+      "description": "Most important information buried — doesn't lead the sentence"
+    },
+    "M6": {
+      "tier": "major",
+      "description": "Robotic, corporate, or form-generator tone"
+    },
+    "M7": {
+      "tier": "major",
+      "description": "Exceeds component length limit"
+    },
+    "M8": {
+      "tier": "major",
+      "description": "Wrong term (\"contractor\" not \"pro\", \"user\" not \"customer\", \"log in\" not \"sign in\", \"payment method\" not \"card\")"
+    },
+    "M9": {
+      "tier": "major",
+      "description": "Email value prop present but not backed by a proof point"
+    },
+    "N1": {
+      "tier": "minor",
+      "description": "Slightly awkward phrasing"
+    },
+    "N2": {
+      "tier": "minor",
+      "description": "Trivial punctuation slip"
+    },
+    "P1": {
+      "tier": "excellence",
+      "description": "Reads like a real Thumbtack person wrote it, leads with the most important info, every word is necessary, ships immediately with zero changes"
+    }
+  },
+  "forbidden": [
+    "click here",
+    "you won't believe",
+    "perfect match",
+    "guaranteed",
+    "we know exactly",
+    "crazy",
+    "insane",
+    "dumb",
+    "guru",
+    "powwow",
+    "ladies and gentlemen",
+    "manpower",
+    "oops",
+    "uh-oh",
+    "try again later!",
+    "you did not",
+    "you failed to"
+  ],
+  "bannedPhrases": [
+    {
+      "phrase": "In order to",
+      "fix": "To",
+      "literal": true
+    },
+    {
+      "phrase": "Please be advised",
+      "fix": "cut entirely",
+      "literal": false
+    },
+    {
+      "phrase": "At this time",
+      "fix": "cut entirely",
+      "literal": false
+    },
+    {
+      "phrase": "Utilize",
+      "fix": "Use",
+      "literal": true
+    },
+    {
+      "phrase": "Prior to",
+      "fix": "Before",
+      "literal": true
+    },
+    {
+      "phrase": "Reach out to",
+      "fix": "Contact",
+      "literal": true
+    },
+    {
+      "phrase": "We are unable to",
+      "fix": "We can't",
+      "literal": true
+    },
+    {
+      "phrase": "You will be required to",
+      "fix": "You'll need to",
+      "literal": true
+    }
+  ],
+  "genericCtas": [
+    "Click here",
+    "Learn more",
+    "Get started",
+    "Find out more",
+    "See more",
+    "Submit",
+    "Proceed",
+    "Tap here"
+  ],
+  "genericLinks": [
+    "Learn more",
+    "Click here",
+    "Here",
+    "See more"
+  ],
+  "passive": [
+    "has been confirmed",
+    "was sent",
+    "is required"
+  ],
+  "terms": [
+    {
+      "prefer": "pro",
+      "insteadOf": [
+        "contractor"
+      ],
+      "usage": null
+    },
+    {
+      "prefer": "customer",
+      "insteadOf": [
+        "user",
+        "consumer"
+      ],
+      "usage": null
+    },
+    {
+      "prefer": "sign in",
+      "insteadOf": [
+        "log in"
+      ],
+      "usage": null
+    },
+    {
+      "prefer": "card",
+      "insteadOf": [
+        "payment method"
+      ],
+      "usage": null
+    },
+    {
+      "prefer": "request",
+      "insteadOf": [],
+      "usage": "initial message to pro"
+    },
+    {
+      "prefer": "hire",
+      "insteadOf": [],
+      "usage": "highest-intent action"
+    },
+    {
+      "prefer": "profile",
+      "insteadOf": [
+        "service page"
+      ],
+      "usage": null
+    },
+    {
+      "prefer": "inbox",
+      "insteadOf": [],
+      "usage": "messages tab"
+    }
+  ],
+  "brandTitleCase": [
+    "Thumbtack Guarantee",
+    "Money-Back Guarantee",
+    "Thumbtack Plus",
+    "Thumbtack Plus Guarantee",
+    "Top Pro",
+    "Instant Book",
+    "Thumbtack On Demand",
+    "Thumbtack Pay",
+    "Thumbtack Help"
+  ],
+  "transforms": [
+    {
+      "from": "In order to",
+      "to": "To",
+      "literal": true,
+      "raw": "\"To\""
+    },
+    {
+      "from": "Please be advised that",
+      "to": null,
+      "literal": false,
+      "raw": "cut entirely"
+    },
+    {
+      "from": "At this time",
+      "to": null,
+      "literal": false,
+      "raw": "cut entirely"
+    },
+    {
+      "from": "We are unable to",
+      "to": "We can't",
+      "literal": true,
+      "raw": "\"We can't\""
+    },
+    {
+      "from": "You will be required to",
+      "to": "You'll need to",
+      "literal": true,
+      "raw": "\"You'll need to\""
+    },
+    {
+      "from": "Has been confirmed",
+      "to": "is confirmed",
+      "literal": true,
+      "raw": "\"is confirmed\""
+    },
+    {
+      "from": "In the event that",
+      "to": "If",
+      "literal": true,
+      "raw": "\"If\""
+    },
+    {
+      "from": "Utilize",
+      "to": "Use",
+      "literal": true,
+      "raw": "\"Use\""
+    },
+    {
+      "from": "Prior to",
+      "to": "Before",
+      "literal": true,
+      "raw": "\"Before\""
+    },
+    {
+      "from": "Reach out to",
+      "to": "Contact",
+      "literal": true,
+      "raw": "\"Contact\""
+    },
+    {
+      "from": "The user",
+      "to": "you",
+      "literal": true,
+      "raw": "\"you\" (when relationship is clear)"
+    }
+  ],
+  "guidance": [
+    "Passive voice → active voice",
+    "Corporate hedging → direct language",
+    "Long wind-up sentences → lead with the most important thing"
+  ],
+  "examples": [
+    {
+      "before": "An error has occurred. Please try again later.",
+      "after": "Something went wrong. Refresh the page and try again."
+    },
+    {
+      "before": "No results found. Please adjust your search criteria.",
+      "after": "No pros found nearby. Try expanding your search area or adjusting your filters."
+    },
+    {
+      "before": "Submit Request",
+      "after": "Send request"
+    },
+    {
+      "before": "Your booking has been confirmed by the professional.",
+      "after": "Your booking is confirmed"
+    },
+    {
+      "before": "In order to ensure account security, please update your password using the settings page.",
+      "after": "Keep your account secure. Update your password anytime in **Settings**."
+    }
+  ],
+  "limits": {
+    "Button / CTA": {
+      "raw": "4 words",
+      "limit": {
+        "maxWords": 4
+      },
+      "parts": null,
+      "format": "[verb] + [object], sentence case",
+      "pushpin": [
+        "Button",
+        "Icon Button"
+      ],
+      "note": "Both expose a Label text property. \"Brand / App / Download Buttons\" is an app-store badge lockup and carries no copy of ours."
+    },
+    "Link": {
+      "raw": "8 words",
+      "limit": {
+        "maxWords": 8
+      },
+      "parts": null,
+      "format": "Must describe destination, sentence case",
+      "pushpin": [
+        "Link",
+        "Themed Link"
+      ],
+      "note": "Neither exposes a text property — link text is a plain layer inside the instance, so the limit is checked against the text node rather than a property."
+    },
+    "Header": {
+      "raw": "10 words",
+      "limit": {
+        "maxWords": 10
+      },
+      "parts": null,
+      "format": "Phrase, not a full sentence; sentence case",
+      "pushpin": [],
+      "note": "No counterpart. A section header in Pushpin is a text node on the type ramp (title-1 to title-8), not a component. \"Headers / Filtering\", \"Headers / Tab\" and \"Modal / Factory / Header\" are navigation and modal chrome, not the heading this rule means."
+    },
+    "Subheader": {
+      "raw": "10 words",
+      "limit": {
+        "maxWords": 10
+      },
+      "parts": null,
+      "format": "No terminal period, sentence case",
+      "pushpin": [],
+      "note": "No counterpart, for the same reason as Header — a ramp step, not a component."
+    },
+    "Body text": {
+      "raw": "1–3 sentences per paragraph, 25 words max per sentence",
+      "limit": {
+        "minSentences": 1,
+        "maxSentences": 3,
+        "maxWordsPerSentence": 25
+      },
+      "parts": null,
+      "format": "One idea per sentence",
+      "pushpin": [],
+      "note": "No counterpart. Body copy is a text node on body-1 to body-4."
+    },
+    "Error message": {
+      "raw": "Header ≤10 words, body ≤2 lines",
+      "limit": null,
+      "parts": {
+        "header": {
+          "maxWords": 10
+        },
+        "body": {
+          "maxLines": 2
+        }
+      },
+      "format": "Must include recovery instruction, no blame language",
+      "pushpin": [
+        "Alert",
+        "Form Note"
+      ],
+      "note": "Alert is the banner and carries a Text property; Form Note is the field-level message under its hasError variant. Neither has the header and body the rule's limit splits into, so a length check on either needs the caller to name a part."
+    },
+    "Modal": {
+      "raw": "Header ≤8 words, body ≤3 sentences, CTA ≤3 words",
+      "limit": null,
+      "parts": {
+        "header": {
+          "maxWords": 8
+        },
+        "body": {
+          "maxSentences": 3
+        },
+        "cta": {
+          "maxWords": 3
+        }
+      },
+      "format": null,
+      "pushpin": [
+        "Modal / Default",
+        "Modal / Promotion"
+      ],
+      "note": "\"Modal / Factory / *\" are construction parts rather than modals. Modal / Confirmation is mapped under Confirmation, which is the tighter of the two limits that would otherwise both claim it."
+    },
+    "Notification": {
+      "raw": "Header ≤40 chars, body ≤90 chars",
+      "limit": null,
+      "parts": {
+        "header": {
+          "maxChars": 40
+        },
+        "body": {
+          "maxChars": 90
+        }
+      },
+      "format": null,
+      "pushpin": [
+        "Toast",
+        "Native / iOS / Push Notification"
+      ],
+      "note": "Toast is the in-product notification; the push notification is the surface the character limits were written for."
+    },
+    "Empty state": {
+      "raw": "≤3 lines total",
+      "limit": {
+        "maxLines": 3
+      },
+      "parts": null,
+      "format": "Purpose + reason for absence + next step",
+      "pushpin": [],
+      "note": "No counterpart. An empty state is composed from an illustration, a heading and a button rather than published as a component."
+    },
+    "Loader": {
+      "raw": "2–6 words",
+      "limit": {
+        "minWords": 2,
+        "maxWords": 6
+      },
+      "parts": null,
+      "format": "Describe the activity, don't promise an outcome",
+      "pushpin": [
+        "Loader Dots"
+      ],
+      "note": "Loader Dots carries no text of its own, so the limit governs the label placed beside it. \"Progress\" and \"Progress Meter\" are step indicators, not loaders, and their copy is a step name rather than an activity."
+    },
+    "Placeholder / helper text": {
+      "raw": "≤2 sentences",
+      "limit": {
+        "maxSentences": 2
+      },
+      "parts": null,
+      "format": "Prevent errors, don't repeat the label",
+      "pushpin": [
+        "TextInput",
+        "Text Area",
+        "Form Note"
+      ],
+      "note": "TextInput and Text Area hold placeholder copy in their value property; Form Note is helper text when hasError is false."
+    },
+    "Confirmation": {
+      "raw": "1–2 sentences",
+      "limit": {
+        "minSentences": 1,
+        "maxSentences": 2
+      },
+      "parts": null,
+      "format": "Reinforce completed action + what happens next",
+      "pushpin": [
+        "Modal / Confirmation"
+      ],
+      "note": "Toast also confirms, but it is mapped to Notification, whose character limits are the binding ones on that surface."
+    }
+  },
+  "components": {
+    "Button": [
+      "Button / CTA"
+    ],
+    "Icon Button": [
+      "Button / CTA"
+    ],
+    "Link": [
+      "Link"
+    ],
+    "Themed Link": [
+      "Link"
+    ],
+    "Alert": [
+      "Error message"
+    ],
+    "Form Note": [
+      "Error message",
+      "Placeholder / helper text"
+    ],
+    "Modal / Default": [
+      "Modal"
+    ],
+    "Modal / Promotion": [
+      "Modal"
+    ],
+    "Toast": [
+      "Notification"
+    ],
+    "Native / iOS / Push Notification": [
+      "Notification"
+    ],
+    "Loader Dots": [
+      "Loader"
+    ],
+    "TextInput": [
+      "Placeholder / helper text"
+    ],
+    "Text Area": [
+      "Placeholder / helper text"
+    ],
+    "Modal / Confirmation": [
+      "Confirmation"
+    ]
+  },
+  "style": {
+    "maxSentenceWords": 25,
+    "readingLevel": 8,
+    "capitalization": [
+      "Always sentence case. First word + proper nouns only.",
+      "Confirmed brand names that use title case: Thumbtack Guarantee, Money-Back Guarantee, Thumbtack Plus, Thumbtack Plus Guarantee, Top Pro, Instant Book, Thumbtack On Demand, Thumbtack Pay, Thumbtack Help",
+      "Everything else — lowercase and flag it if it appears capitalized in the original."
+    ],
+    "ctas": [
+      "Max 4 words, [verb] + [object], sentence case",
+      "Never use: \"Click here\", \"Learn more\", \"Get started\", \"Find out more\", \"See more\", \"Submit\", \"Proceed\", \"Tap here\""
+    ],
+    "links": [
+      "Max 8 words, must describe the destination specifically, sentence case",
+      "Never use: \"Learn more\", \"Click here\", \"Here\", \"See more\""
+    ],
+    "voice": [
+      "Active voice by default",
+      "Second person for user (\"you\", \"your\"); first person plural for Thumbtack (\"we\", \"our\")",
+      "Use contractions; avoid conditional contractions (could've, should've, would've)",
+      "8th-grade reading level or lower; sentences max 25 words",
+      "No semicolons — use em dash (—) or rewrite",
+      "Oxford comma always",
+      "Present tense preferred"
+    ]
+  },
+  "tone": {
+    "levels": [
+      {
+        "level": "Low",
+        "character": "calm, factual",
+        "surfaces": [
+          "error messages",
+          "pricing changes",
+          "failures",
+          "blocking states"
+        ]
+      },
+      {
+        "level": "Medium",
+        "character": "supportive, clear",
+        "surfaces": [
+          "transactional emails",
+          "feature updates",
+          "confirmations"
+        ]
+      },
+      {
+        "level": "High",
+        "character": "celebratory",
+        "surfaces": [
+          "onboarding wins",
+          "booking confirmations",
+          "moments of inspiration"
+        ]
+      }
+    ],
+    "rules": [
+      "No exclamation marks except celebratory moments (max 1 per surface)",
+      "No emoji except celebratory moments (max 1 per surface, never replace a word)"
+    ]
+  },
+  "email": {
+    "structure": [
+      "Subject",
+      "Preheader",
+      "Header (optional)",
+      "Body",
+      "Primary CTA",
+      "Secondary CTA (optional)",
+      "Footer"
+    ],
+    "limits": {
+      "subject": {
+        "maxChars": 40,
+        "maxWords": 10
+      },
+      "preheader": {
+        "maxChars": 40
+      },
+      "header": {
+        "maxWords": 10
+      },
+      "body": {
+        "maxWords": 150
+      },
+      "primary-cta": {
+        "maxWords": 4
+      },
+      "secondary-cta": {
+        "maxWords": 8
+      }
+    },
+    "rules": [
+      "Subject: max 40 chars, max 10 words, no punctuation, sentence case",
+      "Preheader: max 40 chars, exactly one sentence, ends with a period, extends the subject — adds new information, never repeats or paraphrases it. If the subject says what's happening, the preheader says why it matters or what to do. If they cover the same ground, rewrite the preheader.",
+      "Header: max 10 words, written as a phrase (not a full sentence); no exclamation marks; must stand on its own — never repeat or paraphrase the subject or preheader. Each of the three carries distinct information: if the subject says what's happening and the preheader says why it matters, the header should orient the reader to the body.",
+      "Body: max 150 words preferred, one idea per paragraph, max 4 lines per paragraph",
+      "Primary CTA: button ≤4 words, [verb] + [object]",
+      "Secondary CTA: link only (≤8 words) — never a second button",
+      "Every email must end with: — The Thumbtack team",
+      "Footer must include: business address, unsubscribe link, app download links",
+      "No urgency inflation, superlatives, or outcome promises",
+      "Core message test: subject + header + CTA alone must convey the main message",
+      "When adding missing email structure to a rewrite, always include all components: Subject, Preheader, Header, Body, and CTA. Never add some and omit others — an email rewrite is always complete."
+    ],
+    "reviewOrder": [
+      {
+        "step": "Value prop check — is it clear, weak, or absent?",
+        "detail": [
+          "Clear and backed by a proof point → rewrite, sharpening it",
+          "Weak or missing a proof point → stop and ask: \"The value prop isn't coming through clearly. What's the most important thing you want the reader to take away, and what proof point do you want to use?\"",
+          "Entirely absent → stop and ask: \"I can't identify a clear value prop. What's the most important thing you want the reader to take away, and which pillar — Convenience, Reliability, or Achievement?\""
+        ]
+      },
+      {
+        "step": "Voice and tone",
+        "detail": []
+      },
+      {
+        "step": "Style guide",
+        "detail": []
+      },
+      {
+        "step": "Component constraints",
+        "detail": []
+      }
+    ]
+  },
+  "valueProps": {
+    "pillars": [
+      {
+        "name": "Convenience",
+        "proofPoints": [
+          "AI Search",
+          "Pro Matching",
+          "Breadth of Categories",
+          "Home Profile",
+          "Project Guides"
+        ],
+        "useAt": "pre-project and search stages",
+        "emotions": [
+          "ease",
+          "relief",
+          "confidence in getting started"
+        ]
+      },
+      {
+        "name": "Reliability",
+        "proofPoints": [
+          "Pro Credentials",
+          "4.9 App Store Rating",
+          "Thumbtack Guarantee"
+        ],
+        "useAt": "connect and hire stages",
+        "emotions": [
+          "trust",
+          "reassurance",
+          "safety"
+        ]
+      },
+      {
+        "name": "Achievement",
+        "proofPoints": [
+          "90 Million Projects",
+          "Pro Reviews",
+          "Project Guides"
+        ],
+        "useAt": "post-hire and job execution",
+        "emotions": [
+          "pride",
+          "progress",
+          "accomplishment"
+        ]
+      }
+    ],
+    "evidence": [
+      "90 million projects",
+      "4.9 App Store Rating",
+      "Thumbtack Guarantee"
+    ]
+  },
+  "states": [
+    {
+      "name": "Informational",
+      "pattern": "[Relevant information]."
+    },
+    {
+      "name": "Guidance",
+      "pattern": "[Context]. [Suggested action]."
+    },
+    {
+      "name": "Actionable",
+      "pattern": "[Available action]."
+    },
+    {
+      "name": "Processing",
+      "pattern": "[System activity]..."
+    },
+    {
+      "name": "Confirmed",
+      "pattern": "[Completed action]. [What happens next]."
+    },
+    {
+      "name": "Blocking",
+      "pattern": "[Issue]. [Required action]."
+    },
+    {
+      "name": "Failure",
+      "pattern": "[What happened]. [Recovery action]."
+    },
+    {
+      "name": "Uncertain",
+      "pattern": "[Preliminary result]. [Invitation to review or adjust]."
+    }
+  ],
+  "legalTriggers": [
+    "AI, machine learning, or automated decision-making",
+    "Pricing, fees, or charges",
+    "Guarantees, refund policies, or money-back language",
+    "Legal terms or disclaimers",
+    "Claims about product capabilities or outcomes"
+  ],
+  "reviewOrder": [
+    "Voice and tone — does it sound like Thumbtack?",
+    "Style guide — grammar, mechanics, plain language, preferred terms",
+    "Component constraints — length, format, system state",
+    "Brand messaging — value prop alignment"
+  ],
+  "rules": [
+    {
+      "id": "Rule 1",
+      "title": "Always rewrite when content is submitted",
+      "body": "Every issue named in Feedback MUST be corrected in the rewrite. If you flag it, you fix it. Each item must be preceded by its exact label from the input. One label per item."
+    },
+    {
+      "id": "Rule 2",
+      "title": "Fix violations — preserve everything else",
+      "body": "Only change what is needed to resolve a flagged issue. Never restructure content that isn't broken, remove framing or context that's doing intentional work, or rewrite sentences that are already doing their job. If a sentence has no violations, leave it alone or make the minimum edit needed. Never add information that isn't in the original, remove information that is, or change what the content is trying to communicate."
+    },
+    {
+      "id": "Rule 3",
+      "title": "Preserve paragraph structure",
+      "body": "When body text arrives as a single block, actively look for paragraph breaks. Start a new paragraph when: the topic changes, a new idea is introduced, or the sentence would serve a different purpose than the one before it. When in doubt, break it."
+    },
+    {
+      "id": "Rule 4",
+      "title": "Use bold for UI element names — never quotes",
+      "body": "- Right: tap **Inbox**, go to **Settings**\n- Wrong: tap \"Inbox\", go to \"Settings\""
+    },
+    {
+      "id": "Rule 5",
+      "title": "Content type labels are definitive",
+      "body": "When a label is present (e.g. [Button], [Header]), treat it as fact. Apply the correct component rules immediately."
+    },
+    {
+      "id": "Rule 6",
+      "title": "Enforce component constraints",
+      "body": "| Component | Max length | Format |\n|---|---|---|\n| Button / CTA | 4 words | [verb] + [object], sentence case |\n| Link | 8 words | Must describe destination, sentence case |\n| Header | 10 words | Phrase, not a full sentence; sentence case |\n| Subheader | 10 words | No terminal period, sentence case |\n| Body text | 1–3 sentences per paragraph, 25 words max per sentence | One idea per sentence |\n| Error message | Header ≤10 words, body ≤2 lines | Must include recovery instruction, no blame language |\n| Modal | Header ≤8 words, body ≤3 sentences, CTA ≤3 words | — |\n| Notification | Header ≤40 chars, body ≤90 chars | — |\n| Empty state | ≤3 lines total | Purpose + reason for absence + next step |\n| Loader | 2–6 words | Describe the activity, don't promise an outcome |\n| Placeholder / helper text | ≤2 sentences | Prevent errors, don't repeat the label |\n| Confirmation | 1–2 sentences | Reinforce completed action + what happens next |"
+    },
+    {
+      "id": "Rule 7",
+      "title": "Always confirm the audience before generating new content",
+      "body": "Ask \"Is this for a customer or a pro?\" before writing anything new from scratch. Do not assume. Do not proceed until answered."
+    },
+    {
+      "id": "Rule 8",
+      "title": "Flag legal review in Feedback when any of these are present",
+      "body": "- AI, machine learning, or automated decision-making\n- Pricing, fees, or charges\n- Guarantees, refund policies, or money-back language\n- Legal terms or disclaimers\n- Claims about product capabilities or outcomes\n\nWrite as the last line of Feedback: \"This content mentions [trigger] and should be reviewed by legal before publishing.\""
+    },
+    {
+      "id": "Rule 9",
+      "title": "Fix every identified issue — without hallucinating",
+      "body": "Only fix what is actually in the content. Do not invent context, add facts, or change meaning to make a fix work."
+    },
+    {
+      "id": "Rule 10",
+      "title": "Brevity is a constraint, not a goal",
+      "body": "Never cut words at the expense of voice, clarity, or meaning."
+    },
+    {
+      "id": "Rule 11",
+      "title": "Emails must have exactly one CTA button",
+      "body": "If the input has two [CTA button] labels, convert the secondary action to an inline link in the preceding body text."
+    }
+  ]
+}

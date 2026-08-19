@@ -18,6 +18,7 @@
  *   variables      FIGMA_TOKEN, Enterprise     — has the kit published since
  *   annotations    FIGMA_TOKEN, any plan       — do our 91 Annotation Kit keys still exist
  *   icons          FIGMA_TOKEN, any plan       — do our 899 icon keys still exist
+ *   copy source    always for age, GITHUB_TOKEN for more — has the rules blob moved
  *
  * The age layer matters most in practice. A designer asking "can I trust this?"
  * gets a real answer with no token, no plan, and no setup — which is the
@@ -42,8 +43,15 @@
  * dead icon key takes a run down near the start; it also gets a component layer
  * and nothing else.
  *
- * Nothing here writes a file. For the capture itself, see pull-published.mjs
- * and scripts/check.md.
+ * The fourth source is not Figma at all. The content design rules are a blob in
+ * a GitHub repo, pinned by sha, so the question there is whether the blob moved
+ * rather than whether a key still resolves — and the answer costs a GitHub call
+ * on GITHUB_TOKEN, not a Figma one. Without the token it reports the age of its
+ * own capture, which is the evidence the age layer offers for the Figma files
+ * when their layers cannot run.
+ *
+ * Nothing here writes a file. For the captures themselves, see
+ * pull-published.mjs, pull-copy.mjs, and scripts/check.md.
  *
  * Usage:
  *   node scripts/freshness.mjs                      # capture age only
@@ -114,6 +122,8 @@ if (has('--help') || has('-h')) {
       `${manifest.figma.fileName}, ${real(annotationCatalog.components).length} ` +
       `components in ${manifest.annotationKit.fileName}, and ${iconKeyPairs.length} ` +
       `icon keys in ${manifest.iconLibrary.fileName}.\n` +
+      `Set GITHUB_TOKEN to ask whether ${manifest.copySource.repo} still serves the blob the ` +
+      'content design rules were parsed from; without it that layer reports the age.\n' +
       '--brief prints nothing when the capture is current and the project pin matches; ' +
       'otherwise one sentence to relay. Session start is --offline --brief.',
   );
@@ -198,6 +208,21 @@ const captures = [
   },
 ];
 
+/**
+ * The content design capture ages on its own clock and is deliberately not a
+ * fourth member of `captures`.
+ *
+ * That array collapses to a single verdict over its oldest member, and the
+ * sentence it hands the agent names a Figma file and tells the reader a token
+ * or component may have moved. A rules file pulled from GitHub inheriting that
+ * sentence would send someone to re-capture the kit to fix a blob — a wrong
+ * instruction rather than a merely noisy one. It gets its own layer, its own
+ * verdict, and its own sentence below.
+ */
+const copySource = manifest.copySource;
+const copyAgeDays = ageOf(copySource.capturedAt, 'copySource.capturedAt');
+const copyStale = copyAgeDays > maxAge;
+
 const capturedAt = manifest.capturedAt;
 const oldest = captures.reduce((a, b) => (b.ageDays > a.ageDays ? b : a));
 const ageDays = oldest.ageDays;
@@ -211,6 +236,7 @@ const report = {
   captures,
   figma: manifest.figma,
   annotationKit: manifest.annotationKit,
+  copySource: { ...copySource, ageDays: copyAgeDays },
   layers: [],
   findings: [],
   notes: [],
@@ -352,6 +378,12 @@ function escalate(name, detail) {
   if (l && l.status === 'pass') Object.assign(l, { status: 'fail', mark: 'moved', detail });
 }
 
+// The layers FIGMA_TOKEN gates, which is not the same set as the layers that
+// touch the network. The copy source is checked over the network too, against
+// GitHub and on a different credential, so it stays out of this list: in it, an
+// absent FIGMA_TOKEN would skip a layer that never wanted one, and the "the
+// token reached nothing" note at the bottom would count a layer the token was
+// never offered to.
 const NETWORK_LAYERS = ['components', 'styles', 'variables', 'annotations', 'icons'];
 
 if (offline) {
@@ -360,7 +392,7 @@ if (offline) {
   const why = 'FIGMA_TOKEN is not set';
   for (const name of NETWORK_LAYERS) layer(name, 'skipped', why);
   report.notes.push(
-    'Only the capture dates were checked. For the stronger answer — whether our import ' +
+    'No Figma layer ran. For the stronger answer — whether our import ' +
       'keys still exist in the kit, the Annotation Kit, and the icon library — create a ' +
       'personal access token at figma.com > Settings > Security with the file_read scope, ' +
       'then re-run with FIGMA_TOKEN set.',
@@ -562,6 +594,88 @@ if (offline) {
   }
 }
 
+// ---------------------------------------------------------------- copy source
+
+const githubToken = process.env.GITHUB_TOKEN;
+
+/**
+ * The blob sha GitHub serves for the source path now.
+ *
+ * The repo is public and this would answer unauthenticated, but it is gated on
+ * GITHUB_TOKEN anyway. The anonymous rate limit is sixty an hour against the
+ * whole IP, and a check that can run at every session start is the wrong thing
+ * to spend it on — it would surface much later as an unexplained 403 in
+ * somebody else's build.
+ */
+async function upstreamBlob() {
+  const url =
+    `https://api.github.com/repos/${copySource.repo}/contents/` +
+    `${copySource.path}?ref=${copySource.ref}`;
+  try {
+    const res = await fetch(url, {
+      headers: {
+        Accept: 'application/vnd.github+json',
+        'User-Agent': 'pushpin-freshness',
+        Authorization: `Bearer ${githubToken}`,
+      },
+    });
+    if (!res.ok) return { ok: false, why: `${res.status} from GitHub` };
+    const meta = await res.json();
+    if (!meta?.sha) return { ok: false, why: 'GitHub returned no sha' };
+    return { ok: true, sha: meta.sha };
+  } catch (e) {
+    return { ok: false, why: `could not reach GitHub: ${e.message}` };
+  }
+}
+
+const blob = offline
+  ? { ok: false, why: '--offline' }
+  : !githubToken
+    ? { ok: false, why: 'GITHUB_TOKEN is not set' }
+    : await upstreamBlob();
+
+// A matching sha is strictly stronger than the age it replaces: an untouched
+// blob is an untouched blob whatever month it was captured in.
+if (blob.ok && blob.sha !== copySource.sha) {
+  layer(
+    'copy source',
+    'fail',
+    `upstream is ${blob.sha.slice(0, 12)}, the capture is ${copySource.sha.slice(0, 12)}`,
+  );
+  report.findings.push(
+    `${copySource.repo}/${copySource.path} has moved since the capture on ` +
+      `${copySource.capturedAt}:\n` +
+      `    committed  ${copySource.sha}\n` +
+      `    upstream   ${blob.sha}\n` +
+      `    Re-run: node scripts/pull-copy.mjs && node scripts/build-copy.mjs`,
+  );
+  report.brief.push(
+    `The content design rules moved upstream after Pushpin's copy of them was pulled on ${prettyDate(copySource.capturedAt)}, so a copy rule I apply may be out of date — re-pulling them is the first thing I'd do.`,
+  );
+} else if (blob.ok) {
+  layer('copy source', 'pass', `blob ${blob.sha.slice(0, 12)} unchanged upstream`);
+} else {
+  layer(
+    'copy source',
+    copyStale ? 'fail' : 'pass',
+    copyStale
+      ? `${copySource.repo} ${phraseFor(copyAgeDays)} — past the ${maxAge}-day refresh point`
+      : `${copySource.repo} last captured ${copySource.capturedAt}, ` +
+          `${phraseFor(copyAgeDays)} — age only, ${blob.why}`,
+    copyStale ? 'stale' : 'ok',
+  );
+  if (copyStale) {
+    report.findings.push(
+      `The content design rules have not been pulled in ${copyAgeDays} days. Nothing is ` +
+        `known to have changed — only that nobody has asked GitHub — so re-pull them ` +
+        `before trusting a rule quoted out of them.`,
+    );
+    report.brief.push(
+      `Pushpin's copy of the content design rules was pulled on ${prettyDate(copySource.capturedAt)}, so a rule may have changed since — re-pulling them is the first thing I'd do.`,
+    );
+  }
+}
+
 // --------------------------------------------------------------------- report
 
 const skipped = report.layers.filter((l) => l.status === 'skipped');
@@ -590,6 +704,9 @@ const markPad = Math.max(...report.layers.map((l) => l.mark.length));
 for (const c of captures) {
   console.log(`${c.fileName} — captured ${c.capturedAt}, ${phraseFor(c.ageDays)}`);
 }
+console.log(
+  `${copySource.repo} — captured ${copySource.capturedAt}, ${phraseFor(copyAgeDays)}`,
+);
 console.log('');
 for (const l of report.layers) {
   console.log(`  ${l.mark.padEnd(markPad)}  ${l.name.padEnd(namePad)}  ${l.detail}`);
@@ -599,7 +716,15 @@ for (const line of [...report.findings, ...report.notes]) console.log(`\n  ${lin
 console.log('');
 
 if (report.stale) {
-  console.log(`Run the captures in scripts/check.md, then: node scripts/diff.mjs --kit kit.json`);
+  // Two chains end here, and the closing instruction has to name the right one.
+  // Sending someone to re-capture Figma because a markdown file on GitHub moved
+  // is worse than saying nothing.
+  const copyOnly = failed.length > 0 && failed.every((l) => l.name === 'copy source');
+  console.log(
+    copyOnly
+      ? `Re-capture the rules: node scripts/pull-copy.mjs && node scripts/build-copy.mjs`
+      : `Run the captures in scripts/check.md, then: node scripts/diff.mjs --kit kit.json`,
+  );
   process.exit(1);
 }
 if (strict && skipped.length) {

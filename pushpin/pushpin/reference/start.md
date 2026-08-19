@@ -65,15 +65,17 @@ one a line on what to do and a line on why it is worth doing now.
 | A code project with no `pushpin.config.json` | `setup`, then `generate` |
 | The plugin's own source tree — `assets/` and the skill itself are in it | never `setup` or `init`, since the plugin is not a project that consumes itself; `refresh` if the capture is aging, otherwise ask what to design |
 | A code project already set up | `check` over the files being worked on, or answer the token question directly |
+| Words rather than code — text pasted in, a draft file, or a copy deck | `copy`, pointed at it; it reports and changes nothing |
 | A project set up before the preview existed — `setup --verify` says it is not recorded | re-running `init` with `--write --force`, which is what starts keeping the prototype server up |
 | This project's pin is behind | re-run `init` with `--write --force`, above everything else except an aged capture |
 | Neither a link nor a code project | `generate` — a Figma link is the only thing it needs — and a token or component question, which needs nothing set up at all: what the card radius is, which token a disabled label takes |
 | A capture over 30 days old | `refresh`, above everything else |
 
 Phrase each pick the way the user would say it rather than as a command to type
-— "mock up the booking screen in Figma", "check this directory for off-token
-values." Once a project is set up, plain speech is the whole interface, and the
-menu should read that way from the start.
+— "mock up the booking screen in Figma", "check what I just built against
+Pushpin", "does this button label sound like us." Once a project is set up,
+plain speech is the whole interface, and the menu should read that way from the
+start.
 
 Two or three picks, no more. The fuller list is the Commands table in
 [../SKILL.md](../SKILL.md), plus the token and component questions that are not

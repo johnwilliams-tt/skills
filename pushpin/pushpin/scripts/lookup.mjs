@@ -2,7 +2,7 @@
 /**
  * Answers one question about the catalogs without reading them.
  *
- * The five files in `assets/` total about 230 KB, and reading one to find out
+ * The six files in `assets/` total about 255 KB, and reading one to find out
  * that Button's text property is `Label#13326:0` costs roughly a hundred times
  * what the answer is worth. Every entry is small — the median component is 380
  * bytes — so the expensive part was never the fact, it was the file it lives
@@ -13,6 +13,12 @@
  * are three different entries, and a near-miss is answered with the real names
  * rather than nothing.
  *
+ * `copy` is the one kind that answers from the content design rules rather than
+ * the kit. It is here rather than in a script of its own because a component
+ * lookup can then carry the limit governing its text: "how long can this button
+ * be" is the next question after "what is its label property called", and
+ * answering both at once is the whole point of the file.
+ *
  * Usage:
  *   node scripts/lookup.mjs Button              # every catalog
  *   node scripts/lookup.mjs --component Button  # narrow to one
@@ -21,6 +27,7 @@
  *   node scripts/lookup.mjs --token radius
  *   node scripts/lookup.mjs --style title
  *   node scripts/lookup.mjs --annotation pointer
+ *   node scripts/lookup.mjs --copy pro
  *   node scripts/lookup.mjs --list --component  # names only, no detail
  *   node scripts/lookup.mjs --json Button
  *
@@ -34,6 +41,7 @@
  * Exit 0 when something matched, 1 when nothing did.
  */
 
+import { COPY, genericsFor, limitFor } from './lib/copy.mjs';
 import {
   TOKEN_GROUPS,
   loadAsset,
@@ -49,7 +57,7 @@ const has = (n) => argv.includes(n);
 // prefixed is a query term rather than an unknown flag.
 const isQueryTerm = (a) => !a.startsWith('--') || a.startsWith('--pp-');
 
-const KINDS = ['component', 'icon', 'token', 'style', 'annotation'];
+const KINDS = ['component', 'icon', 'token', 'style', 'annotation', 'copy'];
 const asJson = has('--json');
 const listOnly = has('--list');
 const showAll = has('--all');
@@ -61,7 +69,7 @@ const query = argv.filter(isQueryTerm).join(' ').trim();
 
 if (has('--help') || has('-h') || (!query && !listOnly)) {
   console.log(
-    'usage: node scripts/lookup.mjs [--component|--icon|--token|--style|--annotation]\n' +
+    'usage: node scripts/lookup.mjs [--component|--icon|--token|--style|--annotation|--copy]\n' +
       '                              [--list] [--all] [--json] <query>[,<query>...]\n\n' +
       'Prints only the catalog entries matching <query>, so a property name or an\n' +
       'import key can be had without reading a 97 KB file. Searches every catalog\n' +
@@ -70,6 +78,9 @@ if (has('--help') || has('-h') || (!query && !listOnly)) {
       'Separate several names with commas to get them in one run:\n' +
       '  lookup.mjs Button,Card,Checkbox\n' +
       'Spaces belong to a single name, so "Icon Button" needs no quoting.\n\n' +
+      '  --copy   the content design rules — preferred terms, length limits, banned\n' +
+      '           phrases, generic CTAs. A mapped component carries its limit in its\n' +
+      '           own entry, so --component Button already answers the length.\n' +
       '  --list   names only, no detail. With no query, lists everything of that kind.\n' +
       '  --json   the raw catalog entries, for scripts. Keyed by term when several.',
   );
@@ -144,18 +155,119 @@ const styles = loadAsset('styles.figma.json');
 const annotations = loadAsset('annotations.figma.json');
 const varKeys = loadAsset('variable-keys.figma.json');
 
+/**
+ * Everything the copy rules can be asked about, one row per name.
+ *
+ * Merged rather than one row per list, because several lists name the same
+ * string — "Click here" is forbidden outright, a generic CTA and a generic link
+ * — and three rows saying so separately is three chances to read only the
+ * mildest of them. The lists are walked worst first for the same reason, so the
+ * critical is what a merged row leads with.
+ *
+ * Aliases are what make the rules reachable by the names people actually hold.
+ * `--copy Button` finds the row the upstream calls "Button / CTA", and
+ * `--copy contractor` finds the term that replaces it, because nobody looks up
+ * a word they already know to avoid.
+ */
+function copySurface() {
+  const rows = new Map();
+  const at = (name) => {
+    const key = name.toLowerCase();
+    if (!rows.has(key)) {
+      rows.set(key, { name, what: [], roles: [], detail: [], aliases: [], data: {} });
+    }
+    return rows.get(key);
+  };
+
+  for (const [row, spec] of Object.entries(COPY.limits)) {
+    const e = at(row);
+    e.what.push(`copy limit · ${spec.raw}`);
+    e.roles.push('limit');
+    if (spec.format) e.detail.push(['format', spec.format]);
+    if (spec.pushpin.length) {
+      e.detail.push(['components', spec.pushpin.join(', ')]);
+      e.aliases.push(...spec.pushpin);
+    }
+    if (spec.note) e.detail.push(['note', spec.note]);
+    e.data.limit = spec;
+  }
+
+  for (const term of COPY.terms) {
+    const e = at(term.prefer);
+    e.what.push('preferred term');
+    e.roles.push('term');
+    if (term.insteadOf.length) {
+      e.detail.push(['instead of', term.insteadOf.join(', ')]);
+      e.aliases.push(...term.insteadOf);
+    }
+    if (term.usage) e.detail.push(['use for', term.usage]);
+    e.data.term = term;
+  }
+
+  for (const word of COPY.forbidden) {
+    const e = at(word);
+    e.what.push('forbidden word (C3)');
+    e.roles.push('forbidden');
+    e.data.forbidden = true;
+  }
+
+  for (const banned of COPY.bannedPhrases) {
+    const e = at(banned.phrase);
+    e.what.push('banned phrase (M4)');
+    e.roles.push('banned-phrase');
+    e.detail.push([banned.literal ? 'use' : 'fix', banned.fix]);
+    e.data.bannedPhrase = banned;
+  }
+
+  for (const cta of COPY.genericCtas) {
+    const e = at(cta);
+    e.what.push('generic CTA (M3)');
+    e.roles.push('generic-cta');
+    e.detail.push(['as a CTA', COPY.style.ctas[0]]);
+    e.data.genericCta = true;
+  }
+
+  for (const link of COPY.genericLinks) {
+    const e = at(link);
+    e.what.push('generic link (M3)');
+    e.roles.push('generic-link');
+    e.detail.push(['as a link', COPY.style.links[0]]);
+    e.data.genericLink = true;
+  }
+
+  return [...rows.values()];
+}
+
+const copyRows = copySurface();
+
 const out = [];
 const jsonOut = {};
 const p = (s = '') => out.push(s);
 
-/** A component or annotation entry, with its properties spelled out. */
-function renderComponent(name, e) {
+/**
+ * A component or annotation entry, with its properties spelled out.
+ *
+ * `copy` is off for the Annotation Kit: its components document Pushpin rather
+ * than ship in a product, so a length limit on one would be a rule about the
+ * annotation instead of about the thing annotated.
+ */
+function renderComponent(name, e, { copy = false } = {}) {
   const bits = [e.type === 'COMPONENT_SET' ? 'component set' : 'component'];
   if (e.page) bits.push(`page "${e.page}"`);
   if (e.instanceCount) bits.push(`${e.instanceCount} instances`);
   p(`${name} — ${bits.join(' · ')}`);
   p(`  import key   ${e.key}`);
   if (e.nodeId) p(`  node id      ${e.nodeId}`);
+
+  const limit = copy ? limitFor(name) : null;
+  if (limit) {
+    p(`  copy limit   ${limit.name} — ${[limit.raw, limit.format].filter(Boolean).join(' · ')}`);
+    // A component can fall under two rows — Form Note is a field error and it
+    // is helper text — and the second is a real constraint rather than a
+    // footnote, so it is named even though the first one binds.
+    const also = genericsFor(name).slice(1);
+    if (also.length) p(`  also under   ${also.join(', ')}`);
+  }
 
   const props = real(e.properties);
   if (!props.length) {
@@ -220,6 +332,12 @@ function renderToken(group, name, value) {
   if (binding) p(`  ${binding}`);
 }
 
+function renderCopy(name, e) {
+  p(`${name} — ${e.what.join(' · ')}`);
+  const pad = Math.max(...e.detail.map(([label]) => label.length), 1);
+  for (const [label, detail] of e.detail) p(`  ${label.padEnd(pad)}  ${detail}`);
+}
+
 function renderStyle(kind, name, e) {
   const bits = [];
   if (e.font) bits.push(e.font);
@@ -277,7 +395,9 @@ for (const term of terms) {
     missPool.push(...names);
     const rows = matches.map((n) => [n, components.components[n]]);
     bucket.components = Object.fromEntries(rows);
-    found += section('components', rows, all.length, renderComponent);
+    found += section('components', rows, all.length, (n, e) =>
+      renderComponent(n, e, { copy: true }),
+    );
   }
 
   if (kinds.includes('icon')) {
@@ -351,6 +471,18 @@ for (const term of terms) {
     const rows = matches.map((n) => [n, annotations.components[n]]);
     bucket.annotations = Object.fromEntries(rows);
     found += section('annotation kit', rows, all.length, renderComponent);
+  }
+
+  if (kinds.includes('copy')) {
+    missPool.push(...copyRows.map((e) => e.name));
+    const hits = (e, test) => test(e.name) || e.aliases.some(test);
+    const matches = term
+      ? copyRows.filter((e) => hits(e, (n) => n.toLowerCase().includes(lower)))
+      : copyRows;
+    const exact = matches.find((e) => hits(e, (n) => n.toLowerCase() === lower));
+    const final = (exact ? [exact] : matches).map((e) => [e.name, e]);
+    bucket.copy = Object.fromEntries(final.map(([n, e]) => [n, { roles: e.roles, ...e.data }]));
+    found += section('copy rules', final, copyRows.length, renderCopy);
   }
 
   // A term that matched nothing leaves no heading behind, or the output would

@@ -225,6 +225,35 @@ for (const [name, entry] of iconEntries) {
   }
 }
 
+// The join in copy-map.json is the one part of the copy chain no upstream can
+// supply, and the only one that rots without anything failing. build-copy.mjs
+// asserts it while building, but that runs when the rules change — a kit
+// refresh that renames a component happens on the other clock entirely, and it
+// leaves copy.json pointing at a name nobody publishes any more, silently
+// un-limiting the component. This is what looks in between.
+const copyMap = JSON.parse(
+  readFileSync(join(here, '..', 'assets', 'copy-map.json'), 'utf8'),
+).map;
+const catalog = JSON.parse(
+  readFileSync(join(here, '..', 'assets', 'components.figma.json'), 'utf8'),
+).components;
+
+for (const [row, entry] of Object.entries(copyMap)) {
+  const mapped = entry.pushpin ?? [];
+  checked++;
+  // A gap is legitimate — a header is a type ramp step, not a component — but
+  // an unexplained one is indistinguishable from a mapping someone forgot.
+  if (!mapped.length && !entry.note) {
+    problems.push(`copy-map.json: ${row} maps to nothing and says nothing about why`);
+  }
+  for (const name of mapped) {
+    checked++;
+    if (!(name in catalog)) {
+      problems.push(`copy-map.json: ${row} maps to "${name}", which is not in the component catalog`);
+    }
+  }
+}
+
 // Every capture must still hash to what the manifest recorded. This is the only
 // check that catches a hand-edited capture: build-css.mjs --check proves the CSS
 // matches the JSON, but a JSON edited to match a wrong assumption would pass it.

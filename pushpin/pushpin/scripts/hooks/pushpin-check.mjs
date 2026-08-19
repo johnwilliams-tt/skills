@@ -192,7 +192,18 @@ async function main() {
   out = String(out).trim();
   if (!out) finish(null);
 
-  finish(`${out}\n\nFix these before moving on. Rules: reference/rules.md.`);
+  // `--brief` ends with the doc for each class that actually fired, so a copy
+  // finding is not sent to the token rules. The sign-off sentence is the
+  // hook's, so the line is taken and dropped rather than relayed; a check that
+  // ever stops emitting it falls back to the doc this always named.
+  const lines = out.split('\n');
+  const docs =
+    (lines[lines.length - 1].startsWith('Docs: ') ? lines.pop().slice(6).trim() : '') ||
+    'reference/rules.md';
+  out = lines.join('\n').trim();
+  if (!out) finish(null);
+
+  finish(`${out}\n\nFix these before moving on. Rules: ${docs}.`);
 }
 
 main().catch(() => done());

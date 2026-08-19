@@ -212,7 +212,7 @@ advisory: it prints findings and changes nothing.
 If the project has been through `init`, most of these are already reported live
 by impeccable's detector, which reads the same tokens out of the generated
 `DESIGN.md`. `check` still earns its place on a repo that was never initialized,
-in a review, and for the two findings below, which no token allowlist can
+in a review, and for the two classes below, which no token allowlist can
 express.
 
 **Component identity.** Only in hand-rolled markup — a React project on
@@ -230,7 +230,13 @@ Thumbprint components declares nothing and needs nothing. See
   does not have. The push discards these rather than trusting them, which is
   safe and silent — this is where it gets said out loud.
 
-`node scripts/check.mjs <path>` reports both, and resolves every declaration
-against the catalog for you. Where you need to see an entry yourself, ask for
-it: `node scripts/lookup.mjs <name>`. Component names, property names, and
-variant options are case-sensitive and not guessable.
+**Copy.** The words in the markup, held against the content design rules — a
+banned phrase, a passive line that hides who acted, `contractor` for `pro`, a
+declared component over its length limit. `--no-copy` opts out, and
+`--component-only` does not: what it reads, what it never reads, and why the two
+flags differ are in [copy.md](copy.md#copy-in-code).
+
+`node scripts/check.mjs <path>` reports all three, and resolves every
+declaration against the catalog for you. Where you need to see an entry
+yourself, ask for it: `node scripts/lookup.mjs <name>`. Component names,
+property names, and variant options are case-sensitive and not guessable.

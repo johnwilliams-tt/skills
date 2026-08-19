@@ -181,7 +181,7 @@ export function inspectPin(dir, { manifest, pluginVersion }) {
     const brief = matched
       ? matched[1]
       : reasons.length === 1 && reasons[0] === 'hook'
-        ? `This project was set up before Pushpin's edit check existed — running init with --write adds it, and off-system values get reported as you work.`
+        ? `This project was set up before Pushpin's edit check existed — running init with --write adds it, and your edits get held against the tokens, the component catalog, and the copy rules as you work.`
         : `This project's Pushpin files were pinned to an older kit than the plugin now carries — ${REMEDY}.`;
 
     return {

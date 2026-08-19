@@ -1,0 +1,53 @@
+{
+  "$comment": "Hand-authored. The join from the generic component names in the copy rules to real entries in components.figma.json. This is the one file in the copy chain that cannot come from any upstream and must survive a source swap, so it is not generated and it carries no length limits of its own — those come from the capture, and duplicating them here would be a second thing to keep in step. Every row of the upstream's component table must appear here; a row with no real counterpart is recorded as an empty list and a note saying why, because a stated gap is honest and an invented mapping is a defect. A component may appear under more than one row; the first row it appears in is the one a bare lookup answers with.",
+  "map": {
+    "Button / CTA": {
+      "pushpin": ["Button", "Icon Button"],
+      "note": "Both expose a Label text property. \"Brand / App / Download Buttons\" is an app-store badge lockup and carries no copy of ours."
+    },
+    "Link": {
+      "pushpin": ["Link", "Themed Link"],
+      "note": "Neither exposes a text property — link text is a plain layer inside the instance, so the limit is checked against the text node rather than a property."
+    },
+    "Header": {
+      "pushpin": [],
+      "note": "No counterpart. A section header in Pushpin is a text node on the type ramp (title-1 to title-8), not a component. \"Headers / Filtering\", \"Headers / Tab\" and \"Modal / Factory / Header\" are navigation and modal chrome, not the heading this rule means."
+    },
+    "Subheader": {
+      "pushpin": [],
+      "note": "No counterpart, for the same reason as Header — a ramp step, not a component."
+    },
+    "Body text": {
+      "pushpin": [],
+      "note": "No counterpart. Body copy is a text node on body-1 to body-4."
+    },
+    "Error message": {
+      "pushpin": ["Alert", "Form Note"],
+      "note": "Alert is the banner and carries a Text property; Form Note is the field-level message under its hasError variant. Neither has the header and body the rule's limit splits into, so a length check on either needs the caller to name a part."
+    },
+    "Modal": {
+      "pushpin": ["Modal / Default", "Modal / Promotion"],
+      "note": "\"Modal / Factory / *\" are construction parts rather than modals. Modal / Confirmation is mapped under Confirmation, which is the tighter of the two limits that would otherwise both claim it."
+    },
+    "Notification": {
+      "pushpin": ["Toast", "Native / iOS / Push Notification"],
+      "note": "Toast is the in-product notification; the push notification is the surface the character limits were written for."
+    },
+    "Empty state": {
+      "pushpin": [],
+      "note": "No counterpart. An empty state is composed from an illustration, a heading and a button rather than published as a component."
+    },
+    "Loader": {
+      "pushpin": ["Loader Dots"],
+      "note": "Loader Dots carries no text of its own, so the limit governs the label placed beside it. \"Progress\" and \"Progress Meter\" are step indicators, not loaders, and their copy is a step name rather than an activity."
+    },
+    "Placeholder / helper text": {
+      "pushpin": ["TextInput", "Text Area", "Form Note"],
+      "note": "TextInput and Text Area hold placeholder copy in their value property; Form Note is helper text when hasError is false."
+    },
+    "Confirmation": {
+      "pushpin": ["Modal / Confirmation"],
+      "note": "Toast also confirms, but it is mapped to Notification, whose character limits are the binding ones on that surface."
+    }
+  }
+}

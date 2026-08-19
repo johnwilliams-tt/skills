@@ -59,6 +59,60 @@ additionally needs a concrete `nodeId`. To enumerate variables wholesale, use
    named `Caret-Left Icon · Small` is `@thumbtack/thumbprint-icons`'
    `NavigationCaretLeftSmall` — the category comes from
    `lookup.mjs --icon Caret-Left`, and the size suffix carries through.
+7. Run the frame's words through the copy engine before writing them into
+   markup, fix what it finds, and disclose the change — below.
+
+### Copy is corrected on the way in
+
+A string on a frame arrives in code as a decision somebody already made, which
+is why it is the one thing in this direction that gets copied across rather than
+translated. Every other value is mapped: a `#07344a` becomes a token, a `16px`
+gap becomes `--pp-space-4`, an exported PNG becomes an icon from the set. The
+words go through untouched unless something reads them, and a button saying
+`Submit Request` is off-guideline in the design, off-guideline in the markup,
+and expensive to change in either once the build exists.
+
+So the text nodes go through the engine before the markup does, not after:
+
+```bash
+node scripts/copy.mjs --text '[Button] Submit Request
+[Body text] Your request has been confirmed by the contractor.
+[TextInput] ZIP code'
+```
+
+```
+Major — fix before handoff
+  [Button]     1:10  M3  generic-cta    "Submit" is a generic call to action — name the action
+  [Button]     1:17  M1  title-case     title case on "Request" — sentence case unless it is a confirmed brand name
+  [Body text]  2:26  M2  passive-voice  "has been confirmed" is passive — say who does what
+  [Body text]  2:52  M8  wrong-term     "contractor" — Thumbtack says "pro"
+```
+
+The label is how each string reaches its rule. A catalog name resolves through
+the copy map — `TextInput` to placeholder and helper text — and a row name like
+`Header` resolves directly, which is what an unenclosed text node otherwise has
+no way of saying. Anything whose length could not be measured is named after the
+findings rather than passed over in silence. [copy.md](copy.md) has the command
+in full.
+
+**Fix what it finds in the markup you write, and say what changed.** One entry
+per string that moved, in the chat summary:
+
+```
+Copy corrected on the way in:
+  Button — "Submit Request" → "Send request" (generic CTA, title case)
+  Body — "…confirmed by the contractor." → "Dana confirmed your request." (passive, wrong term)
+```
+
+That disclosure is the whole reason the designer can fine-tune the result. A
+silent rewrite is a copy change nobody was told about, landing in the one place
+they will not think to re-read, and this plugin already refuses the same move
+for snapped spacing — which gets a `Token drift` note — and for a library it
+could not reach.
+
+**The frame itself is not edited.** Nothing in this direction writes to Figma.
+The correction lives in the markup and the disclosure is what lets the design
+catch up.
 
 ## Code → Figma
 

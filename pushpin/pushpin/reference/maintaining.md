@@ -1,6 +1,6 @@
 # Maintaining the capture
 
-How to ask whether the kit has moved, and what to do when it has. Consumers of
+How to ask whether a source has moved, and what to do when it has. Consumers of
 Pushpin do not need this; session start is `--offline --brief` and is covered in
 [../SKILL.md](../SKILL.md).
 
@@ -12,6 +12,7 @@ out of reach, so it is worth running even with nothing configured.
 ```bash
 node scripts/freshness.mjs                       # capture age; no token, no network
 FIGMA_TOKEN=figd_... node scripts/freshness.mjs  # also checks every import key
+GITHUB_TOKEN=ghp_... node scripts/freshness.mjs  # also asks whether the copy source moved
 node scripts/freshness.mjs --max-age 14          # stricter age limit
 node scripts/freshness.mjs --offline             # never touch the network
 node scripts/freshness.mjs --json                # machine-readable
@@ -38,7 +39,17 @@ a key that has been unpublished, so a generation script written against a stale
 catalog fails halfway through rather than at review. Variables need Enterprise
 and are skipped politely without it.
 
-Exit 1 means something moved; follow it with `refresh`.
+The copy source layer asks a different host a different question — whether
+GitHub still serves the blob the content design rules were parsed from — so it
+turns on `GITHUB_TOKEN` and runs whether or not `FIGMA_TOKEN` is set. Without it
+the layer falls back to the age of its own capture. The repo is public and would
+answer anonymously, but the anonymous allowance is sixty calls an hour against
+the whole machine, and a check that can run at every session start would spend
+it as an unexplained 403 in somebody else's build.
+
+Exit 1 means something moved. A Figma layer means `refresh`, below; the copy
+source means a re-pull instead —
+[provenance.md](provenance.md#when-the-copy-source-changes).
 
 Freshness answers for the catalog, not for the person running it. Keys belong to
 the file and resolve identically for everyone, but access does not — that is what
@@ -87,27 +98,32 @@ asset against the manifest and will catch it.
 
 ## Regenerating
 
-`assets/pushpin.css` is generated — never hand-edit it. Neither is any file in
-`assets/`; they are captures of Figma, not opinions about it.
+`assets/pushpin.css` is generated — never hand-edit it, and never hand-edit what
+it was generated from. Nothing in `assets/` is an opinion about the system; the
+one hand-authored file there is `copy-map.json`, which joins the copy rules to
+the component catalog rather than stating one.
 
 ```bash
-node scripts/build-css.mjs          # regenerate from tokens.figma.json
-node scripts/build-css.mjs --check  # fail if the committed CSS is stale
-node scripts/manifest.mjs           # rehash and re-count the captures
-node scripts/manifest.mjs --check   # fail if the manifest is stale
-node scripts/verify.mjs             # resolve every var() chain, verify hashes
-node scripts/freshness.mjs          # ask whether Figma has moved underneath it
+node scripts/build-css.mjs           # regenerate from tokens.figma.json
+node scripts/build-css.mjs --check   # fail if the committed CSS is stale
+node scripts/build-copy.mjs          # regenerate from copy.source.md and copy-map.json
+node scripts/build-copy.mjs --check  # fail if the committed copy.json is stale
+node scripts/manifest.mjs            # rehash and re-count the captures
+node scripts/manifest.mjs --check    # fail if the manifest is stale
+node scripts/verify.mjs              # resolve every var() chain, verify hashes
+node scripts/freshness.mjs           # ask whether the sources have moved underneath it
 ```
 
-Four different failures, four different checks. `build-css --check` catches a
-CSS file that no longer matches its source JSON. `verify.mjs` catches a build
-that transformed the JSON wrongly, and — via the manifest hashes — a JSON that
-was edited by hand. `freshness.mjs` catches the capture aging out or an import
-key disappearing. `diff.mjs` catches, in detail, the JSON no longer matching
-Figma.
+Five different failures, five different checks. `build-css --check` catches a
+CSS file that no longer matches its source JSON, and `build-copy --check` a
+`copy.json` that no longer matches a fresh parse of the capture. `verify.mjs`
+catches a build that transformed its source wrongly, and — via the manifest
+hashes — a capture that was edited by hand. `freshness.mjs` catches a capture
+aging out, an import key disappearing, or the rules blob moving upstream.
+`diff.mjs` catches, in detail, the JSON no longer matching Figma.
 
-The first two cannot fail on a stale capture, because they only compare the repo
-against itself. That is the gap the last two exist to close, and it is why
+The first three cannot fail on a stale capture, because they only compare the
+repo against itself. That is the gap the last two exist to close, and it is why
 `verify.mjs` prints the capture date underneath its pass message.
 
 Re-extracting from Figma is a `use_figma` call. Use

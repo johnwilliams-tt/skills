@@ -99,11 +99,13 @@ folder such as `.cursor/skills/impeccable`, so there is nothing for it to act on
 
 **This is not a gap to fix, and Pushpin does not wire it.** `check.mjs` already
 reports the token half — the raw hex, the square control, the off-ramp font —
-whenever impeccable's hook is absent, and it steps aside only when it finds one
-installed. What the impeccable hook would add is its non-token rules and a block
-in place of a report, at the cost of Pushpin writing a hook into a path another
-skill owns. Say the detector is not installed, say Pushpin's check covers the
-tokens, and move on.
+whenever impeccable's hook is absent, and it steps aside on that half alone when
+it finds one installed. The undeclared lookalike and the off-guideline line are
+reported either way, because nothing else in the project reports them. What the
+impeccable hook would add is its non-token rules and a block in place of a
+report, at the cost of Pushpin writing a hook into a path another skill owns.
+Say the detector is not installed, say Pushpin's check covers the tokens as well
+as the components and the words, and move on.
 
 ## The rule that survives setup
 

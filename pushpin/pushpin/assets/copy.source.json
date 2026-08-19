@@ -1,0 +1,10 @@
+{
+  "$comment": "Which blob assets/copy.source.md is. Written by scripts/pull-copy.mjs; verified against the capture by scripts/build-copy.mjs.",
+  "kind": "skill-md",
+  "repo": "jallard-code/content-design-assistant",
+  "path": "content-design-assistant.md",
+  "ref": "main",
+  "sha": "94a057494588b09e0f684dcee353611b4ad209db",
+  "extractedAt": "2026-08-19",
+  "url": "https://github.com/jallard-code/content-design-assistant/blob/main/content-design-assistant.md"
+}

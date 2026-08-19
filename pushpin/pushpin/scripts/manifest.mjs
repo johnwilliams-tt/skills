@@ -22,6 +22,11 @@ const here = dirname(fileURLToPath(import.meta.url));
 const ASSETS = join(here, '..', 'assets');
 const MANIFEST = join(ASSETS, 'manifest.json');
 
+// copy.source.md is here for the same reason the Figma captures are: it is a
+// committed verbatim artefact, and the hash is what catches a hand-edit of it.
+// copy.source.json is deliberately absent — it is the descriptor rather than
+// the capture, and build-copy.mjs already refuses to run when the blob sha it
+// records disagrees with the bytes on disk.
 const TRACKED = [
   'tokens.figma.json',
   'variable-keys.figma.json',
@@ -30,6 +35,9 @@ const TRACKED = [
   'icons.figma.json',
   'styles.figma.json',
   'pushpin.css',
+  'copy.source.md',
+  'copy.json',
+  'copy-map.json',
 ];
 
 const read = (f) => readFileSync(join(ASSETS, f), 'utf8');
@@ -44,6 +52,7 @@ const components = json('components.figma.json');
 const annotations = json('annotations.figma.json');
 const icons = json('icons.figma.json');
 const styles = json('styles.figma.json');
+const copy = json('copy.json');
 
 const collections = {};
 for (const [name, body] of Object.entries(tokens)) {
@@ -80,6 +89,18 @@ const manifest = {
     libraryKey: icons.source.libraryKey,
     capturedAt: icons.source.extractedAt,
   },
+  // The fourth source and the only one that is not Figma. The content design
+  // rules are a blob in a GitHub repo, so what pins them is a repo, a ref and a
+  // sha rather than a library key — and it is the sha freshness.mjs asks GitHub
+  // about, the way it asks Figma about the library keys above.
+  copySource: {
+    kind: copy.source.kind,
+    repo: copy.source.repo,
+    path: copy.source.path,
+    ref: copy.source.ref,
+    sha: copy.source.sha,
+    capturedAt: copy.source.extractedAt,
+  },
   hashes: Object.fromEntries(TRACKED.map((f) => [f, hash(f)])),
   shape: {
     collections,
@@ -96,6 +117,15 @@ const manifest = {
     iconKeys: icons.source.keyCount,
     textStyles: Object.keys(styles.textStyles).length,
     effectStyles: Object.keys(styles.effectStyles).length,
+    copyCodes: Object.keys(copy.codes).length,
+    copyTerms: copy.terms.length,
+    copyBannedPhrases: copy.bannedPhrases.length,
+    // Two numbers again, and for the same reason as the icons: the limits are
+    // rows of the upstream's own table, and how many real components they reach
+    // is a property of the join in copy-map.json rather than of the rules. Four
+    // rows reach nothing on purpose, so the second number moves on its own.
+    copyLimits: Object.keys(copy.limits).length,
+    copyComponents: Object.keys(copy.components).length,
   },
 };
 
@@ -128,6 +158,10 @@ if (process.argv.includes('--check')) {
       `${shape.hidden} hidden from publishing); ${shape.components} components, ` +
       `${shape.textStyles} text and ${shape.effectStyles} effect styles, ` +
       `${shape.annotations} Annotation Kit components, ` +
-      `${shape.icons} icons across ${shape.iconKeys} published sizes.`,
+      `${shape.icons} icons across ${shape.iconKeys} published sizes; and from the ` +
+      `content design source, ${shape.copyCodes} severity codes, ${shape.copyTerms} ` +
+      `preferred terms and ${shape.copyBannedPhrases} banned phrases, with ` +
+      `${shape.copyLimits} length limits reaching ${shape.copyComponents} of those ` +
+      `components.`,
   );
 }

@@ -1,8 +1,8 @@
 # Pushpin Design System
 
 Thumbtack's Pushpin design system as a plugin for Claude Code and Cursor: the
-tokens, the type ramp, every published Figma component, the icon set, and
-scripts that move a design between Figma and code.
+tokens, the type ramp, every published Figma component, the icon set, the
+content design rules, and scripts that move a design between Figma and code.
 
 ## Prerequisites
 
@@ -89,16 +89,16 @@ Commit `.claude/settings.json`. It offers Pushpin to anyone who opens the
 project, and the plugin stays unloaded until they accept.
 
 From then on, the edit hook flags raw hex, off-scale spacing, square controls,
-and markup posing as a published component as you write. It reports and never
-blocks.
+markup posing as a published component, and copy that breaks the content design
+rules as you write. It reports and never blocks.
 
 Run `/pushpin init` to re-run, repair, or update a project already set up.
 
 ## Use it
 
 Ask in plain speech — "mock up a booking screen", "does this frame match
-Pushpin", "build this design" with a Figma link, "check this repo". The commands
-are shortcuts for the same routes:
+Pushpin", "build this design" with a Figma link, "check this repo", "does this
+sound like us". The commands are shortcuts for the same routes:
 
 | Command | |
 |---|---|
@@ -107,7 +107,8 @@ are shortcuts for the same routes:
 | `/pushpin generate` | Build a screen in Figma from published components |
 | `/pushpin audit` | Review a Figma frame for detached instances and drawn lookalikes |
 | `/pushpin figma` | Turn a Figma design into code, mapped to tokens |
-| `/pushpin check` | Find off-system values in code |
+| `/pushpin check` | Find off-system values, lookalikes, and off-guideline copy in code |
+| `/pushpin copy` | Check pasted text, a file, or a frame's words against the content design rules |
 | `/pushpin freshness` | Report how old the capture is |
 | `/pushpin refresh` | Update the capture when the kit moves |
 
@@ -119,7 +120,8 @@ pointing them at.
 ```bash
 node pushpin/scripts/lookup.mjs Button        # one catalog entry: properties, keys, import key
 node pushpin/scripts/lookup.mjs --icon caret  # one import key per icon size
-node pushpin/scripts/check.mjs <dir>          # off-system values in code
+node pushpin/scripts/check.mjs <dir>          # off-system values, lookalikes, and copy in code
+node pushpin/scripts/copy.mjs <file>          # one draft against the content design rules
 node pushpin/scripts/freshness.mjs            # capture age, layer by layer
 node pushpin/scripts/setup.mjs <dir> --verify # what a project actually has
 node pushpin/scripts/init.mjs <dir> --write   # set up, repair, or update a project
@@ -138,7 +140,7 @@ without editing a file first.
 | `pushpin/SKILL.md` | Entry point the agent loads, and the routing table |
 | `pushpin/reference/` | The docs each route loads |
 | `pushpin/scripts/` | CLI scripts, the edit hook, and the capture toolchain |
-| `pushpin/assets/` | Generated capture: 300 custom properties, 117 components, 227 icons |
+| `pushpin/assets/` | Generated capture: 300 custom properties, 117 components, 227 icons, 53 copy rules |
 
 ## Reference docs
 
@@ -153,6 +155,7 @@ without editing a file first.
 | [`reference/context.md`](pushpin/reference/context.md) | Grounding work in the page a link resolved to. |
 | [`reference/tokens.md`](pushpin/reference/tokens.md) | The token vocabulary, choosing between tokens, and what `check` reports. |
 | [`reference/components.md`](pushpin/reference/components.md) | Kit inventory, the Thumbprint React map, and the class-name fallback for designs with no Code Connect. |
+| [`reference/copy.md`](pushpin/reference/copy.md) | The content design rules, what the engine decides, and what it leaves to judgment. |
 | [`reference/figma.md`](pushpin/reference/figma.md) | File keys, library keys, workflow directions, and the state of Code Connect. |
 | [`reference/provenance.md`](pushpin/reference/provenance.md) | What is authoritative and what isn't. |
 | [`reference/setup.md`](pushpin/reference/setup.md) | Guided first-time setup: what to ask, what to run, what to verify. |
@@ -172,7 +175,7 @@ without editing a file first.
   stops asking before every catalog lookup. Keep `.claude/settings.local.json`
   out of git — it names paths on one machine — and run `/pushpin init` after a
   plugin update.
-- **Nothing in `pushpin/assets/` is hand-written.** It is captured from the
-  Figma kit. Refresh it per
-  [`reference/maintaining.md`](pushpin/reference/maintaining.md); every refresh
-  lands in [`CHANGELOG.md`](CHANGELOG.md).
+- **Nothing in `pushpin/assets/` is hand-written except `copy-map.json`.** The
+  rest is captured from the Figma kit and the content design source. Refresh it
+  per [`reference/maintaining.md`](pushpin/reference/maintaining.md); every
+  refresh lands in [`CHANGELOG.md`](CHANGELOG.md).

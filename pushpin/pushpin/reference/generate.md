@@ -351,6 +351,39 @@ them one at a time buys nothing but two more waits. `Thumbtack Rise` in
 `Regular`, `Medium`, and `Bold` is the whole set the text styles reach for, even
 though the token layer describes weight numerically as 563 / 590 / 660.
 
+## Writing the copy
+
+Copy is composed against Thumbtack's content design rules at the moment
+`characters` and `Label` are set, not corrected in a pass afterwards. The
+correction is never only a text edit: a button that has to lose two words is a
+button whose width was chosen for four, and the row it sits in was balanced
+around that width. A screen written legal hands over without a copy pass.
+[copy.md](copy.md) has the whole of it; four rules bite right here.
+
+- **Sentence case.** `Submit Request` is a form generator talking; `Send
+  request` is a person.
+- **A call to action names its action,** in four words, verb plus object.
+  `Learn more` and `Get started` fit every button ever drawn, which is exactly
+  what is wrong with them. A link gets eight and has to say where it goes.
+- **The product's own words** — `pro`, `customer`, `sign in`, `card` — never the
+  near-miss.
+- **The length limit is part of the component,** and the lookup this lane
+  already makes prints it inside the component's own entry, above the property
+  table. Nothing has to be asked for twice.
+
+Anything else the rules say is one question away:
+`node scripts/lookup.mjs --copy Toast` answers the notification limits, and
+`--copy contractor` answers with the word that replaces it. A string arriving
+from somewhere else — carried in from pushed code, or read off the frame being
+rebuilt — goes through `node scripts/copy.mjs` before it is written in, the same
+move [figma.md](figma.md#copy-is-corrected-on-the-way-in) makes on the way from
+a design.
+
+Nothing this lane writes gets a score, an alternative, or an annotation arguing
+for the wording. Copy is composed correct the way a fill is bound correct, and
+the audit's copy bucket is the check on that rather than the place it is
+decided.
+
 ## Binding variables
 
 For anything the components don't cover — page backgrounds, custom containers,
@@ -889,7 +922,8 @@ passing as done.
 5. **Fill the sections in parallel,** one `use_figma` call per section, all of
    them in one message — [above](#filling-the-sections-in-parallel). Each lane
    batches its own imports, stays inside the section it was handed, binds its
-   spacing through [`space()`](#spacing-goes-through-space), and clears that
+   spacing through [`space()`](#spacing-goes-through-space), writes its copy
+   under [the content design rules](#writing-the-copy), and clears that
    section's `placeholder` as it finishes. Nothing the design calls for is
    left out: what cannot be resolved gets a marked placeholder.
 6. **Annotate,** into the auto-layout bundle beside the frame: every proposal's
@@ -912,6 +946,6 @@ passing as done.
 ## The audit
 
 Run it before declaring the work done. It sorts what it finds into library
-instances, proposals, unresolved atoms, degraded libraries, snapped spacing, and
-defects, and it fails on defects only. The script and the six buckets are in
-[audit.md](audit.md).
+instances, proposals, unresolved atoms, degraded libraries, snapped spacing, the
+words the frame owns, and defects, and it fails on defects only. The script and
+the seven buckets are in [audit.md](audit.md).

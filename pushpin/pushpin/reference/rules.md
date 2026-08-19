@@ -4,10 +4,10 @@ Load this before writing UI on either surface. `SKILL.md` carries the five that
 are violated most often; this is the whole set, with the reasoning that makes
 each one decidable in a case it does not name.
 
-In a project that has been through `init`, most of the token rules below are
-also checked mechanically — `node scripts/check.mjs <path>` reports them, and
-the hook `init` installs runs it on every edit. The rules that no allowlist can
-express are the ones at the bottom, and those are still yours to hold.
+In a project that has been through `init`, most of the token and copy rules
+below are also checked mechanically — `node scripts/check.mjs <path>` reports
+them, and the hook `init` installs runs it on every edit. What no allowlist can
+express is still yours to hold.
 
 ## Geometry
 
@@ -31,11 +31,27 @@ express are the ones at the bottom, and those are still yours to hold.
 
 ## Type and copy
 
-- **Sentence case** for headings, buttons, labels, and badges.
+- **Sentence case** for headings, buttons, labels, and badges. Nine confirmed
+  brand names are the only exception.
 - **Mobile is the primary surface.** The type ramp ships mobile-first and scales
   up at 700px; design the small screen first.
 - **No display size above `hero`, and no all-caps overline.** A comp that
   appears to need one is off-system — raise it rather than inventing a token.
+- **A call to action names its action** — four words, verb plus object; a link
+  gets eight and has to describe its destination. `Submit` and `Learn more` name
+  nothing.
+- **Use the product's own words.** `pro` and not `contractor`, `customer` and
+  not `user`, `sign in` and not `log in`.
+- **Active voice, and a failure that names the way out.** An error reporting
+  what broke and stopping there leaves the reader where they were stuck, and
+  blaming them for being there is forbidden outright.
+- **Length belongs to the component,** so it is a design constraint rather than
+  a preference about brevity. `node scripts/lookup.mjs Button` prints the limit
+  above the property table.
+
+The rest of the content design rules, what the engine decides mechanically and
+what it leaves to you, and how to ask for a single row are in
+[copy.md](copy.md).
 
 ## Icons
 

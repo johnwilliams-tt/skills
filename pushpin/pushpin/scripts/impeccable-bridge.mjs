@@ -281,10 +281,11 @@ This project uses **Pushpin**, Thumbtack's design system — the successor to
 Thumbprint. Rounder, softer, pill-first, built on a near-navy brand blue.
 
 Pushpin is a binding brand commitment rather than a starting point. It is this
-project's tokens, component library, and icon set, which makes it project truth:
-no other design authority overrides it. Craft floors, ambition, and category
+project's tokens, component library, icon set, and words, which makes it
+project truth: no other design authority overrides it, and a screen's copy is
+governed as closely as its colour. Craft floors, ambition, and category
 defaults from any other source choose among Pushpin-legal options, never around
-them. What Pushpin leaves open — layout, hierarchy, copy, moments of motion — is
+them. What Pushpin leaves open — layout, hierarchy, moments of motion — is
 genuinely open, and deferring those to Pushpin is as much a mistake as
 overriding it.
 
@@ -326,9 +327,10 @@ ${colorGroups}
 **Body Font:** ${FONT_FAMILY}
 
 **Character:** One variable family across the entire ramp. Sentence case for
-headings, buttons, labels, and badges. There is no display size above \`hero\`
-and no all-caps overline; a comp that appears to need one is off-system rather
-than a reason to invent a token.
+headings, buttons, labels, and badges — nine brand names take title case,
+Thumbtack Guarantee and Top Pro among them, and nothing else does. There is no
+display size above \`hero\` and no all-caps overline; a comp that appears to
+need one is off-system rather than a reason to invent a token.
 
 Weights are variable-font values rather than the usual 400/700 pair —
 ${weights}.
@@ -409,6 +411,10 @@ Build from them rather than drawing lookalikes. The catalog ships with the
 - Do design the mobile layout first.
 - Do use the icon set — 227 icons at four sizes, each size its own component.
 - Do declare component identity in markup so the Figma push does not guess.
+- Do name the action in a call to action, in four words: \`Send request\`, not
+  \`Learn more\`.
+- Do use the product's own words — \`pro\` and not \`contractor\`, \`customer\` and
+  not \`user\`, \`sign in\` and not \`log in\`.
 - Do raise a gap with the design system owner when nothing in the kit fits.
 
 ### Don't
@@ -419,15 +425,20 @@ Build from them rather than drawing lookalikes. The catalog ships with the
 - Don't use emoji in product UI. The icon set covers it.
 - Don't resize an icon; each size is its own component.
 - Don't set an all-caps overline or a display size above \`hero\`.
+- Don't drop the actor: \`Dana confirmed your booking\`, not \`Your booking has
+  been confirmed\`.
+- Don't promise on the product's behalf — \`guaranteed\`, \`perfect match\`.
 - Don't rebuild a component the kit already publishes.
 
 ---
 
-These checks cover tokens, which is the part a stylesheet can be measured
-against. They cannot tell you that you rebuilt Button instead of using it, that
-an icon is the wrong size, or that a proposal drifted from what it extends — the
-design system is much larger than its tokens. Load the \`pushpin\` skill for the
-rest, and run its Figma audit before handing work over.
+These checks cover tokens and the copy rules a pattern can decide, which is the
+part a stylesheet and a string can be measured against. They cannot tell you
+that you rebuilt Button instead of using it, that an icon is the wrong size,
+that a proposal drifted from what it extends, or that a line breaking no rule
+still does not sound like Thumbtack — the design system is much larger than what
+can be measured. Load the \`pushpin\` skill for the rest, and run its Figma audit
+before handing work over.
 `;
 }
 
@@ -445,6 +456,9 @@ const NARRATIVE = {
     'Design the mobile layout first.',
     'Use the icon set — 227 icons at four sizes, each size its own component.',
     'Declare component identity in markup so the Figma push does not guess.',
+    'Name the action in a call to action, in four words: "Send request", not "Learn more".',
+    'Use the product\'s own words — "pro" and not "contractor", "customer" and not "user", '
+      + '"sign in" and not "log in".',
     'Raise a gap with the design system owner when nothing in the kit fits.',
   ],
   donts: [
@@ -454,6 +468,8 @@ const NARRATIVE = {
     'Use emoji in product UI.',
     'Resize an icon; each size is its own component.',
     'Set an all-caps overline or a display size above hero.',
+    'Drop the actor: "Dana confirmed your booking", not "Your booking has been confirmed".',
+    'Promise on the product\'s behalf — "guaranteed", "perfect match".',
     'Rebuild a component the kit already publishes.',
   ],
   rules: [

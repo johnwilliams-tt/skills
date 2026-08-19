@@ -16,14 +16,18 @@ The captures below are manual and slow. Before taking them, run:
 node scripts/freshness.mjs
 ```
 
-It reports all three captures' ages with no token at all, and with `FIGMA_TOKEN`
+It reports all four captures' ages with no token at all, and with `FIGMA_TOKEN`
 set it also confirms that every component and style key in the Pushpin catalog,
 every component key in the Annotation Kit catalog, and every one of the 899 icon
-keys still resolves. A clean run on a recent capture is good enough for most
-questions, and it costs one command instead of several plugin round-trips. Take
-the full captures when it exits non-zero, when you intend to update `assets/`
-anyway, or when you need to know exactly *what* moved rather than *that*
-something did.
+keys still resolves. `GITHUB_TOKEN` answers the fourth source, the content
+design rules, where the question is whether the blob they were parsed from has
+moved rather than whether a key resolves — and a blob that has is re-pulled with
+`node scripts/pull-copy.mjs && node scripts/build-copy.mjs`, not with anything
+below. A clean run on a recent capture is good enough for most questions, and it
+costs one command instead of several plugin round-trips. Take the full captures
+when it exits non-zero on one of the Figma layers, when you intend to update
+`assets/` anyway, or when you need to know exactly *what* moved rather than
+*that* something did.
 
 Note that `freshness.mjs` reads the published state over REST. It cannot see
 unpublished editor state, which is the whole reason the kit capture below

@@ -47,6 +47,48 @@ the toolchain, which `diff.mjs` has no category for.
   so keeping it reachable is governing rather than building. `--no-preview`
   declines it, and a project set up before this existed records nothing until
   `init --write --force`, which `setup --verify` now says.
+- **The words are Pushpin's now, on the same terms as the tokens.** A screen could
+  bind every colour, instance every component, pass the audit clean, and still say
+  "Please be advised that your request has been submitted" — the system had an
+  opinion about the button and none about what it said, so copy fell to whichever
+  skill happened to be in the room. Thumbtack's content design rules are vendored
+  here on the chain the tokens already use: `pull-copy.mjs` captures
+  [jallard-code/content-design-assistant](https://github.com/jallard-code/content-design-assistant)
+  byte for byte into `assets/copy.source.md`, `build-copy.mjs --check` rebuilds
+  `assets/copy.json` from it deterministically and fails when the committed file
+  disagrees, and an adapter registry keyed by source kind means moving to the
+  Thumbprint content design pages later is one `SOURCE` edit and one parser rather
+  than a re-write. `assets/copy-map.json` is the one hand-authored file in
+  `assets/`, joining the rules' own row names to real catalog components, and
+  `verify.mjs` fails when a kit refresh renames one out from under it — the
+  alternative being a component that silently stops having a length limit. Copy is
+  governed three ways and they are deliberately different: written correct as a
+  frame or a file is composed, the way a token is bound rather than a hex picked
+  and fixed later; corrected on the way in from a Figma frame, with the change
+  disclosed in a line, because a silently rewritten label is the same failure as
+  silently snapped spacing; and reported on demand by `/pushpin copy`, over pasted
+  text, a file, stdin, or a frame's harvested words. The engine decides seven of
+  the rubric's sixteen codes and leaves the other nine as judgment, and there is no
+  1-5 score and no rewrite block anywhere — the upstream has both, and a score
+  invites arguing with the number instead of fixing the line. `check.mjs` reports
+  copy as a third finding class beside tokens and component identity, which
+  `--no-copy` declines and `--component-only` does not, since that flag exists to
+  defer to impeccable's live detector and impeccable has nothing to say about
+  words. On a frame the audit gathers the copy and `copy.mjs` decides it, so no
+  ruleset is ever restated in a script that cannot read a file; a critical becomes
+  a defect and fails the run, and a frame carrying unsettled copy withholds both
+  its verdict and its screenshot rather than reporting `ok` on words nobody read.
+  `freshness.mjs` gives the rules their own layer on `GITHUB_TOKEN`, apart from the
+  Figma captures, because a stale markdown file must not tell someone to
+  re-capture the kit. Where the mechanical part stops is written down rather than
+  implied: title case needs a capital a proper noun cannot explain, since most
+  nouns on a Thumbtack screen are the name of a pro or a business, so it reads
+  `Edit Profile` in a declared Button and lets it pass pasted bare; length reaches
+  eight components from markup, because the six with separate header and body
+  allowances cannot say which slot a text node fills; and passive voice catches the
+  fragments the rules name and the unambiguous "been" plus participle, no wider.
+  Full surface in [reference/copy.md](pushpin/reference/copy.md), provenance in
+  [reference/provenance.md](pushpin/reference/provenance.md).
 
 **Changed**
 
@@ -215,6 +257,21 @@ the toolchain, which `diff.mjs` has no category for.
 
 **Fixed**
 
+- **`check.mjs` read a declared component name only as far as its first space.**
+  `data-pp-component="Modal / Confirmation"` parsed as `Modal`, which is not a
+  component, so declaring one of the multi-word names correctly reported it as an
+  unknown component — the check punished the annotation it exists to reward. Values
+  are now read as quoted strings, which also stops a `{expr}` value being taken for
+  a literal name.
+- **`check.mjs --help` exited 1.** It printed the usage anyone asked for and then
+  reported failure, because the explicit request and the no-paths error shared one
+  exit expression, so `check.mjs --help && …` never reached the second command.
+- **The generated brief told another skill that copy was open ground.** `DESIGN.md`
+  is what `impeccable` reads, and its doctrine is that the brief wins, so the
+  sentence listing copy among what "Pushpin leaves open" did not merely omit the
+  new rules — it licensed a different skill to own them. It now names the words as
+  part of what Pushpin is, and the `Do` and `Don't` lists carry the rules a reader
+  who never runs our scripts still has to follow.
 - **The one prerequisite that stops a new user was listed last, and installed
   with a command that assumes another prerequisite.** macOS ships neither Node
   nor Homebrew, on any version, so `brew install node` was three undocumented
