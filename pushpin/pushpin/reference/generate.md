@@ -163,6 +163,38 @@ specifying every axis and hoping the combination was built.
 Always look the component up before setting properties. Never set one from
 memory.
 
+### A slot is filled by appending, not by setting a property
+
+Two components in the kit publish slots, three between them, and a slot is the
+one property type `setProperties` cannot reach —
+`setProperties({ 'children#26172:0': … })` throws. `lookup.mjs` prints slots with
+a suffixed key like every other non-VARIANT property, but that key is only how
+the slot is announced. The content goes in by finding the slot node on the
+instance and appending to it.
+
+```js
+const slot = instance
+  .findAllWithCriteria({ types: ['SLOT'] })
+  .find(n => n.name === 'childern');
+slot.appendChild(content);
+```
+
+Narrow by name rather than taking the first match, because Modal / Promotion
+publishes two — and both of the traps here live on it. `childern` is misspelled
+upstream, and `artwork` (SLOT) sits beside `Artwork` (INSTANCE_SWAP), differing
+only in case. Neither survives being typed from memory.
+
+| Component | Slot |
+|---|---|
+| Modal / Factory / Main | `children` |
+| Modal / Promotion | `childern` |
+| Modal / Promotion | `artwork` |
+
+`GRID` is not a legal `layoutMode` on a slot; content that needs a grid goes in a
+frame inside it. If an edit to the appended node then throws
+`Internal Figma Error: Parent not found`, the append invalidated the handle —
+re-find the node through `slot.children` and edit through the fresh one.
+
 ## Icons
 
 Icons are the part of the kit most likely to be got wrong, and all three ways of
@@ -705,7 +737,13 @@ probes.forEach(([library], i) => {
     ? true
     : settled[i].reason.message;
 });
-return reach;
+
+const button = settled[0];
+const api = button.status === 'fulfilled'
+  ? { slots: typeof button.value.defaultVariant.createSlot === 'function' }
+  : {};
+
+return { reach, api };
 ```
 
 The three probes are three separate libraries and no one of them tells you
@@ -717,6 +755,19 @@ two answers, which are the whole reason the preflight runs.
 Every icon is a plain `COMPONENT` rather than a set, which is why the icon probe
 uses `importComponentByKeyAsync`. Use the same call for any catalog entry whose
 `type` is `"COMPONENT"`.
+
+`api` rides back on the Button import rather than costing a call of its own: the
+resolved set's `defaultVariant` is a `ComponentNode`, so the answer is in hand
+already and nothing is mutated to get it. It crosses back as a boolean because a
+node handle cannot, and it travels beside `mode` for the rest of the run.
+
+**Silent when it passes**, like the session freshness check; only a negative is
+worth a sentence. And it is asymmetric. A positive forbids the claim that the
+API cannot do the thing, but it does not promise the call works — for the reason
+[the drift record](#the-drift-record-lives-on-the-node) gives about
+`setPluginData`, a method can answer `'function'` and still throw. A negative
+gets one cross-check against `figma-use`'s `component-patterns.md` before it is
+believed.
 
 ### One library stops the run, and it is not all of them
 
@@ -863,7 +914,7 @@ return { mutatedNodeIds: [section.id /* , … */], drift };
    link still comes first, as ever — nothing in this message can be issued
    without it, and it is never searched for. Both are reads, so the preflight
    still lands before any node exists, which is the point of running it early.
-   Stop only if Pushpin is unreachable; otherwise carry `mode` forward.
+   Stop only if Pushpin is unreachable; otherwise carry `mode` and `api` forward.
 2. **Read the page.** Walk up to the resolved frame's page and take its children
    — [context.md](context.md). When the link carried a `node-id`, this rides in
    the first message too, since the walk starts from that id and needs nothing
