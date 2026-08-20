@@ -424,6 +424,47 @@ the toolchain, which `diff.mjs` has no category for.
   unfinished over product truth that is not Pushpin's to generate, which is the
   sort of red row that teaches people to stop reading the output. It is a note:
   reported, so the option stays visible, and not counted against the project.
+- **Pushpin asserted a Plugin API limit from a file that was wrong about it, and
+  shipped the lesser structure rather than disclosing it.**
+  `figma-use/SKILL.md` calls `plugin-api-standalone.d.ts` the definitive source
+  of truth for the API surface, and across 11,329 lines it has zero mentions of
+  `createSlot`, `SlotNode`, or `SLOT` while its sibling `component-patterns.md`
+  documents the slot API in full. The typings lag only at the newest edge, which
+  is exactly where recall is weakest, so the file an agent reaches for and the
+  memory it checks against went wrong on the same case and confirmed each other:
+  what came out was a component built without slots and a claim the API could
+  not do it. `rules.md` now requires that a claim the API cannot do something be
+  verified before it is made or acted on — a live probe, then the `figma-use`
+  prose references, then the typings, then memory — and treats a design that got
+  simpler because of a believed limit as a disclosure, the same as snapped
+  spacing or a corrected label; being wrong about the API is only how it
+  happens. The access preflight settles it rather than leaving it to be asked,
+  returning `{ reach, api }` and riding on the Button import it already makes,
+  since the resolved set's `defaultVariant` is a `ComponentNode` — no call
+  added, nothing mutated, and the answer crosses back as a boolean because a
+  node handle cannot. It is silent when it passes, like the session freshness
+  check, and asymmetric: a positive forbids the "cannot be done" claim without
+  promising the call works, for the reason the page already gives about
+  `setPluginData` answering `'function'` and then throwing.
+  [`reference/generate.md`](pushpin/reference/generate.md) also documents
+  filling a slot, which nothing in `reference/` covered while the kit published
+  three: `setProperties` cannot reach one, so content is appended to the slot
+  node, narrowed by name because `Modal / Promotion` publishes two and both
+  traps live on it — `childern` is misspelled upstream, and `artwork` (SLOT)
+  sits beside `Artwork` (INSTANCE_SWAP). The audit was exempting all of it.
+  Four gates skipped nodes inside an instance because the library owns that
+  styling, which a slot inverts — the caller supplies the content — so an
+  `inSlotContent` helper carves out the exception for the lookalike sweep, the
+  fill/spacing/drift walk, and the two gates over `Proposed / …` definitions,
+  stopping at the first enclosing `INSTANCE` so a Button placed in a slot still
+  governs its own interior. The copy walk had the same hole by another route: it
+  gates on the enclosing instance plus an `overridden` set, and slot content can
+  never be in `overrides` because it was appended rather than inherited, so
+  every word inside a slot was being dropped from the copy audit entirely. Slot
+  text is gathered with no component now, the way an unenclosed heading is,
+  since a slot publishes no length limit for what the caller puts in it. The
+  typings join [`reference/provenance.md`](pushpin/reference/provenance.md)'s
+  "What is not authoritative".
 
 ## 0.9.0 — 2026-08-14
 
