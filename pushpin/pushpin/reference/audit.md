@@ -107,6 +107,17 @@ const enclosingInstance = (n) => {
   return null;
 };
 const inInstance = (n) => enclosingInstance(n) !== null;
+// A slot is published so the caller can fill it, which inverts every other
+// instance interior: what sits in one is this run's work, not the library's.
+// Stops at the enclosing INSTANCE for the reason `enclosingInstance` takes the
+// nearest — a Button placed in a slot still owns its own interior.
+const inSlotContent = (n) => {
+  for (let p = n.parent; p; p = p.parent) {
+    if (p.type === 'SLOT') return true;
+    if (p.type === 'INSTANCE') return false;
+  }
+  return false;
+};
 const inProposed = (n) => ancestor(n, (p) =>
   (p.type === 'COMPONENT' || p.type === 'COMPONENT_SET') && p.name.startsWith('Proposed / '));
 
@@ -255,7 +266,7 @@ for (const name of localMains.keys()) {
   const def = defs.get(name);
   if (!def) continue;
   for (const t of def.findAllWithCriteria({ types: ['TEXT'] })) {
-    if (inInstance(t)) continue;               // the library owns nested instances
+    if (inInstance(t) && !inSlotContent(t)) continue;   // the library owns nested instances
     if (t.textStyleId === '' || t.textStyleId === figma.mixed) {
       report.defects.push(`${name} / ${t.name} — raw font settings, not a published text style`);
     }
@@ -263,7 +274,7 @@ for (const name of localMains.keys()) {
   // The definitions sit on the page rather than inside the frame, so the walk
   // over `root` below does not reach them. Same check, second entry point.
   for (const n of [def, ...def.findAllWithCriteria({ types: ['FRAME'] })]) {
-    if (inInstance(n)) continue;
+    if (inInstance(n) && !inSlotContent(n)) continue;
     literalSpacing(n, `${name} / ${n.name}`);
   }
 }
@@ -276,7 +287,7 @@ const inDrawnAnnotation = (n) => DRAWN.test(n.name) || ancestor(n, (p) => DRAWN.
 
 for (const n of root.findAllWithCriteria({ types: ['FRAME', 'RECTANGLE'] })) {
   const r = typeof n.cornerRadius === 'number' ? n.cornerRadius : 0;
-  if (!inInstance(n) && !inProposed(n) && !inDrawnAnnotation(n) && r >= 100) {
+  if ((!inInstance(n) || inSlotContent(n)) && !inProposed(n) && !inDrawnAnnotation(n) && r >= 100) {
     report.defects.push(`${n.name} — pill-shaped ${n.type}, not an instance`);
   }
 }
@@ -290,10 +301,14 @@ collectDrift(root);
 
 // Literal fills, literal spacing, and recorded drift, over one walk. All three
 // skip nodes inside an instance for the same reason: the library owns that
-// styling, so flagging it would fail every screen that placed a component.
+// styling, so flagging it would fail every screen that placed a component. Slot
+// content is the exception the same reason carves out — the caller supplies it,
+// so it is this run's layout and is held to the standard the rest of the frame
+// is. A raw hex or an unbound gap inside a Modal's `children` is not the
+// library's to answer for.
 const unbound = new Set();
 for (const n of root.findAllWithCriteria({ types: ['FRAME', 'RECTANGLE', 'TEXT'] })) {
-  if (inInstance(n)) continue;
+  if (inInstance(n) && !inSlotContent(n)) continue;
 
   collectDrift(n);
   literalSpacing(n, n.name);
@@ -393,7 +408,10 @@ const notCopy = (n) =>
 // checks make one level up. A text property is the other way round. It is a
 // slot the component published in order to be filled, so whatever sits in it is
 // this screen's copy, and a label still reading the main's placeholder is a
-// copy bug rather than the library's.
+// copy bug rather than the library's. A literal `SLOT` node is the third case
+// and the same argument settles it: the component published an opening for
+// content it does not supply, so the words that arrive in one are this
+// screen's.
 const overridden = new Set();
 for (const inst of instanceNodes) {
   for (const o of inst.overrides ?? []) {
@@ -431,7 +449,12 @@ for (let i = 0; i < instanceNodes.length; i++) {
 
 for (const t of root.findAllWithCriteria({ types: ['TEXT'] })) {
   if (notCopy(t)) continue;
-  const inst = enclosingInstance(t);
+  // Slot content is neither of the two paths this loop was written for: it was
+  // appended rather than inherited, so it can never appear in `overrides` and
+  // the override test would drop it. It answers to no component either — a slot
+  // publishes no limit for what the caller puts in it — so it is gathered the
+  // way an unenclosed heading is.
+  const inst = inSlotContent(t) ? null : enclosingInstance(t);
   if (inst && !overridden.has(t.id)) continue;
   // No enclosing instance means no length to check and every other rule still
   // applying: a heading is a text node on the type ramp rather than a
@@ -525,7 +548,11 @@ handoff rather than in a guess.
 ## Why each check is there
 
 Nodes inside an instance are skipped by both shape checks: their styling belongs
-to the library, and overriding it is already forbidden. Nodes inside a
+to the library, and overriding it is already forbidden. Content inside a `SLOT`
+is not skipped, because the slot is the library saying it does not own what goes
+there. Without that exemption a drawn pill, a raw hex, or an unbound gap passes
+clean as long as it sits inside a Modal — which is the one place a frame is
+invited to put its own layout inside a component. Nodes inside a
 `Proposed / …` definition are exempt from the lookalike check — drawn shapes are
 how a component gets built — but not from the fill check, because a proposal
 built on literals cannot converge on a real component later. An
@@ -604,15 +631,17 @@ made. On the canvas it costs a text edit. After the build it costs a
 conversation with the person who designed it.
 
 Copy inside an instance splits where the ownership splits, which is a finer line
-than the shape and fill checks draw. Those skip instance interiors outright: a
-screen may not restyle a library component, so a finding there is one nobody is
-allowed to act on. A label the frame left at the library's default is the same
-kind of finding and is skipped for the same reason. The two ways a frame does
+than the shape and fill checks draw. Those take the whole interior of an
+instance at once, slot content aside: a screen may not restyle a library
+component, so a finding there is one nobody is allowed to act on. A label the frame left at the library's default is the same
+kind of finding and is skipped for the same reason. The three ways a frame does
 set copy are not — a text property is a slot the component published in order to
-be filled, and an overridden text layer is this frame typing into a component
-that publishes no property, which is how `Link` carries its text. Both are the
-frame's words, both are checked, and everything else on the instance belongs to
-whoever published it.
+be filled, an overridden text layer is this frame typing into a component that
+publishes no property, which is how `Link` carries its text, and a `SLOT` holds
+content the frame built and appended itself. All three are the frame's words,
+all three are checked, and everything else on the instance belongs to whoever
+published it. Slot content answers to no component limit, so it is measured the
+way an unenclosed heading is.
 
 ## What a real run returns
 
