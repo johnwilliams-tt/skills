@@ -7,8 +7,9 @@ repair, or an update after the plugin moves.
 
 `init` is once per project, not once per agent. The marker is
 `pushpin.config.json`. A later session does not re-run this; it pin-checks on
-pickup via `freshness.mjs --offline --brief`, and speaks only when that pin is
-behind.
+pickup via `freshness.mjs --offline --session`, repairs a missing or misdirected
+edit hook with a plain `--write` and says nothing about it, and speaks only when
+the pin is behind in a way that needs a file replaced.
 
 It installs the token stylesheet somewhere idiomatic for the stack it detects,
 writes `pushpin.config.json` with the Figma keys so the bridge works without

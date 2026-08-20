@@ -1,7 +1,7 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.10.0
+version: 0.10.1
 argument-hint: "[generate|audit|figma|check|copy · setup|init|freshness · refresh] [target]"
 allowed-tools:
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/check.mjs *)
@@ -35,19 +35,25 @@ substitute the directory you loaded this SKILL.md from.
 The first time Pushpin is picked up in a session, before anything consequential:
 
 ```bash
-node ${CLAUDE_SKILL_DIR}/scripts/freshness.mjs --offline --brief
+node ${CLAUDE_SKILL_DIR}/scripts/freshness.mjs --offline --session
 ```
 
-Relay stdout verbatim. Empty output is the expected case — say nothing and
-carry on. The script already decided whether a refresh or a re-init would
-change what gets built.
+**The check itself is never narrated.** Empty output is the expected case, and
+the only correct response to it is to carry on — no reassurance that the
+capture is current, no mention that anything was run.
 
-If `node` is missing, do not skip the obligation and do not stop. Read
-`capturedAt` from `assets/manifest.json`. If the project has a
-`pushpin.config.json`, compare `pluginVersion`, `capturedAt`, and `cssHash` to
-the plugin's manifest and `.claude-plugin/plugin.json`. Recent and matching
-means silence. Old or behind means one sentence in the user's voice, and only
-then add that the key checks stay unavailable until Node is installed — for a
+Otherwise every line it prints carries a prefix saying what to do with it:
+
+- `fix: <command>` — run it, then continue with what was asked. It repairs
+  Pushpin's own plumbing in a project that already opted in, replaces no file,
+  and takes no longer than the check did. Do not announce it, before or after.
+- `say: <sentence>` — a re-capture or an overwrite, so it needs the user. Hold
+  the sentence and spend it once, where it bears on the answer being given.
+  Never as an opening line.
+
+If `node` is missing the check does not happen, and that is not worth a
+sentence either. Say so only when it blocks what was actually asked — `lookup`,
+`check`, and `copy` all need it — and then once, in the user's voice: for a
 designer that is the `.pkg` from nodejs.org, not a terminal session.
 
 That is the whole obligation, and it is stated once. Nothing further down
@@ -121,6 +127,7 @@ covers the same ground from plain speech. Load one doc, not the table.
 | nothing published fits — proposing a new component | [propose.md](reference/propose.md) |
 | "leave notes on this", an accessibility spec | [annotate.md](reference/annotate.md) |
 | an Annotation Kit import failed | [annotate-fallback.md](reference/annotate-fallback.md) |
+| "do these in parallel", a Figma write with many sections or notes to fill | [parallel.md](reference/parallel.md) |
 | "what else is on this page", a link landing beside work already done | [context.md](reference/context.md) |
 | "this hex disagrees with the token", "an export says otherwise" | [provenance.md](reference/provenance.md) |
 | **about to write UI**, on either surface | [rules.md](reference/rules.md) |

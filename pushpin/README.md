@@ -152,6 +152,7 @@ without editing a file first.
 | [`reference/propose.md`](pushpin/reference/propose.md) | When the kit falls short: the gate, deriving rather than rebuilding, and the note that argues the case. |
 | [`reference/annotate.md`](pushpin/reference/annotate.md) | Annotation types, the note format, and the auto-layout that keeps notes readable. |
 | [`reference/annotate-fallback.md`](pushpin/reference/annotate-fallback.md) | What to draw when an Annotation Kit import fails, and how it is reported. |
+| [`reference/parallel.md`](pushpin/reference/parallel.md) | Splitting a Figma write into lanes: the invariant, the ladder, and where to join. |
 | [`reference/context.md`](pushpin/reference/context.md) | Grounding work in the page a link resolved to. |
 | [`reference/tokens.md`](pushpin/reference/tokens.md) | The token vocabulary, choosing between tokens, and what `check` reports. |
 | [`reference/components.md`](pushpin/reference/components.md) | Kit inventory, the Thumbprint React map, and the class-name fallback for designs with no Code Connect. |

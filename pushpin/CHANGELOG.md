@@ -89,9 +89,80 @@ the toolchain, which `diff.mjs` has no category for.
   fragments the rules name and the unambiguous "been" plus participle, no wider.
   Full surface in [reference/copy.md](pushpin/reference/copy.md), provenance in
   [reference/provenance.md](pushpin/reference/provenance.md).
+- **Every write path said "in parallel" and one of them said why.**
+  [`reference/generate.md`](pushpin/reference/generate.md) carried the invariant
+  that makes several `use_figma` calls safe together — lanes write to disjoint
+  subtrees, so no lane scans the canvas, positions a top-level node, or touches a
+  node outside the subtree it was handed — and nothing else did: the annotate
+  pass, the re-issue path, `extract.md`'s four per-page captures, and `figma.md`'s
+  screenshot-beside-assembly each carried the instruction with none of the
+  reasoning attached, which is how a lane ends up finding a node by name across
+  the page and colliding with work that was already on it.
+  [`reference/parallel.md`](pushpin/reference/parallel.md) is the one home for it
+  now — the invariant, skeleton-then-fill as the general shape, the lane contract,
+  the join, and the recovery path — and every page that splits a write links to it
+  rather than re-arguing it. The ladder it states is a decision rule rather than a
+  preference, because the premise the docs were carrying was wrong about where the
+  speed comes from: batching several tool calls into one message is universal —
+  both Cursor and Claude Code emit them — and it is the rung that collects the
+  whole win, since N calls in one message removes N-1 model round trips and does
+  not depend on Figma executing the scripts concurrently; fully serialized on that
+  side, the saving is intact. Subagents are a further rung, and they pay only for
+  a decomposition larger than one message of lanes carries well — past about six
+  lanes, a multi-screen run, or lanes that each have their own catalog lookups and
+  copy decisions to make rather than one prepared script — because a subagent
+  costs a prompt, a context, and a join, and spending all three on four lanes of
+  already-written script is slower than the message it replaced. Sequential is the
+  floor, produces the same file, and is where all of it goes the moment a lane
+  would have to reach outside its own subtree. What the page is most careful about
+  is what that top rung could quietly erode: a lane never resolves a destination,
+  never searches for a file, and never asks the user anything, since
+  [`reference/context.md`](pushpin/reference/context.md) already bans sending a
+  subagent looking and this must not read as the loophole in it; the checkpoint
+  does not move, because a lane is one of N and either the user is asked N times
+  or the fastest lane answers on everyone's behalf; and nothing reads what the
+  lanes wrote until every one has returned — the audit reports a node still
+  carrying `placeholder === true` as a defect, so auditing against a lane that has
+  not finished invents a failure whose only fix is to have waited, and annotating
+  early fails more quietly still, since the `Token drift` note is written from the
+  lanes' returned drift lists and comes out short exactly the rows the audit will
+  go on to report. Disjoint subtrees is also not the same as disjoint effects, and
+  [`reference/annotate.md`](pushpin/reference/annotate.md) is where that bites:
+  several lanes each appending their own note into the column touch none of each
+  other's nodes and still collide, because what they share is the column's child
+  order and whichever call ran second appends second. So the annotate pass takes
+  the same shape — one call builds the bundle, the body, the column, and one empty
+  named card per note in its final order, then each lane fills the one card it was
+  handed — while three or four notes stay one call, the pass this is written for
+  being the accessibility one with a dozen. `generate.md` keeps only what is
+  specific to filling a screen: sections filled in place because
+  `layoutSizingHorizontal = 'FILL'` is valid only on an auto-layout child, the
+  six-lane budget, and the ten-operation ceiling per call — and its workflow holds
+  both the annotate and the audit steps until every lane has returned.
 
 **Changed**
 
+- **Session start says nothing now.** The pickup check ran with `--offline
+  --brief` and its sentence was relayed verbatim, so a designer who asked for a
+  booking screen was met first with a note about a capture date — accurate,
+  unasked for, and spending the line that should have been about the work.
+  `--session` replaces it as the session-start form, and stdout is the whole
+  message: empty in the ordinary case, `fix:` and a command for a finding a
+  plain `init --write` settles, `say:` and a sentence only for one that needs a
+  file replaced or a re-capture nobody in the session can take. The split is
+  drawn in `pin.mjs`, where the reasons already live, and it is deliberately
+  narrow — the edit hook, missing or broken or naming a plugin version directly,
+  is the whole repairable set. A missing `DESIGN.md` is not in it even though
+  `--write` would restore the file: `pushpin.config.json` records what that file
+  hashes to and is itself only rewritten under `--force`, and the sidecar stamps
+  itself with the time it was generated, so the silent repair would trade one
+  finding for a permanent one. The repair carries `--no-share`, because a fix
+  nobody asked for has no business editing `.claude/settings.json`, the one file
+  `init` writes that a team commits. `--session` exits 0 whatever it found,
+  since a session start that reads as a failed command is the same noise
+  arriving by another route. `--brief` is unchanged for anything still calling
+  it, and `/pushpin freshness` still prints the full layer table, because there
+  it is the thing being asked for.
 - **The plugin is presented as "Pushpin Design System".** The identifier is
   untouched: `name` stays `pushpin`, so `/pushpin`, `pushpin@johnwilliams-skills`,
   the `enabledPlugins` entry `init` writes into `.claude/settings.json`, and every
@@ -117,7 +188,7 @@ the toolchain, which `diff.mjs` has no category for.
   fails executes nothing, leaves its section untouched and still shimmering, and
   is recovered by re-issuing that one call. That safety rests on the API's
   guarantees and on lanes never reaching outside their section, which
-  [`reference/generate.md`](pushpin/reference/generate.md) states as an
+  [`reference/parallel.md`](pushpin/reference/parallel.md) states as an
   invariant. It has not been exercised against a live file yet.
 - **The audit fails a node that is still shimmering.** The skeleton marks every
   section `placeholder = true` and each fill clears its own, so a fill that

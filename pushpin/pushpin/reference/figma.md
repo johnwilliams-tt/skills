@@ -125,7 +125,10 @@ catch up.
    values, so the result stays live against the library.
 4. For a web page being captured for the first time, run `generate_figma_design`
    and `use_figma` in parallel — the screenshot for fidelity, the component
-   assembly for correctness — then reconcile and delete the screenshot.
+   assembly for correctness — then reconcile and delete the screenshot. Issue
+   both in one message; [parallel.md](parallel.md) sets how far a write may be
+   split and what a lane may not touch, since a lane that reaches outside its
+   own subtree collides with the work already on the page.
 
 ## Code Connect: the gap
 

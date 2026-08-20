@@ -28,12 +28,33 @@ const PLUGIN_ROOT = resolve(here, '..', '..');
 const within = (root, p) => p === root || p.startsWith(root + sep);
 
 /**
+ * The findings a plain `init --write` settles on its own, which is the line the
+ * session-start check draws between a repair it makes in silence and a sentence
+ * it hands over.
+ *
+ * All four are the hook: a shim and two manifests, written and repaired without
+ * `--force`, carrying nothing anyone authored and nothing recorded anywhere
+ * else. Every other reason ends in replacing a file that is already there,
+ * which is the user's call.
+ *
+ * A missing generated file is deliberately not here, though `--write` would
+ * write it. `pushpin.config.json` records what those files hash to and is
+ * itself only rewritten under `--force`, so restoring one on a plain `--write`
+ * leaves the old hash in place — and the sidecar stamps itself with the time it
+ * was generated, so the restored file would report as hand-edited from the next
+ * session onward. A silent repair that trades one finding for a permanent one
+ * is worse than the sentence.
+ */
+const REPAIRABLE = new Set(['hook', 'hook-missing', 'hook-broken', 'hook-legacy']);
+
+/**
  * @param {string} dir
  * @param {{ manifest: { capturedAt: string, hashes: Record<string, string> }, pluginVersion: string }} opts
  * @returns {null | {
  *   status: 'ok' | 'stale' | 'unreadable',
  *   details: string[],
  *   brief: string | null,
+ *   repairable: boolean,
  *   pluginVersion?: string,
  *   capturedAt?: string,
  * }}
@@ -130,6 +151,7 @@ export function inspectPin(dir, { manifest, pluginVersion }) {
         status: 'ok',
         details,
         brief: null,
+        repairable: false,
         pluginVersion: prev.pluginVersion,
         capturedAt: prev.capturedAt,
       };
@@ -188,6 +210,7 @@ export function inspectPin(dir, { manifest, pluginVersion }) {
       status: 'stale',
       details,
       brief,
+      repairable: reasons.every((r) => REPAIRABLE.has(r)),
       pluginVersion: prev.pluginVersion,
       capturedAt: prev.capturedAt,
     };
@@ -196,6 +219,7 @@ export function inspectPin(dir, { manifest, pluginVersion }) {
       status: 'unreadable',
       details: ['pushpin.config.json could not be parsed'],
       brief: `This project's pushpin.config.json could not be parsed — re-running init with --write --force is the first thing I'd do.`,
+      repairable: false,
     };
   }
 }

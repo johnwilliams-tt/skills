@@ -1,8 +1,8 @@
 # Maintaining the capture
 
 How to ask whether a source has moved, and what to do when it has. Consumers of
-Pushpin do not need this; session start is `--offline --brief` and is covered in
-[../SKILL.md](../SKILL.md).
+Pushpin do not need this; session start is `--offline --session` and is covered
+in [../SKILL.md](../SKILL.md).
 
 ## Freshness layers
 
@@ -17,13 +17,20 @@ node scripts/freshness.mjs --max-age 14          # stricter age limit
 node scripts/freshness.mjs --offline             # never touch the network
 node scripts/freshness.mjs --json                # machine-readable
 node scripts/freshness.mjs --strict              # an unreachable layer fails
-node scripts/freshness.mjs --offline --brief     # session start: silent when current
+node scripts/freshness.mjs --brief               # silent when current, one sentence when not
+node scripts/freshness.mjs --offline --session   # session start: silent when current
 ```
 
-`--brief` prints nothing when the capture is current and the project pin
-matches. On failure it prints only the sentence to relay. `--json` still prints
-JSON even with `--brief`. Asking for `/pushpin freshness` without `--brief`
-prints the full layer table, because then it is the thing being asked for.
+`--brief` and `--session` both print nothing when the capture is current and the
+project pin matches. `--brief` otherwise prints the sentence to relay.
+`--session` prints a line the agent acts on instead: `fix:` and a command when
+the finding is one a plain `init --write` settles — today that is the edit hook,
+missing, broken, or naming a plugin version directly — and `say:` and a sentence
+when it is not, which is the only case reaching the user. It exits 0 either way,
+because a session start that reads as a failed command is the noise the form
+exists to remove. `--json` still prints JSON under both. Asking for
+`/pushpin freshness` prints the full layer table, because then it is the thing
+being asked for.
 
 If the current working directory holds a `pushpin.config.json`, a project-pin
 layer compares `pluginVersion`, `capturedAt`, and `cssHash` to this plugin. No

@@ -346,6 +346,85 @@ than about any element on it, and it is a direct child like the rest — a membe
 of this column is the only place a note is ever put, including on a run that has
 nothing else to say and would otherwise have no column at all.
 
+### Filling the cards in parallel
+
+Most annotate passes are three or four notes, and **one call is the right answer
+for those.** The whole arrangement is a bundle, a body, a column, and a handful
+of instances, which fits in one script comfortably — decomposing three notes into
+three lanes spends more on the decomposition than the notes cost to write.
+
+The pass that wants lanes is the large one: an accessibility pass reading a dozen
+annotations off the markup, where each card is its own lookup, its own variant
+decision, and its own font substitution. That is also where the obvious move
+breaks. Several calls each appending their own note to the column look disjoint,
+because no two of them touch the same node — but what they share is the column's
+child order, and the order is not decoration. Whichever call runs second appends
+second, and nothing in either script knows which one that was. What comes out is
+a reader hunting for `4`, which is the thing
+[numbering](#anchoring-number-dont-point) exists to spare them.
+
+So the annotate pass takes the shape every other write path in this skill takes —
+[skeleton then fill](parallel.md#skeleton-then-fill). One call builds the bundle,
+the body, the column, and one empty card per note, each named and appended in its
+final order; each lane is then handed one card's id and fills that card and
+nothing else.
+
+```js
+// In the skeleton call, after bundle → body → col are built as above. The
+// summary frame first, then one card per proposal, in the order set out above.
+const cards = [
+  'Proposal summary',
+  'Proposal — FilterChip',
+  'Proposal — RangeSlider',
+].map((name) => {
+  const card = figma.createFrame();
+  card.name = name;
+  card.layoutMode = 'VERTICAL';
+  card.primaryAxisSizingMode = 'AUTO';
+  card.counterAxisSizingMode = 'AUTO';
+  card.fills = [];
+  col.appendChild(card);              // the order, decided once, in one script
+  card.layoutAlign = 'STRETCH';
+  return { id: card.id, name };
+});
+
+return { pageId: figma.currentPage.id, colId: col.id, cards };
+```
+
+Two things the skeleton owes its lanes, and neither is safe to leave to one.
+**Each card is named on creation, by [the naming rule below](#nothing-overlaps)**
+— `Proposal — <Name>`, never `Annotations …`, because the audit finds annotations
+by name and would compare a wrapper whose name matched against the note it
+contains and overlaps completely by construction. A lane free to name its own
+card is a lane that can turn a clean run into a defect. And **`layoutAlign =
+'STRETCH'` goes on in the skeleton**, so the column is square down its right edge
+before any note lands in it; a lane that forgot the stretch leaves a rag that
+nothing in that lane's own output would show.
+
+The members with no card of their own stay direct children of the column and are
+appended after the lanes have joined, by the call that writes them: an open
+question per unresolved atom, then the
+[`Token drift` note](generate.md#one-dev-note-when-something-drifted). Both are
+written off a list that is in hand by that point, so neither needs a lane, and
+appending them from one script is what keeps the tail of the column in order for
+the same reason the skeleton keeps the head of it in order.
+
+Each lane then [sets up its own world](parallel.md#the-lane-contract), reaches its
+card by the id it was given, and builds its note, its specimen, and its pointer
+inside it. It touches neither the column, nor the body, nor another lane's card —
+which is [the invariant](parallel.md#the-invariant), and here it is also the whole
+reason the order held.
+
+A card left empty by a lane that failed is worth re-issuing rather than leaving
+for the audit, because the audit catches only half of them. An empty
+`Proposal — <Name>` card does fail the run: the proposal's instance is on the
+design and its note is nowhere on the page, which is a
+`Proposed / <Name> — no annotation note` defect. An empty accessibility card
+fails nothing at all — no check requires that a landmark or a heading level was
+ever annotated — so it hands over as a column one card short of what the
+skeleton promised, and raises nothing on the way.
+[Re-issue the failed lane](parallel.md#when-a-lane-fails).
+
 ### Anchoring: number, don't point
 
 A pointer aimed across 400 points of canvas is the other half of the mess. Past

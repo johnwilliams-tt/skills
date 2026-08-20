@@ -6,20 +6,21 @@ nothing else, and act on nothing until the user picks.
 
 ## Freshness, only when it matters
 
-`node scripts/freshness.mjs --offline --brief` still runs before the picks, the
-way Start here requires. Relay stdout verbatim.
+`node scripts/freshness.mjs --offline --session` still runs before the picks,
+the way Start here requires, and it is still never narrated.
 
 - Empty: **nothing.** Open on the picks. The kit being current is the expected
   case, and a greeting that leads with it spends its best line on non-news.
-- A sentence about the kit: that sentence first, then `refresh` at the top of
-  the picks.
-- A sentence about this project's files being behind: that sentence first, then
+- `fix:` — run it and open on the picks anyway. A repair that needed no
+  decision is not one of them.
+- `say:` about the kit: that sentence first, then `refresh` at the top of the
+  picks.
+- `say:` about this project's files being behind: that sentence first, then
   re-running `init` with `--write --force` at the top of the picks.
 
 Either way the layer table, skip counts, and `FIGMA_TOKEN` instructions stay
-out of it — `--brief` already omitted them. If `node` is unavailable, take the
-age and the pin from the files the way Start here already describes, and apply
-the same rule.
+out of it — `--session` already omitted them. If `node` is unavailable there is
+no check and nothing to say about there being none; open on the picks.
 
 ## What never appears
 

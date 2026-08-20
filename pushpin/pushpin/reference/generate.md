@@ -532,10 +532,11 @@ compute, only the right token to pick.
 
 ### The drift record lives on the node
 
-Section fills run as several concurrent `use_figma` calls, so there is no place
-between them for a drift list to live: each lane's scope ends with its call. The
-record goes on the node it happened to, and the lane returns its own list as
-well.
+Section fills run as one `use_figma` call per lane, and every lane's scope ends
+with its own call — whether the lanes went out together, went to subagents, or
+ran one after another. So there is no place between them for a drift list to
+live. The record goes on the node it happened to, and the lane returns its own
+list as well.
 
 ```js
 node.setSharedPluginData('pushpin', 'drift', JSON.stringify([
@@ -816,42 +817,32 @@ frame, and the section containers inside it, each shimmering with
 what makes the sections fillable at the same time: one `use_figma` call per
 section, all of them issued as tool calls in a single message.
 
-**The invariant that makes it safe is that no fill call scans the canvas,
-positions a top-level node, or touches a node outside the section it was
-handed.** Lanes write to disjoint subtrees, so they cannot collide with each
-other or with work that was already on the page. The moment one reaches outside
-its section — to find a node by name across the page, to place something beside
-the frame — the guarantee is gone and the fills have to go back to running one
-after another.
+That is [skeleton then fill](parallel.md#skeleton-then-fill), and it is the shape
+every write path in this skill takes. The invariant that makes it safe, the
+[contract each lane holds](parallel.md#the-lane-contract), the ladder that
+decides whether the lanes are tool calls or subagents, and what to do when one of
+them fails are all on [parallel.md](parallel.md). Three things are specific to
+filling a screen.
 
-The speedup does not depend on Figma running the scripts concurrently. Even fully
-serialized on that side, issuing N calls in one message removes N-1 model round
-trips, and the round trips are where the time goes.
-
-Sections are filled in place rather than built off to one side and composed at
-the end, and the sizing rule is the reason. `layoutSizingHorizontal = 'FILL'` is
-only valid on a child of an auto-layout frame, so a node is appended into its
+**Sections are filled in place rather than built off to one side and composed at
+the end,** and the sizing rule is the reason. `layoutSizingHorizontal = 'FILL'`
+is only valid on a child of an auto-layout frame, so a node is appended into its
 section first and sized after — a section built in isolation could not be sized
 until assembly, and a lane that failed on the way there would leave an orphan
 frame on the canvas rather than leaving nothing behind at all.
 
-Four rules for the lanes:
+**At most about six lanes.** Past that, group sections into one lane rather than
+opening more; a run genuinely too large for that budget is the case
+[the ladder](parallel.md#the-ladder) sends up a rung, not a reason to open a
+seventh call.
 
-- **At most about six.** Past that, group sections into one lane rather than
-  opening more.
-- **A section needing more than ten logical operations splits sequentially
-  within its own lane,** never into a second lane. The ten-operation ceiling is
-  per call; two lanes writing into one section is the collision the invariant
-  exists to rule out.
-- **Every lane sets up its own world.** `figma.currentPage` starts on the file's
-  first page at the beginning of every call, so a lane opens by switching to the
-  page the skeleton returned. Nothing else carries either — the imports and the
-  font loads from the skeleton call went with its scope — so each lane runs its
-  own import batch and loads `Thumbtack Rise` itself. Ids from the skeleton's
-  return get pasted in as string literals; a variable from an earlier call does
-  not exist here.
-- **Each lane clears its own shimmer** as its last act, and returns the ids it
-  touched along with every spacing value that snapped.
+**A section needing more than ten logical operations splits sequentially within
+its own lane,** never into a second lane. The ten-operation ceiling is per call;
+two lanes writing into one section is the collision
+[the invariant](parallel.md#the-invariant) exists to rule out.
+
+A lane on this path loads `Thumbtack Rise` itself, since the skeleton's font load
+went with its scope, and clears its section's shimmer as its last act:
 
 ```js
 const page = await figma.getNodeByIdAsync('0:1');       // pageId, from the skeleton
@@ -863,22 +854,6 @@ const section = await figma.getNodeByIdAsync('12:340'); // this lane's section
 section.placeholder = false;
 return { mutatedNodeIds: [section.id /* , … */], drift };
 ```
-
-### When a lane fails
-
-`use_figma` is atomic: a script that errors executes nothing. A failed lane
-leaves its section exactly as the skeleton left it — empty, still shimmering —
-and leaves every other lane alone. There are no partial nodes and nothing to
-clean up, so recovery is re-issuing that one lane rather than rebuilding the
-screen.
-
-Read the error before re-issuing. A failed lane is a script to fix, and a second
-identical call fails identically.
-
-A lane that failed unnoticed does not reach the handoff looking finished either.
-A node left carrying `placeholder === true` is a defect the audit reports — see
-[audit.md](audit.md) — so a section nobody filled fails the run instead of
-passing as done.
 
 ## Workflow
 
@@ -920,12 +895,14 @@ passing as done.
      the two fit in one message — and the ids it returns are what the fill lanes
      are handed.
 5. **Fill the sections in parallel,** one `use_figma` call per section, all of
-   them in one message — [above](#filling-the-sections-in-parallel). Each lane
-   batches its own imports, stays inside the section it was handed, binds its
-   spacing through [`space()`](#spacing-goes-through-space), writes its copy
-   under [the content design rules](#writing-the-copy), and clears that
-   section's `placeholder` as it finishes. Nothing the design calls for is
-   left out: what cannot be resolved gets a marked placeholder.
+   them in one message — [above](#filling-the-sections-in-parallel), and
+   [the ladder](parallel.md#the-ladder) for the runs big enough to want
+   subagents instead of one message. Each lane batches its own imports, stays
+   inside the section it was handed, binds its spacing through
+   [`space()`](#spacing-goes-through-space), writes its copy under
+   [the content design rules](#writing-the-copy), and clears that section's
+   `placeholder` as it finishes. Nothing the design calls for is left out: what
+   cannot be resolved gets a marked placeholder.
 6. **Annotate,** into the auto-layout bundle beside the frame: every proposal's
    note, a specimen instance of the proposal next to it, its anchor, an open
    question for every unresolved atom, and the
@@ -934,13 +911,17 @@ passing as done.
    audit reads these notes — run it first and a proposal whose note has not been
    placed yet is indistinguishable from one that has no note at all, which is a
    defect.
-7. **Audit before declaring done** — see below. It returns the frame's picture
-   with the report when it passes, so the verdict is settled before there is
-   anything to look at; the picture is a visual check on top of the structural
-   one, never a substitute for it. Then print the chat summary, listing
-   proposals, unresolved atoms, any spacing that snapped, any library the
-   preflight could not reach, and any declaration that did not resolve against
-   the catalog.
+7. **Join, then audit before declaring done** — see below. Nothing in this step
+   or the last one starts until every lane has returned, because an unfilled
+   `placeholder` is a defect the audit reports and a lane still running looks
+   exactly like one that failed —
+   [the join](parallel.md#join-before-annotating-or-auditing). The audit returns
+   the frame's picture with the report when it passes, so the verdict is settled
+   before there is anything to look at; the picture is a visual check on top of
+   the structural one, never a substitute for it. Then print the chat summary,
+   listing proposals, unresolved atoms, any spacing that snapped, any library
+   the preflight could not reach, and any declaration that did not resolve
+   against the catalog.
 8. **Offer the finalize pass.** Offer it; do not perform it unprompted.
 
 ## The audit

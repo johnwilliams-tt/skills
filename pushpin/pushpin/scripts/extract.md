@@ -200,7 +200,10 @@ that is definitionally correct.
 
 **One call per page, issued in parallel** — `use_figma` allows one
 `setCurrentPageAsync` per call, and a page's children are not loaded until it is
-current. The four pages and their ids:
+current. Send all four in one message rather than one at a time — the model
+round trips are what cost, not the scripts — and
+[parallel.md](../reference/parallel.md) holds that reasoning for every Figma
+call path. The four pages and their ids:
 
 | Page | Node id |
 |---|---|

@@ -61,18 +61,23 @@
  *   node scripts/freshness.mjs --strict             # an unreachable layer fails
  *   node scripts/freshness.mjs --json               # machine-readable
  *   node scripts/freshness.mjs --brief              # silent on success; one sentence when not
- *   node scripts/freshness.mjs --offline --brief    # session start: age + project pin, no network
+ *   node scripts/freshness.mjs --offline --session  # session start: age + project pin, no network
  *
- * `--brief` is the session-start form. Empty stdout and exit 0 when nothing
- * would change what gets built. On failure it prints only the sentence the
- * agent should relay — no dates, layer names, or skip counts. `--json` still
- * prints JSON even with `--brief`.
+ * `--brief` prints nothing when nothing would change what gets built, and
+ * otherwise only the sentence to relay — no dates, layer names, or skip counts.
+ *
+ * `--session` is the session-start form, and stdout is the whole message: empty
+ * when there is nothing to do, `fix: <command>` for a finding the agent settles
+ * itself without replacing anything, `say: <sentence>` for one it cannot. It
+ * exits 0 either way, because a session start that reads as a failed command is
+ * the noise this form exists to remove. `--json` still prints JSON under both.
  *
  * If the current working directory holds a `pushpin.config.json`, a project-pin
  * layer compares that pin to this plugin. No config is not a finding; init is
  * offered elsewhere. The plugin's own tree is skipped — it is not a consumer.
  *
- * Exit 0 when nothing is known to have moved, 1 when something has.
+ * Exit 0 when nothing is known to have moved, 1 when something has — except
+ * under `--session`, which always exits 0.
  */
 
 import { readFileSync } from 'node:fs';
@@ -115,7 +120,8 @@ const styleKeyCount =
 
 if (has('--help') || has('-h')) {
   console.log(
-    'usage: node scripts/freshness.mjs [--max-age days] [--offline] [--strict] [--json] [--brief]\n\n' +
+    'usage: node scripts/freshness.mjs [--max-age days] [--offline] [--strict] [--json] ' +
+      '[--brief] [--session]\n\n' +
       'Reports how far the committed captures may have drifted from Figma.\n' +
       'Set FIGMA_TOKEN to check the import keys against the three live files: ' +
       `${real(catalog.components).length} components and ${styleKeyCount} styles in ` +
@@ -125,7 +131,9 @@ if (has('--help') || has('-h')) {
       `Set GITHUB_TOKEN to ask whether ${manifest.copySource.repo} still serves the blob the ` +
       'content design rules were parsed from; without it that layer reports the age.\n' +
       '--brief prints nothing when the capture is current and the project pin matches; ' +
-      'otherwise one sentence to relay. Session start is --offline --brief.',
+      'otherwise one sentence to relay. --session says the same thing as a line the agent ' +
+      'acts on: a fix: command to run, or a say: sentence for the user. Session start is ' +
+      '--offline --session.',
   );
   process.exit(0);
 }
@@ -141,6 +149,7 @@ const asJson = has('--json');
 const strict = has('--strict');
 const offline = has('--offline');
 const brief = has('--brief');
+const session = has('--session');
 
 const PLUGIN = JSON.parse(
   readFileSync(join(here, '..', '..', '.claude-plugin', 'plugin.json'), 'utf8'),
@@ -241,6 +250,7 @@ const report = {
   findings: [],
   notes: [],
   brief: [],
+  fix: [],
   project: null,
 };
 
@@ -293,6 +303,17 @@ if (pin) {
     if (pin.brief) report.brief.push(pin.brief);
   }
 }
+
+/**
+ * The command that settles a repairable pin finding, so `--session` can hand
+ * over the repair rather than the sentence describing it. `--no-share` because
+ * the one file init writes that a team commits is `.claude/settings.json`, and
+ * a repair nobody asked for has no business editing it.
+ */
+const repair = pin?.repairable
+  ? `node "${join(here, 'init.mjs')}" "${process.cwd()}" --write --no-share`
+  : null;
+if (repair) report.fix.push(repair);
 
 // -------------------------------------------------------------- live evidence
 
@@ -692,6 +713,16 @@ report.exitCode = report.stale || (strict && skipped.length) ? 1 : 0;
 if (asJson) {
   console.log(JSON.stringify(report, null, 2));
   process.exit(report.exitCode);
+}
+
+if (session) {
+  // A finding the fix settles is not also spoken. Saying "this project's edit
+  // check is missing" and then repairing it in the same breath is two lines
+  // where the right number is none.
+  const say = repair ? report.brief.filter((b) => b !== pin.brief) : report.brief;
+  for (const f of report.fix) console.log(`fix: ${f}`);
+  for (const s of say) console.log(`say: ${s}`);
+  process.exit(0);
 }
 
 if (brief) {

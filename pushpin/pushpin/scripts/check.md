@@ -175,7 +175,9 @@ the committed catalog.
 
 `fileKey: Qefv6O2RMPSBtSYBrCGcdI`. Run the four per-page scripts from
 [extract.md §6](extract.md), one call per page in parallel, and merge them the
-same way.
+same way. All four go out in one message and the merge waits on every one of
+them — see [parallel.md](../reference/parallel.md), since a lane whose result
+never came back reads exactly like a page the capture never visited.
 
 This capture is its own comparison. Because §6 emits entries in the committed
 shape, the check is to write the merged result over
