@@ -92,3 +92,13 @@ what it leaves to you, and how to ask for a single row are in
   placeholders and an unreachable Annotation Kit means notes are drawn instead
   of instanced — both reported, never quietly substituted. Abandoning a screen
   over a library the design never needed is the worse answer.
+- **A claim that the Plugin API cannot do something is verified before it is
+  made or acted on.** Ask the live API first — a probe on a node already in hand
+  — then the `figma-use` prose references, then `plugin-api-standalone.d.ts`,
+  then memory. The typings lag the API at its newest edge and memory lags both,
+  so the two sources nearest to hand are the two most likely to agree with each
+  other and be wrong together.
+- **A design that gets simpler because of a believed API limit is a
+  disclosure,** the same as snapped spacing or a corrected label. Being wrong
+  about the API is only how it happens; silently shipping the lesser structure
+  is the defect.

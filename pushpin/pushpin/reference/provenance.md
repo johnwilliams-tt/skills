@@ -83,6 +83,18 @@ orientation, but they are downstream, and every one checked so far has drifted:
   in spirit, but its token table is a subset and its type scale is desktop-only.
 - The **Claude Design "Pushpin Design System" export** — see below.
 
+**The vendored Figma Plugin API typings.** `figma-use/SKILL.md` calls
+`plugin-api-standalone.d.ts` the definitive source of truth for the API surface.
+It is a snapshot, it ships in a plugin cache that is overwritten on update, and
+it drifts like every other restatement here. Across 11,329 lines it has zero
+mentions of `createSlot`, `SlotNode`, or `SLOT`, while its sibling
+`component-patterns.md` documents the slot API in full. It is not broadly stale
+— `createAutoLayout`, `node.query`, `placeholder`, and `screenshot` are all in
+it — it lags only at the newest edge, which is exactly where recall is weakest
+too. That is what makes it worth naming: the typings and memory go wrong on the
+same cases, so checking one against the other confirms nothing. The live API is
+truth and it is one probe away; the source ordering is in [rules.md](rules.md).
+
 **Thumbprint v1 tokens** (`$tp-color__blue`, `$tp-space__3`). Legacy. Pushpin
 corresponds to Thumbprint's **v2** semantic set, which the vendored
 `thumbprint-tokens` package generates from the same Coda tables that feed the
