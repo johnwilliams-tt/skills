@@ -28,7 +28,9 @@ no check and nothing to say about there being none; open on the picks.
   there is nothing to refresh there is nothing to say.
 - Check counts, asset hashes, or whether the stylesheet still matches its source
   JSON. `verify.mjs` is a maintainer's tool and is not run here.
-- Which copy of the plugin is loaded.
+- Which copy of the plugin is loaded — the install path, the marketplace name,
+  a folder versus a marketplace install. The version line
+  (`Pushpin v0.12.0 loaded.`) is the exception.
 - Any suggestion that the invocation does not map to an action.
 - The name of any other skill. Pushpin ships standalone and cannot assume a
   sibling is installed.
@@ -101,8 +103,8 @@ user who lands there are answering one question rather than two.
 [setup.md](setup.md#the-handoff-interview) § The handoff interview asks it a
 third time by another name, at the end of setup, and it asks last.
 
-**So a pick of `setup` names setup and stops there.** A setup that needs nothing
-is one sentence long, which makes a surface named alongside that pick a surface
+**So a pick of `setup` names setup and stops there.** Setup opens on the version
+and its own questions, which makes a surface named alongside that pick a surface
 asked for again a sentence later. Which of the three sites does the asking is
 ruled in [Which surface](../SKILL.md#which-surface), along with what happens to
 an answer that arrived before setup did.

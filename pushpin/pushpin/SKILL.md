@@ -1,7 +1,7 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.12.0
+version: 0.12.1
 argument-hint: "[generate|audit|figma · setup|init|freshness · refresh] [target]"
 allowed-tools:
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/check.mjs *)
@@ -32,7 +32,9 @@ expands it before you read this, Cursor does not. Where a path still carries an
 unexpanded placeholder, or is written relative like `scripts/lookup.mjs`,
 substitute the directory you loaded this SKILL.md from.
 
-The first time Pushpin is picked up in a session, before anything consequential:
+The first time Pushpin is picked up in a session, before anything consequential
+— except `/pushpin setup`, where the version line and the Auto question in
+[reference/setup.md](reference/setup.md) come first, including before this check:
 
 ```bash
 node ${CLAUDE_SKILL_DIR}/scripts/freshness.mjs --offline --session

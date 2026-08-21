@@ -3,10 +3,9 @@
  *
  * Why it exists: `init` copies the stylesheet in, and until a page, another
  * stylesheet, a module, or a build config names the file, all 300 custom
- * properties are inert and the project renders unstyled. That is the one
- * remaining action after a write, and stating it unconditionally spent it on
- * every re-run of a project whose app root had named the file for months —
- * which is how the line stopped being read.
+ * properties are inert. Setup does not recap that as a fault — the first page
+ * is what names the file. This answers the question for a caller that still
+ * needs it, without treating a missing `<link>` as something to print.
  *
  * What it deliberately does not claim: that no reference exists. It claims that
  * no file it read names the stylesheet. A bundler pulling the file in by glob, a

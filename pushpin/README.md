@@ -19,9 +19,9 @@ content design rules, and scripts that move a design between Figma and code.
   Figma file you're working in.** Most product files don't subscribe to the
   Annotation Kit.
 - **The Thumbtack Rise font.** Without it, generated text renders in a fallback.
-- **Edits accepted as they are made.** Claude Code asks before every file edit
-  until Shift+Tab cycles it to accepting them. That mode does not cover shell
-  commands; `/pushpin setup` pre-approves the ones Pushpin runs.
+- **Auto, on Claude Code.** Shift+Tab until the status bar says Auto. Accepting
+  edits is not enough; that still asks about commands. `/pushpin setup` asks
+  once before it runs any.
 
 ## Install
 

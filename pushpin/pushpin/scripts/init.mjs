@@ -15,9 +15,9 @@
  *                                       [--advice]
  *
  * What a --write prints when it is done is what someone still has to do, and
- * that is all: three lines, each asked of the project or the machine first and
- * printed only when it is true there. `--advice` adds back the explanation of
- * what was written, which is documentation rather than a next step, and lives in
+ * that is all: the Rise font when the machine does not have it, and `.gitignore`
+ * only inside a git repository. `--advice` adds back the explanation of what was
+ * written, which is documentation rather than a next step, and lives in
  * reference/init.md.
  */
 
@@ -30,8 +30,7 @@ import { DESIGN_REL, SIDECAR_REL } from './lib/generated.mjs';
 import { GUARD_FLAG, hookCommands, PREVIEW_FLAG, SHIM_REL, withoutHook } from './lib/hooks.mjs';
 import { ALLOWED_SCRIPTS, allowRules, SETTINGS_REL } from './lib/permissions.mjs';
 import { DEFAULT_PORT, previewUrl } from './lib/preview.mjs';
-import { describeStack, detectStack, importSpecifier } from './lib/project.mjs';
-import { stylesheetReference } from './lib/stylesheet.mjs';
+import { describeStack, detectStack } from './lib/project.mjs';
 import { inspectPin } from './pin.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -733,26 +732,6 @@ if (WRITE && plan.length) {
   // sixty lines of them after a successful setup is how the lines actually
   // asking for something get missed. They print on --advice.
   const next = [];
-
-  // Asked of the project rather than stated every time. Nothing renders until
-  // something loads the stylesheet, which is what earns the line on a fresh
-  // project — and on the re-run of one whose app root has named it all along it
-  // is a line that has to be read to be discarded. An answer of `unknown` says
-  // nothing at all; see lib/stylesheet.mjs for what it declines to claim.
-  if (stylesheetReference(target, cssPath) === 'unreferenced') {
-    const cssRel = relative(target, join(target, cssPath)).split('\\').join('/');
-    // A module graph loads a stylesheet with an `import`; a page loads it with a
-    // `<link>`. Most projects here are static prototypes with no module to
-    // import into, where the import is not merely useless — pasted into a
-    // `<script>` it takes the page down with it. So the link is also what an
-    // unrecognized stack gets: it is the form that costs nothing to try in a
-    // project that turns out to have a bundler after all.
-    const [where, snippet] =
-      env.react || env.bundler
-        ? ['import it once at your app root', `import '${importSpecifier(cssRel)}';`]
-        : ['link it from the <head> of your page', `<link rel="stylesheet" href="${cssRel}">`];
-    next.push(`Nothing in this project loads ${cssRel} — ${where}:\n       ${snippet}`);
-  }
 
   // Asked of the machine rather than stated unconditionally: the font is not
   // bundled either way, but telling someone to install one they already have is
