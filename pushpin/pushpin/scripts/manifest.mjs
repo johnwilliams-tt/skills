@@ -27,14 +27,21 @@ const MANIFEST = join(ASSETS, 'manifest.json');
 // copy.source.json is deliberately absent — it is the descriptor rather than
 // the capture, and build-copy.mjs already refuses to run when the blob sha it
 // records disagrees with the bytes on disk.
+// DESIGN.md and design.json are hashed for the same reason pushpin.css is: they
+// are generated, committed, and copied verbatim into every project, so the hash
+// is what `init` writes into the pin and what tells an existing project it is on
+// an older build.
 const TRACKED = [
   'tokens.figma.json',
   'variable-keys.figma.json',
   'components.figma.json',
+  'component-specs.figma.json',
   'annotations.figma.json',
   'icons.figma.json',
   'styles.figma.json',
   'pushpin.css',
+  'DESIGN.md',
+  'design.json',
   'copy.source.md',
   'copy.json',
   'copy-map.json',
@@ -52,6 +59,7 @@ const components = json('components.figma.json');
 const annotations = json('annotations.figma.json');
 const icons = json('icons.figma.json');
 const styles = json('styles.figma.json');
+const specs = json('component-specs.figma.json');
 const copy = json('copy.json');
 
 const collections = {};
@@ -110,6 +118,14 @@ const manifest = {
       .filter(([k]) => !k.startsWith('$'))
       .reduce((n, [, v]) => n + v.length, 0),
     components: Object.keys(components.components).length,
+    // Three numbers, because the spec capture is a reduction and one number
+    // cannot show it. `componentSpecs` is how much of the catalog has a spec at
+    // all, and the other two are the reduction itself — a refresh that halves
+    // `specVariants` while holding `specChildren` has dropped coverage, and
+    // that is exactly the change a single count would hide.
+    componentSpecs: Object.keys(specs.components).length,
+    specVariants: specs.source.variantsRecorded,
+    specChildren: specs.source.realVariantChildren,
     annotations: Object.keys(annotations.components).length,
     // Two numbers, because an icon is one entry with up to four import keys and
     // the keys are what a run can fail on.
@@ -156,7 +172,9 @@ if (process.argv.includes('--check')) {
       `${Object.keys(shape.collections).length} collections, covering ` +
       `${shape.bindable + shape.hidden} Figma variables (${shape.bindable} bindable, ` +
       `${shape.hidden} hidden from publishing); ${shape.components} components, ` +
-      `${shape.textStyles} text and ${shape.effectStyles} effect styles, ` +
+      `${shape.componentSpecs} of them with visual specs covering ${shape.specVariants} ` +
+      `of ${shape.specChildren} real variants; ${shape.textStyles} text and ` +
+      `${shape.effectStyles} effect styles, ` +
       `${shape.annotations} Annotation Kit components, ` +
       `${shape.icons} icons across ${shape.iconKeys} published sizes; and from the ` +
       `content design source, ${shape.copyCodes} severity codes, ${shape.copyTerms} ` +

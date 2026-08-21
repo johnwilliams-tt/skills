@@ -4,8 +4,8 @@ Everything in `assets/` is produced by running these read-only scripts against
 the source files and transcribing the results. They are recorded here so the
 captures are reproducible rather than one-time acts.
 
-Sections 1–5 read the Pushpin file, `VVRGrLgkPRU3vs765d5Q3r`. Section 6 reads
-the Annotation Kit, `Qefv6O2RMPSBtSYBrCGcdI`. Section 7 reads the older
+Sections 1–6 and 9 read the Pushpin file, `VVRGrLgkPRU3vs765d5Q3r`. Section 7
+reads the Annotation Kit, `Qefv6O2RMPSBtSYBrCGcdI`. Section 8 reads the older
 Thumbprint UI Kit, `jjhhb3Kp6a7JrtBLCjrf6u`, which is where the icon set is
 published. Pass the right `fileKey` on every call; they are three separate files
 and three separate libraries.
@@ -131,7 +131,70 @@ for (const c of cols) {
 return out;
 ```
 
-## 4. Component catalog
+## 4. Text and effect styles
+
+`assets/styles.figma.json`. The published styles are the API for type and
+elevation, because the font-size and shadow variables are hidden from
+publishing — a consuming file cannot bind them, so a style key is the only
+route. Sections 2 and 3 cannot reach these: styles are not variables and
+`getLocalVariableCollectionsAsync` never returns them.
+
+**Take the whole metric object.** `letterSpacing` and `lineHeight` come back as
+`{ value, unit }`, and the unit is PERCENT on every one of the 13 public styles.
+Reading `.value` alone is what recorded a -2% tracking as -2px and put a blanket
+`letter-spacing` on nine title utilities that carry none.
+
+```js
+const round = (n) => Math.round(n * 1e4) / 1e4;
+const metric = (m) =>
+  !m ? null : m.unit === 'AUTO' ? { unit: 'AUTO' } : { value: round(m.value), unit: m.unit };
+
+const textStyles = {};
+for (const s of await figma.getLocalTextStylesAsync()) {
+  if (s.name.startsWith('EightShapes Spec/')) continue;
+  textStyles[s.name] = {
+    key: s.key,
+    font: s.fontName.family + ' ' + s.fontName.style,
+    size: s.fontSize,
+    letterSpacing: metric(s.letterSpacing),
+    lineHeight: metric(s.lineHeight),
+  };
+}
+
+const effectStyles = {};
+for (const s of await figma.getLocalEffectStylesAsync()) {
+  effectStyles[s.name] = { key: s.key };
+}
+
+return { textStyles, effectStyles };
+```
+
+Three things to carry through rather than tidy away:
+
+- **The 21 `EightShapes Spec/*` styles are dropped**, and the reason is recorded
+  in the capture's `$excluded`: they are the design system's own documentation
+  tooling in Inter, and must never reach product design. They are the difference
+  between the 34 styles §1 counts and the 13 recorded here.
+- **`Title/*` and `Text/*` line heights do not agree with `Tokens / Font`.** The
+  nine Title steps resolve exactly — 105% of 48 is the 50.4 in
+  `tokens.figma.json` — and the four Text steps do not: `Text/1` is 140% of 16,
+  or 22.4, against 24 in the variable. That is the kit disagreeing with itself,
+  not a capture bug, and both numbers are recorded so the disagreement stays
+  visible.
+- **Weights are named styles here and numbers in the token layer.** `Title/3` is
+  `Thumbtack Rise Bold`; `title-3` is weight 590. The style is what renders.
+
+`Tokens / Letter Spacing` deserves a note of its own, because it is where the
+unit went missing. Its three variables are bare `FLOAT`s scoped to
+`LETTER_SPACING` with the values `1`, `-1`, `-2` and no unit of their own, and
+the text styles do not bind them — a style's `boundVariables` covers only
+`fontFamily` and `fontSize`. So nothing in §3's output can settle whether those
+numbers are pixels or percentages. What settles it is that the styles apply
+exactly those three numbers as PERCENT, which is why `$unit` in
+`tokens.figma.json` is transcription metadata sourced from here, and why
+`build-css.mjs` reads the style's unit rather than trusting the group's.
+
+## 5. Component catalog
 
 `assets/components.figma.json` comes from the MCP tool
 `list_file_components_for_code_connect` (a read, despite the name — it takes
@@ -145,7 +208,7 @@ node scripts/build-components.mjs <path-to-raw-dump.json>
 The raw dump was 1071 entries at capture; 951 are internal parts named `_…` or
 `.…` that exist to build the public components and are dropped.
 
-## 5. Variable keys
+## 6. Variable keys
 
 `assets/variable-keys.figma.json` holds the published key of every token
 variable, needed by `importVariableByKeyAsync` when binding properties from
@@ -183,7 +246,7 @@ invites a runtime failure. Capture the hidden names separately, as
 `hiddenFromPublishing`, and let `diff.mjs` watch for anything crossing between
 the two lists.
 
-## 6. Annotation Kit
+## 7. Annotation Kit
 
 `assets/annotations.figma.json` — `fileKey: Qefv6O2RMPSBtSYBrCGcdI`. There is no
 distiller script for this one. The capture below emits entries in the committed
@@ -272,9 +335,9 @@ Two things the merge has to handle:
 
 The Annotation Kit publishes no text or effect styles, and its single
 `Annotations / Tokens` collection documents Pushpin's variables rather than
-adding any, so there is nothing here corresponding to sections 2, 3 or 5.
+adding any, so there is nothing here corresponding to sections 2, 3, 4 or 6.
 
-## 7. Icons
+## 8. Icons
 
 `assets/icons.figma.json` — `fileKey: jjhhb3Kp6a7JrtBLCjrf6u`, page `2:1`.
 
@@ -331,6 +394,345 @@ Four things the distiller handles that a hand-merge would get wrong:
 `keyCount` matches the keys actually present, that no size is off the ramp, and
 that every incomplete icon is listed as incomplete. Those are what stop a lossy
 merge reading as a smaller kit.
+
+## 9. Component visual specs
+
+`assets/component-specs.figma.json` — `fileKey: VVRGrLgkPRU3vs765d5Q3r`, distilled
+by `scripts/build-specs.mjs`.
+
+§5's catalog comes from `list_file_components_for_code_connect`, which carries the
+property API and **no geometry at all**. It can say Button's `theme` accepts
+`secondary`; nothing in it says what `secondary` looks like. That silence is what
+a hand-rolled component gets guessed into, and the guess named a border token the
+kit does not publish while missing the one it does. This capture is the answer,
+and it needs `use_figma` because the geometry only exists on the nodes.
+
+**One call per page, issued in parallel** — same constraint as §7: `use_figma`
+allows one `setCurrentPageAsync` per call and a page's children are not loaded
+until it is current. 44 pages hold public components, so send them in batches in
+one message each and merge, per [parallel.md](../reference/parallel.md).
+
+**Enumerate the pages; do not derive them from component names.** Page names
+carry emoji prefixes — the Button page is `📌 Button`, and `❌`, `🚧`, `🎨` and
+`✋` also appear — and the kit has 91 pages, most of them decorative separators.
+A lookup by bare name finds nothing. Read `figma.root.children` for the current
+list and match on the suffix. The 44 as of this capture:
+
+| Page | Node id | Components |
+|---|---|---|
+| `📌 Button` | `11231:729` | 1 |
+| `📌 Dropdown` | `11231:720` | 1 |
+| `📌 Text Area` | `13232:23917` | 1 |
+| `📌 Text Input` | `11231:727` | 1 |
+| Accordion | `15247:1915` | 2 |
+| Action Sheet | `13232:23947` | 1 |
+| Additional components | `11403:48135` | 44 |
+| Alert | `11231:184` | 1 |
+| Avatar | `11231:717` | 2 |
+| Badge | `19165:17169` | 1 |
+| Brand Assets | `3:455` | 6 |
+| Button Row | `11231:730` | 2 |
+| Calendar | `11231:731` | 1 |
+| Callout | `15271:94064` | 1 |
+| Carousel | `13232:24485` | 1 |
+| Checkbox | `11231:719` | 2 |
+| Chip | `11231:718` | 1 |
+| Counter | `19165:17203` | 1 |
+| Disclosure | `19165:17202` | 1 |
+| Fab | `11231:724` | 2 |
+| Form Note | `11231:721` | 1 |
+| Horizontal Rule | `11231:725` | 1 |
+| Icon Button | `13232:26394` | 1 |
+| Image | `11231:722` | 1 |
+| Input Row | `11231:734` | 1 |
+| Label | `13232:26395` | 1 |
+| Layouts | `11231:740` | 8 |
+| Link | `11231:735` | 2 |
+| Loader Dots | `13232:26396` | 1 |
+| Modal | `11231:736` | 11 |
+| Pill | `11231:723` | 1 |
+| Playground | `8080:11511` | 1 |
+| Popover | `11231:738` | 1 |
+| Progress Meter | `18463:12004` | 1 |
+| Radio | `13232:25231` | 2 |
+| Segemented Control | `15247:1917` | 1 |
+| Service Card | `11231:733` | 1 |
+| Slider | `15247:1977` | 1 |
+| Star Rating | `11231:726` | 2 |
+| Switch | `13232:26401` | 1 |
+| Tabs | `18544:18218` | 1 |
+| Tip | `21085:202582` | 1 |
+| Toast | `11231:728` | 1 |
+| Tooltip | `11231:737` | 1 |
+
+`Additional components` holds 44 of the 117 on its own, so split it across
+several calls with an `ONLY` list rather than asking for it whole — the response
+truncates well before it finishes.
+
+Run this once per page, substituting the id and setting `ONLY` to a list of
+component names or `null` for every public component on the page:
+
+```js
+const PAGE_ID = '11231:729';
+const ONLY = null;
+const CAP = 24;
+
+const page = await figma.getNodeByIdAsync(PAGE_ID);
+await figma.setCurrentPageAsync(page);
+
+const r4 = (n) => (typeof n === 'number' ? Math.round(n * 1e4) / 1e4 : null);
+const hex = (c, o) => {
+  if (!c) return null;
+  const h = (n) => Math.round(n * 255).toString(16).padStart(2, '0');
+  let s = '#' + h(c.r) + h(c.g) + h(c.b);
+  if (typeof o === 'number' && o < 0.999) s += h(o);
+  return s;
+};
+
+// A bound variable is recorded as [collection, name, literal] — the collection
+// and name verbatim, and the value that actually renders beside them. Nothing
+// here maps a Figma collection onto a --pp-* name: several bound variables have
+// no Pushpin token at all, and inventing one is the defect this capture exists
+// to remove. Resolution is scripts/lib/specs.mjs's job, where the naming rule
+// already lives. The literal travels alongside because for a variable outside
+// the Pushpin token collections there is no other way to learn it — nothing
+// local resolves `Control Sizes/xl` to 52.
+const varCache = new Map();
+const colCache = new Map();
+async function varRef(a) {
+  if (!a || a.type !== 'VARIABLE_ALIAS') return null;
+  if (varCache.has(a.id)) return varCache.get(a.id);
+  const v = await figma.variables.getVariableByIdAsync(a.id);
+  let out = null;
+  if (v) {
+    if (!colCache.has(v.variableCollectionId)) {
+      const c = await figma.variables.getVariableCollectionByIdAsync(v.variableCollectionId);
+      colCache.set(v.variableCollectionId, c ? c.name : null);
+    }
+    out = [colCache.get(v.variableCollectionId), v.name];
+  }
+  varCache.set(a.id, out);
+  return out;
+}
+
+async function dim(node, field, value) {
+  const ref = await varRef((node.boundVariables || {})[field]);
+  return ref ? [ref[0], ref[1], r4(value)] : r4(value);
+}
+
+async function paintOf(paints) {
+  if (!paints || paints === figma.mixed || !paints.length) return null;
+  const p = paints[0];
+  if (p.visible === false) return null;
+  if (p.type !== 'SOLID') return p.type;
+  const lit = hex(p.color, p.opacity);
+  const ref = p.boundVariables && p.boundVariables.color ? await varRef(p.boundVariables.color) : null;
+  return ref ? [ref[0], ref[1], lit] : lit;
+}
+
+/** Four sides, collapsed to one entry when they agree. */
+const same = (a) => {
+  const k = a.map((v) => JSON.stringify(v));
+  return k.every((v) => v === k[0]) ? a[0] : a;
+};
+
+async function spec(node) {
+  const s = {};
+  const fill = await paintOf(node.fills);
+  if (fill !== null) s.fill = fill;
+  const stroke = await paintOf(node.strokes);
+  if (stroke !== null) {
+    s.stroke = stroke;
+    s.strokeWeight = same([
+      await dim(node, 'strokeTopWeight', node.strokeTopWeight),
+      await dim(node, 'strokeRightWeight', node.strokeRightWeight),
+      await dim(node, 'strokeBottomWeight', node.strokeBottomWeight),
+      await dim(node, 'strokeLeftWeight', node.strokeLeftWeight),
+    ]);
+  }
+  if (typeof node.topLeftRadius === 'number') {
+    s.radius = same([
+      await dim(node, 'topLeftRadius', node.topLeftRadius),
+      await dim(node, 'topRightRadius', node.topRightRadius),
+      await dim(node, 'bottomRightRadius', node.bottomRightRadius),
+      await dim(node, 'bottomLeftRadius', node.bottomLeftRadius),
+    ]);
+  }
+  s.size = [await dim(node, 'width', node.width), await dim(node, 'height', node.height)];
+  if (node.layoutMode && node.layoutMode !== 'NONE') {
+    s.mode = node.layoutMode;
+    s.sizing = [node.layoutSizingHorizontal, node.layoutSizingVertical];
+    s.gap = await dim(node, 'itemSpacing', node.itemSpacing);
+    s.padding = same([
+      await dim(node, 'paddingTop', node.paddingTop),
+      await dim(node, 'paddingRight', node.paddingRight),
+      await dim(node, 'paddingBottom', node.paddingBottom),
+      await dim(node, 'paddingLeft', node.paddingLeft),
+    ]);
+  }
+
+  const txt = node.findOne((n) => n.type === 'TEXT');
+  if (txt) {
+    const t = { layer: txt.name };
+    const tf = await paintOf(txt.fills);
+    if (tf !== null) t.fill = tf;
+    // A published text style is the API for type, but Pushpin's components do
+    // not all apply one — Button's Label carries none — so this is null rather
+    // than absent, and the size beside it is what actually renders.
+    if (txt.textStyleId && txt.textStyleId !== figma.mixed) {
+      const st = await figma.getStyleByIdAsync(txt.textStyleId);
+      t.style = st ? st.name : null;
+    } else {
+      t.style = null;
+    }
+    if (txt.fontSize !== figma.mixed) t.size = r4(txt.fontSize);
+    s.text = t;
+  }
+  return s;
+}
+
+const owners = page
+  .findAllWithCriteria({ types: ['COMPONENT', 'COMPONENT_SET'] })
+  .filter((n) => !(n.parent && n.parent.type === 'COMPONENT_SET') && !/^[_.]/.test(n.name));
+
+const out = {};
+const skipped = [];
+// A page can publish the same name twice, and `out[owner.name] = …` would let
+// the second overwrite the first inside this script — before anything reaches
+// the merge, where the only surviving evidence is `owners` exceeding the key
+// count by one. The Layouts page does exactly this. Naming the loser here is
+// what turns "9 owners, 8 keys" into something a reader can act on.
+const collisions = [];
+for (const owner of owners) {
+  if (ONLY && !ONLY.includes(owner.name)) { skipped.push(owner.name); continue; }
+  if (out[owner.name]) {
+    collisions.push({ name: owner.name, kept: out[owner.name].nodeId, dropped: owner.id });
+    continue;
+  }
+
+  if (owner.type !== 'COMPONENT_SET') {
+    out[owner.name] = {
+      type: owner.type, page: page.name, nodeId: owner.id, resting: await spec(owner),
+    };
+    continue;
+  }
+
+  const defs = owner.componentPropertyDefinitions || {};
+  const axes = {};
+  const defaults = {};
+  for (const [k, d] of Object.entries(defs)) {
+    if (d.type !== 'VARIANT') continue;
+    axes[k] = d.variantOptions || [];
+    defaults[k] = d.defaultValue;
+  }
+  const axisNames = Object.keys(axes);
+  const kids = owner.children.filter((c) => c.type === 'COMPONENT');
+
+  // One representative per (axis, option): the real child carrying that option
+  // and the most defaults on every other axis, ties broken by child order.
+  // Walking real children rather than the axis cross product is the point —
+  // Button has 260 children against a 960-combination product — and holding the
+  // other axes at their defaults is what makes a recorded variant a statement
+  // about that one option rather than about a combination.
+  const chosen = new Map();
+  const unreachable = [];
+  for (const axis of axisNames) {
+    for (const option of axes[axis]) {
+      let best = null;
+      let bestScore = -1;
+      for (const c of kids) {
+        const vp = c.variantProperties || {};
+        if (vp[axis] !== option) continue;
+        let score = 0;
+        for (const o of axisNames) if (o !== axis && vp[o] === defaults[o]) score++;
+        if (score > bestScore) { bestScore = score; best = c; }
+      }
+      if (!best) { unreachable.push(`${axis}=${option}`); continue; }
+      if (!chosen.has(best.id)) chosen.set(best.id, { node: best, for: [] });
+      chosen.get(best.id).for.push(`${axis}=${option}`);
+    }
+  }
+
+  const picked = [...chosen.values()].slice(0, CAP);
+  const variants = [];
+  for (const { node, for: forWhat } of picked) {
+    const vp = node.variantProperties || {};
+    const props = {};
+    for (const k of axisNames) if (vp[k] !== defaults[k]) props[k] = vp[k];
+    variants.push({ for: forWhat, props, ...(await spec(node)) });
+  }
+
+  const entry = {
+    type: owner.type, page: page.name, nodeId: owner.id,
+    axes, defaults,
+    children: kids.length,
+    crossProduct: axisNames.reduce((a, k) => a * axes[k].length, 1),
+    recorded: variants.length,
+  };
+  if (variants.length < kids.length) {
+    entry.reduced = {
+      children: kids.length,
+      recorded: variants.length,
+      cappedAt: chosen.size > CAP ? CAP : null,
+    };
+  }
+  if (unreachable.length) entry.unreachable = unreachable;
+  entry.variants = variants;
+  out[owner.name] = entry;
+}
+
+return { page: page.name, pageId: page.id, owners: owners.length, recorded: Object.keys(out).length, skipped, collisions, components: out };
+```
+
+Save each batch as `{ group, lanes, components }` — `lanes` being one
+`{ lane, pageId, figmaPage, status, expected, recorded, collisions, note }` per
+call, so a lane that came back empty is distinguishable from a page with nothing
+on it, and a name the page published twice is distinguishable from a name it
+never published — and distil them all together:
+
+```bash
+node scripts/build-specs.mjs specs-1.json specs-2.json …
+```
+
+The distiller sorts, merges, and writes the coverage block. It is independent of
+the order the files are given in, deliberately: nothing about which lane
+finished first should be able to change the asset.
+
+Four things to know about the result:
+
+- **The reduction is recorded, and `verify.mjs` holds it to the record.** 456
+  variants are kept out of 1079 real children. Each set stores `children`,
+  `crossProduct`, `recorded` and a `reduced` block, and every axis option must
+  be covered by a recorded variant or listed in `unreachable`. An unrecorded
+  reduction reads as a complete answer, which is the failure this whole asset
+  exists to remove. The cap is 24 per set and nothing reached it — Button's
+  seven axes offer 21 options between them.
+- **A bound variable with no Pushpin token is recorded as itself.** Button's
+  height binds `Control Sizes/xl` and its stroke weights bind `Border/inputs`,
+  both from `Figma / Semantic Dimensions`, and neither is in
+  `tokens.figma.json`. `Checkbox` binds `Background/Primary/medium [default]`,
+  which *is* in `Tokens / Semantic Colors` and still absent from the capture, so
+  the collection name alone does not settle it. `lib/specs.mjs` checks
+  membership and prints the Figma path where there is no `--pp-*` name.
+- **Colour literals are one mode.** The kit's component pages render in Light,
+  so `background/brand/strong` comes back `#07344a` and not the Dark `#36ccfa`.
+  `source.colorMode` states which, and `verify.mjs` checks every semantic-colour
+  literal against that mode. Five `Alert` variants render `heading/neutral/default`
+  as `#450a0a`, which is neither mode — recorded under
+  `coverage.coloursMatchingNeitherMode`, not reconciled.
+- **A name published twice keeps the catalog's node.** The kit has two `Tabs`
+  sets, on `Additional components` and on `Tabs`. §5's dump keys by name too, so
+  `components.figma.json` already dropped one silently. Unlike §7, the loser is
+  not kept under a `<name> [<nodeId>]` key: the catalog cannot name it, so no
+  `data-pp-component` declaration could ever reach the spec. It is recorded in
+  `coverage.nameCollisions` with both pages and both node ids instead.
+- **`coverage.withSpec` is measured against the catalog, not against the kit.**
+  Both key by name, so a name published twice counts once in each and can never
+  appear in `withoutSpec`. `117 of 117` therefore means every name the catalog
+  holds. The `Layouts` page publishes nine owners under eight names, and the
+  ninth spec is missing from this capture for that reason — read
+  `coverage.nameCollisions` and `coverage.captureNotes` before treating the
+  count as completeness.
 
 ## Transcription notes
 

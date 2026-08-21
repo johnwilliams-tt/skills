@@ -18,8 +18,6 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync } from
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { canonical, hashAsset, hashText } from './canonical.mjs';
-import { renderDesignJson, renderDesignMd } from './impeccable-bridge.mjs';
 import { DESIGN_REL, SIDECAR_REL } from './lib/generated.mjs';
 import { GUARD_FLAG, hookCommands, PREVIEW_FLAG, SHIM_REL, withoutHook } from './lib/hooks.mjs';
 import { ALLOWED_SCRIPTS, allowRules, SETTINGS_REL } from './lib/permissions.mjs';
@@ -59,7 +57,6 @@ const TOKENS = JSON.parse(readFileSync(join(ASSETS, 'tokens.figma.json'), 'utf8'
 const SOURCE = TOKENS.source;
 const KEYS = JSON.parse(readFileSync(join(ASSETS, 'variable-keys.figma.json'), 'utf8'));
 const MANIFEST = JSON.parse(readFileSync(join(ASSETS, 'manifest.json'), 'utf8'));
-const COMPONENTS = JSON.parse(readFileSync(join(ASSETS, 'components.figma.json'), 'utf8'));
 const PLUGIN = JSON.parse(
   readFileSync(join(here, '..', '..', '.claude-plugin', 'plugin.json'), 'utf8'),
 );
@@ -201,37 +198,14 @@ planFile(cssPath, 'the Pushpin token stylesheet, 300 custom properties', (abs) =
 // These two files project Pushpin's tokens into the format `impeccable`'s
 // detector reads, turning its design-system-* rules into live Pushpin checks
 // with no change to impeccable itself. See impeccable-bridge.mjs.
-const bridgeMeta = {
-  pluginVersion: PLUGIN.version,
-  capturedAt: MANIFEST.capturedAt,
-  components: COMPONENTS.components,
-};
-
-// Rendered once, before the config is planned, because the config records what
-// these hash to and the sidecar stamps itself with the time it was generated.
-// Rendering twice would record the hash of a file that was never written.
-const designBody = renderDesignMd(TOKENS, bridgeMeta);
-const sidecarValue = renderDesignJson(TOKENS, bridgeMeta);
-const sidecarBody = JSON.stringify(sidecarValue, null, 2) + '\n';
-
-/**
- * What a generated file will hash to once this run finishes — the new content
- * where it is about to be written, and whatever is already on disk where it is
- * being left alone. Recording the hash of content that was skipped would report
- * the untouched file as edited on the next session.
- */
-function settledHash(rel, nextHashable) {
-  const abs = join(target, rel);
-  if (!existsSync(abs) || FORCE) return hashText(nextHashable);
-  try {
-    return hashAsset(abs);
-  } catch {
-    return null;
-  }
-}
-
-const designHash = settledHash(DESIGN_REL, designBody);
-const sidecarHash = settledHash(SIDECAR_REL, canonical(sidecarValue));
+//
+// Copied rather than rendered, like the stylesheet: nothing in either is
+// project-specific, so both are built and committed by build-design.mjs and
+// carry a manifest hash. That hash is what the project records — the identity of
+// the plugin's copy, which is what lets a project holding an older build be told
+// apart from one whose file has been edited.
+const designHash = MANIFEST.hashes['DESIGN.md'];
+const sidecarHash = MANIFEST.hashes['design.json'];
 
 planFile('pushpin.config.json', 'Figma keys and the capture this project is pinned to', (abs) => {
   writeFileSync(
@@ -242,8 +216,8 @@ planFile('pushpin.config.json', 'Figma keys and the capture this project is pinn
           'Written by the pushpin skill. Lets the Figma bridge work without re-deriving keys. ' +
           '`capturedAt` and `pluginVersion` record which snapshot of the kit this stylesheet ' +
           'came from — compare them against the plugin to find out if it is behind. ' +
-          '`designHash` and `sidecarHash` are what the two generated files hashed to when ' +
-          'they were written, which is what lets an overwrite of either be noticed. ' +
+          '`designHash` and `sidecarHash` are what the plugin build of the two generated ' +
+          'files hashes to, which is what lets an overwrite of either be noticed. ' +
           '`preview` is where the prototype is served and whether Pushpin may start it.',
         designSystem: 'pushpin',
         pluginVersion: PLUGIN.version,
@@ -280,12 +254,12 @@ planFile('pushpin.config.json', 'Figma keys and the capture this project is pinn
 // Planned in this order deliberately: the detector compares mtimes and warns
 // when the markdown is newer than the sidecar, so the sidecar goes last.
 planFile(DESIGN_REL, "Pushpin's tokens as design-system checks for the browser phase", (abs) =>
-  writeFileSync(abs, designBody),
+  copyFileSync(join(ASSETS, 'DESIGN.md'), abs),
 );
 
 planFile(SIDECAR_REL, 'the complete token ramps behind those checks', (abs) => {
   mkdirSync(dirname(abs), { recursive: true });
-  writeFileSync(abs, sidecarBody);
+  copyFileSync(join(ASSETS, 'design.json'), abs);
 });
 
 // Declaring the marketplace in the project's own settings is what lets someone

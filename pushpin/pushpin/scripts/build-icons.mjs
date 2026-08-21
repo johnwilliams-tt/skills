@@ -19,7 +19,7 @@
  *   the page metadata    `get_metadata` on node 2:1 — the category frames and
  *                        which icons sit inside each, but no keys.
  *
- * They join on nodeId. See scripts/extract.md section 7.
+ * They join on nodeId. See scripts/extract.md section 8.
  *
  * Usage: node scripts/build-icons.mjs <raw-dump.json> <page-metadata.xml>
  */

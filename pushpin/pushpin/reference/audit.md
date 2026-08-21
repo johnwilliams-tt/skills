@@ -84,6 +84,15 @@ declaration against the catalog for you. Where you need to see an entry
 yourself, ask for it: `node scripts/lookup.mjs <name>`. Component names,
 property names, and variant options are case-sensitive and not guessable.
 
+**A clean run means the files agree with whatever the tokens say, not that the
+tokens are right.** All three classes resolve against `assets/` — values against
+the generated tokens, declarations against the catalog — and nothing here reads
+the kit, so a screen whose type is visibly wrong runs clean as long as its CSS
+names the token carrying the wrong value. Reporting it as on-system on the
+strength of a zero exit is how a token defect survives a review. The question
+this command cannot answer is whether the capture still matches Figma, and
+[maintaining.md](maintaining.md#refreshing-the-capture) is where it is asked.
+
 ### Copy in code
 
 This is the third class, and the hook `init` installs runs it on every edit.
@@ -172,15 +181,22 @@ that did not run looks exactly like the rule passing.
 ## A Figma frame
 
 [audit-figma.md](audit-figma.md) carries the whole procedure, and it is a
-`use_figma` script rather than a shell command because everything it inspects
-lives in the Figma document. Seven buckets, failing on defects only. The failure
-it exists to catch is work that looks right in a screenshot and is structurally
-fake — which is exactly why a screenshot cannot stand in for running it.
+`use_figma` script rather than a shell command because nearly everything it
+inspects lives in the Figma document. Seven buckets, failing on defects only.
+The failure it exists to catch is work that looks right in a screenshot and is
+structurally fake — which is exactly why a screenshot cannot stand in for
+running it.
 
-Copy is the one part of that run that comes back out to a shell command. The
-rules a frame's words are held against are a file rather than a property of a
-node, so the `use_figma` call gathers the strings and `copy.mjs` decides them,
-which is how the Figma path ends in the same engine the two paths above start
-from. [Settling the copy bucket](audit-figma.md#settling-the-copy-bucket) has
-the mechanism, where ownership splits inside an instance, and why a critical
-goes to `defects` while everything else reports.
+Two parts of that run come back out to a shell command, because a `use_figma`
+script cannot read a file. The keys its instances resolved to are one, and
+`remote` is why: it says an instance resolved to a published component and not
+to whose, so
+[Settling the library bucket](audit-figma.md#settling-the-library-bucket) holds
+the keys against the catalogs and a component from the library Pushpin replaced
+is reported rather than counted as on-system. The copy is the other. The rules a
+frame's words are held against are a file rather than a property of a node, so
+the `use_figma` call gathers the strings and `copy.mjs` decides them, which is
+how the Figma path ends in the same engine the two paths above start from.
+[Settling the copy bucket](audit-figma.md#settling-the-copy-bucket) has the
+mechanism, where ownership splits inside an instance, and why a critical goes to
+`defects` while everything else reports.

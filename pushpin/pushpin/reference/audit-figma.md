@@ -5,16 +5,20 @@ looks right in a screenshot and is structurally fake. Run it on a frame this
 plugin generated before handing anything over, and on any existing frame when
 the question is whether it is on-system.
 
-It is a `use_figma` script rather than a shell command, because everything it
-inspects lives in the Figma document. Copy is the one exception: the rules it is
-held against are a file, not a property of a node, so the run ends in a shell
-command — argued below rather than assumed.
+It is a `use_figma` script rather than a shell command, because nearly all of
+what it inspects lives in the Figma document. Two things do not: the keys
+Pushpin publishes and the rules its copy is held against are files rather than
+properties of a node, so the run ends in shell commands — argued below rather
+than assumed.
 
 ## What it sorts into
 
 Seven buckets:
 
-- **Library** — instances that resolved to remote published components.
+- **Library** — the keys the frame's own instances resolved to. `remote` says an
+  instance came from a published library and not which one, so the `use_figma`
+  call gathers the keys and a shell command holds them against the catalogs:
+  this bucket carries keys until the second step has run and a count after it.
 - **Proposed** — local components named `Proposed / …` that have a parseable
   note on the page.
 - **Unresolved** — placeholders standing in for something the system could not
@@ -28,12 +32,12 @@ Seven buckets:
   The `use_figma` call gathers them and a shell command settles them, so this
   bucket holds strings until the second step has run and findings after it.
 - **Defects** — detached instances, lookalikes, undeclared local components,
-  literal fills, unbound spacing and radius, resized icons, nodes left
-  shimmering, drift that no `Token drift` note discloses, drift recorded in a
-  form this cannot read, `Proposed /` components whose note is missing or
-  incomplete or whose type and geometry drifted from the component they claim to
-  extend, overlapping annotations, and copy that breaks a rule the rubric calls
-  critical.
+  instances resolved from a key no Pushpin catalog publishes, literal fills,
+  unbound spacing and radius, resized icons, nodes left shimmering, drift that
+  no `Token drift` note discloses, drift recorded in a form this cannot read,
+  `Proposed /` components whose note is missing or incomplete or whose type and
+  geometry drifted from the component they claim to extend, overlapping
+  annotations, and copy that breaks a rule the rubric calls critical.
 
 The run fails on defects only. A populated `proposed`, `unresolved`, `degraded`,
 `drift`, or `copy` bucket is a result to report, not a failure — this is a
@@ -85,7 +89,7 @@ for (const t of page.findAllWithCriteria({ types: ['TEXT'] })) {
 // Recording what degraded is what keeps a drawn note or a placeholder icon from
 // reading as a generation bug later.
 const report = {
-  library: 0,
+  library: [],
   proposed: [],
   unresolved: [],
   degraded: Object.entries(mode)
@@ -166,6 +170,16 @@ const collectDrift = (n) => {
 
 const localMains = new Map();
 const componentOf = new Map();
+// Keyed on the key, so four Buttons cost one entry in the deck below.
+const placed = new Map();
+
+// The icon catalog is keyed on the glyph and holds a key per size —
+// `Caret-Left`, not `Caret-Left Icon · Small` — so the suffix comes off before
+// the name goes into a lookup. Everything else is catalogued under the name it
+// carries. This is what keeps the settle step below a list of names a catalog
+// can answer rather than a list to translate by hand.
+const ICON_SIZE = / Icon · (Tiny|Small|Medium|Large)$/;
+const catalogName = (name) => name.replace(ICON_SIZE, '');
 
 // One round of awaits for the whole frame rather than one per instance, which on
 // a thirty-instance screen is thirty sequential waits inside the script. Zipped
@@ -184,8 +198,27 @@ for (let i = 0; i < instanceNodes.length; i++) {
   // copy rules carry a length limit for.
   const set = main.parent && main.parent.type === 'COMPONENT_SET' ? main.parent : main;
   componentOf.set(inst.id, set.name);
-  // `remote` true means it came from a published library, not this file.
-  if (main.remote) { report.library++; continue; }
+  // `remote` true means it came from a published library, not this file — and
+  // not which library, which every published one answers the same way. The key
+  // is the part that differs, so it is gathered here and settled below. The
+  // set's key rather than the main's: the catalogs record a set under the key
+  // `importComponentSetByKeyAsync` takes, and a variant's own key is in none of
+  // them.
+  //
+  // Only what this frame placed is asked about. An instance inside another one
+  // is that component's interior, published under names no public catalog
+  // carries — `Icon / Left` and `Avatar initials` are parts of Button and
+  // Avatar — so asking would report every component that nests anything. Slot
+  // content is the exception the fill and spacing checks already carve out,
+  // because the caller put it there.
+  if (main.remote) {
+    if (!inInstance(inst) || inSlotContent(inst)) {
+      const prior = placed.get(set.key);
+      if (prior) prior.count++;
+      else placed.set(set.key, { component: catalogName(set.name), key: set.key, count: 1 });
+    }
+    continue;
+  }
   if (!set.name.startsWith('Proposed / ')) {
     report.defects.push(`${inst.name} — local component "${set.name}", neither published nor proposed`);
     continue;
@@ -220,7 +253,6 @@ if (root.placeholder === true) {
 // Three per-node checks over one walk, because every `findAll` is a full
 // pre-order traversal of the frame.
 const ICON_PX = { Tiny: 14, Small: 18, Medium: 28, Large: 32 };
-const ICON_SIZE = / Icon · (Tiny|Small|Medium|Large)$/;
 for (const n of root.findAll(
   (x) => ICON_SIZE.test(x.name) || x.name.startsWith('Placeholder / ') || x.placeholder === true,
 )) {
@@ -463,14 +495,16 @@ for (const t of root.findAllWithCriteria({ types: ['TEXT'] })) {
 }
 
 report.copy = [...copy.values()];
+report.library = [...placed.values()];
 
-// A frame carrying copy is not settled here, so this call does not pretend to
-// settle it. Reporting the structural verdict as the verdict would hand
+// Two buckets leave here as raw material, so this call does not pretend to
+// settle either. Reporting the structural verdict as the verdict would hand
 // anything that stopped reading at this return an `ok: true` that no one
-// checked the words for, and the whole point of a copy critical failing a run
-// is that it fails the run.
-if (report.copy.length) {
-  report.pending = 'copy';
+// checked the keys or the words for, and the whole point of a copy critical or
+// a key from another library failing a run is that it fails the run.
+const pending = ['library', 'copy'].filter((b) => report[b].length);
+if (pending.length) {
+  report.pending = pending;
   return report;
 }
 
@@ -481,6 +515,47 @@ report.ok = report.defects.length === 0;
 if (report.ok) await root.screenshot();
 return report;
 ```
+
+## Settling the library bucket
+
+`remote` is a boolean. It says an instance resolved to a published component and
+nothing about which library published it, so a frame built on the kit Pushpin
+replaced answers it exactly as a frame built on Pushpin does. That is how a real
+run reported `library: 21` on a frame where 12 of the 21 came from the older
+library: the check confirmed the instance resolved and never asked to what.
+
+The keys are where the two differ, and the keys Pushpin publishes are already
+here — 117 components in `assets/components.figma.json`, 899 icon keys in
+`icons.figma.json`, 91 Annotation Kit entries in `annotations.figma.json`. Those
+are files, so this bucket splits the way copy does and for the reason argued
+below: pasting a thousand keys into the script is the restatement
+[provenance.md](provenance.md) keeps the record of, and it would go stale on the
+next capture.
+
+`lookup.mjs` reads all three catalogs, so one call takes every name the script
+gathered:
+
+```
+node scripts/lookup.mjs --json --component --icon --annotation Button,TextInput,ServiceCard,Caret-Right
+```
+
+Then settle each entry on its key rather than on its name, because the name is
+the part a lookalike gets right:
+
+- An entry whose recorded `key` is among the keys its name came back with is
+  Pushpin's. A component or annotation entry carries one `key` and an icon entry
+  one per size, and a name that resolves to several entries — `Home` is
+  published in two categories — settles on any of them, which is why the test is
+  membership rather than a match on the name.
+- Anything else is a defect, phrased the way the rest of them are:
+  `Button — resolved from a library, key 8f3c… is in no Pushpin catalog`. A
+  component published by the library Pushpin replaced lands here, and so does an
+  internal part instanced directly; both are answered by instancing the
+  catalogued component instead.
+- `library` becomes the total of the counts that settled, so the number in the
+  report is one something was checked for.
+
+`ok` waits for both buckets; the copy step below settles it.
 
 ## Settling the copy bucket
 
@@ -562,6 +637,15 @@ still binds its fills.
 
 Any pill-shaped frame outside those three cases is the exact bug this page exists
 to prevent: something that looks like a Pushpin component and isn't one.
+
+**An instance that resolved is not an instance that resolved to Pushpin.** Every
+library a file has enabled answers `remote` the same way, and a Thumbtack file
+has the kit Pushpin replaced enabled beside it — which is how a frame reported
+`library: 21` with 12 of the 21 being components nobody should place again. It
+read as fully on-system because the count was of instances that resolved, not
+of instances that resolved to Pushpin — the drawn-pill defect arriving by the
+one route no shape check looks down. The key tells the two apart, which is why
+this check ends in a shell command the way copy does.
 
 **A `Proposed /` component with no note is a defect, and so is a note without a
 `Tier` or a `Derived`.** Without that rule the annotation requirement is
@@ -650,7 +734,11 @@ returns this:
 
 ```
 {
-  library: 5,
+  library: [
+    { component: 'Button', key: 'ebc80753f095633977049c061a28a082816ef9c7', count: 2 },
+    { component: 'TextInput', key: '522dbc457c6160fe2d2673326448ee3c16245519', count: 1 },
+    { component: 'ServiceCard', key: 'a674487167b8b2f16e5eb55112cc4237068874ab', count: 1 },
+  ],
   proposed: [],
   unresolved: [],
   degraded: [],
@@ -662,21 +750,22 @@ returns this:
     { node: 'Header', component: null, text: 'Find a pro for any project', count: 1 },
   ],
   defects: [],
-  pending: 'copy',
+  pending: ['library', 'copy'],
 }
 ```
 
 There is no `ok` in that return and no picture, which is the point of `pending`:
-four strings have been gathered and nothing has read them yet. They are the deck
-in the section above and they run clean, so the settled report is the one to
-hand over:
+three keys and four strings have been gathered and nothing has held either
+against the file that decides it. They are the two decks in the sections above
+and both run clean, so the settled report is the one to hand over:
 
 ```
-{ library: 5, proposed: [], unresolved: [], degraded: [], drift: [], copy: [], defects: [], ok: true }
+{ library: 4, proposed: [], unresolved: [], degraded: [], drift: [], copy: [], defects: [], ok: true }
 ```
 
-Five instances resolved to remote main components (three placed directly, two
-nested inside them), nothing was drawn by hand, every icon is at its own size,
+Four instances the frame placed resolved to keys the catalogs publish — what
+sits inside them was not asked, because a component's interior belongs to
+whoever published it — nothing was drawn by hand, every icon is at its own size,
 every gap and corner asked for a value the scale already had, every fill on the
 hand-built containers was variable-bound, and the four strings the frame owns
 are inside their limits. A run that passes also returns the frame's picture,
@@ -689,7 +778,7 @@ same way — and says what it cost:
 
 ```
 {
-  library: 5,
+  library: 4,
   proposed: [],
   unresolved: [{ name: 'Placeholder / icon · Small', width: 18, height: 18 }],
   degraded: [
@@ -718,7 +807,7 @@ its place:
 
 ```
 {
-  library: 5,
+  library: 4,
   proposed: [],
   unresolved: [],
   degraded: [],

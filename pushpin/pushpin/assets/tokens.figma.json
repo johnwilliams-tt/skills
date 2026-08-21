@@ -291,7 +291,8 @@
   },
 
   "letterSpacing": {
-    "$unit": "px",
+    "$unit": "percent",
+    "$unitNote": "The Figma variables are bare FLOATs scoped to LETTER_SPACING and carry no unit of their own. The published text styles apply exactly these three numbers as PERCENT, which is what fixes the unit — see the letterSpacing entries in styles.figma.json.",
     "loose": 1,
     "tight": -1,
     "extra-tight": -2

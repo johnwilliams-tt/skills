@@ -10,11 +10,17 @@ matching a fresh build of the capture.
 
 ```
 Pushpin Thumbprint UI Kit (Figma, VVRGrLgkPRU3vs765d5Q3r)
-  └─ scripts/extract.md          read the variable collections via use_figma
-      └─ assets/tokens.figma.json    verbatim capture, committed
+  └─ scripts/extract.md          read the variables and published styles via use_figma
+      ├─ assets/tokens.figma.json    verbatim capture, committed
+      └─ assets/styles.figma.json    verbatim capture, committed
           └─ scripts/build-css.mjs       deterministic transform
               └─ assets/pushpin.css          generated, never hand-edited
 ```
+
+The style capture is in the chain because one property is not a variable at all.
+Tracking is set per text style, so what a `.pp-title-3` should carry is a fact
+about `Title/3` rather than about any token group, and only `styles.figma.json`
+holds it.
 
 Two properties matter. The capture is **verbatim** — `tokens.figma.json` holds
 what Figma returned, including values that look like mistakes, so that a real

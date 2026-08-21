@@ -24,6 +24,7 @@ import { fileURLToPath } from 'node:url';
 
 import { distillComponents } from './build-components.mjs';
 import { distillIcons } from './build-icons.mjs';
+import { TOKEN_GROUPS } from './lib/tokens.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const ASSETS = join(here, '..', 'assets');
@@ -66,24 +67,13 @@ const changed = [];
 const added = [];
 const notes = [];
 
-/** Figma collection name to the key it is stored under in tokens.figma.json. */
-const COLLECTION = {
-  'Tokens / Base Colors': 'baseColors',
-  'Tokens / Semantic Colors': 'semanticColors',
-  'Tokens / Space': 'space',
-  'Tokens / Corner Radius': 'cornerRadius',
-  'Tokens / Font Weight': 'fontWeight',
-  'Tokens / Font': 'font',
-  'Tokens / Line Height': 'lineHeight',
-  'Tokens / Letter Spacing': 'letterSpacing',
-  'Tokens / Shadow': 'shadow',
-  'Tokens / Duration': 'duration',
-  'Tokens / Easing': 'easing',
-  'Tokens / Breakpoint': 'breakpoint',
-  'Tokens / Scrim': 'scrim',
-  'Tokens / Wrap': 'wrap',
-  'Tokens / Z-Index': 'zIndex',
-};
+/**
+ * Figma collection name to the key it is stored under in tokens.figma.json,
+ * from the one table that holds it. A second copy here would decide on its own
+ * what a collection is called, and the failure of that is quiet: a renamed
+ * collection this map does not know reads as "gone from the kit".
+ */
+const COLLECTION = Object.fromEntries(TOKEN_GROUPS.map((g) => [g.collection, g.key]));
 
 /**
  * Collections whose committed values are hand-converted to CSS syntax during
@@ -96,6 +86,23 @@ const VALUE_OPAQUE = new Set(['shadow', 'easing', 'scrim']);
 const real = (o) => Object.keys(o).filter((k) => !k.startsWith('$'));
 const short = (c) => c.replace('Tokens / ', '');
 const round = (v) => (typeof v === 'number' ? Math.round(v * 10000) / 10000 : v);
+
+/**
+ * A text-style metric, as the `{ value, unit }` pair Figma returns. `AUTO` line
+ * heights carry no value at all.
+ *
+ * The two halves are compared separately because they fail differently. A moved
+ * value restyles; a moved unit stops `build-css.mjs` dead, since it refuses to
+ * emit a metric whose unit disagrees with the token group's `$unit` rather than
+ * guessing one — which is the guess that put -1px of tracking on nine title
+ * utilities that carry none.
+ */
+const metric = (m) => {
+  if (!m || typeof m !== 'object') return null;
+  if (m.unit === 'AUTO') return { unit: 'AUTO', value: null };
+  return { unit: m.unit ?? null, value: round(m.value) };
+};
+const METRICS = ['letterSpacing', 'lineHeight'];
 
 /** Figma stores the type ramp flat; the capture regroups it one object per step. */
 const FONT_PROP = { size: 'size', lineHeight: 'line-height', weight: 'weight' };
@@ -237,6 +244,34 @@ if (kitPath) {
       }
       if (entry.font && f.font && entry.font.replace(/\s+/g, ' ') !== f.font.replace(' / ', ' ')) {
         changed.push(`${group}/${name}: font "${entry.font}" -> "${f.font}"`);
+      }
+
+      // Tracking and line height reach the stylesheet only through the styles,
+      // so a move here is invisible in the variable collections above.
+      for (const prop of METRICS) {
+        const was = metric(entry[prop]);
+        const now = metric(f[prop]);
+        if (!was && !now) continue;
+        if (!was) {
+          added.push(`${group}/${name}: now carries ${prop} ${now.value ?? ''}${now.unit}`);
+          continue;
+        }
+        if (!now) {
+          breaking.push(
+            `${group}/${name}: ${prop} is gone from the style — build-css.mjs needs it and throws without it`,
+          );
+          continue;
+        }
+        if (was.unit !== now.unit) {
+          breaking.push(
+            `${group}/${name}: ${prop} unit ${was.unit} -> ${now.unit} — build-css.mjs refuses ` +
+              `to emit a metric whose unit disagrees with the token group's $unit, so this ` +
+              `stops the build until $unit is re-decided`,
+          );
+        }
+        if (was.value !== now.value) {
+          changed.push(`${group}/${name}: ${prop} ${was.value}${was.unit} -> ${now.value}${now.unit}`);
+        }
       }
     }
     for (const name of Object.keys(fresh)) {

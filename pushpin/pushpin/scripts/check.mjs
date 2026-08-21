@@ -38,6 +38,15 @@
 
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { basename, extname, join, relative, resolve } from 'node:path';
+import {
+  binding,
+  isBinding,
+  loadSpecs,
+  parseSelector,
+  restingVariant,
+  unknownPairs,
+  variantForAll,
+} from './lib/specs.mjs';
 import { TOKEN_GROUPS, loadAsset, real, resolveHex } from './lib/tokens.mjs';
 
 const argv = process.argv.slice(2);
@@ -332,7 +341,7 @@ function checkIdentity(file, src) {
           `data-pp-component="${name}" is not in the catalog${near ? ` — did you mean "${near}"?` : ''}`);
       } else {
         const variants = attrs.match(/data-pp-variant\s*=\s*["'{]?\s*["']([^"']+)/);
-        if (variants) checkVariants(file, line, name, entry, variants[1]);
+        if (variants) checkVariants(file, line, name, entry, variants[1], attrs);
       }
     }
 
@@ -369,19 +378,233 @@ function lookalikeSignals(tag, attrs) {
   return out;
 }
 
-function checkVariants(file, line, name, entry, spec) {
+function checkVariants(file, line, name, entry, spec, attrs) {
+  let valid = true;
   for (const pair of spec.split(',')) {
     const [k, v] = pair.split('=').map((x) => x?.trim());
     if (!k || v === undefined) continue;
     const prop = entry.properties?.[k];
     if (!prop) {
       add(file, line, 'unknown-variant', `${name} has no property "${k}"`);
+      valid = false;
       continue;
     }
     if (Array.isArray(prop.options) && !prop.options.includes(v)) {
       add(file, line, 'unknown-variant',
         `${name}.${k} has no option "${v}" — one of ${prop.options.join(' | ')}`);
+      valid = false;
     }
+  }
+  // A selector that names something unpublished has already been reported, and
+  // measuring a declaration against a variant that does not exist would report
+  // the same mistake a second time in a more confusing form.
+  if (valid) checkFidelity(file, line, name, spec, attrs);
+}
+
+// -------------------------------------------------------- declared fidelity
+
+/**
+ * Whether a declared variant looks like the variant it declares.
+ *
+ * `data-pp-variant="theme=secondary"` has until now been checked only for
+ * naming something real. A tag can say `theme=secondary` and paint itself any
+ * colour at all, which is precisely what happened: a hand-rolled secondary
+ * button carried a border the kit does not publish and missed the one it does,
+ * and every check in the repo passed.
+ *
+ * Only the declarations this can actually resolve are compared — an inline
+ * `style`, a `style={{…}}` prop on the declaring tag, and a class rule found in
+ * the scanned files. Everything else is silence, the same discipline the copy
+ * check holds: a fidelity check that guesses at a computed class name is one
+ * people switch off, and then it reports nothing at all.
+ */
+const specs = loadSpecs();
+
+/**
+ * Class rules gathered from every scanned stylesheet, as `[classes, decls]`.
+ *
+ * Only unconditional, purely-class selectors are kept. A descendant or
+ * pseudo-class selector applies under conditions this cannot evaluate, and a
+ * rule inside `@media` is usually a deliberate override at another breakpoint,
+ * so measuring the kit against either would report a difference that is not a
+ * defect.
+ */
+const CLASS_RULES = [];
+
+const CLASS_ONLY = /^(?:\.[-\w]+)+$/;
+
+/** Every `{…}` block with its prelude and the at-rules it sits inside. */
+function eachBlock(s, fn) {
+  const stack = [];
+  let start = 0;
+  for (let i = 0; i < s.length; i++) {
+    if (s[i] === '{') {
+      stack.push(s.slice(start, i).trim());
+      start = i + 1;
+    } else if (s[i] === '}') {
+      const prelude = stack.pop();
+      if (prelude !== undefined) fn(stack, prelude, s.slice(start, i));
+      start = i + 1;
+    }
+  }
+}
+
+function indexStylesheet(src) {
+  eachBlock(mask(src), (ancestors, prelude, body) => {
+    if (prelude.startsWith('@') || body.includes('{')) return;
+    if (ancestors.some((a) => a.startsWith('@'))) return;
+    const decls = parseDecls(body);
+    if (!decls.size) return;
+    for (const sel of prelude.split(',')) {
+      const one = sel.trim();
+      if (!CLASS_ONLY.test(one)) continue;
+      CLASS_RULES.push([new Set(one.split('.').filter(Boolean)), decls]);
+    }
+  });
+}
+
+/** `a: b; c: d` as a map, last declaration winning as the cascade does. */
+function parseDecls(body) {
+  const out = new Map();
+  for (const part of body.split(';')) {
+    const at = part.indexOf(':');
+    if (at < 1) continue;
+    const prop = part.slice(0, at).trim().toLowerCase();
+    const value = part.slice(at + 1).trim();
+    if (/^[-a-z]+$/.test(prop) && value) out.set(prop, value);
+  }
+  return out;
+}
+
+const KEBAB = (k) => k.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+
+/**
+ * A `style={{…}}` prop. React writes a bare number as pixels, so a `height: 40`
+ * there means the same thing as `height: 40px` in a stylesheet.
+ */
+function parseStyleObject(text) {
+  const out = new Map();
+  for (const m of text.matchAll(/([A-Za-z][\w]*|'[^']+'|"[^"]+")\s*:\s*('[^']*'|"[^"]*"|[-\d.]+)/g)) {
+    const key = KEBAB(m[1].replace(/['"]/g, ''));
+    const raw = m[2];
+    out.set(key, /^['"]/.test(raw) ? raw.slice(1, -1) : `${raw}px`);
+  }
+  return out;
+}
+
+/** Every declaration reachable for one tag, in cascade order. */
+function declarationsFor(attrs) {
+  const out = new Map();
+  const classes = attrs.match(/\bclass(?:Name)?\s*=\s*["']([^"']*)["']/);
+  if (classes) {
+    const on = new Set(classes[1].split(/\s+/).filter(Boolean));
+    for (const [need, decls] of CLASS_RULES) {
+      if ([...need].every((c) => on.has(c))) for (const [k, v] of decls) out.set(k, v);
+    }
+  }
+  const inline = attrs.match(/\bstyle\s*=\s*["']([^"']*)["']/);
+  if (inline) for (const [k, v] of parseDecls(inline[1])) out.set(k, v);
+  const obj = attrs.match(/\bstyle\s*=\s*\{\{([\s\S]*?)\}\}/);
+  if (obj) for (const [k, v] of parseStyleObject(obj[1])) out.set(k, v);
+  return out;
+}
+
+/**
+ * CSS properties that can be measured against a captured field, and how.
+ *
+ * Width is absent on purpose: a Pushpin control hugs its label, so the width
+ * recorded for a variant is the width of the word inside it and comparing
+ * against it would flag every button with a different label. Height is here
+ * only when the kit fixed it, for the same reason.
+ */
+const FIDELITY = [
+  ['background-color', 'fill', 'color'],
+  ['background', 'fill', 'color'],
+  ['border-color', 'stroke', 'color'],
+  ['border-width', 'strokeWeight', 'length'],
+  ['border-radius', 'radius', 'length'],
+  ['gap', 'gap', 'length'],
+  ['padding', 'padding', 'length'],
+  ['height', 'height', 'length'],
+  ['color', 'text.fill', 'color'],
+  ['font-size', 'text.size', 'length'],
+];
+
+/** `#abc` and `#aabbccff` are the same colour as `#aabbcc`. */
+function normHex(v) {
+  const m = String(v).trim().toLowerCase().match(/^#([0-9a-f]{3,8})$/);
+  if (!m) return null;
+  let h = m[1];
+  if (h.length === 3 || h.length === 4) h = [...h].map((c) => c + c).join('');
+  if (h.length === 8 && h.endsWith('ff')) h = h.slice(0, 6);
+  return h.length === 6 || h.length === 8 ? `#${h}` : null;
+}
+
+/** The captured value for a field, or null where there is nothing to compare. */
+function wantOf(variant, field) {
+  let v = field === 'height' ? variant.size?.[1] : null;
+  if (field === 'height' && variant.sizing && variant.sizing[1] !== 'FIXED') return null;
+  if (field.startsWith('text.')) v = variant.text?.[field.slice(5)];
+  else if (field !== 'height') v = variant[field];
+  if (v === null || v === undefined) return null;
+  // Four sides that disagree are four declarations, not one, and the shorthand
+  // this would be compared against may be writing any subset of them.
+  if (!isBinding(v) && Array.isArray(v)) return null;
+  const b = binding(tokens, v);
+  return b ? { css: b.css, literal: b.literal } : { css: null, literal: v };
+}
+
+/**
+ * True, false, or null for "cannot tell" — and null is by far the most common,
+ * which is the point.
+ */
+function agrees(decl, want, kind) {
+  const v = String(decl).trim().toLowerCase();
+  const ref = v.match(/var\(\s*(--[\w-]+)/);
+  // A token reference is compared by name, because the name is the decision.
+  // Where the kit binds a variable Pushpin does not publish there is no name to
+  // compare against and no basis for calling the consumer wrong.
+  if (ref) return want.css ? ref[1] === want.css : null;
+  if (want.literal === null || want.literal === undefined) return null;
+  if (kind === 'color') {
+    const got = normHex(v);
+    const expected = normHex(want.literal);
+    return got && expected ? got === expected : null;
+  }
+  if (typeof want.literal !== 'number') return null;
+  const px = v.match(/^(-?\d*\.?\d+)(?:px)?$/);
+  // A rem or a percentage depends on a root size or a parent this cannot see.
+  if (!px) return null;
+  return Math.abs(Number(px[1]) - want.literal) < 0.5;
+}
+
+/** How the kit's value reads in a message. */
+const kitValue = (want, kind) =>
+  want.css
+    ? `var(${want.css})${want.literal === null ? '' : ` (${want.literal}${kind === 'length' ? 'px' : ''})`}`
+    : `${want.literal}${kind === 'length' && typeof want.literal === 'number' ? 'px' : ''}`;
+
+function checkFidelity(file, line, name, selector, attrs) {
+  if (!specs || !attrs) return;
+  const set = specs.components?.[name];
+  if (!set) return;
+
+  const pairs = parseSelector(selector);
+  if (unknownPairs(set, pairs).length) return;
+  const variant = pairs.length ? variantForAll(set, pairs) : restingVariant(set);
+  if (!variant) return;
+
+  const declared = declarationsFor(attrs);
+  if (!declared.size) return;
+
+  for (const [prop, field, kind] of FIDELITY) {
+    const decl = declared.get(prop);
+    if (decl === undefined) continue;
+    const want = wantOf(variant, field);
+    if (!want) continue;
+    if (agrees(decl, want, kind) !== false) continue;
+    add(file, line, 'variant-drift',
+      `${name} ${selector} declares ${prop}: ${decl.trim()} — the kit's is ${kitValue(want, kind)}`);
   }
 }
 
@@ -488,11 +711,31 @@ function scanCopy(file, src, text, at, component) {
 
 // --------------------------------------------------------------------- run
 
+/** Where a class rule can live: a stylesheet, or a single-file component's `<style>`. */
+const STYLE_EXT = new Set(['.css', '.scss', '.sass', '.less']);
+const EMBEDS_STYLE = new Set(['.vue', '.svelte', '.astro']);
+
+/**
+ * Every source is read and every stylesheet indexed before anything is
+ * reported. The class named on a tag in one file is defined in another, and a
+ * fidelity check that only saw the files already walked would answer differently
+ * depending on the order the directory happened to list them in.
+ */
+const sources = [];
 for (const file of files) {
   const src = readFileSync(file, 'utf8');
   if (isGenerated(file, src)) continue;
   const r = relative(ROOT, file);
-  const rel = !r || r.startsWith('..') ? file : r;
+  sources.push([file, !r || r.startsWith('..') ? file : r, src]);
+
+  const ext = extname(file);
+  if (STYLE_EXT.has(ext)) indexStylesheet(src);
+  else if (EMBEDS_STYLE.has(ext)) {
+    for (const m of src.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)) indexStylesheet(m[1]);
+  }
+}
+
+for (const [file, rel, src] of sources) {
   if (!COMPONENT_ONLY) checkTokens(rel, src);
   checkIdentity(rel, src);
   if (COPY_ON && MARKUP_EXT.has(extname(file))) checkCopy(rel, src);

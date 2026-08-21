@@ -303,9 +303,9 @@
   --pp-leading-text-4: 1.9;
 
   /* ── Letter spacing ──────────────────────────────────────────────────── */
-  --pp-tracking-loose: 1px;
-  --pp-tracking-tight: -1px;
-  --pp-tracking-extra-tight: -2px;
+  --pp-tracking-loose: 0.01em;
+  --pp-tracking-tight: -0.01em;
+  --pp-tracking-extra-tight: -0.02em;
 
   /* ── Elevation ───────────────────────────────────────────────────────── */
   --pp-shadow-100: 0px 1px 3px rgba(0, 0, 0, 0.1);
@@ -586,21 +586,21 @@
   font-size: var(--pp-font-size-hero);
   line-height: var(--pp-line-height-hero);
   font-weight: var(--pp-font-weight-hero);
-  letter-spacing: var(--pp-tracking-tight);
+  letter-spacing: var(--pp-tracking-extra-tight);
 }
 .pp-title-1 {
   font-family: var(--pp-font-family);
   font-size: var(--pp-font-size-title-1);
   line-height: var(--pp-line-height-title-1);
   font-weight: var(--pp-font-weight-title-1);
-  letter-spacing: var(--pp-tracking-tight);
+  letter-spacing: var(--pp-tracking-extra-tight);
 }
 .pp-title-2 {
   font-family: var(--pp-font-family);
   font-size: var(--pp-font-size-title-2);
   line-height: var(--pp-line-height-title-2);
   font-weight: var(--pp-font-weight-title-2);
-  letter-spacing: var(--pp-tracking-tight);
+  letter-spacing: var(--pp-tracking-extra-tight);
 }
 .pp-title-3 {
   font-family: var(--pp-font-family);
@@ -614,35 +614,30 @@
   font-size: var(--pp-font-size-title-4);
   line-height: var(--pp-line-height-title-4);
   font-weight: var(--pp-font-weight-title-4);
-  letter-spacing: var(--pp-tracking-tight);
 }
 .pp-title-5 {
   font-family: var(--pp-font-family);
   font-size: var(--pp-font-size-title-5);
   line-height: var(--pp-line-height-title-5);
   font-weight: var(--pp-font-weight-title-5);
-  letter-spacing: var(--pp-tracking-tight);
 }
 .pp-title-6 {
   font-family: var(--pp-font-family);
   font-size: var(--pp-font-size-title-6);
   line-height: var(--pp-line-height-title-6);
   font-weight: var(--pp-font-weight-title-6);
-  letter-spacing: var(--pp-tracking-tight);
 }
 .pp-title-7 {
   font-family: var(--pp-font-family);
   font-size: var(--pp-font-size-title-7);
   line-height: var(--pp-line-height-title-7);
   font-weight: var(--pp-font-weight-title-7);
-  letter-spacing: var(--pp-tracking-tight);
 }
 .pp-title-8 {
   font-family: var(--pp-font-family);
   font-size: var(--pp-font-size-title-8);
   line-height: var(--pp-line-height-title-8);
   font-weight: var(--pp-font-weight-title-8);
-  letter-spacing: var(--pp-tracking-tight);
 }
 .pp-body-1 {
   font-family: var(--pp-font-family);

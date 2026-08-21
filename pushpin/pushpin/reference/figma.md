@@ -55,11 +55,27 @@ additionally needs a concrete `nodeId`. To enumerate variables wholesale, use
 5. Map what comes back to tokens, not to raw values. A returned `#07344a` is
    `--pp-background-brand-strong`; a returned `16px` gap is `--pp-space-4`. The
    response is a reference to adapt, not code to paste.
-6. Icons resolve to the icon set, not to `<img>` of an exported PNG. A layer
+6. **Where the frame uses a published component, read its spec before writing a
+   stand-in.** `get_design_context` describes the frame, not the component the
+   instance came from, so a hand-rolled version is built from one rendering of
+   one state and nothing says what the other states look like:
+
+   ```bash
+   node scripts/lookup.mjs Button --variant "theme=secondary"
+   ```
+
+   That prints the captured fill, border, radius, height, padding and label as
+   `--pp-*` names. It is worth the call even when the returned frame looks
+   obvious: the border on Pushpin's secondary button is `--pp-border-neutral-default`
+   at 1.5px, and the version that got written from the design alone invented a
+   token the kit does not publish and missed that one. Where nothing was
+   captured, `--variant` names the read that returns it rather than leaving the
+   silence that invited the guess.
+7. Icons resolve to the icon set, not to `<img>` of an exported PNG. A layer
    named `Caret-Left Icon · Small` is `@thumbtack/thumbprint-icons`'
    `NavigationCaretLeftSmall` — the category comes from
    `lookup.mjs --icon Caret-Left`, and the size suffix carries through.
-7. Run the frame's words through the copy engine before writing them into
+8. Run the frame's words through the copy engine before writing them into
    markup, fix what it finds, and disclose the change — below.
 
 ### Copy is corrected on the way in

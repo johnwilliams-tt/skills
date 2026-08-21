@@ -40,10 +40,10 @@ const within = (root, p) => p === root || p.startsWith(root + sep);
  * A missing generated file is deliberately not here, though `--write` would
  * write it. `pushpin.config.json` records what those files hash to and is
  * itself only rewritten under `--force`, so restoring one on a plain `--write`
- * leaves the old hash in place — and the sidecar stamps itself with the time it
- * was generated, so the restored file would report as hand-edited from the next
- * session onward. A silent repair that trades one finding for a permanent one
- * is worse than the sentence.
+ * leaves the old hash in place — and a project behind the plugin would then
+ * report the file it just restored as hand-edited from the next session onward.
+ * A silent repair that trades one finding for a permanent one is worse than the
+ * sentence.
  */
 const REPAIRABLE = new Set(['hook', 'hook-missing', 'hook-broken', 'hook-legacy']);
 
@@ -100,6 +100,7 @@ export function inspectPin(dir, { manifest, pluginVersion }) {
     // recorded hash means the project predates them, which is silence.
     for (const g of GENERATED) {
       const recorded = g.kind === 'design' ? prev.designHash : prev.sidecarHash;
+      const asset = g.kind === 'design' ? 'DESIGN.md' : 'design.json';
       const state = generatedState(target, g.rel, recorded, hashAsset);
       if (state === 'absent') {
         details.push(`${g.label}: is gone — the design system it carries is not being read`);
@@ -110,6 +111,13 @@ export function inspectPin(dir, { manifest, pluginVersion }) {
       } else if (state === 'edited') {
         details.push(`${g.label}: has been edited since it was written (hash no longer matches)`);
         reasons.push('generated-edited');
+      } else if (state === 'current' && recorded !== manifest.hashes[asset]) {
+        // Untouched since it was written, and behind the plugin. Both files are
+        // built assets, so the recorded hash identifies a plugin build rather
+        // than one project's render — which is what makes this answerable, and
+        // it is the comparison the stylesheet already gets above.
+        details.push(`${g.label}: is an older build of the tokens`);
+        reasons.push('generated-stale');
       }
     }
 
@@ -196,6 +204,13 @@ export function inspectPin(dir, { manifest, pluginVersion }) {
       [
         'edited',
         `This project's stylesheet has been edited since it was installed — ${REMEDY}.`,
+      ],
+      // Last of the generated findings, and the mildest: the files are still
+      // exactly what wrote them, so the checks work — they are just holding the
+      // work against an older capture of the kit than the plugin now carries.
+      [
+        'generated-stale',
+        `This project's generated Pushpin design files are an older build than the plugin now carries, so the design-system checks are enforcing an older capture of the kit — ${REMEDY}.`,
       ],
     ];
 

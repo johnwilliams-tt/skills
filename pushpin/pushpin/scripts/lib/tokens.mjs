@@ -32,29 +32,50 @@ export const loadAsset = (file) => JSON.parse(readFileSync(join(ASSETS, file), '
  * Every token group, its custom property name, and whether it can be bound as
  * a Figma variable.
  *
- * `bindable` and `hidden` are the collection names used by
- * `variable-keys.figma.json`, which is a different vocabulary from the capture's
- * own group keys — "Corner Radius" there is `cornerRadius` here. Mapping them
- * once is what lets a lookup answer "can I bind this?" without the caller
- * knowing either vocabulary.
+ * Three vocabularies meet here and none of them is the others. `key` is what
+ * `tokens.figma.json` stores the group under. `bindable` and `hidden` are the
+ * collection names in `variable-keys.figma.json` — "Corner Radius" there is
+ * `cornerRadius` here. `collection` is the variable collection's own name in
+ * Figma, which is what a capture reports and what `diff.mjs` and the component
+ * spec resolver both have to translate. Mapping all three once is what lets a
+ * caller ask "can I bind this?" or "what is this bound variable called in CSS?"
+ * without knowing any of them.
  */
 export const TOKEN_GROUPS = [
-  { key: 'baseColors', label: 'base color', css: (k) => `--pp-color-${seg(k)}`, hidden: 'Base Colors' },
-  { key: 'semanticColors', label: 'semantic color', css: (k) => `--pp-${seg(k)}`, bindable: 'Semantic Colors', hidden: 'Semantic Colors' },
-  { key: 'space', label: 'space', css: (k) => `--pp-space-${seg(k)}`, bindable: 'Space', unit: 'px' },
-  { key: 'cornerRadius', label: 'radius', css: (k) => `--pp-radius-${seg(k)}`, bindable: 'Corner Radius', unit: 'px' },
-  { key: 'fontWeight', label: 'font weight', css: (k) => `--pp-font-weight-${seg(k)}`, bindable: 'Font Weight' },
-  { key: 'font', label: 'type step', css: (k) => `--pp-font-size-${seg(k)}`, hidden: 'Font' },
-  { key: 'lineHeight', label: 'line height', css: (k) => `--pp-leading-${seg(k)}`, bindable: 'Line Height' },
-  { key: 'letterSpacing', label: 'letter spacing', css: (k) => `--pp-tracking-${seg(k)}`, bindable: 'Letter Spacing', unit: 'px' },
-  { key: 'shadow', label: 'elevation', css: (k) => `--pp-shadow-${seg(k)}`, hidden: 'Shadow' },
-  { key: 'duration', label: 'duration', css: (k) => `--pp-duration-${seg(k)}`, hidden: 'Duration', unit: 'ms' },
-  { key: 'easing', label: 'easing', css: (k) => `--pp-${seg(k)}`, hidden: 'Easing' },
-  { key: 'breakpoint', label: 'breakpoint', css: (k) => `--pp-breakpoint-${seg(k)}`, hidden: 'Breakpoint', unit: 'px' },
-  { key: 'scrim', label: 'scrim', css: (k) => `--pp-scrim-${seg(k)}`, bindable: 'Scrim' },
-  { key: 'wrap', label: 'wrap', css: (k) => `--pp-wrap-${seg(k)}`, bindable: 'Wrap', unit: 'px' },
-  { key: 'zIndex', label: 'z-index', css: (k) => `--pp-z-${seg(k)}`, hidden: 'Z-Index' },
+  { key: 'baseColors', label: 'base color', css: (k) => `--pp-color-${seg(k)}`, collection: 'Tokens / Base Colors', hidden: 'Base Colors' },
+  { key: 'semanticColors', label: 'semantic color', css: (k) => `--pp-${seg(k)}`, collection: 'Tokens / Semantic Colors', bindable: 'Semantic Colors', hidden: 'Semantic Colors' },
+  { key: 'space', label: 'space', css: (k) => `--pp-space-${seg(k)}`, collection: 'Tokens / Space', bindable: 'Space', unit: 'px' },
+  { key: 'cornerRadius', label: 'radius', css: (k) => `--pp-radius-${seg(k)}`, collection: 'Tokens / Corner Radius', bindable: 'Corner Radius', unit: 'px' },
+  { key: 'fontWeight', label: 'font weight', css: (k) => `--pp-font-weight-${seg(k)}`, collection: 'Tokens / Font Weight', bindable: 'Font Weight' },
+  { key: 'font', label: 'type step', css: (k) => `--pp-font-size-${seg(k)}`, collection: 'Tokens / Font', hidden: 'Font' },
+  { key: 'lineHeight', label: 'line height', css: (k) => `--pp-leading-${seg(k)}`, collection: 'Tokens / Line Height', bindable: 'Line Height' },
+  { key: 'letterSpacing', label: 'letter spacing', css: (k) => `--pp-tracking-${seg(k)}`, collection: 'Tokens / Letter Spacing', bindable: 'Letter Spacing', unit: 'percent' },
+  { key: 'shadow', label: 'elevation', css: (k) => `--pp-shadow-${seg(k)}`, collection: 'Tokens / Shadow', hidden: 'Shadow' },
+  { key: 'duration', label: 'duration', css: (k) => `--pp-duration-${seg(k)}`, collection: 'Tokens / Duration', hidden: 'Duration', unit: 'ms' },
+  { key: 'easing', label: 'easing', css: (k) => `--pp-${seg(k)}`, collection: 'Tokens / Easing', hidden: 'Easing' },
+  { key: 'breakpoint', label: 'breakpoint', css: (k) => `--pp-breakpoint-${seg(k)}`, collection: 'Tokens / Breakpoint', hidden: 'Breakpoint', unit: 'px' },
+  { key: 'scrim', label: 'scrim', css: (k) => `--pp-scrim-${seg(k)}`, collection: 'Tokens / Scrim', bindable: 'Scrim' },
+  { key: 'wrap', label: 'wrap', css: (k) => `--pp-wrap-${seg(k)}`, collection: 'Tokens / Wrap', bindable: 'Wrap', unit: 'px' },
+  { key: 'zIndex', label: 'z-index', css: (k) => `--pp-z-${seg(k)}`, collection: 'Tokens / Z-Index', hidden: 'Z-Index' },
 ];
+
+/**
+ * A group's `$unit` as it reads in prose. `percent` prints `%` because that is
+ * what the kit means; the stylesheet emits `em`, which is `build-css.mjs`'s
+ * decision about how a proportional value survives the breakpoint rescale.
+ */
+export const UNIT_LABEL = { px: 'px', ms: 'ms', percent: '%' };
+
+/**
+ * A Figma text-style metric — `{ value, unit }`, or `AUTO` with no value. The
+ * unit is carried rather than dropped because a percentage and a pixel amount
+ * of tracking are different design decisions at every size but one.
+ */
+export const metric = (m) => {
+  if (!m || typeof m !== 'object') return null;
+  if (m.unit === 'AUTO') return 'auto';
+  return `${m.value}${m.unit === 'PERCENT' ? '%' : 'px'}`;
+};
 
 /** Resolve a semantic token's `@alias` chain down to a literal hex. */
 export function resolveHex(tokens, path, mode, seen = new Set()) {

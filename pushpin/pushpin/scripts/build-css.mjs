@@ -1,11 +1,16 @@
 #!/usr/bin/env node
 /**
- * Generates pushpin.css from tokens.figma.json.
+ * Generates pushpin.css from tokens.figma.json and styles.figma.json.
  *
  * Custom property names mirror the Figma variable paths exactly, with `/`
  * replaced by `-`. `background/brand/strong` in Figma is
  * `--pp-background-brand-strong` here, so any value in a build can be traced
  * back to a variable in the kit by name alone.
+ *
+ * The token capture supplies every custom property. The style capture supplies
+ * one thing the variables cannot: tracking is a property of the published text
+ * styles, so it is per type step rather than per token group, and only
+ * styles.figma.json knows which step carries which.
  *
  * Usage: node scripts/build-css.mjs [--check]
  *   --check  exit non-zero if the committed CSS differs from a fresh build
@@ -17,6 +22,7 @@ import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const SRC = join(here, '..', 'assets', 'tokens.figma.json');
+const STYLE_SRC = join(here, '..', 'assets', 'styles.figma.json');
 const OUT = join(here, '..', 'assets', 'pushpin.css');
 
 /**
@@ -27,6 +33,7 @@ const OUT = join(here, '..', 'assets', 'pushpin.css');
 const TYPE_BREAKPOINT = 'medium';
 
 const t = JSON.parse(readFileSync(SRC, 'utf8'));
+const styles = JSON.parse(readFileSync(STYLE_SRC, 'utf8'));
 const seg = (path) => path.replace(/\//g, '-');
 const isMeta = (k) => k.startsWith('$');
 const entries = (o) => Object.entries(o).filter(([k]) => !isMeta(k));
@@ -41,7 +48,90 @@ function value(raw) {
   throw new Error(`Unresolved alias: ${raw}`);
 }
 
+/**
+ * A group's `$unit`, rendered as CSS. `percent` becomes `em` rather than `%`:
+ * `%` is not a letter-spacing unit at all, and the ramp rescales at the 700px
+ * breakpoint (hero 48→64), so only a proportional unit survives that.
+ */
+const UNIT_CSS = {
+  px: (n) => `${n}px`,
+  ms: (n) => `${n}ms`,
+  percent: (n) => `${Number((n / 100).toFixed(4))}em`,
+};
+
+/**
+ * Format a number in the unit its group declares. A group that carries a unit
+ * and does not name one stops the build instead of defaulting to px — assuming
+ * px on `letterSpacing` is what emitted -1px where the kit means -1%.
+ */
+function scalar(group, groupName, raw) {
+  if (typeof raw !== 'number') return raw;
+  const unit = group.$unit;
+  if (!unit) {
+    throw new Error(`${groupName}: no $unit, so "${raw}" cannot be emitted without guessing one`);
+  }
+  const fmt = UNIT_CSS[unit];
+  if (!fmt) {
+    throw new Error(
+      `${groupName}: $unit "${unit}" is not one of ${Object.keys(UNIT_CSS).join(', ')}`,
+    );
+  }
+  return fmt(raw);
+}
+
+/**
+ * The type ramp is the one group the emitter units itself. The capture regroups
+ * the flat `Tokens / Font` collection into one object per step, so there is no
+ * group-level `$unit` to read, and both size and line height are pixels.
+ */
 const px = (n) => (typeof n === 'number' ? `${n}px` : n);
+
+/**
+ * Type step to published text style — `hero`→`Title/Hero`, `title-N`→`Title/N`,
+ * `body-N`→`Text/N`. Thirteen steps, thirteen styles, 1:1.
+ */
+function styleFor(step) {
+  if (step === 'hero') return 'Title/Hero';
+  const m = /^(title|body)-(\d+)$/.exec(step);
+  return m ? `${m[1] === 'title' ? 'Title' : 'Text'}/${m[2]}` : null;
+}
+
+/** Figma's unit names for a text-style metric, in the capture's `$unit` terms. */
+const FIGMA_UNIT = { PIXELS: 'px', PERCENT: 'percent' };
+
+/**
+ * The tracking token a type step's text style calls for, or null where the
+ * style carries none. Every branch throws rather than falling back, because the
+ * behaviour this replaces was a blanket `tracking-tight` across all nine title
+ * steps: right for `title-3` and wrong for the other eight, with nothing in the
+ * repo able to tell.
+ */
+function trackingToken(step) {
+  const styleName = styleFor(step);
+  const style = styleName && styles.textStyles[styleName];
+  if (!style) {
+    throw new Error(`Type step "${step}" maps to no text style, so its tracking is unknown`);
+  }
+  const ls = style.letterSpacing;
+  if (!ls || typeof ls.value !== 'number' || !ls.unit) {
+    throw new Error(`Text style "${styleName}": letterSpacing must be captured as { value, unit }`);
+  }
+  if (FIGMA_UNIT[ls.unit] !== t.letterSpacing.$unit) {
+    throw new Error(
+      `Text style "${styleName}" tracks in ${ls.unit}, but the letterSpacing tokens ` +
+        `are ${t.letterSpacing.$unit}`,
+    );
+  }
+  if (ls.value === 0) return null;
+  const token = entries(t.letterSpacing).find(([, v]) => v === ls.value);
+  if (!token) {
+    throw new Error(
+      `Text style "${styleName}" tracks ${ls.value}, which no letterSpacing token matches`,
+    );
+  }
+  return token[0];
+}
+
 const lines = [];
 const p = (s = '') => lines.push(s);
 const block = (title) => {
@@ -69,10 +159,12 @@ block('Semantic colors (Light)');
 for (const [name, modes] of entries(t.semanticColors)) p(`  --pp-${seg(name)}: ${value(modes.Light)};`);
 
 block('Spacing');
-for (const [k, v] of entries(t.space)) p(`  --pp-space-${k}: ${px(v)};`);
+for (const [k, v] of entries(t.space)) p(`  --pp-space-${k}: ${scalar(t.space, 'space', v)};`);
 
 block('Corner radius');
-for (const [k, v] of entries(t.cornerRadius)) p(`  --pp-radius-${seg(k)}: ${px(v)};`);
+for (const [k, v] of entries(t.cornerRadius)) {
+  p(`  --pp-radius-${seg(k)}: ${scalar(t.cornerRadius, 'cornerRadius', v)};`);
+}
 
 block('Font family');
 p('  --pp-font-family: "Thumbtack Rise", ui-sans-serif, system-ui, -apple-system,');
@@ -93,21 +185,27 @@ block('Line height ratios');
 for (const [k, v] of entries(t.lineHeight)) p(`  --pp-leading-${seg(k)}: ${v};`);
 
 block('Letter spacing');
-for (const [k, v] of entries(t.letterSpacing)) p(`  --pp-tracking-${seg(k)}: ${px(v)};`);
+for (const [k, v] of entries(t.letterSpacing)) {
+  p(`  --pp-tracking-${seg(k)}: ${scalar(t.letterSpacing, 'letterSpacing', v)};`);
+}
 
 block('Elevation');
 for (const [k, v] of entries(t.shadow)) p(`  --pp-shadow-${k}: ${v};`);
 
 block('Motion');
-for (const [k, v] of entries(t.duration)) p(`  --pp-duration-${k}: ${v}ms;`);
+for (const [k, v] of entries(t.duration)) {
+  p(`  --pp-duration-${k}: ${scalar(t.duration, 'duration', v)};`);
+}
 for (const [k, v] of entries(t.easing)) p(`  --pp-${seg(k)}: ${v};`);
 
 block('Breakpoints');
-for (const [k, v] of entries(t.breakpoint)) p(`  --pp-breakpoint-${seg(k)}: ${px(v)};`);
+for (const [k, v] of entries(t.breakpoint)) {
+  p(`  --pp-breakpoint-${seg(k)}: ${scalar(t.breakpoint, 'breakpoint', v)};`);
+}
 
 block('Scrim, wrap, z-index');
 for (const [k, v] of entries(t.scrim)) p(`  --pp-scrim-${seg(k)}: ${v};`);
-for (const [k, v] of entries(t.wrap)) p(`  --pp-wrap-${seg(k)}: ${px(v)};`);
+for (const [k, v] of entries(t.wrap)) p(`  --pp-wrap-${seg(k)}: ${scalar(t.wrap, 'wrap', v)};`);
 for (const [k, v] of entries(t.zIndex)) p(`  --pp-z-${seg(k)}: ${v};`);
 
 p('}');
@@ -131,7 +229,7 @@ p('}');
 
 p();
 p(`/* Desktop type scale — Figma's "${t.font.$modes[1]}" font mode. */`);
-p(`@media (min-width: ${px(t.breakpoint[TYPE_BREAKPOINT])}) {`);
+p(`@media (min-width: ${scalar(t.breakpoint, 'breakpoint', t.breakpoint[TYPE_BREAKPOINT])}) {`);
 p('  :root {');
 for (const [name, def] of entries(t.font)) {
   const m = t.font.$modes[1];
@@ -151,9 +249,8 @@ for (const [name] of entries(t.font)) {
   p(`  font-size: var(--pp-font-size-${seg(name)});`);
   p(`  line-height: var(--pp-line-height-${seg(name)});`);
   p(`  font-weight: var(--pp-font-weight-${seg(name)});`);
-  if (name.startsWith('title') || name === 'hero') {
-    p(`  letter-spacing: var(--pp-tracking-tight);`);
-  }
+  const tracking = trackingToken(name);
+  if (tracking) p(`  letter-spacing: var(--pp-tracking-${seg(tracking)});`);
   p('}');
 }
 

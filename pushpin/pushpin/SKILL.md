@@ -1,7 +1,7 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.10.2
+version: 0.11.0
 argument-hint: "[generate|audit|figma · setup|init|freshness · refresh] [target]"
 allowed-tools:
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/check.mjs *)
@@ -209,12 +209,39 @@ file.**
 ```bash
 node ${CLAUDE_SKILL_DIR}/scripts/lookup.mjs Button          # component: every property, its exact key, the import key
 node ${CLAUDE_SKILL_DIR}/scripts/lookup.mjs Button,Card,Toast   # several at once — commas, one call
+node ${CLAUDE_SKILL_DIR}/scripts/lookup.mjs Button --variant "theme=secondary"   # what that option looks like
 node ${CLAUDE_SKILL_DIR}/scripts/lookup.mjs --icon caret    # icon: one import key per size
 node ${CLAUDE_SKILL_DIR}/scripts/lookup.mjs --token radius  # token: custom property, value, and whether it binds
-node ${CLAUDE_SKILL_DIR}/scripts/lookup.mjs --style title-1 # the text and effect style keys
+node ${CLAUDE_SKILL_DIR}/scripts/lookup.mjs --style Title/1 # the text and effect style keys
 node ${CLAUDE_SKILL_DIR}/scripts/lookup.mjs --annotation a11y
 node ${CLAUDE_SKILL_DIR}/scripts/lookup.mjs --copy pro      # copy rule: a length limit, a preferred term, a banned phrase
 ```
+
+**What it answers completely, and what it does not.** For a property name, a
+variant option, an import key, a token value, a style key or a copy rule, the
+answer is the whole answer and reading the file would add nothing.
+
+A **visual spec** is different, and the difference has bitten. Without
+`--variant`, a component entry lists the options and says nothing about what any
+of them looks like — a silence that reads as "there is nothing more to know",
+which is how a hand-rolled secondary button ended up with a border token the kit
+does not publish. `--variant` closes most of that: it prints the captured fill,
+border, radius, height, padding and label as `--pp-*` names, for one option held
+against the set's other defaults.
+
+Two things it still cannot answer, and it says so rather than improvising:
+
+- **A combination.** Records are per option, so `theme=secondary, size=large`
+  has no single recorded variant. Ask for one option at a time, or read the pair
+  from the kit.
+- **Anything below the top frame.** The capture is shallow, so a state that only
+  recolours an inner element — `Text Area`'s `hasError`, for instance — shows no
+  difference.
+
+In both cases `--variant` names the read that returns the answer: one `use_figma`
+call against the component's page, per `scripts/extract.md § Component visual
+specs`. Take that read rather than guessing; a guess here is the defect three
+separate post mortems have now recorded.
 
 **A layout needs a dozen of these — comma-separate them and ask once.** Terms are
 split on commas, not spaces, so `Icon Button` stays one name and needs no quoting.

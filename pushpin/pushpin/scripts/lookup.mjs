@@ -19,10 +19,18 @@
  * be" is the next question after "what is its label property called", and
  * answering both at once is the whole point of the file.
  *
+ * `--variant` answers the question the property API cannot. A component entry
+ * says `Theme` accepts `secondary`; it has never said what `secondary` looks
+ * like, and that silence is what a spec gets guessed into. The flag prints the
+ * captured spec when one exists and, when none does, names the read that
+ * returns it — because the failure mode being removed here is not a wrong
+ * answer, it is no answer at all.
+ *
  * Usage:
  *   node scripts/lookup.mjs Button              # every catalog
  *   node scripts/lookup.mjs --component Button  # narrow to one
  *   node scripts/lookup.mjs Button,Card,Checkbox   # several, one call
+ *   node scripts/lookup.mjs Button --variant "theme=secondary"
  *   node scripts/lookup.mjs --icon caret
  *   node scripts/lookup.mjs --token radius
  *   node scripts/lookup.mjs --style title
@@ -43,8 +51,22 @@
 
 import { COPY, genericsFor, limitFor } from './lib/copy.mjs';
 import {
+  SPECS_FILE,
+  THE_READ,
+  cssPhrase,
+  isBinding,
+  loadSpecs,
+  parseSelector,
+  restingVariant,
+  unknownPairs,
+  variantFor,
+  variantForAll,
+} from './lib/specs.mjs';
+import {
   TOKEN_GROUPS,
+  UNIT_LABEL,
   loadAsset,
+  metric,
   real,
   resolveHex,
 } from './lib/tokens.mjs';
@@ -57,6 +79,26 @@ const has = (n) => argv.includes(n);
 // prefixed is a query term rather than an unknown flag.
 const isQueryTerm = (a) => !a.startsWith('--') || a.startsWith('--pp-');
 
+/**
+ * `--variant` is the only flag here that takes a value, and its value has to
+ * leave the argument list before the query terms are collected or
+ * `theme=secondary` gets searched for as a component name.
+ *
+ * A bare `--variant` is not the same as no `--variant`: it asks for the resting
+ * appearance, so it returns an empty string where an absent flag returns null.
+ */
+function takeValue(name) {
+  const i = argv.findIndex((a) => a === name || a.startsWith(`${name}=`));
+  if (i === -1) return null;
+  if (argv[i].length > name.length) return argv.splice(i, 1)[0].slice(name.length + 1);
+  const next = argv[i + 1];
+  const value = next !== undefined && isQueryTerm(next) ? next : '';
+  argv.splice(i, value === '' ? 1 : 2);
+  return value;
+}
+
+const variantSel = takeValue('--variant');
+
 const KINDS = ['component', 'icon', 'token', 'style', 'annotation', 'copy'];
 const asJson = has('--json');
 const listOnly = has('--list');
@@ -64,12 +106,16 @@ const showAll = has('--all');
 const CAP = showAll ? Infinity : 12;
 
 const wanted = KINDS.filter((k) => has(`--${k}`));
-const kinds = wanted.length ? wanted : KINDS;
+// A variant selector is a question about a component, so it narrows on its own.
+// Searching the icon catalog for "Button" while answering "what does
+// theme=secondary look like" is noise around the answer.
+const kinds = variantSel !== null ? ['component'] : wanted.length ? wanted : KINDS;
 const query = argv.filter(isQueryTerm).join(' ').trim();
 
 if (has('--help') || has('-h') || (!query && !listOnly)) {
   console.log(
     'usage: node scripts/lookup.mjs [--component|--icon|--token|--style|--annotation|--copy]\n' +
+      '                              [--variant "axis=option, ..."]\n' +
       '                              [--list] [--all] [--json] <query>[,<query>...]\n\n' +
       'Prints only the catalog entries matching <query>, so a property name or an\n' +
       'import key can be had without reading a 97 KB file. Searches every catalog\n' +
@@ -81,6 +127,11 @@ if (has('--help') || has('-h') || (!query && !listOnly)) {
       '  --copy   the content design rules — preferred terms, length limits, banned\n' +
       '           phrases, generic CTAs. A mapped component carries its limit in its\n' +
       '           own entry, so --component Button already answers the length.\n' +
+      '  --variant  what an option looks like — fill, border, radius, height, padding —\n' +
+      '           as --pp-* names. A component entry says Theme accepts "secondary";\n' +
+      '           this says what secondary is. Narrows to components. Bare --variant\n' +
+      '           gives the resting appearance. Where nothing was captured it says so\n' +
+      '           and names the read that returns it, rather than answering nothing.\n' +
       '  --list   names only, no detail. With no query, lists everything of that kind.\n' +
       '  --json   the raw catalog entries, for scripts. Keyed by term when several.',
   );
@@ -154,6 +205,9 @@ const tokens = loadAsset('tokens.figma.json');
 const styles = loadAsset('styles.figma.json');
 const annotations = loadAsset('annotations.figma.json');
 const varKeys = loadAsset('variable-keys.figma.json');
+// Only read when asked for: the spec capture is the largest of the assets and
+// every other kind of lookup answers without it.
+const specs = variantSel === null ? null : loadSpecs();
 
 /**
  * Everything the copy rules can be asked about, one row per name.
@@ -289,6 +343,206 @@ function renderComponent(name, e, { copy = false } = {}) {
   }
 }
 
+// --------------------------------------------------------------- visual spec
+
+/** Spec fields in reading order — the frame outward-in, then its text. */
+const SPEC_FIELDS = [
+  ['fill', 'fill', ''],
+  ['stroke', 'border', ''],
+  ['strokeWeight', 'border width', 'px'],
+  ['radius', 'radius', 'px'],
+  ['width', 'width', 'px'],
+  ['height', 'height', 'px'],
+  ['padding', 'padding', 'px'],
+  ['gap', 'gap', 'px'],
+  ['sizing', 'sizing', ''],
+];
+
+/**
+ * One recorded value as text.
+ *
+ * A bound variable and a collapsed four-side array are both arrays in the
+ * capture, so the binding test comes first: `["Tokens / Corner Radius",
+ * "sides", 9999]` is one radius, and `[8, 16, 8, 16]` is four.
+ */
+function cell(v, unit) {
+  if (v === null || v === undefined) return null;
+  if (!isBinding(v) && Array.isArray(v)) return v.map((x) => cell(x, unit)).join(' / ');
+  return cssPhrase(tokens, v, unit);
+}
+
+function specValue(field, v) {
+  if (v === null || v === undefined) return null;
+  const unit = SPEC_FIELDS.find(([f]) => f === field)?.[2] ?? '';
+  // Sizing is Figma's own two enum words rather than a run of equal sides.
+  if (field === 'sizing' && Array.isArray(v)) return `${v[0]} horizontally, ${v[1]} vertically`;
+  return cell(v, unit);
+}
+
+/** The rows for one recorded variant, label and value. */
+function specRows(v) {
+  // Width and height are two separate decisions bound to two separate
+  // variables, and each can carry its own note about having no Pushpin token,
+  // so they get a row each rather than one `w × h` line.
+  const shaped = { ...v, width: v.size?.[0], height: v.size?.[1] };
+  const rows = [];
+  for (const [field, label] of SPEC_FIELDS) {
+    const shown = specValue(field, shaped[field]);
+    if (shown !== null) rows.push([label, shown]);
+  }
+  if (v.text) {
+    const bits = [];
+    const fill = specValue('fill', v.text.fill);
+    if (fill) bits.push(fill);
+    if (v.text.size) bits.push(`${v.text.size}px`);
+    // A published text style is the type API, and Pushpin's components do not
+    // all apply one — Button's Label carries none — so the absence is stated
+    // rather than left blank, or a reader assumes a style and looks for it.
+    bits.push(v.text.style ? `text style "${v.text.style}"` : 'no published text style');
+    rows.push([`text "${v.text.layer}"`, bits.join(' · ')]);
+  }
+  return rows;
+}
+
+function printRows(rows, indent = '    ') {
+  if (!rows.length) {
+    p(`${indent}nothing recorded`);
+    return;
+  }
+  const pad = Math.max(...rows.map(([l]) => l.length));
+  for (const [label, value] of rows) p(`${indent}${label.padEnd(pad)}  ${value}`);
+}
+
+/**
+ * Where to go when the capture cannot answer.
+ *
+ * The two catalogs disagree about page names and the difference is not
+ * cosmetic: `components.figma.json` records Button on page `Button`, because
+ * the Code Connect dump it is built from reports a bare name, while the live
+ * page is `📌 Button`. A reader sent to a page that does not exist by that name
+ * is being sent nowhere, so the spec capture's verbatim name wins where there
+ * is one, and where there is not, the mismatch is stated.
+ */
+function nameTheRead(name, entry) {
+  p(`  Read it from the kit — ${THE_READ}.`);
+  const captured = specs?.components?.[name]?.page;
+  if (captured) p(`  Page "${captured}".`);
+  else if (entry?.page) {
+    p(`  Page: the catalog records "${entry.page}"; kit pages carry an emoji prefix, so match on the suffix.`);
+  }
+}
+
+/**
+ * The visual spec for a selector, or an honest account of why there is none.
+ *
+ * Every miss here names the read that returns the answer. The defect this flag
+ * exists to remove was not a wrong spec printed by a tool, it was a tool that
+ * said nothing at all about appearance while sounding complete, so a silent
+ * miss would leave the invitation to guess exactly where it was found.
+ */
+function renderVariantSpec(name, entry, selector) {
+  const pairs = parseSelector(selector);
+  const label = pairs.length ? pairs.map(([a, o]) => `${a}=${o}`).join(', ') : 'resting appearance';
+  p('');
+  p(`  visual spec · ${label}`);
+
+  if (!specs) {
+    p(`  No spec captured: assets/${SPECS_FILE} is not in this build.`);
+    nameTheRead(name, entry);
+    return;
+  }
+  const set = specs.components?.[name];
+  if (!set) {
+    p(`  No spec captured for "${name}". The capture covers ${Object.keys(specs.components ?? {}).length} components.`);
+    nameTheRead(name, entry);
+    return;
+  }
+
+  const unknown = unknownPairs(set, pairs);
+  if (unknown.length) {
+    for (const [axis, option, what] of unknown) {
+      if (what === 'axis') p(`  "${name}" publishes no axis "${axis}".`);
+      else p(`  "${axis}" has no option "${option}".`);
+    }
+    const axes = Object.entries(set.axes ?? {});
+    if (axes.length) {
+      p('  Published axes:');
+      printRows(axes.map(([a, o]) => [a, o.join(' | ')]));
+    } else {
+      p(`  "${name}" is a single component with no variant axes.`);
+    }
+    return;
+  }
+
+  const variant = pairs.length ? variantForAll(set, pairs) : restingVariant(set);
+  if (!variant) {
+    // A combination nobody recorded is not composable out of the single-option
+    // records: those are two different children, and reading a fill off one and
+    // a height off the other describes a third that may not exist.
+    p('  No spec was captured for that combination.');
+    printRows(
+      pairs.map(([axis, option]) => [
+        `${axis}=${option}`,
+        variantFor(set, axis, option) ? 'recorded on its own' : 'not recorded',
+      ]),
+    );
+    if (pairs.length > 1) p('  Ask for one option at a time, or read the combination from the kit.');
+    nameTheRead(name, entry);
+    return;
+  }
+
+  const held = Object.entries(variant.props ?? {});
+  p(
+    held.length
+      ? `  Recorded on the child with ${held.map(([k, v]) => `${k}=${v}`).join(', ')} and every other axis at its default.`
+      : '  Recorded on the child with every axis at its default.',
+  );
+  printRows(specRows(variant));
+
+  if (set.reduced) {
+    p(
+      `  ${set.reduced.recorded} of ${set.reduced.children} real variants recorded` +
+        `${set.reduced.cappedAt ? `, capped at ${set.reduced.cappedAt}` : ''} — one per axis option.`,
+    );
+  }
+}
+
+/**
+ * The same answer for `--json`, misses included.
+ *
+ * A miss is an object saying why and naming the read, never an omitted key: a
+ * caller that gets nothing back cannot tell "no spec captured" from "this
+ * component has no border", and that is the confusion the flag exists to end.
+ */
+function specJson(name, pairs) {
+  const read = THE_READ;
+  if (!specs) return { captured: false, why: `assets/${SPECS_FILE} is not in this build`, read };
+  const set = specs.components?.[name];
+  if (!set) return { captured: false, why: 'component not in the spec capture', read };
+
+  const unknown = unknownPairs(set, pairs);
+  if (unknown.length) {
+    return {
+      captured: false,
+      why: 'selector names something the set does not publish',
+      unknown: unknown.map(([axis, option, what]) => ({ axis, option, what })),
+      axes: set.axes ?? {},
+    };
+  }
+  const variant = pairs.length ? variantForAll(set, pairs) : restingVariant(set);
+  if (!variant) {
+    return {
+      captured: false,
+      why: 'no single recorded variant carries that combination',
+      recordedSeparately: Object.fromEntries(
+        pairs.map(([a, o]) => [`${a}=${o}`, Boolean(variantFor(set, a, o))]),
+      ),
+      read,
+    };
+  }
+  return { captured: true, page: set.page, axes: set.axes, reduced: set.reduced ?? null, variant };
+}
+
 function renderIcon(name, e) {
   p(`${name} — icon${e.category ? ` · category ${e.category}` : ''}`);
   const sizes = Object.entries(e.keys ?? {});
@@ -310,7 +564,8 @@ function bindingFor(group, name) {
 }
 
 function renderToken(group, name, value) {
-  const unit = (v) => (group.unit && typeof v === 'number' ? `${v}${group.unit}` : String(v));
+  const unit = (v) =>
+    group.unit && typeof v === 'number' ? `${v}${UNIT_LABEL[group.unit] ?? group.unit}` : String(v);
 
   if (group.key === 'semanticColors') {
     const light = resolveHex(tokens, name, 'Light');
@@ -342,7 +597,8 @@ function renderStyle(kind, name, e) {
   const bits = [];
   if (e.font) bits.push(e.font);
   if (e.size) bits.push(`${e.size}px`);
-  if (e.letterSpacing !== undefined) bits.push(`tracking ${e.letterSpacing}`);
+  if (metric(e.lineHeight)) bits.push(`line-height ${metric(e.lineHeight)}`);
+  if (metric(e.letterSpacing)) bits.push(`tracking ${metric(e.letterSpacing)}`);
   p(`${name} — ${kind}${bits.length ? ` · ${bits.join(' ')}` : ''}`);
   p(`  import key   ${e.key}`);
 }
@@ -395,9 +651,15 @@ for (const term of terms) {
     missPool.push(...names);
     const rows = matches.map((n) => [n, components.components[n]]);
     bucket.components = Object.fromEntries(rows);
-    found += section('components', rows, all.length, (n, e) =>
-      renderComponent(n, e, { copy: true }),
-    );
+    if (variantSel !== null) {
+      bucket.specs = Object.fromEntries(
+        rows.map(([n]) => [n, specJson(n, parseSelector(variantSel))]),
+      );
+    }
+    found += section('components', rows, all.length, (n, e) => {
+      renderComponent(n, e, { copy: true });
+      if (variantSel !== null) renderVariantSpec(n, e, variantSel);
+    });
   }
 
   if (kinds.includes('icon')) {

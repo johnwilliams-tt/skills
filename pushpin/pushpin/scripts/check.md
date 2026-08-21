@@ -1,9 +1,10 @@
 # Checking the kit for changes
 
-Six read-only captures across three files. Sections 1–3 and 5 feed
-`scripts/diff.mjs`; section 4 covers the Annotation Kit, which `diff.mjs` does
-not read. Run them, save each result to a file, and diff. Nothing here writes to
-Figma.
+Seven read-only captures across three files. Sections 1–3 and 5 feed
+`scripts/diff.mjs`; sections 4 and 6 cover the Annotation Kit and the component
+visual specs, neither of which `diff.mjs` reads — each is compared by
+overwriting its own asset and reading `git diff`. Run them, save each result to
+a file, and diff. Nothing here writes to Figma.
 
 Load the `figma-use` skill first — it is a required prerequisite for
 `use_figma`.
@@ -62,6 +63,11 @@ them, floats and all. Normalising is `diff.mjs`'s job, using the same rules as
 the committed capture, so the two are comparable without the Figma-side script
 having to reproduce transcription conventions.
 
+Faithful includes units. Anywhere Figma returns a `{ value, unit }` object —
+`letterSpacing` and `lineHeight` on a text style — take the whole object.
+Reading `.value` and dropping the unit is how the committed capture came to
+record -2 as pixels when the kit means percent.
+
 ```js
 const toHex = (c) => {
   if (!c) return null;
@@ -110,7 +116,11 @@ for (const s of ts) {
     key: s.key,
     font: s.fontName.family + ' / ' + s.fontName.style,
     size: s.fontSize,
-    letterSpacing: s.letterSpacing && s.letterSpacing.value,
+    // Both metrics travel as Figma's `{ value, unit }` object. Reading `.value`
+    // alone once turned -2 PERCENT into -2px in the committed capture, and no
+    // check downstream could tell the difference.
+    letterSpacing: s.letterSpacing,
+    lineHeight: s.lineHeight,
     hidden: !!s.hiddenFromPublishing,
   };
 }
@@ -174,13 +184,13 @@ the committed catalog.
 ## 4. Annotation Kit capture
 
 `fileKey: Qefv6O2RMPSBtSYBrCGcdI`. Run the four per-page scripts from
-[extract.md §6](extract.md), one call per page in parallel, and merge them the
+[extract.md §7](extract.md), one call per page in parallel, and merge them the
 same way. All four go out in one message and the merge waits on every one of
 them — see [parallel.md](../reference/parallel.md), since a lane whose result
 never came back reads exactly like a page the capture never visited.
 
-This capture is its own comparison. Because §6 emits entries in the committed
-shape, the check is to write the merged result over
+This capture is its own comparison. Because that script emits entries in the
+committed shape, the check is to write the merged result over
 `assets/annotations.figma.json` and read `git diff`. Nothing new has to be built
 and nothing can fall out of step with the committed catalog, which is the whole
 reason there is no distiller and no `diff.mjs` flag for this file.
@@ -221,7 +231,36 @@ Two reads, because neither alone distils:
 They join on `nodeId`, and `diff.mjs` distils them with the same code that built
 the committed catalog.
 
-## 6. Diff
+## 6. Component spec capture
+
+`fileKey: VVRGrLgkPRU3vs765d5Q3r`. Run the per-page script from
+[extract.md §9](extract.md) against the 44 pages that hold public components,
+batched in parallel — see [parallel.md](../reference/parallel.md) — and distil
+the batches together with `node scripts/build-specs.mjs`.
+
+Like §4, this capture is its own comparison: the distiller writes the committed
+shape, so the check is to let it overwrite
+`assets/component-specs.figma.json` and read `git diff`. `diff.mjs` has no flag
+for it, for the same reason — there is no second pipeline that could fall out of
+step with the first.
+
+`node scripts/verify.mjs` is the tripwire here rather than `manifest.mjs
+--check` alone. It re-derives the reduction from the variants beside it, so a
+refresh that dropped variants without updating the `reduced` block fails, and it
+re-resolves every semantic-colour literal against `source.colorMode`, so a page
+recaptured in the wrong mode fails too.
+
+What to look for in that diff, in descending order of how much it will hurt:
+
+| Change | Why it matters |
+|---|---|
+| A variant that changed fill, stroke or radius | The generated `DESIGN.md` spec bullets and `check.mjs --variant` fidelity are both now wrong in every consuming project |
+| A binding that moved from a `Tokens / …` collection to one outside it | The spec loses its `--pp-*` name and starts printing a bare number; usually means a token was retired |
+| A new axis option | `lookup --variant` answers "not recorded" until the page is recaptured |
+| A new `coverage.coloursMatchingNeitherMode` entry | A component is overriding a token it claims to use — worth reporting upstream |
+| A rising `withoutSpec` count | The catalog grew and the capture did not follow |
+
+## 7. Diff
 
 ```bash
 node scripts/diff.mjs --kit kit.json --published published.json \
@@ -232,7 +271,7 @@ node scripts/diff.mjs --kit kit.json --published published.json \
 Every argument is optional, so a quick token-only check is just `--kit`. The
 command exits non-zero if anything breaking turned up. It reads the Pushpin and
 icon captures; the Annotation Kit is covered by section 4 and by the
-`annotations` layer in `freshness.mjs`.
+`annotations` layer in `freshness.mjs`, and the visual specs by section 6.
 
 `--icons` needs `--icons-page` alongside it. Without the page metadata every
 icon distils as `uncategorised`, which would report as 227 category changes

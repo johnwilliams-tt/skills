@@ -15,10 +15,13 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { hashAsset } from './canonical.mjs';
+import { CORE_COMPONENTS } from './impeccable-bridge.mjs';
+import { TOKEN_GROUPS, resolveHex, seg as segment } from './lib/tokens.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const t = JSON.parse(readFileSync(join(here, '..', 'assets', 'tokens.figma.json'), 'utf8'));
 const css = readFileSync(join(here, '..', 'assets', 'pushpin.css'), 'utf8');
+const styles = JSON.parse(readFileSync(join(here, '..', 'assets', 'styles.figma.json'), 'utf8'));
 
 /** Resolve a token's alias chain in the Figma JSON down to a literal hex. */
 function figmaHex(path, mode, seen = new Set()) {
@@ -250,6 +253,266 @@ for (const [row, entry] of Object.entries(copyMap)) {
     checked++;
     if (!(name in catalog)) {
       problems.push(`copy-map.json: ${row} maps to "${name}", which is not in the component catalog`);
+    }
+  }
+}
+
+// A unit-bearing group carries its unit twice: `$unit` in the capture, which
+// build-css.mjs emits from, and `unit` in the TOKEN_GROUPS table, which
+// lookup.mjs prints from. Two copies of the same fact drift, and the drift is
+// silent in the direction that matters — a lookup reporting -1px for a value the
+// stylesheet correctly emits as -0.01em reads as authoritative.
+const UNITS_IN_TABLE = new Map(TOKEN_GROUPS.filter((g) => g.unit).map((g) => [g.key, g.unit]));
+const UNITS_IN_CAPTURE = new Map(
+  Object.entries(t)
+    .filter(([name, body]) => !name.startsWith('$') && body && typeof body === 'object' && body.$unit)
+    .map(([name, body]) => [name, body.$unit]),
+);
+
+for (const [key, unit] of UNITS_IN_TABLE) {
+  checked++;
+  const captured = UNITS_IN_CAPTURE.get(key);
+  if (captured === undefined) {
+    problems.push(`${key}: lib/tokens.mjs declares unit "${unit}", the capture declares no $unit`);
+  } else if (captured !== unit) {
+    problems.push(`${key}: capture $unit "${captured}" but lib/tokens.mjs says "${unit}"`);
+  }
+}
+for (const [key, unit] of UNITS_IN_CAPTURE) {
+  checked++;
+  if (!UNITS_IN_TABLE.has(key)) {
+    problems.push(
+      `${key}: capture declares $unit "${unit}" but lib/tokens.mjs carries no unit for it, ` +
+        `so a lookup prints the number bare`,
+    );
+  }
+}
+
+// The type ramp's tracking, generator against capture, resolved from the other
+// end: what the stylesheet actually says against what the published styles
+// actually carry. Tracking is the one type property the variables do not hold —
+// it lives on the text styles — so nothing above this can see it.
+//
+// The step-to-style pairing is a name rule, `title-3` to `Title/3`, and a rename
+// would re-pair the whole ramp without changing a single value. So the pairing
+// is checked against a fact both sides carry independently, the font size,
+// rather than assumed from the names that produced it.
+const styleFor = (step) => {
+  if (step === 'hero') return 'Title/Hero';
+  const m = /^(title|body)-(\d+)$/.exec(step);
+  return m ? `${m[1] === 'title' ? 'Title' : 'Text'}/${m[2]}` : null;
+};
+const FIGMA_UNIT = { PIXELS: 'px', PERCENT: 'percent' };
+
+const utilities = new Map();
+for (const m of css.matchAll(/^\.pp-([\w-]+) \{\n([\s\S]*?)\n\}/gm)) {
+  const ls = m[2].match(/letter-spacing:\s*var\((--pp-tracking-[\w-]+)\)/);
+  utilities.set(m[1], ls ? ls[1] : null);
+}
+
+const trackingTokens = Object.entries(t.letterSpacing).filter(([k]) => !k.startsWith('$'));
+const wantedBy = new Map(trackingTokens.map(([name]) => [`--pp-tracking-${segment(name)}`, 0]));
+const nativeMode = t.font.$modes[0];
+
+for (const [step, spec] of Object.entries(t.font)) {
+  if (step.startsWith('$')) continue;
+  const styleName = styleFor(step);
+  const style = styleName && styles.textStyles[styleName];
+  checked++;
+  if (!style) {
+    problems.push(`type step "${step}" pairs with no published text style, so its tracking is unknown`);
+    continue;
+  }
+  checked++;
+  if (style.size !== spec.size?.[nativeMode]) {
+    problems.push(
+      `type step "${step}" is paired with text style "${styleName}", but the step is ` +
+        `${spec.size?.[nativeMode]}px and the style is ${style.size}px — the pairing rule and ` +
+        `the kit disagree, so every tracking value below is being read off the wrong style`,
+    );
+  }
+
+  const ls = style.letterSpacing;
+  checked++;
+  if (!ls || typeof ls.value !== 'number' || !ls.unit) {
+    problems.push(`text style "${styleName}": letterSpacing is not captured as { value, unit }`);
+    continue;
+  }
+  checked++;
+  if (FIGMA_UNIT[ls.unit] !== t.letterSpacing.$unit) {
+    problems.push(
+      `text style "${styleName}" tracks in ${ls.unit}, but the letterSpacing tokens are ` +
+        `${t.letterSpacing.$unit}`,
+    );
+  }
+
+  let expected = null;
+  if (ls.value !== 0) {
+    const token = trackingTokens.find(([, v]) => v === ls.value);
+    if (!token) {
+      checked++;
+      problems.push(
+        `text style "${styleName}" tracks ${ls.value}, which no letterSpacing token matches`,
+      );
+      continue;
+    }
+    expected = `--pp-tracking-${segment(token[0])}`;
+    wantedBy.set(expected, wantedBy.get(expected) + 1);
+  }
+
+  checked++;
+  if (!utilities.has(step)) {
+    problems.push(`.pp-${step}: no such utility in the stylesheet`);
+  } else if (utilities.get(step) !== expected) {
+    problems.push(
+      `.pp-${step}: emits ${utilities.get(step) ?? 'no letter-spacing'} but "${styleName}" ` +
+        `tracks ${ls.value}${ls.unit === 'PERCENT' ? '%' : 'px'}, which calls for ` +
+        `${expected ?? 'none'}`,
+    );
+  }
+}
+
+// A tracking token nothing emits is legal only because no style calls for it —
+// `loose` is published at +1% and no Pushpin text style uses it. Counting both
+// sides is what tells that apart from the defect this replaced, where a blanket
+// rule emitted `tight` on nine steps and left `extra-tight` and `loose` dead
+// while three styles were asking for `extra-tight`.
+for (const [token, wanted] of wantedBy) {
+  checked++;
+  const emitted = [...utilities.values()].filter((v) => v === token).length;
+  if (emitted !== wanted) {
+    problems.push(
+      `${token}: ${emitted} utilit${emitted === 1 ? 'y' : 'ies'} emit it, but ${wanted} type ` +
+        `step${wanted === 1 ? '' : 's'} call${wanted === 1 ? 's' : ''} for it`,
+    );
+  }
+}
+
+// `renderComponentSection`'s `if (!entry) continue` means a renamed component
+// makes DESIGN.md emit 27 sections instead of 28 and say nothing about the one
+// it dropped — the same silence as a tracking token nobody references. Curation
+// of the list stays with a human; only the silence is removed.
+for (const name of CORE_COMPONENTS) {
+  checked++;
+  if (!(name in catalog)) {
+    problems.push(
+      `impeccable-bridge.mjs: CORE_COMPONENTS names "${name}", which is not in the component ` +
+        `catalog — DESIGN.md would skip it silently`,
+    );
+  }
+}
+
+// ------------------------------------------- component specs against the kit
+
+// The spec capture is a reduction — 456 variants recorded out of 1079 real
+// children — and a reduction nobody can see is the failure this asset exists to
+// remove. Each set therefore records what it dropped, and these checks are what
+// make the record binding: a `reduced` block that disagrees with the variants
+// beside it, or an axis option nothing was recorded for and nothing declared
+// unreachable, is a gap that would otherwise read as a complete answer.
+const specs = JSON.parse(
+  readFileSync(join(here, '..', 'assets', 'component-specs.figma.json'), 'utf8'),
+);
+const specEntries = Object.entries(specs.components);
+const knownOffMode = new Set(specs.coverage.coloursMatchingNeitherMode ?? []);
+const knownRestless = new Set(specs.coverage.withoutRestingVariant ?? []);
+
+checked++;
+if (specEntries.length !== specs.source.componentsRecorded) {
+  problems.push(
+    `component-specs: source records ${specs.source.componentsRecorded} components, the file holds ${specEntries.length}`,
+  );
+}
+
+for (const [name, entry] of specEntries) {
+  checked++;
+  if (!(name in catalog)) {
+    problems.push(`component-specs: "${name}" has a spec but is not in the component catalog`);
+  }
+  if (entry.type !== 'COMPONENT_SET') continue;
+
+  const variants = entry.variants ?? [];
+  checked++;
+  if (entry.recorded !== variants.length) {
+    problems.push(
+      `component-specs: ${name} records ${entry.recorded} variants but carries ${variants.length}`,
+    );
+  }
+  if (entry.reduced) {
+    checked++;
+    if (entry.reduced.recorded !== variants.length || entry.reduced.children !== entry.children) {
+      problems.push(
+        `component-specs: ${name} reduction says ${entry.reduced.recorded} of ${entry.reduced.children}, ` +
+          `the entry carries ${variants.length} of ${entry.children}`,
+      );
+    }
+  } else {
+    checked++;
+    if (variants.length < entry.children) {
+      problems.push(
+        `component-specs: ${name} recorded ${variants.length} of ${entry.children} children and declares no reduction`,
+      );
+    }
+  }
+
+  // Every option is represented, or the capture said why it could not be. A set
+  // whose cross product outruns its real children has combinations nobody built,
+  // and `unreachable` is where that gets stated instead of quietly missing.
+  const covered = new Set(variants.flatMap((v) => v.for ?? []));
+  const unreachable = new Set(entry.unreachable ?? []);
+  for (const [axis, options] of Object.entries(entry.axes ?? {})) {
+    for (const option of options) {
+      checked++;
+      const pair = `${axis}=${option}`;
+      if (!covered.has(pair) && !unreachable.has(pair)) {
+        problems.push(`component-specs: ${name} ${pair} has no recorded variant and is not declared unreachable`);
+      }
+    }
+  }
+  for (const v of variants) {
+    for (const pair of v.for ?? []) {
+      checked++;
+      const at = pair.indexOf('=');
+      const [axis, option] = [pair.slice(0, at), pair.slice(at + 1)];
+      if (!(entry.axes?.[axis] ?? []).includes(option)) {
+        problems.push(`component-specs: ${name} records a variant for "${pair}", which the set does not publish`);
+      }
+    }
+  }
+
+  // The resting appearance is what a per-option line is a difference from, so a
+  // set without one cannot be described by the generated spec bullets at all.
+  checked++;
+  const hasResting = variants.some((v) => Object.keys(v.props ?? {}).length === 0);
+  if (!hasResting && !knownRestless.has(name)) {
+    problems.push(`component-specs: ${name} recorded no all-defaults variant and coverage does not say so`);
+  }
+}
+
+// A captured colour literal is what one mode renders, not a mode-independent
+// fact, and the capture states which mode in `source.colorMode`. Anything that
+// resolves to neither mode is a component overriding a token it claims to use —
+// a real finding, recorded in coverage rather than reconciled here.
+for (const [name, entry] of specEntries) {
+  for (const v of [entry.resting, ...(entry.variants ?? [])].filter(Boolean)) {
+    for (const value of [v.fill, v.stroke, v.text?.fill]) {
+      if (!Array.isArray(value) || value[0] !== 'Tokens / Semantic Colors') continue;
+      if (typeof value[2] !== 'string') continue;
+      checked++;
+      // `resolveHex` rather than `figmaHex`: a binding into the semantic colour
+      // collection can name a variable the token capture does not hold — the kit
+      // has `Background/Primary/medium [default]` — and that absence is the
+      // finding, not a reason to abort the run.
+      const want = resolveHex(t, value[1], specs.source.colorMode)?.toLowerCase();
+      const got = value[2].toLowerCase().slice(0, 7);
+      if (want === got) continue;
+      const where = `${name}${v.for ? ` ${v.for[0]}` : ''} ${value[1]} rendered ${got}`;
+      if (![...knownOffMode].some((k) => k.startsWith(where))) {
+        problems.push(
+          `component-specs: ${where}, but ${value[1]} is ${want ?? 'not in the token capture'} in ` +
+            `${specs.source.colorMode} mode, and coverage does not record the difference`,
+        );
+      }
     }
   }
 }

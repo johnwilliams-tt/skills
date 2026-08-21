@@ -36,6 +36,13 @@
  */
 
 import {
+  binding,
+  isBinding,
+  literalOf,
+  restingVariant,
+  variantFor,
+} from './lib/specs.mjs';
+import {
   FONT_FAMILY,
   fontScale,
   radii,
@@ -128,7 +135,7 @@ const SHADOW_PURPOSE = {
  * page furniture that no one hand-rolls. Names are resolved against the
  * capture, so an entry the kit drops is skipped rather than invented.
  */
-const CORE_COMPONENTS = [
+export const CORE_COMPONENTS = [
   'Button',
   'Icon Button',
   'Link',
@@ -159,10 +166,182 @@ const CORE_COMPONENTS = [
   'Horizontal Rule',
 ];
 
-function renderComponentSection(components) {
+// ------------------------------------------------------------- visual specs
+
+/**
+ * What a component actually looks like, one line per appearance-bearing option
+ * that an earlier component has not already stated verbatim.
+ *
+ * The axis list above says `theme` accepts `secondary` and stops there, and
+ * that is the whole gap: an agent reading this file knew the option existed and
+ * had to invent what it looked like. The invention named a border token the kit
+ * does not publish while missing the one it does.
+ *
+ * One line per option rather than per combination. Button's seven axes cross to
+ * 960 combinations and 260 real children; nobody asks what the 137th looks
+ * like, and dumping them would nearly triple a file every project loads as
+ * context. The capture already reduces to one record per option, each taken
+ * with the other axes at their defaults, so a line here is a statement about
+ * one option and nothing else.
+ *
+ * A colour prints as its `--pp-*` name because the name is the decision and the
+ * hex is downstream of it. A length prints as the number, because that is what
+ * gets written — except a radius, where `--pp-radius-sides` is the pill rule
+ * every control follows and naming it is the point.
+ */
+// A label's colour and its size are two separate decisions and two separate
+// axes move them: `theme` recolours the label, `size` resizes it. Held as one
+// phrase, a size change would reprint the colour and imply the option changed
+// that too.
+const SPEC_ORDER = ['fill', 'border', 'radius', 'height', 'padding', 'gap', 'label', 'type'];
+
+function specPhrases(tokens, variant) {
+  const out = new Map();
+  const name = (v) => {
+    const b = binding(tokens, v);
+    if (b?.css) return b.css;
+    if (b) return `${b.literal ?? '?'} (Figma \`${b.name}\`)`;
+    return typeof v === 'string' ? v : `${v}px`;
+  };
+  const px = (v) => {
+    const lit = literalOf(v);
+    return typeof lit === 'number' ? `${lit}px` : null;
+  };
+  // Four sides that agree collapse in the capture, so an array here is a run of
+  // genuinely different sides and `12/24px` is the shortest honest rendering.
+  const sides = (v) => {
+    if (v === null || v === undefined) return null;
+    if (isBinding(v) || !Array.isArray(v)) return px(v);
+    const parts = v.map(px);
+    if (parts.some((p) => p === null)) return null;
+    const [t, r, b, l] = parts.map((p) => p.replace('px', ''));
+    const shape = t === b && r === l ? [t, r] : [t, r, b, l];
+    return `${shape.join('/')}px`;
+  };
+
+  if (variant.fill !== undefined) out.set('fill', `fill ${name(variant.fill)}`);
+  if (variant.stroke !== undefined) {
+    const w = px(variant.strokeWeight);
+    out.set('border', `border ${name(variant.stroke)}${w ? ` ${w}` : ''}`);
+  }
+  if (variant.radius !== undefined) {
+    const r = isBinding(variant.radius) ? name(variant.radius) : sides(variant.radius);
+    if (r) out.set('radius', `radius ${r}`);
+  }
+  // Height only where the kit fixed it. A hugging control's height is the
+  // height of the word inside it, and stating that as a spec invites someone to
+  // pin it there.
+  if (variant.sizing?.[1] === 'FIXED') {
+    const h = px(variant.size?.[1]);
+    if (h) out.set('height', `height ${h}`);
+  }
+  const pad = sides(variant.padding);
+  if (pad && pad !== '0px') out.set('padding', `padding ${pad}`);
+  const gap = px(variant.gap);
+  if (gap && gap !== '0px') out.set('gap', `gap ${gap}`);
+  if (variant.text?.fill !== undefined) out.set('label', `label ${name(variant.text.fill)}`);
+  if (variant.text?.size) out.set('type', `type ${variant.text.size}px`);
+  return out;
+}
+
+const sentence = (phrases, keys) =>
+  keys.filter((k) => phrases.has(k)).map((k) => phrases.get(k)).join(', ');
+
+/**
+ * The resting appearance, and each option that departs from it.
+ *
+ * A per-option line is a difference rather than a full spec: `theme=secondary`
+ * is only meaningful against what `theme=primary` already looks like, and
+ * repeating the eight unchanged properties on every line would cost the budget
+ * the per-option decision was meant to save. An option whose variant is
+ * identical to the resting one gets no line at all — there is nothing to say
+ * about it, and saying it anyway is how a file this long stops being read.
+ *
+ * Returned split rather than joined so `renderComponentSection` can compare one
+ * component's options against another's.
+ */
+function specBullets(tokens, name, specs) {
+  const options = new Map();
+  const entry = specs?.[name];
+  if (!entry) return { resting: null, options };
+
+  const resting = restingVariant(entry);
+  if (!resting) return { resting: null, options };
+  const base = specPhrases(tokens, resting);
+  const restingLine = sentence(base, SPEC_ORDER);
+  if (!restingLine) return { resting: null, options };
+
+  for (const [axis, opts] of Object.entries(entry.axes ?? {})) {
+    for (const option of opts) {
+      if (option === entry.defaults?.[axis]) continue;
+      const variant = variantFor(entry, axis, option);
+      if (!variant) continue;
+      const phrases = specPhrases(tokens, variant);
+      const changed = SPEC_ORDER.filter((k) => phrases.get(k) !== base.get(k) && phrases.has(k));
+      // A property the option removes rather than changes — a theme that drops
+      // its border — is a real difference and the only honest way to say it.
+      const dropped = SPEC_ORDER.filter((k) => base.has(k) && !phrases.has(k));
+      if (!changed.length && !dropped.length) continue;
+      const said = [sentence(phrases, changed), dropped.length ? `no ${dropped.join(', no ')}` : '']
+        .filter(Boolean)
+        .join(', ');
+      options.set(`${axis}=${option}`, said);
+    }
+  }
+  return { resting: restingLine, options };
+}
+
+/**
+ * How many options have to coincide before naming another component beats
+ * restating them.
+ *
+ * A reference costs a line here and a jump back there, so it has to buy more
+ * than it spends. Five lines is comfortably past that: the shortest option line
+ * in the file is around forty characters, and a reference naming five options
+ * runs to about a hundred and thirty. Below the floor the honest thing is to
+ * repeat — `Radio` and `Checkbox` share two lines, and sending a reader up the
+ * page for two would cost them more than reading them here.
+ */
+const SHARED_OPTION_FLOOR = 5;
+
+/**
+ * The already-rendered component whose option lines this one most repeats.
+ *
+ * An option line is a difference from its own component's resting appearance,
+ * so two components stating the same difference are saying the same thing even
+ * where their resting appearances diverge — which is exactly the `Icon Button`
+ * case: square where `Button` is padded, and identical on every theme, size
+ * step and state that does not touch padding. Naming `Button` and listing the
+ * options it covers keeps all of that and drops the restatement.
+ *
+ * Matching is on the rendered line, byte for byte, against what the earlier
+ * component actually printed rather than against everything it could have
+ * printed. A component that was itself reduced no longer carries the lines it
+ * handed off, and pointing at a line that is not on the page is worse than the
+ * duplication.
+ *
+ * Deliberately general: no component is named here, so a kit that stops
+ * publishing one, renames it, or grows a third near-twin gets the right answer
+ * without an edit. Ties go to the earliest component rendered, which `printed`
+ * gives for free through insertion order.
+ */
+function sharedOptions(printed, options) {
+  let best = null;
+  for (const [name, theirs] of printed) {
+    const keys = [...options.keys()].filter((k) => theirs.get(k) === options.get(k));
+    if (keys.length < SHARED_OPTION_FLOOR) continue;
+    if (!best || keys.length > best.keys.length) best = { name, keys };
+  }
+  return best;
+}
+
+function renderComponentSection(tokens, components, specs) {
   if (!components) return null;
 
   const blocks = [];
+  // Name to the option lines that component actually printed, in render order.
+  const printed = new Map();
+
   for (const name of CORE_COMPONENTS) {
     const entry = components[name];
     if (!entry) continue;
@@ -175,6 +354,23 @@ function renderComponentSection(components) {
       bullets.push(`- **${axis}:** ${options.join(', ')}`);
     }
 
+    const spec = specBullets(tokens, name, specs);
+    // The resting line always prints. It is this component's own baseline, and
+    // it is what any referenced option line is read against.
+    if (spec.resting) bullets.push(`- **Resting:** ${spec.resting}`);
+
+    const mine = new Map(spec.options);
+    const shared = sharedOptions(printed, spec.options);
+    if (shared) {
+      for (const key of shared.keys) mine.delete(key);
+      bullets.push(
+        `- **Same as ${shared.name}:** ${shared.keys.join(', ')} — ` +
+          `each as ${shared.name}'s line above, against this Resting.`,
+      );
+    }
+    for (const [key, said] of mine) bullets.push(`- **${key}:** ${said}`);
+    printed.set(name, mine);
+
     blocks.push(`### ${name}\n\n${bullets.join('\n')}`);
   }
 
@@ -182,7 +378,7 @@ function renderComponentSection(components) {
   return blocks.join('\n\n');
 }
 
-export function renderDesignMd(tokens, { pluginVersion, capturedAt, components } = {}) {
+export function renderDesignMd(tokens, { pluginVersion, capturedAt, components, specs } = {}) {
   const featured = {};
   for (const [label, path] of Object.entries(FEATURED)) {
     const hex = resolveHex(tokens, path, 'Light');
@@ -252,7 +448,7 @@ export function renderDesignMd(tokens, { pluginVersion, capturedAt, components }
     .map((name) => `\`${name}\` ${tokens.breakpoint[name]}px`)
     .join(', ');
 
-  const componentSection = renderComponentSection(components);
+  const componentSection = renderComponentSection(tokens, components, specs);
 
   return `---
 # @generated by the pushpin plugin — do not edit.
@@ -495,7 +691,7 @@ const NARRATIVE = {
   ],
 };
 
-export function renderDesignJson(tokens, { pluginVersion, capturedAt } = {}) {
+export function renderDesignJson(tokens, { pluginVersion, capturedAt, generatedAt } = {}) {
   const colorMeta = {};
 
   // Every semantic token, with both themes. `canonical` is the light value and
@@ -559,7 +755,11 @@ export function renderDesignJson(tokens, { pluginVersion, capturedAt } = {}) {
     // generated files with an invented visual world, deleting the bridge.
     schemaVersion: 2,
     title: 'Design System: Pushpin',
-    generatedAt: new Date().toISOString(),
+    // The caller's, not a clock's. This file is a committed asset, and a render
+    // that stamps itself with the current time can never be checked against the
+    // copy on disk. Nothing reads the field — impeccable's parser and detector
+    // only require `schemaVersion` — so what it carries is the build's to choose.
+    generatedAt,
     $comment:
       'Generated by the pushpin plugin from its Figma capture — do not hand-edit. ' +
       'Read alongside DESIGN.md by impeccable and any other tool using this format; ' +

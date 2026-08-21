@@ -16,7 +16,7 @@ Changes are grouped the way `diff.mjs` classifies them:
 An entry about the plugin rather than the capture adds **Fixed** for a bug in
 the toolchain, which `diff.mjs` has no category for.
 
-## Unreleased
+## 0.11.0 — 2026-08-21
 
 **Breaking**
 
@@ -53,6 +53,63 @@ the toolchain, which `diff.mjs` has no category for.
 
 **Added**
 
+- **The catalog said `theme` accepts `secondary` and nothing said what
+  `secondary` looks like.** `components.figma.json` comes from a Code Connect
+  dump that carries the property API and no geometry at all, so a hand-rolled
+  stand-in for a published component was built from one rendering of one state.
+  A secondary button written that way was wrong on five counts, and the gap was
+  papered over with the claim that Pushpin publishes no brand border token —
+  `border/neutral/default` exists and always has.
+  [`reference/rules.md`](pushpin/reference/rules.md) § Degrading now covers a
+  claimed gap in the kit the way it already covered a claimed gap in the Plugin
+  API: verify it against the kit before acting on it.
+  `assets/component-specs.figma.json` is a new capture answering it: 44 pages
+  read for 117 components, 456 variants recorded out of 1079 real children, one
+  representative per axis option with every other axis held at its default, so a
+  record is a statement about that option rather than about a combination.
+  Reachable three ways. **`lookup.mjs <name> --variant "theme=secondary"`**
+  prints the captured fill, border, radius, height, padding, gap and label as
+  `--pp-*` names, and where nothing was captured it says so and names the read
+  that returns it rather than leaving the silence that invited the guess.
+  **`DESIGN.md` gains one spec line per appearance-bearing option** beside the
+  variant axes it already listed — a `Resting:` line and a delta line per option
+  that departs from it, 111 lines across the 28 components it describes, inside
+  the existing `## Components` heading and bullet grammar so impeccable's parser
+  consumes them. Where a component's option lines repeat an earlier component's
+  verbatim, a single `Same as X:` line names them instead: an option line is a
+  difference from its own resting appearance, so two components stating the same
+  difference are saying the same thing even where their resting appearances
+  diverge. `Icon Button` restated ten of `Button`'s lines and now cites them.
+  And **`check.mjs` reports `variant-drift`**: a tag declaring
+  `data-pp-variant="theme=secondary"` is now measured against that variant, not
+  merely checked for naming something real, over the declarations it can
+  actually resolve — an inline `style`, a `style={{…}}` prop, and a class rule
+  found in the scanned files. It is silent everywhere else, the same discipline
+  the copy check holds. A bound variable with no Pushpin token prints as its
+  Figma path rather than being mapped to an invented name; the capture is
+  shallow, so a state that only recolours an inner element shows no difference,
+  and `--variant` says which questions it cannot answer.
+- **Nothing in the repo had ever asked the kit whether the captures were right.**
+  Every existing check compared the repo against itself, which is why a
+  consistent misreading agreed with itself for four releases. `styles.figma.json`
+  now records `letterSpacing` and `lineHeight` as Figma returns them,
+  `{ value, unit }`, and `lineHeight` was not captured at all before;
+  [`scripts/extract.md`](pushpin/scripts/extract.md) gains the text-style
+  section it never had, so the file `$comment` sends readers to finally has a
+  documented re-extraction path. `diff.mjs` compares both metrics and separates
+  a moved value, which restyles, from a moved unit, which stops the build.
+  `verify.mjs` goes from 923 checks to 3096: every unit-bearing group's `$unit`
+  agrees with the table `lookup` prints from, every `.pp-*` utility's emitted
+  `letter-spacing` resolves to the value the published style carries, every
+  tracking token is referenced by as many utilities as call for it, every
+  `CORE_COMPONENTS` name still resolves against the catalog — a renamed one used
+  to make `DESIGN.md` emit 27 sections and say nothing — and every spec set's
+  recorded reduction is re-derived from the variants beside it, since an
+  unrecorded reduction reads as a complete answer.
+  [`reference/maintaining.md`](pushpin/reference/maintaining.md) gains the two
+  refresh steps nothing connected before: review `CORE_COMPONENTS` when the diff
+  reports a new component, and recapture a changed component's visual spec, which
+  the `--components` diff cannot see.
 - **The browser preview is Pushpin's to keep up.** A prototype server started as
   an agent's shell job dies with that job — an interrupted turn, a torn-down
   terminal, someone hitting stop — and nothing notices, so the next edit lands
@@ -177,6 +234,23 @@ the toolchain, which `diff.mjs` has no category for.
 
 **Changed**
 
+- **`DESIGN.md` and its sidecar are built assets now, not rendered per project.**
+  `init` rendered both from the bridge at install time, so nothing in the repo
+  could tell whether the bridge rendered the right thing — the same shape as the
+  tracking defect above, one layer over. Neither file has ever been
+  project-specific: two projects on the same plugin version held byte-identical
+  copies. `build-design.mjs` builds them into `assets/`, `--check` fails when the
+  committed pair no longer matches a fresh build, the manifest hashes both, and
+  `init` copies them the way it has always copied `pushpin.css`. What changes for
+  a project is that the hash it records now identifies a plugin build rather than
+  its own render, which is what lets **a project holding an older build be told
+  apart from one whose file has been edited** — the first was previously
+  unreportable and read as current forever. Both now say so at session start, and
+  the remedy is `init --write --force`. The sidecar's `generatedAt` is the
+  build's timestamp rather than the clock, since a file that stamps itself cannot
+  be checked against the copy on disk; nothing reads the field, in impeccable or
+  here. `build-design.mjs` is a maintainer's tool and deliberately not in
+  `ALLOWED_SCRIPTS`.
 - **Session start says nothing now.** The pickup check ran with `--offline
   --brief` and its sentence was relayed verbatim, so a designer who asked for a
   booking screen was met first with a note about a capture date — accurate,
@@ -363,6 +437,51 @@ the toolchain, which `diff.mjs` has no category for.
 
 **Fixed**
 
+- **Every title utility carried the same tracking, and the number was read in
+  the wrong unit.** `build-css.mjs` applied `--pp-tracking-tight` to `.pp-hero`
+  and `.pp-title-1` through `.pp-title-8` by a rule of its own — the kit was
+  never asked — and the tokens it applied were emitted as pixels because
+  `tokens.figma.json` recorded `$unit: "px"` for a `Tokens / Letter Spacing`
+  collection whose three variables are bare floats carrying no unit at all. The
+  published text styles carry the unit, and it is PERCENT, so `-1` meant −1% and
+  shipped as −1px: right by accident at 100px type and eight times too tight on
+  `.pp-title-8` at 12. Tracking is now read per step from the style the step
+  pairs with, and the unit is emitted as `em` rather than `px` or `%` — `%` is
+  not a letter-spacing unit, and the ramp rescales at the 700px breakpoint, so
+  only a proportional unit survives it. **`.pp-hero`, `.pp-title-1` and
+  `.pp-title-2` are `-0.02em`, `.pp-title-3` is `-0.01em`, and `.pp-title-4`
+  through `.pp-title-8` and all four body steps emit no `letter-spacing` at
+  all** — eight of the nine title utilities changed, five of them by losing the
+  declaration. `--pp-tracking-extra-tight` and `--pp-tracking-loose` were dead
+  tokens under the old rule and three styles were asking for the first of them.
+  The build now stops rather than guesses: a token group carrying a unit and
+  naming none, a unit the emitter does not know, a type step pairing with no
+  published style, and a style tracking a value no token matches are four
+  distinct errors, so a rename in the kit cannot silently drop tracking the way
+  a blanket rule silently added it. **Existing projects are told at session
+  start** — the pin records what the stylesheet hashed to, the plugin now
+  carries a different build, and the freshness check surfaces it as
+  `re-running init with --write --force is the first thing I'd do`. Do that; the
+  stylesheet is generated and must not be hand-edited. Vocabulary and the
+  per-step table are in
+  [`reference/tokens.md`](pushpin/reference/tokens.md), and the style capture is
+  now named in the chain in
+  [`reference/provenance.md`](pushpin/reference/provenance.md), because tracking
+  is a fact about `Title/3` rather than about any token group.
+- **The frame audit counted any published component as Pushpin's.** `remote` is
+  a boolean: it says an instance resolved to a library and not to which one, and
+  a Thumbtack file has the kit Pushpin replaced enabled beside it. That is how a
+  real run reported `library: 21` on a frame where 12 of the 21 came from the
+  older library — fully on-system by the count, and a dozen components nobody
+  should place again by inspection. The audit now gathers the set keys its
+  instances resolved to and settles them against the catalogs the way it already
+  settles copy: remote and in a Pushpin catalog is `library`, remote and unknown
+  is a defect naming the key. Only what the frame itself placed is asked about,
+  since a component's interior belongs to whoever published it. `library` leaves
+  the `use_figma` call as a list of keys and comes back a count, `pending` is now
+  a list because two buckets wait on a shell command rather than one, and a run
+  cannot report `ok` until both have run. See
+  [Settling the library bucket](pushpin/reference/audit-figma.md#settling-the-library-bucket).
 - **`copy.mjs` was pre-approved in the skill and unapproved in the project.**
   `SKILL.md`'s `allowed-tools` has cleared it since the copy engine shipped, but
   `ALLOWED_SCRIPTS` in `scripts/lib/permissions.mjs` — the list `init` writes

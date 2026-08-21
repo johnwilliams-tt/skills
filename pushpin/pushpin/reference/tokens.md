@@ -119,7 +119,8 @@ on an interactive element, it is `sides`.
 ## Type
 
 Sizes, line heights, and weights come as a triple per step. Prefer the `.pp-*`
-utility class, which applies all three plus tracking.
+utility class, which applies all three, plus tracking on the four steps whose
+text style carries any.
 
 | Step | Mobile | Desktop | Weight |
 |---|---|---|---|
@@ -155,10 +156,27 @@ bindable — the type ramp is published as 13 text styles (`Title/Hero`,
 Those styles use named font weights (Medium, Bold, Regular) rather than the
 numeric 563 / 590 / 660, and the styles are what actually renders.
 
+They also set line height in percent, and it resolves to the pixel column above
+for the nine title steps exactly — `Title/Hero` is 105% of 48, or 50.4. For the
+four `Text/*` steps it does not: `Text/1` is 140% of 16, or 22.4, where the
+variable says 24, and `Text/4` is 14 against 18. The kit disagrees with itself
+there, so `assets/styles.figma.json` records both numbers rather than
+reconciling them: the style decides in Figma, and the CSS is built from the
+variable.
+
 Standalone ratios also exist for custom blocks: `--pp-leading-flat` (1),
 `--pp-leading-heading-1|2|3` (1.05 / 1.1 / 1.2), `--pp-leading-text-1…4`
-(1.2 / 1.4 / 1.6 / 1.9). Tracking: `--pp-tracking-tight` (−1px),
-`--pp-tracking-extra-tight` (−2px), `--pp-tracking-loose` (+1px).
+(1.2 / 1.4 / 1.6 / 1.9). Tracking: `--pp-tracking-extra-tight` (−0.02em),
+`--pp-tracking-tight` (−0.01em), `--pp-tracking-loose` (0.01em). The kit sets
+letter spacing in percent, and `em` is the emitted unit because the ramp
+rescales at the 700px breakpoint and only a proportional unit survives that.
+
+Tracking belongs to the step rather than to the family. `hero`, `title-1` and
+`title-2` are `extra-tight`, `title-3` is `tight`, and `title-4` through
+`title-8` and all four body steps carry none — so `.pp-title-5` emits no
+`letter-spacing` at all. `build-css.mjs` reads that per step from the published
+text styles rather than applying a rule of its own, and tightening a step the
+kit leaves alone is a decision the kit did not make.
 
 ## Elevation
 

@@ -98,6 +98,13 @@ what it leaves to you, and how to ask for a single row are in
   then memory. The typings lag the API at its newest edge and memory lags both,
   so the two sources nearest to hand are the two most likely to agree with each
   other and be wrong together.
+- **A claim that the system publishes no token or component for something is
+  verified the same way.** Ask the catalogs — `node scripts/lookup.mjs <name>`
+  answers in one call — then the reference docs, then memory. "Pushpin publishes
+  no brand border token" is the sentence that preceded a hand-rolled button, and
+  `border/neutral/default` and `link/brand/default` were both published and
+  always had been. A gap that is real is a proposal; a gap that is assumed is an
+  off-system element with a reason attached.
 - **A design that gets simpler because of a believed API limit is a
   disclosure,** the same as snapped spacing or a corrected label. Being wrong
   about the API is only how it happens; silently shipping the lesser structure
