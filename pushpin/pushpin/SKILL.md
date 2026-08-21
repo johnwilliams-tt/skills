@@ -1,8 +1,8 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.10.1
-argument-hint: "[generate|audit|figma|check|copy · setup|init|freshness · refresh] [target]"
+version: 0.10.2
+argument-hint: "[generate|audit|figma · setup|init|freshness · refresh] [target]"
 allowed-tools:
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/check.mjs *)
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/copy.mjs *)
@@ -38,8 +38,8 @@ The first time Pushpin is picked up in a session, before anything consequential:
 node ${CLAUDE_SKILL_DIR}/scripts/freshness.mjs --offline --session
 ```
 
-**The check itself is never narrated.** Empty output is the expected case, and
-the only correct response to it is to carry on — no reassurance that the
+**The freshness check is never narrated.** Empty output is the expected case,
+and the only correct response to it is to carry on — no reassurance that the
 capture is current, no mention that anything was run.
 
 Otherwise every line it prints carries a prefix saying what to do with it:
@@ -52,9 +52,9 @@ Otherwise every line it prints carries a prefix saying what to do with it:
   Never as an opening line.
 
 If `node` is missing the check does not happen, and that is not worth a
-sentence either. Say so only when it blocks what was actually asked — `lookup`,
-`check`, and `copy` all need it — and then once, in the user's voice: for a
-designer that is the `.pkg` from nodejs.org, not a terminal session.
+sentence either. Say so only when it blocks what was actually asked — `lookup`
+and `audit` both need it — and then once, in the user's voice: for a designer
+that is the `.pkg` from nodejs.org, not a terminal session.
 
 That is the whole obligation, and it is stated once. Nothing further down
 repeats it. Asking for `/pushpin freshness` still prints the full layer table —
@@ -106,24 +106,22 @@ create a file, start in a scratch one, or build and offer to move it — see
 
 ## Routing
 
-Nine commands, and after `setup` none of them need typing — the left column
+Seven commands, and after `setup` none of them need typing — the left column
 covers the same ground from plain speech. Load one doc, not the table.
 
 | The request sounds like | Load |
 |---|---|
 | "make me a booking screen", "add a step to this flow" — no surface named | ask first, [above](#which-surface) |
 | **`generate`** — "mock this up in Figma", or a link to build against | [generate.md](reference/generate.md) |
-| **`audit`** — "does this match Pushpin", "review this frame" | [audit.md](reference/audit.md) |
+| **`audit`** — "does this match Pushpin", "review this frame", "check this repo", "does this sound like us". A frame, a repo, or words on their own | [audit.md](reference/audit.md) |
 | **`figma`** — a figma.com link where code is the goal, "build this screen" | [figma.md](reference/figma.md) |
-| **`check`** — raw hex, square corners, off-token spacing, an undeclared lookalike, or off-guideline copy in a repo | [tokens.md](reference/tokens.md) |
-| **`copy`** — text pasted in, a draft file, or the words on a frame | [copy.md](reference/copy.md) |
 | **`setup`** — "set this repo up", "start a project", no `pushpin.config.json`. Once per project | [setup.md](reference/setup.md) |
 | **`init`** — re-run, repair, or update a project already set up | [init.md](reference/init.md) |
 | **`freshness`** — "can I trust this", "when was this captured" | [maintaining.md](reference/maintaining.md) |
 | **`refresh`** — "Pushpin shipped a release", the kit moved, `freshness` exited non-zero | [maintaining.md](reference/maintaining.md) |
 | "what's our card radius", "which token for a disabled label", dark mode | [tokens.md](reference/tokens.md) |
 | "which Thumbprint component is this", building the same UI in React | [components.md](reference/components.md) |
-| "does this sound like us", "check this copy", a label that reads wrong | [copy.md](reference/copy.md) |
+| "what are our content rules", "is `contractor` allowed", why a label reads wrong | [copy.md](reference/copy.md) |
 | nothing published fits — proposing a new component | [propose.md](reference/propose.md) |
 | "leave notes on this", an accessibility spec | [annotate.md](reference/annotate.md) |
 | an Annotation Kit import failed | [annotate-fallback.md](reference/annotate-fallback.md) |

@@ -105,10 +105,8 @@ sound like us". The commands are shortcuts for the same routes:
 | `/pushpin setup` | Set a project up, start to finish |
 | `/pushpin init` | Re-run, repair, or update a project already set up |
 | `/pushpin generate` | Build a screen in Figma from published components |
-| `/pushpin audit` | Review a Figma frame for detached instances and drawn lookalikes |
+| `/pushpin audit` | Review a Figma frame, a repo, or a piece of writing for anything off-system |
 | `/pushpin figma` | Turn a Figma design into code, mapped to tokens |
-| `/pushpin check` | Find off-system values, lookalikes, and off-guideline copy in code |
-| `/pushpin copy` | Check pasted text, a file, or a frame's words against the content design rules |
 | `/pushpin freshness` | Report how old the capture is |
 | `/pushpin refresh` | Update the capture when the kit moves |
 
@@ -148,13 +146,14 @@ without editing a file first.
 |---|---|
 | [`reference/rules.md`](pushpin/reference/rules.md) | The complete hard rules, and how to decide a case they don't name. |
 | [`reference/generate.md`](pushpin/reference/generate.md) | Building Figma layouts from real instances: placing, binding, icons, and where work gets written. |
-| [`reference/audit.md`](pushpin/reference/audit.md) | Checking a frame is what it looks like — detached instances, drawn lookalikes, literal fills, resized icons. |
+| [`reference/audit.md`](pushpin/reference/audit.md) | Picking the target — a repo or a file of code, words on their own, or a Figma frame — then auditing the first two and handing the frame off. |
+| [`reference/audit-figma.md`](pushpin/reference/audit-figma.md) | Checking a frame is what it looks like — detached instances, drawn lookalikes, literal fills, resized icons. |
 | [`reference/propose.md`](pushpin/reference/propose.md) | When the kit falls short: the gate, deriving rather than rebuilding, and the note that argues the case. |
 | [`reference/annotate.md`](pushpin/reference/annotate.md) | Annotation types, the note format, and the auto-layout that keeps notes readable. |
 | [`reference/annotate-fallback.md`](pushpin/reference/annotate-fallback.md) | What to draw when an Annotation Kit import fails, and how it is reported. |
 | [`reference/parallel.md`](pushpin/reference/parallel.md) | Splitting a Figma write into lanes: the invariant, the ladder, and where to join. |
 | [`reference/context.md`](pushpin/reference/context.md) | Grounding work in the page a link resolved to. |
-| [`reference/tokens.md`](pushpin/reference/tokens.md) | The token vocabulary, choosing between tokens, and what `check` reports. |
+| [`reference/tokens.md`](pushpin/reference/tokens.md) | The token vocabulary and choosing between tokens. |
 | [`reference/components.md`](pushpin/reference/components.md) | Kit inventory, the Thumbprint React map, and the class-name fallback for designs with no Code Connect. |
 | [`reference/copy.md`](pushpin/reference/copy.md) | The content design rules, what the engine decides, and what it leaves to judgment. |
 | [`reference/figma.md`](pushpin/reference/figma.md) | File keys, library keys, workflow directions, and the state of Code Connect. |

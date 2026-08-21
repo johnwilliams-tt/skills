@@ -600,10 +600,11 @@ person can decide about. Three values: `figma` for a number read off the file
 being worked in, `prototype` for one inherited from pushed code, `intent` for
 one this run chose.
 
-The audit collects these by walking the tree — [audit.md](audit.md) — so what it
-reports is what the file carries rather than what a lane remembered. The note is
-written from the returned lists, which are in hand at that point and save a walk
-of a tree the audit is about to walk anyway.
+The audit collects these by walking the tree —
+[audit-figma.md](audit-figma.md) — so what it reports is what the file carries
+rather than what a lane remembered. The note is written from the returned lists,
+which are in hand at that point and save a walk of a tree the audit is about to
+walk anyway.
 
 ### One Dev Note when something drifted
 
@@ -980,4 +981,4 @@ return { mutatedNodeIds: [section.id /* , … */], drift };
 Run it before declaring the work done. It sorts what it finds into library
 instances, proposals, unresolved atoms, degraded libraries, snapped spacing, the
 words the frame owns, and defects, and it fails on defects only. The script and
-the seven buckets are in [audit.md](audit.md).
+the seven buckets are in [audit-figma.md](audit-figma.md).

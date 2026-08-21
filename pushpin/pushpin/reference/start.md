@@ -65,8 +65,8 @@ one a line on what to do and a line on why it is worth doing now.
 | A Figma link in the conversation | `generate` if the link is where new work should land; `audit` if the frame already exists and the question is whether it is on-system; `figma` if the design is settled and the goal is reading it out into code |
 | A code project with no `pushpin.config.json` | `setup`, then `generate` |
 | The plugin's own source tree — `assets/` and the skill itself are in it | never `setup` or `init`, since the plugin is not a project that consumes itself; `refresh` if the capture is aging, otherwise ask what to design |
-| A code project already set up | `check` over the files being worked on, or answer the token question directly |
-| Words rather than code — text pasted in, a draft file, or a copy deck | `copy`, pointed at it; it reports and changes nothing |
+| A code project already set up | `audit` over the files being worked on, or answer the token question directly |
+| Words rather than code — text pasted in, a draft file, or a copy deck | `audit`, pointed at it; it reports and changes nothing |
 | A project set up before the preview existed — `setup --verify` says it is not recorded | re-running `init` with `--write --force`, which is what starts keeping the prototype server up |
 | This project's pin is behind | re-run `init` with `--write --force`, above everything else except an aged capture |
 | Neither a link nor a code project | `generate` — a Figma link is the only thing it needs — and a token or component question, which needs nothing set up at all: what the card radius is, which token a disabled label takes |
@@ -78,7 +78,7 @@ Pushpin", "does this button label sound like us." Once a project is set up,
 plain speech is the whole interface, and the menu should read that way from the
 start.
 
-Two or three picks, no more. The fuller list is the Commands table in
+Two or three picks, no more. The fuller list is the Routing table in
 [../SKILL.md](../SKILL.md), plus the token and component questions that are not
 commands; point at it as the fallback instead of repeating it here.
 
@@ -90,7 +90,7 @@ followed by two constants:
 
 - **Build it here and check it in the browser.** Your build tool builds it;
   Pushpin supplies the tokens it has to build against, keeps the preview
-  reachable, and `check` catches what drifted.
+  reachable, and `audit` catches what drifted.
 - **Something else.** An open-ended option, since the picks are inferences and
   can all be wrong.
 

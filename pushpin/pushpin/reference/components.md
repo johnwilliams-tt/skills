@@ -85,7 +85,7 @@ A project set up by `init` has the legal names and options listed in its
 generated `DESIGN.md`, and `node scripts/lookup.mjs <name>` has them for
 everything else. The declaration is a hint: one that does not resolve against
 the catalog is discarded at push time rather than
-trusted, so a typo costs the guess back and nothing more. `check` reports both a
+trusted, so a typo costs the guess back and nothing more. `audit` reports both a
 declaration that names nothing real and an element that reads as a published
 component while declaring nothing at all.
 

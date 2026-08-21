@@ -30,8 +30,8 @@ nobody told is the same failure carrying somebody's words. The designer is the
 one who can fine-tune the result, and they can only do that if they know it
 moved.
 
-**Being asked about it.** `copy`, pointed at pasted text, a file, or a frame.
-This one reports and changes nothing.
+**Being asked about it.** `audit`, pointed at pasted text, a file, or a frame —
+[audit.md](audit.md). This one reports and changes nothing.
 
 **There is no score and no rewrite block.** The upstream is a review skill: it
 rates content 1-5 and answers with a rewritten version, and neither survives the
@@ -115,97 +115,6 @@ Button — component set · page "Button" · 1628 instances
 A component under two rows gets an `also under` line beside the one that binds.
 Form Note is a field error and it is helper text, and the second is a real
 constraint rather than a footnote.
-
-## Checking a piece of writing
-
-```bash
-node scripts/copy.mjs --text "Send request" --component Button
-node scripts/copy.mjs drafts/onboarding-email.md
-pbpaste | node scripts/copy.mjs
-```
-
-It changes nothing, and it exits 1 when anything was found and 0 when clean, so
-it can gate the same things `check.mjs` gates. `--json` gives the findings as
-data, `--help` prints the surface.
-
-**Labelled blocks are the primary form, not a convenience.** Length is the one
-rule that cannot be decided from the words alone, and a label is how the rules
-themselves ask for copy and how a designer will paste it. Each block is resolved
-to its own row and scanned under its own limit:
-
-```bash
-node scripts/copy.mjs --text '[Header] Your pro is on the way
-[Body text] Dana will text you when she is close. In order to reach her, use the inbox.
-[CTA button] Learn more'
-```
-
-```
-Major — fix before handoff
-  [Body text]   2:51  M4  banned-phrase  banned phrase "In order to" — use "To"
-  [CTA button]  3:14  M3  generic-cta    "Learn more" is a generic call to action — name the action
-
-2 findings: 2 major
-```
-
-`[CTA button]`, `[Button]` and `[CTA]` all reach the same row, and a limit that
-splits into parts takes the part in the label — `[Modal header]`,
-`[Notification body]`. A label that genuinely could be two rows is left
-unresolved rather than guessed at, and says so:
-
-```
-[Text] could be Body text or Placeholder / helper text; name one exactly for a length check.
-```
-
-A markdown link, a footnote, and a task list item are not labels, so a copy deck
-written in markdown stays copy. `--component` does for an unlabelled blob what a
-label does for a block, and `--part` names the slot for either.
-
-**Every route to an unchecked length says so once, after the findings.** That is
-the one failure a reader cannot see in the output, because silence about a rule
-that did not run looks exactly like the rule passing.
-
-## Copy in code
-
-`check.mjs` reports copy as a third class beside off-token values and undeclared
-component lookalikes, and the hook `init` installs runs it on every edit.
-
-It reads JSX and HTML text nodes and the `label`, `title`, `placeholder`,
-`aria-label`, `alt`, and children props — never an identifier, an import, a
-class name, or a URL, and nothing at all in a region it could not fully parse. A
-copy check that fires on a variable name is one people switch off, and then none
-of the findings land.
-
-`--no-copy` turns it off. `--component-only` does not, because that flag exists
-to stop repeating what impeccable's detector already reports live, and impeccable
-has nothing to say about copy — suppressing it there would drop the findings
-nothing else in the project reports.
-
-`--brief` is what the edit hook relays. It leads with the count and the critical
-count, hoists criticals into the lines it shows before truncating, and ends with
-the doc for each class that fired:
-
-```
-Pushpin: 6 off-system finding(s).
-  src/Hero.jsx:5  banned phrase "Please be advised" — cut entirely
-  src/Hero.jsx:5  "has been confirmed" is passive — say who does what
-  src/Hero.jsx:5  "contractor" — Thumbtack says "pro"
-  src/Hero.jsx:6  "Get started" is a generic call to action — name the action
-  src/Hero.jsx:6  Button / CTA is 6 words; the limit is 4
-  src/Hero.jsx:7  "Learn more" is a generic call to action — name the action
-Docs: reference/copy.md
-```
-
-That last line is why a copy finding sends someone here instead of to the token
-rules. The `over-length` finding in it is there because the button carried
-`data-pp-component="Button"`; the declaration is the only thing in markup that
-says which row governs a string. Without one, every other rule still runs.
-
-## Copy on a Figma frame
-
-The audit gathers the words a frame owns and settles them through the same
-engine — [audit.md](audit.md#settling-the-copy-bucket) has the mechanism, where
-ownership splits inside an instance, and why a critical goes to `defects` while
-everything else reports.
 
 ## What a length check can reach
 

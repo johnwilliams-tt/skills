@@ -129,13 +129,14 @@ Fire-and-forget is a defect here rather than an optimisation, and the two steps
 that follow the lanes are both defeated by it.
 
 The audit reports a node still carrying `placeholder === true` as a defect —
-[audit.md](audit.md) — so auditing against a lane that has not finished invents a
-failure whose only fix is to have waited. Annotating early fails more quietly:
-the [`Token drift` note](generate.md#one-dev-note-when-something-drifted) is
-written from the lanes' returned drift lists, while the audit reads drift back
-off the nodes, so a note written before the last lane returned is short exactly
-the rows the audit will go on to report. The check that a note exists still
-passes, which is what makes it quiet.
+[audit-figma.md](audit-figma.md) — so auditing against a lane that has not
+finished invents a failure whose only fix is to have waited. Annotating early
+fails more quietly: the
+[`Token drift` note](generate.md#one-dev-note-when-something-drifted) is written
+from the lanes' returned drift lists, while the audit reads drift back off the
+nodes, so a note written before the last lane returned is short exactly the rows
+the audit will go on to report. The check that a note exists still passes, which
+is what makes it quiet.
 
 On the batched rung the join is free — the message does not continue until every
 call has come back, which is part of why that rung costs nothing to adopt. On the

@@ -18,6 +18,39 @@ the toolchain, which `diff.mjs` has no category for.
 
 ## Unreleased
 
+**Breaking**
+
+- **`check` and `copy` are no longer commands.** `/pushpin check` and
+  `/pushpin copy` no longer resolve. `audit` is the one name now, and it
+  dispatches on what it was handed — a repo or a file of code, words with no
+  design around them, or a Figma frame. Merging did not fuse three procedures,
+  because copy was never a third one: `check.mjs` already reported it as a third
+  finding class beside tokens and component identity, and the Figma audit already
+  carried a `copy` bucket that it settles by handing the frame's strings to the
+  same engine. What the standalone command uniquely reached was words with no
+  design around them — a pasted paragraph, a draft file, a copy deck — which is a
+  third target rather than a third procedure, and it spent a row in the routing
+  table drawing a line the scripts had never drawn. `audit` survived rather than
+  `check` because `check` already meant five things in this repo: the freshness
+  probe, `scripts/check.mjs`, the edit hook that probe repairs,
+  `scripts/check.md`, and any single rule inside any of them. `audit` meant one
+  thing in every one of the twenty-odd files that use the word, so retiring the
+  ambiguous name and keeping the unambiguous one costs two typed commands and
+  gives a word back. The scripts are untouched — `check.mjs` and `copy.mjs` keep
+  their filenames, flags, and exit contracts, and `--brief` is still what the
+  edit hook relays — so nothing that shells out to them notices. What moved is
+  the docs: [`reference/audit.md`](pushpin/reference/audit.md) is the routing doc
+  now, picking the target and carrying the code and words paths, the Figma
+  procedure it used to hold is unchanged in
+  [`reference/audit-figma.md`](pushpin/reference/audit-figma.md), and
+  [`reference/tokens.md`](pushpin/reference/tokens.md) and
+  [`reference/copy.md`](pushpin/reference/copy.md) have handed over their CLI
+  sections to become what they were always cited as — the token vocabulary and
+  the content rules, with no command surface of their own. Plain speech is
+  unaffected, which is most of why this is cheap: "check this repo" and "does
+  this sound like us" were routed by the table rather than by the command name
+  already, and they land on the same doc now that the name is gone.
+
 **Added**
 
 - **The browser preview is Pushpin's to keep up.** A prototype server started as
@@ -66,28 +99,30 @@ the toolchain, which `diff.mjs` has no category for.
   frame or a file is composed, the way a token is bound rather than a hex picked
   and fixed later; corrected on the way in from a Figma frame, with the change
   disclosed in a line, because a silently rewritten label is the same failure as
-  silently snapped spacing; and reported on demand by `/pushpin copy`, over pasted
-  text, a file, stdin, or a frame's harvested words. The engine decides seven of
-  the rubric's sixteen codes and leaves the other nine as judgment, and there is no
-  1-5 score and no rewrite block anywhere — the upstream has both, and a score
-  invites arguing with the number instead of fixing the line. `check.mjs` reports
-  copy as a third finding class beside tokens and component identity, which
-  `--no-copy` declines and `--component-only` does not, since that flag exists to
-  defer to impeccable's live detector and impeccable has nothing to say about
-  words. On a frame the audit gathers the copy and `copy.mjs` decides it, so no
-  ruleset is ever restated in a script that cannot read a file; a critical becomes
-  a defect and fails the run, and a frame carrying unsettled copy withholds both
-  its verdict and its screenshot rather than reporting `ok` on words nobody read.
-  `freshness.mjs` gives the rules their own layer on `GITHUB_TOKEN`, apart from the
-  Figma captures, because a stale markdown file must not tell someone to
-  re-capture the kit. Where the mechanical part stops is written down rather than
-  implied: title case needs a capital a proper noun cannot explain, since most
-  nouns on a Thumbtack screen are the name of a pro or a business, so it reads
-  `Edit Profile` in a declared Button and lets it pass pasted bare; length reaches
-  eight components from markup, because the six with separate header and body
-  allowances cannot say which slot a text node fills; and passive voice catches the
-  fragments the rules name and the unambiguous "been" plus participle, no wider.
-  Full surface in [reference/copy.md](pushpin/reference/copy.md), provenance in
+  silently snapped spacing; and reported on demand by `/pushpin audit`, over
+  pasted text, a file, stdin, or a frame's harvested words. The engine decides
+  seven of the rubric's sixteen codes and leaves the other nine as judgment, and
+  there is no 1-5 score and no rewrite block anywhere — the upstream has both,
+  and a score invites arguing with the number instead of fixing the line.
+  `check.mjs` reports copy as a third finding class beside tokens and component
+  identity, which `--no-copy` declines and `--component-only` does not, since
+  that flag exists to defer to impeccable's live detector and impeccable has
+  nothing to say about words. On a frame the audit gathers the copy and
+  `copy.mjs` decides it, so no ruleset is ever restated in a script that cannot
+  read a file; a critical becomes a defect and fails the run, and a frame
+  carrying unsettled copy withholds both its verdict and its screenshot rather
+  than reporting `ok` on words nobody read. `freshness.mjs` gives the rules their
+  own layer on `GITHUB_TOKEN`, apart from the Figma captures, because a stale
+  markdown file must not tell someone to re-capture the kit. Where the mechanical
+  part stops is written down rather than implied: title case needs a capital a
+  proper noun cannot explain, since most nouns on a Thumbtack screen are the name
+  of a pro or a business, so it reads `Edit Profile` in a declared Button and lets
+  it pass pasted bare; length reaches eight components from markup, because the
+  six with separate header and body allowances cannot say which slot a text node
+  fills; and passive voice catches the fragments the rules name and the
+  unambiguous "been" plus participle, no wider. The rules and the engine's reach
+  are in [reference/copy.md](pushpin/reference/copy.md), the runs that report
+  them in [reference/audit.md](pushpin/reference/audit.md), provenance in
   [reference/provenance.md](pushpin/reference/provenance.md).
 - **Every write path said "in parallel" and one of them said why.**
   [`reference/generate.md`](pushpin/reference/generate.md) carried the invariant
@@ -328,6 +363,23 @@ the toolchain, which `diff.mjs` has no category for.
 
 **Fixed**
 
+- **`copy.mjs` was pre-approved in the skill and unapproved in the project.**
+  `SKILL.md`'s `allowed-tools` has cleared it since the copy engine shipped, but
+  `ALLOWED_SCRIPTS` in `scripts/lib/permissions.mjs` — the list `init` writes
+  into `.claude/settings.local.json` — named four scripts and not this one. So
+  the two files agreed about `check.mjs` and disagreed about the only script that
+  reads words on their own: in a project set up by `init`, auditing code cost no
+  prompt and auditing a draft cost one every time, which reads as a plugin asking
+  for more than it needs at exactly the moment it is asking for less. It is the
+  fifth rule now, on the same terms as the other four. The bar the module states
+  for itself was under-determined and is the reason the omission looked
+  defensible — "each one reads and reports" is true of `diff.mjs`, `verify.mjs`,
+  and `manifest.mjs` sitting beside them, none of which belong in a consumer's
+  settings file — so it now names the criterion that actually decides membership:
+  read-only, and run mid-task by an agent in a project that consumes Pushpin.
+  Existing projects pick the rule up on the next `init --write`, and
+  `setup --verify` already reports missing rules rather than leaving them to be
+  noticed when the prompts come back.
 - **`check.mjs` read a declared component name only as far as its first space.**
   `data-pp-component="Modal / Confirmation"` parsed as `Modal`, which is not a
   component, so declaring one of the multi-word names correctly reported it as an

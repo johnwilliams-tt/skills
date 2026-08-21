@@ -3,7 +3,7 @@
  * Reports what is off-system in a file or directory. Advisory: it prints
  * findings and changes nothing.
  *
- * Three classes, the first two matching reference/tokens.md § Checking code:
+ * Three classes, matching reference/audit.md § A repo or a file of code:
  *
  * - **Token findings** — a value that bypassed a token. Where an impeccable hook
  *   is actually installed, its detector already reports these live from the same

@@ -10,14 +10,17 @@
  * built-in read-only set, and `node` is not in that set, so each `lookup.mjs`
  * call asks — a dozen times while one layout is built. `acceptEdits` does not
  * help: it covers file edits and a fixed list of filesystem commands, nothing
- * else. Pre-approving these four by full path removes the prompts in every mode,
+ * else. Pre-approving these five by full path removes the prompts in every mode,
  * which is narrower than asking someone to lower their guard for every tool in
  * every session.
  *
- * Why only these four. Each one reads and reports. `init.mjs` is deliberately
- * absent: it is the script that can replace a stylesheet, and the prompt in
- * front of a `--force` is worth keeping. `setup.mjs` qualifies because its only
- * write is an additive copy into `.pushpin/backups/`.
+ * Why only these five. Each one reads and reports, and each is one an agent
+ * runs mid-task in a project that consumes Pushpin — which is why the
+ * maintainer's tools beside them are not here, read-only though several are.
+ * `init.mjs` is deliberately absent: it is the script that can replace a
+ * stylesheet, and the prompt in front of a `--force` is worth keeping.
+ * `setup.mjs` qualifies because its only write is an additive copy into
+ * `.pushpin/backups/`.
  */
 
 import { existsSync, readFileSync } from 'node:fs';
@@ -27,7 +30,7 @@ import { fileURLToPath } from 'node:url';
 /** Claude Code's machine-local settings file, where these rules belong. */
 export const SETTINGS_REL = join('.claude', 'settings.local.json');
 
-export const ALLOWED_SCRIPTS = ['check.mjs', 'freshness.mjs', 'lookup.mjs', 'setup.mjs'];
+export const ALLOWED_SCRIPTS = ['check.mjs', 'copy.mjs', 'freshness.mjs', 'lookup.mjs', 'setup.mjs'];
 
 const SCRIPTS = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -36,7 +39,7 @@ const SCRIPTS = resolve(dirname(fileURLToPath(import.meta.url)), '..');
  *
  * Full paths rather than `Bash(node *)`: a wildcard there would approve
  * arbitrary code execution, which is not a plugin's to grant on someone's
- * behalf. These name four files this plugin ships and nothing else.
+ * behalf. These name five files this plugin ships and nothing else.
  *
  * A trailing ` *` also matches end-of-string, so one rule covers both the bare
  * invocation and any arguments. A path holding a space cannot be typed
