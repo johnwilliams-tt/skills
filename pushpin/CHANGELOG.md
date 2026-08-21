@@ -81,7 +81,7 @@ made with.
   relaying three script faults a designer does not need at that moment: the
   preview port, a `<link rel="stylesheet">` instruction, and `PRODUCT.md` as a
   status line. Setup now opens on the version that actually loaded —
-  `Pushpin v0.12.0 loaded.`, from the `SKILL.md` frontmatter — then, on Claude
+  `Pushpin v0.12.1 loaded.`, from the `SKILL.md` frontmatter — then, on Claude
   Code only, an Auto `AskQuestion` before any shell command, including
   `freshness` and `--ready`. Accepting edits is not enough; that still asks
   about commands. After the writes, a missing `PRODUCT.md` is the next action,
