@@ -52,11 +52,15 @@ frame someone is about to build from does not.
 | Off-ramp type | A `font-size` that is not a ramp step, or a family that is not Thumbtack Rise. |
 | Off-ramp weight | A weight outside 400 / 563 / 590 / 660 / 700. |
 
-If the project has been through `init`, most of these are already reported live
-by impeccable's detector, which reads the same tokens out of the generated
-`DESIGN.md`. `check.mjs` still earns its place on a repo that was never
-initialized, in a review, and for the two classes below, which no token
-allowlist can express.
+**Nothing else in the project is reporting these.** Impeccable's per-edit
+detector would — it reads the same ramps out of the generated `DESIGN.md` — but
+its hook installer skips every project that does not hold a provider folder such
+as `.cursor/skills/impeccable`, which the usual user-global install never
+creates, so an initialized project usually has no detector running at all. Where
+one is installed, `check.mjs` reads that off the hook manifests and drops this
+class rather than saying it twice.
+[init.md](init.md#why-impeccable-hooks-on-is-not-part-of-this) has why Pushpin
+does not wire one up.
 
 **Component identity.** Only in hand-rolled markup — a React project on
 Thumbprint components declares nothing and needs nothing. See
@@ -103,10 +107,10 @@ class name, or a URL, and nothing at all in a region it could not fully parse. A
 copy check that fires on a variable name is one people switch off, and then none
 of the findings land.
 
-`--no-copy` turns it off. `--component-only` does not, because that flag exists
-to stop repeating what impeccable's detector already reports live, and impeccable
-has nothing to say about copy — suppressing it there would drop the findings
-nothing else in the project reports.
+`--no-copy` turns it off. `--component-only` does not: it drops the token class
+alone, which is the one class an installed impeccable detector would also be
+reporting, and impeccable has nothing to say about copy — suppressing it there
+would drop the findings nothing else in the project reports.
 
 `--brief` is what the edit hook relays. It leads with the count and the critical
 count, hoists criticals into the lines it shows before truncating, and ends with

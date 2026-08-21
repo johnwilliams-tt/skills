@@ -12,17 +12,26 @@
  *   node scripts/init.mjs <project-dir> [--write] [--force] [--css-path <p>]
  *                                       [--no-share] [--no-hook]
  *                                       [--no-preview] [--preview-port <n>]
+ *                                       [--advice]
+ *
+ * What a --write prints when it is done is what someone still has to do, and
+ * that is all: three lines, each asked of the project or the machine first and
+ * printed only when it is true there. `--advice` adds back the explanation of
+ * what was written, which is documentation rather than a next step, and lives in
+ * reference/init.md.
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { isGitRepo, riseFontInstalled } from './lib/environment.mjs';
 import { DESIGN_REL, SIDECAR_REL } from './lib/generated.mjs';
 import { GUARD_FLAG, hookCommands, PREVIEW_FLAG, SHIM_REL, withoutHook } from './lib/hooks.mjs';
 import { ALLOWED_SCRIPTS, allowRules, SETTINGS_REL } from './lib/permissions.mjs';
 import { DEFAULT_PORT, previewUrl } from './lib/preview.mjs';
-import { describeStack, detectStack } from './lib/project.mjs';
+import { describeStack, detectStack, importSpecifier } from './lib/project.mjs';
+import { stylesheetReference } from './lib/stylesheet.mjs';
 import { inspectPin } from './pin.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -42,6 +51,7 @@ const HOOK = !flag('--no-hook');
 const PREVIEW = !flag('--no-preview');
 const PREVIEW_PORT_GIVEN = flag('--preview-port');
 const PREVIEW_PORT = Number(opt('--preview-port', DEFAULT_PORT));
+const ADVICE = flag('--advice');
 
 if (!existsSync(target)) {
   console.error(`No such directory: ${target}`);
@@ -718,64 +728,120 @@ if (WRITE && plan.length) {
     }
   }
 
-  console.log('\nNext:');
-  console.log(`  1. Import the stylesheet once at your app root:`);
-  console.log(`       import '${'./' + relative(target, join(target, cssPath)).split('\\').join('/')}';`);
-  if (env.thumbprint) {
-    console.log(`  2. Thumbprint detected — load its v2 token stylesheet, not v1.`);
-    console.log(`     Pushpin IS Thumbprint v2's semantic layer; --tp-* and --pp-* name the`);
-    console.log(`     same tokens. Do not add per-component CSS overrides to force the look.`);
-  } else {
-    console.log(`  2. Build with the custom properties; see the skill's reference/tokens.md.`);
-  }
-  console.log(`  3. Thumbtack Rise is not bundled here — install it or set --pp-font-family.`);
+  // What is left for a person to do, and nothing that only explains a file that
+  // was just written. Those explanations all live in reference/init.md, and
+  // sixty lines of them after a successful setup is how the lines actually
+  // asking for something get missed. They print on --advice.
+  const next = [];
 
-  if (preview && preview.autostart) {
-    console.log(`\nPreview: ${previewUrl(preview.port)}`);
-    console.log(`  Started for you on the next edit, and restarted whenever it has stopped —`);
-    console.log(`  detached, so it survives the turn that started it. Caching is off, so a`);
-    console.log(`  reload cannot answer from the file you just changed.`);
-    console.log(`  Add .pushpin/preview.log and .pushpin/preview.pid to .gitignore.`);
-  } else if (preview && preview.command) {
-    console.log(`\nPreview: this project has its own dev server — \`${preview.command}\`.`);
-    console.log(`  Pushpin does not start it. It says so when nothing answers${preview.port ? ` on port ${preview.port}` : ''},`);
-    console.log(`  and \`--preview-port <n>\` puts Pushpin's own static preview alongside it.`);
+  // Asked of the project rather than stated every time. Nothing renders until
+  // something loads the stylesheet, which is what earns the line on a fresh
+  // project — and on the re-run of one whose app root has named it all along it
+  // is a line that has to be read to be discarded. An answer of `unknown` says
+  // nothing at all; see lib/stylesheet.mjs for what it declines to claim.
+  if (stylesheetReference(target, cssPath) === 'unreferenced') {
+    const cssRel = relative(target, join(target, cssPath)).split('\\').join('/');
+    // A module graph loads a stylesheet with an `import`; a page loads it with a
+    // `<link>`. Most projects here are static prototypes with no module to
+    // import into, where the import is not merely useless — pasted into a
+    // `<script>` it takes the page down with it. So the link is also what an
+    // unrecognized stack gets: it is the form that costs nothing to try in a
+    // project that turns out to have a bundler after all.
+    const [where, snippet] =
+      env.react || env.bundler
+        ? ['import it once at your app root', `import '${importSpecifier(cssRel)}';`]
+        : ['link it from the <head> of your page', `<link rel="stylesheet" href="${cssRel}">`];
+    next.push(`Nothing in this project loads ${cssRel} — ${where}:\n       ${snippet}`);
   }
 
-  if (plan.some((p) => p.rel === SETTINGS_REL)) {
-    console.log(
-      `\nGranted: Pushpin's ${ALLOWED_SCRIPTS.length} read-only scripts (${ALLOWED_SCRIPTS.join(', ')}) now run`,
+  // Asked of the machine rather than stated unconditionally: the font is not
+  // bundled either way, but telling someone to install one they already have is
+  // a line they have to read to discard.
+  if (!riseFontInstalled()) {
+    next.push(
+      `Thumbtack Rise is not installed on this machine — install it, or point\n` +
+        `     --pp-font-family at something else.`,
     );
-    console.log(`  without a permission prompt, because they are asked for constantly and only`);
-    console.log(`  ever read. Named by full path in .claude/settings.local.json — add that file`);
-    console.log(`  to .gitignore, because nothing else will, and those paths are this machine's.`);
-    console.log(`  Nothing else was granted — init still asks before it writes.`);
   }
 
-  if (plan.some((p) => p.rel === 'DESIGN.md')) {
-    console.log(`\nDESIGN.md and .impeccable/design.json turn the tokens into live checks:`);
-    console.log(`  a raw hex, font, radius, or font size that is not Pushpin is reported as`);
-    console.log(`  drift while you work, rather than at the Figma push. DESIGN.md also carries`);
-    console.log(`  the rules a token allowlist cannot express, which is what impeccable reads`);
-    console.log(`  as the brief. Both are generated — re-run init after updating the plugin,`);
-    console.log(`  and never hand-edit them.`);
-    console.log(`\n  Available, and not ours to write:`);
-    console.log(`    /impeccable init   PRODUCT.md only. Pushpin does not write product truth.`);
-    console.log(`\n  Do not run /impeccable document — it replaces both files with an invented`);
-    console.log(`  design system. That is now refused on Cursor and reported everywhere; if a`);
-    console.log(`  staleness check flags them, re-run init --write --force.`);
-    console.log(`\n  To check what is actually set up rather than what was advised:`);
-    console.log(`    node scripts/setup.mjs ${target} --verify`);
+  // Only inside a repository. The advice names files that only a repository can
+  // ignore, and printing it into a folder that has none is an instruction to
+  // create something for nothing.
+  const ignore = [
+    ...(preview && preview.autostart ? ['.pushpin/preview.log', '.pushpin/preview.pid'] : []),
+    ...(plan.some((p) => p.rel === SETTINGS_REL) ? [SETTINGS_REL] : []),
+  ];
+  if (ignore.length && isGitRepo(target)) {
+    next.push(
+      ignore.length === 1
+        ? `Add ${ignore[0]} to .gitignore — it belongs to this machine, not to the repo.`
+        : `Add ${ignore.join(', ')}\n` +
+          `     to .gitignore — they belong to this machine, not to the repo.`,
+    );
   }
 
-  if (plan.some((p) => p.rel.endsWith('settings.json'))) {
-    console.log(`\nCommit .claude/settings.json to share Pushpin with the team.`);
-    console.log(`  Anyone who opens this repo is prompted to install it when they trust the`);
-    console.log(`  folder — no terminal needed. The plugin stays unloaded until they accept,`);
-    console.log(`  so tell them to say yes.`);
-    console.log(`  It asks for auto-update too, which is off by default for this marketplace,`);
-    console.log(`  so nobody ends up holding a capture that has quietly stopped matching the`);
-    console.log(`  kit. Turning it off lands in this same shared file, so that is a team call.`);
+  // A header over nothing is the process narrating itself, which is the whole
+  // reason this block is conditional.
+  if (next.length) {
+    console.log('\nNext:');
+    next.forEach((line, i) => console.log(`  ${i + 1}. ${line}`));
+  }
+
+  if (ADVICE) {
+    if (env.thumbprint) {
+      console.log(`\nThumbprint detected — load its v2 token stylesheet, not v1.`);
+      console.log(`  Pushpin IS Thumbprint v2's semantic layer; --tp-* and --pp-* name the`);
+      console.log(`  same tokens. Do not add per-component CSS overrides to force the look.`);
+    } else {
+      console.log(`\nBuild with the custom properties; see the skill's reference/tokens.md.`);
+    }
+
+    if (preview && preview.autostart) {
+      console.log(`\nPreview: ${previewUrl(preview.port)}`);
+      console.log(`  Started for you on the next edit, and restarted whenever it has stopped —`);
+      console.log(`  detached, so it survives the turn that started it. Caching is off, so a`);
+      console.log(`  reload cannot answer from the file you just changed.`);
+    } else if (preview && preview.command) {
+      console.log(`\nPreview: this project has its own dev server — \`${preview.command}\`.`);
+      console.log(`  Pushpin does not start it. It says so when nothing answers${preview.port ? ` on port ${preview.port}` : ''},`);
+      console.log(`  and \`--preview-port <n>\` puts Pushpin's own static preview alongside it.`);
+    }
+
+    if (plan.some((p) => p.rel === SETTINGS_REL)) {
+      console.log(
+        `\nGranted: Pushpin's ${ALLOWED_SCRIPTS.length} read-only scripts (${ALLOWED_SCRIPTS.join(', ')}) now run`,
+      );
+      console.log(`  without a permission prompt, because they are asked for constantly and only`);
+      console.log(`  ever read. Named by full path in .claude/settings.local.json, which is this`);
+      console.log(`  machine's and not a teammate's.`);
+      console.log(`  Nothing else was granted — init still asks before it writes.`);
+    }
+
+    if (plan.some((p) => p.rel === 'DESIGN.md')) {
+      console.log(`\nDESIGN.md and .impeccable/design.json turn the tokens into live checks:`);
+      console.log(`  a raw hex, font, radius, or font size that is not Pushpin is reported as`);
+      console.log(`  drift while you work, rather than at the Figma push. DESIGN.md also carries`);
+      console.log(`  the rules a token allowlist cannot express, which is what impeccable reads`);
+      console.log(`  as the brief. Both are generated — re-run init after updating the plugin,`);
+      console.log(`  and never hand-edit them.`);
+      console.log(`\n  Available, and not ours to write:`);
+      console.log(`    /impeccable init   PRODUCT.md only. Pushpin does not write product truth.`);
+      console.log(`\n  Do not run /impeccable document — it replaces both files with an invented`);
+      console.log(`  design system. That is now refused on Cursor and reported everywhere; if a`);
+      console.log(`  staleness check flags them, re-run init --write --force.`);
+      console.log(`\n  To check what is actually set up rather than what was advised:`);
+      console.log(`    node scripts/setup.mjs ${target} --verify`);
+    }
+
+    if (plan.some((p) => p.rel.endsWith('settings.json'))) {
+      console.log(`\nCommit .claude/settings.json to share Pushpin with the team.`);
+      console.log(`  Anyone who opens this repo is prompted to install it when they trust the`);
+      console.log(`  folder — no terminal needed. The plugin stays unloaded until they accept,`);
+      console.log(`  so tell them to say yes.`);
+      console.log(`  It asks for auto-update too, which is off by default for this marketplace,`);
+      console.log(`  so nobody ends up holding a capture that has quietly stopped matching the`);
+      console.log(`  kit. Turning it off lands in this same shared file, so that is a team call.`);
+    }
   }
 } else if (!WRITE && plan.length) {
   console.log('\nRe-run with --write to apply.');

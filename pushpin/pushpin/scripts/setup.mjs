@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
- * The two halves of `/pushpin setup` that a script can do: reading the project
- * before anything is written, and checking what is actually true afterwards.
+ * The parts of `/pushpin setup` that a script can do: reading the machine the
+ * session is running on, reading the project before anything is written, and
+ * checking what is actually true afterwards.
  *
  * `init.mjs` remains the only thing that writes Pushpin's artifacts. This reads.
  * The middle of setup — the one question a project can still leave open — is a
@@ -14,21 +15,46 @@
  * genuinely open so none are asked twice, and `--verify` reports the end state
  * rather than restating the instructions.
  *
+ * Every mode reports what needs doing and nothing else. A row that passed is
+ * not news, and eleven of them in front of a designer who wants to know whether
+ * anything is broken is how the answer gets lost — `--all` is there for the
+ * maintainer who wants the whole picture, and `--json` is unchanged.
+ *
  * Usage:
  *   node scripts/setup.mjs <project-dir>            # same as --assess
- *   node scripts/setup.mjs <project-dir> --assess   # what is here, and what to ask
- *   node scripts/setup.mjs <project-dir> --verify   # what is true now
+ *   node scripts/setup.mjs <project-dir> --assess   # only what still has to be asked
+ *   node scripts/setup.mjs <project-dir> --ready    # what the machine is missing
+ *   node scripts/setup.mjs <project-dir> --verify   # what is not true yet
  *   node scripts/setup.mjs <project-dir> --backup   # copy aside what --force would replace
- *   node scripts/setup.mjs <project-dir> --json     # machine-readable, either mode
+ *   node scripts/setup.mjs <project-dir> --all      # every row, not only the faults
+ *   node scripts/setup.mjs <project-dir> --json     # machine-readable, any mode
+ *
+ * `--ready` takes the two prefixes freshness.mjs established: `fix: <command>`
+ * for something the agent settles itself, `say: <sentence>` for something that
+ * needs the user's hands. It exits 0 whatever it finds, for the reason
+ * `--session` does — a readiness check that reads as a failed command is the
+ * noise this form exists to remove. `--harness <claude|cursor>` overrides
+ * detection; all it decides is whether Claude Code's own two checks run.
  */
 
 import { execFileSync } from 'node:child_process';
 import { copyFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
-import { homedir } from 'node:os';
 import { dirname, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { hashAsset } from './canonical.mjs';
+import {
+  acceptsEdits,
+  detectHarness,
+  figmaDesktop,
+  findImpeccable,
+  globalAutoUpdate,
+  HARNESSES,
+  isGitRepo,
+  MARKETPLACE,
+  MIN_NODE,
+  permissionMode,
+} from './lib/environment.mjs';
 import { GENERATED, generatedState } from './lib/generated.mjs';
 import { inspectHooks } from './lib/hooks.mjs';
 import { ALLOWED_SCRIPTS, missingAllowRules, SETTINGS_REL } from './lib/permissions.mjs';
@@ -47,11 +73,24 @@ const PLUGIN = JSON.parse(
 
 const argv = process.argv.slice(2);
 const flag = (n) => argv.includes(n);
-const target = resolve(argv.find((a) => !a.startsWith('--')) ?? '.');
+const opt = (n, d) => (argv.includes(n) ? argv[argv.indexOf(n) + 1] : d);
+/** Flags whose value follows them, so it is not mistaken for the target directory. */
+const VALUE_FLAGS = new Set(['--harness']);
+const target = resolve(
+  argv.find((a, i) => !a.startsWith('--') && !VALUE_FLAGS.has(argv[i - 1])) ?? '.',
+);
 
 const VERIFY = flag('--verify');
+const READY = flag('--ready');
 const BACKUP = flag('--backup');
 const JSON_OUT = flag('--json');
+const ALL = flag('--all');
+
+const HARNESS = opt('--harness', detectHarness());
+if (!HARNESSES.includes(HARNESS)) {
+  console.error(`--harness takes ${HARNESSES.join(' or ')}, got: ${opt('--harness', '')}`);
+  process.exit(1);
+}
 
 if (!existsSync(target)) {
   console.error(`No such directory: ${target}`);
@@ -82,36 +121,7 @@ const config = readJson(join(target, 'pushpin.config.json'));
 
 // ------------------------------------------------------------------ neighbors
 
-/**
- * Where impeccable is installed, and — separately — whether this project holds
- * one of the provider folders its own hook installer looks for.
- *
- * The two are not the same question, and conflating them is what makes the
- * setup advice wrong. `hook-admin.mjs` skips every manifest target unless a
- * folder like `.cursor/skills/impeccable` exists *in the project*, so with the
- * usual user-global install `/impeccable hooks on` finds nothing to do and
- * installs nothing. Saying "impeccable is installed" while its per-edit hook
- * cannot be is how someone ends up hunting a gap that is working as designed.
- */
-function findImpeccable() {
-  const providerRels = [
-    join('.cursor', 'skills', 'impeccable'),
-    join('.claude', 'skills', 'impeccable'),
-    join('.agents', 'skills', 'impeccable'),
-    join('.github', 'skills', 'impeccable'),
-  ];
-  const local = providerRels.filter((rel) => existsSync(join(target, rel)));
-  const home = providerRels.map((rel) => join(homedir(), rel)).filter((p) => existsSync(p));
-
-  return {
-    installed: Boolean(local.length || home.length),
-    // A project-local copy is the only kind its hook installer can act on.
-    providerLocal: local.length ? local[0] : null,
-    path: local.length ? join(target, local[0]) : (home[0] ?? null),
-  };
-}
-
-const impeccable = findImpeccable();
+const impeccable = findImpeccable(target);
 const productMd = existsSync(join(target, 'PRODUCT.md'));
 
 // ----------------------------------------------------------------- git safety
@@ -136,7 +146,7 @@ function gitSafety(paths) {
     }
   };
 
-  if (git(['rev-parse', '--git-dir']) === null) {
+  if (!isGitRepo(target)) {
     return { repo: false, dirty: [], safe: false, note: 'no git repository — a backup is the only way back' };
   }
   if (!paths.length) return { repo: true, dirty: [], safe: true, note: 'git repository' };
@@ -158,6 +168,123 @@ function gitSafety(paths) {
         note: `git repository, but ${dirty.length} of those file${dirty.length === 1 ? ' is' : 's are'} uncommitted, so git cannot restore ${dirty.length === 1 ? 'it' : 'them'}`,
       }
     : { repo: true, dirty: [], safe: true, note: 'git repository, all committed — git is the way back' };
+}
+
+// ----------------------------------------------------------------- readiness
+
+/** The one thing here that writes, named in a `fix:` line rather than run from here. */
+const ENVIRONMENT = join(here, 'lib', 'environment.mjs');
+
+/**
+ * The machine the session is running on, as faults only.
+ *
+ * Everything a project can answer about itself is `--assess`'s job. This is the
+ * rest of it — the neighbors, the harness settings, the applications — and it
+ * is asked first because none of it is settled by setting a project up, and all
+ * of it reads as Pushpin being broken when it is wrong.
+ *
+ * A clean machine prints nothing at all. That is the whole contract: an empty
+ * run means there was nothing to say, not that nothing was checked.
+ */
+function ready() {
+  const checks = [];
+  const check = (id, state, detail, line) => checks.push({ id, state, detail, line });
+
+  // Claude Code's two settings checks do not run on Cursor. Cursor has neither
+  // setting, and a nudge about a preference the harness does not have is worse
+  // than silence — it sends someone looking for a screen that is not there.
+  const claude = HARNESS === 'claude';
+
+  const major = Number(process.versions.node.split('.')[0]);
+  check(
+    'node',
+    major >= MIN_NODE ? 'ok' : 'say',
+    process.version,
+    `This is Node ${process.versions.node}, and every script here needs ${MIN_NODE} or newer — ` +
+      `installing the current release from nodejs.org is the first thing I'd do.`,
+  );
+
+  check(
+    'impeccable',
+    impeccable.installed ? 'ok' : 'say',
+    impeccable.installed ? `installed at ${impeccable.path}` : 'not installed',
+    `impeccable is not installed. It runs the interview that writes PRODUCT.md, the product ` +
+      `record every design command here reads, and its per-edit detector catches slop beside ` +
+      `Pushpin's own check — npx impeccable install, then /impeccable init.`,
+  );
+
+  // Auto-update, and only from a marketplace entry that has never said. See
+  // lib/environment.mjs for why absent is a frozen install rather than a
+  // preference, and why the other three answers are left alone.
+  const autoUpdate = claude ? globalAutoUpdate() : null;
+  check(
+    'auto-update',
+    !claude || autoUpdate === 'none' || autoUpdate === 'unreadable'
+      ? 'skipped'
+      : autoUpdate === 'unset'
+        ? 'fix'
+        : 'ok',
+    !claude
+      ? 'Claude Code only'
+      : {
+          on: 'on',
+          off: 'off, which is a choice and is left alone',
+          unset: `never set, so the ${MARKETPLACE} install is frozen at the capture it was made with`,
+          none: `no ${MARKETPLACE} entry — this plugin arrived another way`,
+          unreadable: 'the global settings file could not be parsed',
+        }[autoUpdate],
+    `node "${ENVIRONMENT}" --enable-auto-update`,
+  );
+
+  // Read, never written. It is the user's guard, and lowering it for them is
+  // not a repair — which is why this is the one Claude Code check that stays a
+  // sentence even though a script could settle it.
+  const mode = claude ? permissionMode(target) : null;
+  check(
+    'permission mode',
+    !claude ? 'skipped' : acceptsEdits(mode) ? 'ok' : 'say',
+    !claude ? 'Claude Code only' : (mode ?? 'unset — the default, which asks every time'),
+    `Claude Code asks before every file edit until you tell it not to. Shift+Tab cycles to ` +
+      `accepting them, which is the difference between watching the browser and babysitting ` +
+      `the terminal. It does not cover the shell commands Pushpin's scripts run — the allow ` +
+      `rules setup writes are what keep those from asking.`,
+  );
+
+  const figma = figmaDesktop();
+  check(
+    'figma desktop',
+    figma === 'running' ? 'ok' : figma === 'stopped' ? 'say' : 'skipped',
+    { running: 'running', stopped: 'not running', unknown: 'could not read the process list' }[
+      figma
+    ],
+    `Figma's desktop app is not running, and every write into a Figma file executes inside ` +
+      `it — opening it before we push anything there saves a failed run.`,
+  );
+
+  return {
+    mode: 'ready',
+    target,
+    harness: HARNESS,
+    checks,
+    fix: checks.filter((c) => c.state === 'fix').map((c) => c.line),
+    say: checks.filter((c) => c.state === 'say').map((c) => c.line),
+  };
+}
+
+function printReady(r) {
+  if (ALL) {
+    console.log(`Target: ${r.target}`);
+    console.log(`Harness: ${r.harness}\n`);
+    const markPad = Math.max(...r.checks.map((c) => c.state.length));
+    const idPad = Math.max(...r.checks.map((c) => c.id.length));
+    for (const c of r.checks) {
+      const mark = c.state === 'skipped' ? '--' : c.state;
+      console.log(`  ${mark.padEnd(markPad)}  ${c.id.padEnd(idPad)}  ${c.detail}`);
+    }
+    if (r.fix.length || r.say.length) console.log('');
+  }
+  for (const f of r.fix) console.log(`fix: ${f}`);
+  for (const s of r.say) console.log(`say: ${s}`);
 }
 
 // -------------------------------------------------------------------- assess
@@ -233,7 +360,23 @@ function assess() {
   };
 }
 
+/**
+ * The open questions, and on the default path nothing else.
+ *
+ * Everything else assess knows — the stack, the destination, the preview, which
+ * files are already here — is a decision the project makes for itself, and a
+ * decision nobody has to make is not worth a line. The `Ask:` header went with
+ * them: printing "nothing to ask" is the process narrating itself, and it is
+ * what put "the project answers everything itself" in front of a user who had
+ * asked to set a folder up.
+ */
 function printAssess(a) {
+  if (!ALL) {
+    const idPad = a.ask.length ? Math.max(...a.ask.map((q) => q.id.length)) : 0;
+    for (const q of a.ask) console.log(`  ${q.id.padEnd(idPad)}  ${q.why}`);
+    return;
+  }
+
   console.log(`Target: ${a.target}`);
   console.log(`Detected: ${a.stack}`);
   console.log(
@@ -320,18 +463,36 @@ async function verify() {
 
   // The two generated files, by the same states pin.mjs reports.
   for (const g of GENERATED) {
+    const asset = g.kind === 'design' ? 'DESIGN.md' : 'design.json';
     const recorded = g.kind === 'design' ? config.designHash : config.sidecarHash;
     const state = generatedState(target, g.rel, recorded, hashAsset);
+    // Untouched since it was written, and still an older build than the plugin
+    // carries. `generatedState` cannot see this — it compares the file against
+    // what was recorded, and both agree — so it is the same comparison pin.mjs
+    // makes, and without it a project enforcing a superseded capture reports
+    // itself intact.
+    const stale = state === 'current' && recorded !== MANIFEST.hashes[asset];
     const detail = {
       absent: `${g.label} is not there`,
       unrecorded: `${g.label} — present, but no hash was recorded, so an overwrite would not be noticed`,
-      current: `${g.label}, generated and unmodified`,
+      current: stale
+        ? `${g.label} is an older build of the tokens, so the checks behind it are enforcing an older capture`
+        : `${g.label}, generated and unmodified`,
       edited: `${g.label} has changed since it was written`,
       replaced: `${g.label} no longer carries Pushpin — it has been replaced`,
     }[state];
-    row(state === 'current' ? OK : state === 'unrecorded' ? NOTE : MISSING, `${g.kind}`, detail);
+    row(
+      state === 'current' && !stale ? OK : state === 'unrecorded' ? NOTE : MISSING,
+      `${g.kind}`,
+      detail,
+    );
     if (state === 'replaced' || state === 'edited' || state === 'absent') {
       advice.push(`\`node scripts/init.mjs ${target} --write --force\` restores ${g.label}. Never \`/impeccable document\`.`);
+    }
+    if (stale) {
+      advice.push(
+        `\`node scripts/init.mjs ${target} --write --force\` brings ${g.label} up to the capture this plugin carries.`,
+      );
     }
     if (state === 'unrecorded') {
       advice.push(
@@ -487,7 +648,28 @@ async function verify() {
   };
 }
 
+/**
+ * What is not true yet, and what to do about it.
+ *
+ * A row that passed is not news. Eleven of them in front of someone who asked
+ * whether anything is broken is how the one line that matters gets lost, and
+ * the three closing summaries were a paragraph spent on the same question.
+ *
+ * The distinction those summaries protected — set up and working, but not
+ * protected — is real, and it survives in the advice: a hash that was never
+ * recorded and a generated file that is an older build both leave a project
+ * working and both have a remedy, so both print their remedy and nothing else.
+ */
 function printVerify(v) {
+  if (!ALL) {
+    for (const r of v.rows) {
+      if (r.mark === MISSING) console.log(`  ${r.name}: ${r.detail}`);
+    }
+    for (const a of v.advice) console.log(`  ${a}`);
+    if (v.complete) console.log('  This project is set up, and there is nothing left to fix.');
+    return;
+  }
+
   console.log(`Target: ${v.target}\n`);
   const markPad = Math.max(...v.rows.map((r) => r.mark.length));
   const namePad = Math.max(...v.rows.map((r) => r.name.length));
@@ -547,6 +729,13 @@ if (BACKUP) {
   result = backup();
   if (JSON_OUT) console.log(JSON.stringify(result, null, 2));
   else printBackup(result);
+} else if (READY) {
+  result = ready();
+  if (JSON_OUT) console.log(JSON.stringify(result, null, 2));
+  else printReady(result);
+  // Exit 0 whatever it found, for the reason freshness.mjs's --session does:
+  // this runs at the front of a setup nobody asked to have interrupted, and a
+  // readiness report that reads as a failed command is the noise it removes.
 } else if (VERIFY) {
   result = await verify();
   if (JSON_OUT) console.log(JSON.stringify(result, null, 2));

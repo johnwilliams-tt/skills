@@ -1,7 +1,7 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.11.0
+version: 0.12.0
 argument-hint: "[generate|audit|figma · setup|init|freshness · refresh] [target]"
 allowed-tools:
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/check.mjs *)
@@ -97,6 +97,17 @@ mock it up in Figma, build it here and check it in the browser, or answer from
 the tokens. Add the open-ended option, because the read of the request that got
 you here can be wrong too.
 
+**Setup asks it too, and asks more of it**, so when the route is `setup` this is
+not the site that asks.
+[reference/setup.md](reference/setup.md#the-handoff-interview) § The handoff
+interview settles where the work starts as well as where it lands, and a project
+with no `pushpin.config.json` is the commonest way into this paragraph: asking
+here spends a click on a question setup is a step away from asking in full. Hold
+it, run setup, and let the interview ask. Where the surface was settled before
+setup ran, off a signal above or off the menu in
+[reference/start.md](reference/start.md), the interview inherits it and asks only
+what is still open.
+
 **Nothing is searched for**, and **Figma with no link stops and waits.** The
 destination is something the user has and you do not, so a search spends minutes
 arriving at a guess where a question spends one click arriving at a fact. Do not
@@ -125,6 +136,7 @@ covers the same ground from plain speech. Load one doc, not the table.
 | nothing published fits — proposing a new component | [propose.md](reference/propose.md) |
 | "leave notes on this", an accessibility spec | [annotate.md](reference/annotate.md) |
 | an Annotation Kit import failed | [annotate-fallback.md](reference/annotate-fallback.md) |
+| `/impeccable init` about to run on a Pushpin project, or asked whether to install it | [impeccable.md](reference/impeccable.md) |
 | "do these in parallel", a Figma write with many sections or notes to fill | [parallel.md](reference/parallel.md) |
 | "what else is on this page", a link landing beside work already done | [context.md](reference/context.md) |
 | "this hex disagrees with the token", "an export says otherwise" | [provenance.md](reference/provenance.md) |

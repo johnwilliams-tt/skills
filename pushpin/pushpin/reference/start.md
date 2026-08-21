@@ -63,7 +63,7 @@ one a line on what to do and a line on why it is worth doing now.
 | What is present | Lead with |
 |---|---|
 | A Figma link in the conversation | `generate` if the link is where new work should land; `audit` if the frame already exists and the question is whether it is on-system; `figma` if the design is settled and the goal is reading it out into code |
-| A code project with no `pushpin.config.json` | `setup`, then `generate` |
+| A code project with no `pushpin.config.json` | `setup` on its own — the surface it leads to is what setup's own closing question settles |
 | The plugin's own source tree — `assets/` and the skill itself are in it | never `setup` or `init`, since the plugin is not a project that consumes itself; `refresh` if the capture is aging, otherwise ask what to design |
 | A code project already set up | `audit` over the files being worked on, or answer the token question directly |
 | Words rather than code — text pasted in, a draft file, or a copy deck | `audit`, pointed at it; it reports and changes nothing |
@@ -98,6 +98,14 @@ These are the same three surfaces as
 [Which surface](../SKILL.md#which-surface) — Figma, this project, or a straight
 answer from the tokens — worded the same way, so a user who lands here and a
 user who lands there are answering one question rather than two.
+[setup.md](setup.md#the-handoff-interview) § The handoff interview asks it a
+third time by another name, at the end of setup, and it asks last.
+
+**So a pick of `setup` names setup and stops there.** A setup that needs nothing
+is one sentence long, which makes a surface named alongside that pick a surface
+asked for again a sentence later. Which of the three sites does the asking is
+ruled in [Which surface](../SKILL.md#which-surface), along with what happens to
+an answer that arrived before setup did.
 
 Nothing runs before the answer. When it comes back, load the reference doc for
 that row of the Routing table and carry on.

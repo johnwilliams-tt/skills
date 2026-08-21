@@ -16,6 +16,114 @@ Changes are grouped the way `diff.mjs` classifies them:
 An entry about the plugin rather than the capture adds **Fixed** for a bug in
 the toolchain, which `diff.mjs` has no category for.
 
+## Unreleased
+
+Setting a project up printed everything it had checked. Eleven `--verify` rows
+whether or not any of them was a problem, an `--assess` block that closed on
+`Ask: nothing — the project answers every open question itself`, and about sixty
+lines of unconditional guidance after `init`'s writes — all of it in front of a
+designer whose question was whether anything was broken and what to do next.
+Meanwhile nothing in the flow checked the things that actually stop one: no Figma
+MCP, the Figma desktop app closed, `impeccable` absent, a permission prompt in
+front of every file edit, a marketplace install frozen at the capture it was
+made with.
+
+**Added**
+
+- **`setup.mjs --ready`, and a new
+  [`scripts/lib/environment.mjs`](pushpin/scripts/lib/environment.mjs)
+  underneath it.** What is true around a project rather than inside it: which
+  harness this is, whether `impeccable` is installed, whether the marketplace
+  updates itself, whether Claude Code will prompt on every edit, whether Figma's
+  desktop app is running, and whether `node` is new enough for `lookup` and
+  `audit` at all. Everything it prints is a fault with a remedy, in the two
+  prefixes `freshness.mjs` established — `fix:` for a command the agent runs,
+  `say:` for the one sentence that needs the user — so a machine where nothing
+  is wrong prints nothing, and it exits 0 whatever it found, for the reason
+  `--session` does. Claude Code's two settings checks do not run on Cursor,
+  which has neither setting; `--harness claude|cursor` overrides the detection
+  when the environment lies about itself. The auto-update write is the one thing
+  here that is not a read, and it is a command of its own —
+  `node scripts/lib/environment.mjs --enable-auto-update`, named in the `fix:`
+  line rather than reachable as a `setup.mjs` flag. That is not tidiness:
+  [`lib/permissions.mjs`](pushpin/scripts/lib/permissions.mjs) pre-approves
+  `setup.mjs` to run with no permission prompt on the stated grounds that its
+  only write is an additive backup copy, and a promptless write into
+  `~/.claude/settings.json` would have made that comment false the day it
+  shipped. Nothing pre-approves the command that writes, so the harness asks,
+  and that prompt is the consent. An `autoUpdate` already set to `false` is left
+  exactly as found — the same rule `init` follows for the project copy, because
+  re-deciding somebody's opt-out is not a repair — and a marketplace entry that
+  is absent entirely means the plugin arrived another way, so nothing is said.
+- **The handoff interview closes setup instead of a status report.** One
+  `AskQuestion` call carrying two questions — whether the work starts from a
+  Figma design or from scratch, and whether to prototype in the browser first or
+  go straight to Figma — and then the route, and nothing else.
+  [`reference/setup.md`](pushpin/reference/setup.md) has it, along with the two
+  readiness checks no script can perform: the Figma MCP, answered by the tools
+  being absent from the catalog or else by one `whoami`, and the three libraries,
+  which reuse [`reference/generate.md`](pushpin/reference/generate.md) § The
+  access preflight rather than inventing a second check for the same thing.
+- **[`reference/impeccable.md`](pushpin/reference/impeccable.md), the
+  pre-answers for `/impeccable init`.** Three of the questions that interview
+  asks are already settled by this being a Pushpin project: the stack is static
+  HTML/CSS, the platform is `web`, and the artifact is a design prototype bound
+  for a Figma frame ready for engineering handoff — never a production surface,
+  which is not a string in impeccable at all but a framing the agent invents at
+  interview time, and is wrong in both directions at once. The answers live on
+  Pushpin's side rather than as a patch to that skill, because an update to it
+  cannot undo what it never held. The three product-truth questions are still
+  asked, and are still not ours to answer.
+
+**Changed**
+
+- **Every step of setup reports faults and nothing else.** `printVerify` prints
+  the `missing` rows with their remedies, `printAssess` prints the open
+  questions, and `init --write` prints what a person still has to do: the
+  stylesheet import, plus the Rise font only when the machine does not have it
+  and `.gitignore` only inside a git repository. The `Ask:` header went with the
+  rest — printing "nothing to ask" is the process narrating itself, and it is
+  what put "the project answers everything itself" in front of a user who had
+  asked to set a folder up. Nothing is deleted: `--all` restores the
+  row-per-check output in both `--assess` and `--verify`, byte for byte apart
+  from the fault below, and carries the meaning it already has in `lookup.mjs`;
+  `--advice` restores `init`'s explanation of what it wrote; `--json` is
+  untouched. Quieting the scripts is not enough on its own,
+  because script stdout is collapsed in both harnesses and the wall of text a
+  designer reads is prose written up from output nobody asked to see, so
+  `reference/setup.md` gains an output contract and a list of what never appears
+  — modeled on [`reference/start.md`](pushpin/reference/start.md) § What never
+  appears, which was written after the same failure.
+- **`impeccable` is offered when it is absent.** The previous rule said not to,
+  and not even to mention it, on the grounds that the generated files are correct
+  without it — true, and beside the point. What is missing without it is the
+  product record every design command reads and the slop check on each edit, and
+  a designer who was never told either exists does not go looking for them.
+- **The surface question is asked in one place.**
+  [`SKILL.md`](pushpin/SKILL.md) § Which surface, `reference/start.md` § The
+  question, and the handoff interview were three sites asking a version of "Figma
+  or the browser", which on a project with no `pushpin.config.json` meant a user
+  answered it, ran a setup that is one sentence long, and was asked again a
+  sentence later. The interview asks last and inherits an answer that arrived
+  before it.
+
+**Fixed**
+
+- **A project holding an older build of the tokens reported itself protected.**
+  `pin.mjs` gained a `generated-stale` finding in 0.11.0 and `setup.mjs
+  --verify` did not: it compared each generated file against the hash recorded
+  when it was written, both agreed, and the row read `DESIGN.md, generated and
+  unmodified`. So a project whose `DESIGN.md` and `.impeccable/design.json` were
+  intact but built from a superseded capture closed with "This project is set up.
+  Pushpin governs its tokens, components, and words, an edit check reports what
+  drifts from them as you work, and the generated files are protected", and
+  exited 0 — while every check behind those files enforced the older system. The
+  recorded hash is now compared against `MANIFEST.hashes` as well, which is the
+  comparison `pin.mjs` already makes, so the file is a fault with
+  `init --write --force` as its remedy. Telling someone their files are guarded
+  when they are not is the specific failure `--verify` was built after, and it
+  survives the quieting as a line rather than a paragraph.
+
 ## 0.11.0 — 2026-08-21
 
 **Breaking**

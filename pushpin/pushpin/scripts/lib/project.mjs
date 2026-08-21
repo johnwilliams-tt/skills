@@ -19,6 +19,32 @@ const STYLE_DIRS = ['src/styles', 'app/styles', 'styles', 'src/app', 'app', 'src
 /** The fallback when nothing in the project says where a stylesheet goes. */
 const STYLE_FALLBACK = 'styles';
 
+/**
+ * What gives a project a module graph. Only in one of these does a stylesheet
+ * reach the page through an `import`; everywhere else the page names the file
+ * itself, and an author handed an import has nowhere to put it that would not
+ * break the page. A package.json on its own does not answer this — a prototype
+ * with a `serve` script has one and has no module.
+ */
+const BUNDLERS = [
+  'next',
+  'vite',
+  'webpack',
+  'parcel',
+  'react-scripts',
+  '@remix-run/dev',
+  'astro',
+  'nuxt',
+  '@sveltejs/kit',
+  '@rsbuild/core',
+];
+
+/**
+ * Where a framework's entry module sits, longest first so a project carrying
+ * both `src` and `src/app` gets the inner one.
+ */
+const ENTRY_DIRS = ['src/app', 'app', 'src'];
+
 /** Whether a page at the root would be the thing linking the stylesheet. */
 function hasRootHtml(target) {
   try {
@@ -82,6 +108,7 @@ export function detectStack(target) {
     name: pkg?.name ?? null,
     react: has('react'),
     next: has('next'),
+    bundler: BUNDLERS.some(has),
     tailwind: has('tailwindcss'),
     thumbprint: Object.keys(deps).some((d) => d.includes('thumbprint')),
     devCommand: hasDevScript ? runner(target) : null,
@@ -92,6 +119,23 @@ export function detectStack(target) {
     // reaches the fallback, and there every answer is equally correct.
     stylesDirGuessed: !found && !flat,
   };
+}
+
+/**
+ * How the stylesheet is named from the module that imports it, which is not the
+ * string a `<link href>` carries: an import resolves against the importing file
+ * rather than against the page, and a specifier that does not begin with a dot
+ * is read as a package. The importing file is the entry at the top of the
+ * source tree, so a path measured from the project root is wrong by that
+ * directory.
+ *
+ * @param {string} cssRel stylesheet path relative to the project root
+ */
+export function importSpecifier(cssRel) {
+  const path = cssRel.split('\\').join('/');
+  const entry = ENTRY_DIRS.find((d) => path.startsWith(d + '/'));
+  const fromEntry = entry ? path.slice(entry.length + 1) : path;
+  return fromEntry.startsWith('.') ? fromEntry : './' + fromEntry;
 }
 
 /** The one-line stack summary both commands print. */

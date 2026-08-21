@@ -9,11 +9,19 @@ content design rules, and scripts that move a design between Figma and code.
 - **Node 18+.** macOS ships no version of it. Download the macOS installer from
   [nodejs.org](https://nodejs.org), open the `.pkg`, enter your Mac password.
 - **Claude Code (a terminal or the Claude desktop app) or Cursor.**
-- **Figma's MCP server, connected to that agent.**
+- **`impeccable`.** Run `npx impeccable install`, which needs Node 22.12+, then
+  `/impeccable init` in the agent chat rather than the terminal. It writes
+  `PRODUCT.md`, which every Pushpin design command reads. `/pushpin setup`
+  offers it when it is missing.
+- **Figma's MCP server, connected to that agent.** Keep the Figma desktop app
+  open — every write into a Figma file runs inside it.
 - **The Pushpin Thumbprint UI Kit and the Annotation Kit, both enabled in the
   Figma file you're working in.** Most product files don't subscribe to the
   Annotation Kit.
 - **The Thumbtack Rise font.** Without it, generated text renders in a fallback.
+- **Edits accepted as they are made.** Claude Code asks before every file edit
+  until Shift+Tab cycles it to accepting them. That mode does not cover shell
+  commands; `/pushpin setup` pre-approves the ones Pushpin runs.
 
 ## Install
 
@@ -34,10 +42,11 @@ claude plugin list
 It should show `pushpin@johnwilliams-skills`. `pushpin@skills-dir` means the
 plugin was copied in as a folder and will never update.
 
-Turn auto-update on: add `"autoUpdate": true` to the `johnwilliams-skills` entry
-in `~/.claude/settings.json`. It is off by default, and an install that never
-updates drifts away from the Figma kit. A project set up by `/pushpin setup`
-already has it on. Without it, update by hand, then restart:
+Turn auto-update on. It is off by default, and an install that never updates
+drifts away from the Figma kit. `/pushpin setup` offers to set it, asking once
+before it writes; to do it yourself, add `"autoUpdate": true` to the
+`johnwilliams-skills` entry in `~/.claude/settings.json`. An entry that already
+says `false` is left alone. Without auto-update, update by hand, then restart:
 
 ```bash
 claude plugin update pushpin@johnwilliams-skills
@@ -121,10 +130,15 @@ node pushpin/scripts/lookup.mjs --icon caret  # one import key per icon size
 node pushpin/scripts/check.mjs <dir>          # off-system values, lookalikes, and copy in code
 node pushpin/scripts/copy.mjs <file>          # one draft against the content design rules
 node pushpin/scripts/freshness.mjs            # capture age, layer by layer
-node pushpin/scripts/setup.mjs <dir> --verify # what a project actually has
+node pushpin/scripts/setup.mjs <dir> --ready  # what this machine is missing
+node pushpin/scripts/setup.mjs <dir> --verify # what a project still needs
 node pushpin/scripts/init.mjs <dir> --write   # set up, repair, or update a project
 node pushpin/scripts/preview.mjs --root <dir> # serve a prototype with caching off
 ```
+
+`setup.mjs` reports faults and nothing else, so a clean run prints nothing. Add
+`--all` for every row it checked, `--json` for the whole result in either case.
+`init.mjs --write --advice` adds an explanation of what it wrote.
 
 A project that has been set up does not need that last one: the edit hook starts
 the preview and restarts it whenever it has stopped. Run
@@ -158,7 +172,8 @@ without editing a file first.
 | [`reference/copy.md`](pushpin/reference/copy.md) | The content design rules, what the engine decides, and what it leaves to judgment. |
 | [`reference/figma.md`](pushpin/reference/figma.md) | File keys, library keys, workflow directions, and the state of Code Connect. |
 | [`reference/provenance.md`](pushpin/reference/provenance.md) | What is authoritative and what isn't. |
-| [`reference/setup.md`](pushpin/reference/setup.md) | Guided first-time setup: what to ask, what to run, what to verify. |
+| [`reference/setup.md`](pushpin/reference/setup.md) | Guided first-time setup: the readiness gate, what to ask, what to verify, and the handoff interview. |
+| [`reference/impeccable.md`](pushpin/reference/impeccable.md) | What a Pushpin project has already answered before `/impeccable init` runs. |
 | [`reference/init.md`](pushpin/reference/init.md) | The mechanical half, the hooks, and how the generated files are protected. |
 | [`reference/maintaining.md`](pushpin/reference/maintaining.md) | Freshness layers, refreshing the capture, regenerating assets. |
 
