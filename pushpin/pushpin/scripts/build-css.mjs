@@ -8,9 +8,11 @@
  * back to a variable in the kit by name alone.
  *
  * The token capture supplies every custom property. The style capture supplies
- * one thing the variables cannot: tracking is a property of the published text
- * styles, so it is per type step rather than per token group, and only
- * styles.figma.json knows which step carries which.
+ * the two the variables cannot be read for. Tracking is a property of the
+ * published text styles and lives nowhere else, so it is per type step rather
+ * than per token group. Line height lives in both places and they disagree on
+ * the four body steps; the style wins, because it is what renders on a node in
+ * Figma.
  *
  * Usage: node scripts/build-css.mjs [--check]
  *   --check  exit non-zero if the committed CSS differs from a fresh build
@@ -82,7 +84,8 @@ function scalar(group, groupName, raw) {
 /**
  * The type ramp is the one group the emitter units itself. The capture regroups
  * the flat `Tokens / Font` collection into one object per step, so there is no
- * group-level `$unit` to read, and both size and line height are pixels.
+ * group-level `$unit` to read, and both the sizes it holds and the line heights
+ * resolved from the published styles are pixels.
  */
 const px = (n) => (typeof n === 'number' ? `${n}px` : n);
 
@@ -132,6 +135,44 @@ function trackingToken(step) {
   return token[0];
 }
 
+/**
+ * The line height a type step's text style sets, in pixels, at one font mode.
+ *
+ * The kit holds two answers and they disagree: the `Tokens / Font` collection
+ * carries a pixel line height per step, and the published style carries a
+ * percentage. They resolve to the same number on the nine title steps and not
+ * on the four body ones — `Text/1` is 140% of 16, or 22.4, where the variable
+ * says 24. The style is what a designer sees on a node, so it is what the
+ * stylesheet emits; the variable stays in the capture as captured.
+ *
+ * Percent is the only unit accepted. A pixel or AUTO line height is a different
+ * model of the ramp — it would not rescale with the size at the breakpoint the
+ * way `hero` 48→64 does — and reinterpreting one as a proportion is the kind of
+ * guess that emitted -1px of tracking for a kit that means -1%.
+ */
+function leadingPx(step, mode) {
+  const styleName = styleFor(step);
+  const style = styleName && styles.textStyles[styleName];
+  if (!style) {
+    throw new Error(`Type step "${step}" maps to no text style, so its line height is unknown`);
+  }
+  const lh = style.lineHeight;
+  if (!lh || typeof lh.value !== 'number' || !lh.unit) {
+    throw new Error(`Text style "${styleName}": lineHeight must be captured as { value, unit }`);
+  }
+  if (FIGMA_UNIT[lh.unit] !== 'percent') {
+    throw new Error(
+      `Text style "${styleName}" sets line height in ${lh.unit}, and only a proportion can be ` +
+        `resolved against a size that changes at the breakpoint`,
+    );
+  }
+  const size = t.font[step]?.size?.[mode];
+  if (typeof size !== 'number') {
+    throw new Error(`Type step "${step}" has no ${mode} size to resolve its line height against`);
+  }
+  return Number(((size * lh.value) / 100).toFixed(4));
+}
+
 const lines = [];
 const p = (s = '') => lines.push(s);
 const block = (title) => {
@@ -177,7 +218,7 @@ block(`Type scale (${t.font.$modes[0]} — see @media below for ${t.font.$modes[
 for (const [name, def] of entries(t.font)) {
   const m = t.font.$modes[0];
   p(`  --pp-font-size-${seg(name)}: ${px(def.size[m])};`);
-  p(`  --pp-line-height-${seg(name)}: ${px(def.lineHeight[m])};`);
+  p(`  --pp-line-height-${seg(name)}: ${px(leadingPx(name, m))};`);
   p(`  --pp-font-weight-${seg(name)}: ${value(def.weight)};`);
 }
 
@@ -231,12 +272,18 @@ p();
 p(`/* Desktop type scale — Figma's "${t.font.$modes[1]}" font mode. */`);
 p(`@media (min-width: ${scalar(t.breakpoint, 'breakpoint', t.breakpoint[TYPE_BREAKPOINT])}) {`);
 p('  :root {');
+// A step is restated only where it moves. Both properties are tested rather
+// than just the size, because leading is resolved from the style rather than
+// read beside the size now: they move together while every style sets one
+// percentage for both modes, and a step whose leading moved on its own would
+// otherwise keep its mobile value above the breakpoint, silently.
 for (const [name, def] of entries(t.font)) {
-  const m = t.font.$modes[1];
-  if (def.size[m] !== def.size[t.font.$modes[0]]) {
-    p(`    --pp-font-size-${seg(name)}: ${px(def.size[m])};`);
-    p(`    --pp-line-height-${seg(name)}: ${px(def.lineHeight[m])};`);
-  }
+  const [native, desktop] = t.font.$modes;
+  const size = px(def.size[desktop]);
+  const leading = px(leadingPx(name, desktop));
+  if (size === px(def.size[native]) && leading === px(leadingPx(name, native))) continue;
+  p(`    --pp-font-size-${seg(name)}: ${size};`);
+  p(`    --pp-line-height-${seg(name)}: ${leading};`);
 }
 p('  }');
 p('}');

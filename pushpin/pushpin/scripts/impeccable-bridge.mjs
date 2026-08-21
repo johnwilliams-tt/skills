@@ -45,6 +45,7 @@ import {
 import {
   FONT_FAMILY,
   fontScale,
+  leading,
   radii,
   real,
   resolveHex,
@@ -691,7 +692,7 @@ const NARRATIVE = {
   ],
 };
 
-export function renderDesignJson(tokens, { pluginVersion, capturedAt, generatedAt } = {}) {
+export function renderDesignJson(tokens, { pluginVersion, capturedAt, generatedAt, styles } = {}) {
   const colorMeta = {};
 
   // Every semantic token, with both themes. `canonical` is the light value and
@@ -739,11 +740,15 @@ export function renderDesignJson(tokens, { pluginVersion, capturedAt, generatedA
     if (typeof px === 'number') breakpoints[name] = `${px}px`;
   }
 
+  // Leading comes from the published text style, not from `spec.lineHeight`
+  // beside the size: the two disagree on the body steps, and a sidecar quoting
+  // a leading `pushpin.css` does not emit would have the detector flag correct
+  // code.
   const typographyMeta = {};
   for (const [step, spec] of real(tokens.font)) {
     typographyMeta[step] = {
       size: spec.size ?? null,
-      lineHeight: spec.lineHeight ?? null,
+      lineHeight: leading(tokens, styles, step),
       weight: String(spec.weight ?? '').replace(/^@/, '') || null,
       purpose: TYPE_PURPOSE[step] ?? null,
     };

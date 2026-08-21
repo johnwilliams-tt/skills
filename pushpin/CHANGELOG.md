@@ -468,6 +468,29 @@ the toolchain, which `diff.mjs` has no category for.
   now named in the chain in
   [`reference/provenance.md`](pushpin/reference/provenance.md), because tracking
   is a fact about `Title/3` rather than about any token group.
+- **The four body utilities set a leading no Figma node renders.** Every
+  `--pp-line-height-*` came from the `Tokens / Font` variable collection, which
+  carries a pixel line height per step; the kit also sets one on each published
+  text style, as a percentage. On the nine title steps the two agree —
+  `Title/Hero` is 105% of 48, which is the 50.4 the variable holds. On the four
+  body steps they do not: `Text/1` is 140% of 16, or 22.4, against 24 in the
+  variable, and `Text/4` is 14 against 18. The capture recorded that
+  disagreement in a note and the generator had quietly picked the side a
+  designer never sees, which is the same asymmetry as the tracking defect above.
+  **`.pp-body-1` is now 22.4px, `.pp-body-2` 19.6px, `.pp-body-3` 16.8px and
+  `.pp-body-4` 14px** — body leading moves in every project on this release, by
+  up to 4px on `body-4`, and the remedy is `pushpin init --write --force`; the
+  stylesheet is generated and must not be hand-edited. The nine title steps emit
+  exactly what they emitted before, at both breakpoints, because the percentage
+  applies to whichever size is in force: `hero` is 50.4px and 67.2px above 700px
+  as it was. `verify.mjs` is what keeps it there, 3096 checks to 3149 — every
+  emitted line height against its style's percentage of the step's size at both
+  breakpoints, every `.pp-*` against the token it is supposed to point at, and a
+  style whose line height is not a percentage stops the build rather than being
+  reinterpreted as one. `design.json` and `lookup.mjs` report the resolved value
+  too, since a brief quoting a leading the stylesheet does not set is the same
+  defect one layer over. The kit still disagrees with itself and both numbers
+  are still recorded; what is no longer open is which one Pushpin ships.
 - **The frame audit counted any published component as Pushpin's.** `remote` is
   a boolean: it says an instance resolved to a library and not to which one, and
   a Thumbtack file has the kit Pushpin replaced enabled beside it. That is how a

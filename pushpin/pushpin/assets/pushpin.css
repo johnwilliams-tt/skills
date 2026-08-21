@@ -280,16 +280,16 @@
   --pp-line-height-title-8: 14.4px;
   --pp-font-weight-title-8: var(--pp-font-weight-medium-bold);
   --pp-font-size-body-1: 16px;
-  --pp-line-height-body-1: 24px;
+  --pp-line-height-body-1: 22.4px;
   --pp-font-weight-body-1: var(--pp-font-weight-regular);
   --pp-font-size-body-2: 14px;
-  --pp-line-height-body-2: 20px;
+  --pp-line-height-body-2: 19.6px;
   --pp-font-weight-body-2: var(--pp-font-weight-regular);
   --pp-font-size-body-3: 12px;
-  --pp-line-height-body-3: 18px;
+  --pp-line-height-body-3: 16.8px;
   --pp-font-weight-body-3: var(--pp-font-weight-regular);
   --pp-font-size-body-4: 10px;
-  --pp-line-height-body-4: 18px;
+  --pp-line-height-body-4: 14px;
   --pp-font-weight-body-4: var(--pp-font-weight-regular);
 
   /* ── Line height ratios ──────────────────────────────────────────────── */

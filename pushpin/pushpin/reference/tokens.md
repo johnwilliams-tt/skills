@@ -133,10 +133,10 @@ text style carries any.
 | `title-6` | 16 / 19.2 | — | 660 |
 | `title-7` | 14 / 16.8 | — | 660 |
 | `title-8` | 12 / 14.4 | — | 660 |
-| `body-1` | 16 / 24 | — | 400 |
-| `body-2` | 14 / 20 | — | 400 |
-| `body-3` | 12 / 18 | — | 400 |
-| `body-4` | 10 / 18 | — | 400 |
+| `body-1` | 16 / 22.4 | — | 400 |
+| `body-2` | 14 / 19.6 | — | 400 |
+| `body-3` | 12 / 16.8 | — | 400 |
+| `body-4` | 10 / 14 | — | 400 |
 
 Only `hero` and `title-1` … `title-3` change between mobile and desktop; the
 rest are fixed. In Figma these are the `native` and `desktop` modes of
@@ -156,13 +156,15 @@ bindable — the type ramp is published as 13 text styles (`Title/Hero`,
 Those styles use named font weights (Medium, Bold, Regular) rather than the
 numeric 563 / 590 / 660, and the styles are what actually renders.
 
-They also set line height in percent, and it resolves to the pixel column above
-for the nine title steps exactly — `Title/Hero` is 105% of 48, or 50.4. For the
-four `Text/*` steps it does not: `Text/1` is 140% of 16, or 22.4, where the
-variable says 24, and `Text/4` is 14 against 18. The kit disagrees with itself
-there, so `assets/styles.figma.json` records both numbers rather than
-reconciling them: the style decides in Figma, and the CSS is built from the
-variable.
+They also set line height in percent, and the pixel column above is that
+percentage resolved against the size beside it — `Title/Hero` is 105% of 48, or
+50.4, and 105% of 64 at desktop, or 67.2. The kit's `Tokens / Font` collection
+carries a second answer, and on the nine title steps it is the same number. On
+the four body steps it is not: it says 24 where `Text/1` sets 140% of 16, or
+22.4, and 18 where `Text/4` sets 14. The published style is what the CSS emits,
+because it is what renders on a node in Figma; `assets/styles.figma.json` and
+`assets/tokens.figma.json` keep both numbers, since the disagreement is the
+kit's and hiding it would not settle it.
 
 Standalone ratios also exist for custom blocks: `--pp-leading-flat` (1),
 `--pp-leading-heading-1|2|3` (1.05 / 1.1 / 1.2), `--pp-leading-text-1…4`

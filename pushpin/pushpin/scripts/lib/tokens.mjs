@@ -77,6 +77,44 @@ export const metric = (m) => {
   return `${m.value}${m.unit === 'PERCENT' ? '%' : 'px'}`;
 };
 
+/**
+ * Type step to published text style — `hero`→`Title/Hero`, `title-N`→`Title/N`,
+ * `body-N`→`Text/N`. Thirteen steps, thirteen styles, 1:1.
+ */
+function textStyleFor(step) {
+  if (step === 'hero') return 'Title/Hero';
+  const m = /^(title|body)-(\d+)$/.exec(step);
+  return m ? `${m[1] === 'title' ? 'Title' : 'Text'}/${m[2]}` : null;
+}
+
+/**
+ * A type step's line height per font mode, in pixels, shaped like the capture's
+ * own `lineHeight` so it can stand in for it.
+ *
+ * The kit answers this twice and the answers disagree: `Tokens / Font` carries a
+ * pixel line height per step, the published style carries a percentage, and the
+ * two resolve to the same number on the nine title steps but not on the four
+ * body ones. `build-css.mjs` emits the style's, since that is what renders on a
+ * node in Figma, so anything here that reported the variable would be quoting a
+ * leading the stylesheet does not set.
+ */
+export function leading(tokens, styles, step) {
+  const styleName = textStyleFor(step);
+  const style = styleName && styles?.textStyles?.[styleName];
+  const lh = style?.lineHeight;
+  if (!lh || typeof lh.value !== 'number' || lh.unit !== 'PERCENT') {
+    throw new Error(
+      `type step "${step}" has no published text style setting a percentage line height, ` +
+        `so its leading cannot be resolved the way the stylesheet resolves it`,
+    );
+  }
+  const out = {};
+  for (const [mode, size] of Object.entries(tokens.font?.[step]?.size ?? {})) {
+    if (typeof size === 'number') out[mode] = Number(((size * lh.value) / 100).toFixed(4));
+  }
+  return out;
+}
+
 /** Resolve a semantic token's `@alias` chain down to a literal hex. */
 export function resolveHex(tokens, path, mode, seen = new Set()) {
   if (seen.has(path)) return null;

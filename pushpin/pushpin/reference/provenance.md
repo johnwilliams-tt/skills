@@ -17,10 +17,14 @@ Pushpin Thumbprint UI Kit (Figma, VVRGrLgkPRU3vs765d5Q3r)
               └─ assets/pushpin.css          generated, never hand-edited
 ```
 
-The style capture is in the chain because one property is not a variable at all.
-Tracking is set per text style, so what a `.pp-title-3` should carry is a fact
-about `Title/3` rather than about any token group, and only `styles.figma.json`
-holds it.
+The style capture is in the chain because two type properties cannot be read off
+the variables. Tracking is not a variable at all: it is set per text style, so
+what a `.pp-title-3` should carry is a fact about `Title/3` rather than about any
+token group, and only `styles.figma.json` holds it. Line height is held in both
+places and the two disagree on the four body steps — `Text/1` sets 140% of 16,
+or 22.4, where `Tokens / Font` says 24 — so the generator resolves it from the
+style's percentage, on the rule that the kit's answer is the one a designer sees
+on a node.
 
 Two properties matter. The capture is **verbatim** — `tokens.figma.json` holds
 what Figma returned, including values that look like mistakes, so that a real

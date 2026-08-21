@@ -65,6 +65,7 @@ import {
 import {
   TOKEN_GROUPS,
   UNIT_LABEL,
+  leading,
   loadAsset,
   metric,
   real,
@@ -577,7 +578,11 @@ function renderToken(group, name, value) {
     const d = value.size?.desktop;
     const size = d === n ? `${n}px` : `${n}px mobile / ${d}px from 700px`;
     const weight = String(value.weight ?? '').replace(/^@/, '');
-    p(`${name} — ${group.label} · ${size} · line-height ${value.lineHeight?.native}px · weight ${weight}`);
+    // Resolved from the published style rather than read from the variable
+    // beside the size, because that is what `--pp-line-height-*` carries.
+    const lh = leading(tokens, styles, name);
+    const line = lh.desktop === lh.native ? `${lh.native}px` : `${lh.native}px / ${lh.desktop}px`;
+    p(`${name} — ${group.label} · ${size} · line-height ${line} · weight ${weight}`);
     p(`  --pp-font-size-${name}, --pp-line-height-${name}, --pp-font-weight-${name}, or the .pp-${name} utility`);
   } else {
     p(`${group.css(name)} — ${group.label} · ${unit(value)}`);

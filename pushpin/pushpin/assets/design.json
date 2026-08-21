@@ -1103,8 +1103,8 @@
           "desktop": 16
         },
         "lineHeight": {
-          "native": 24,
-          "desktop": 24
+          "native": 22.4,
+          "desktop": 22.4
         },
         "weight": "regular",
         "purpose": "default body copy"
@@ -1115,8 +1115,8 @@
           "desktop": 14
         },
         "lineHeight": {
-          "native": 20,
-          "desktop": 20
+          "native": 19.6,
+          "desktop": 19.6
         },
         "weight": "regular",
         "purpose": "supporting copy and dense UI"
@@ -1127,8 +1127,8 @@
           "desktop": 12
         },
         "lineHeight": {
-          "native": 18,
-          "desktop": 18
+          "native": 16.8,
+          "desktop": 16.8
         },
         "weight": "regular",
         "purpose": "captions, metadata, and legal"
@@ -1139,8 +1139,8 @@
           "desktop": 10
         },
         "lineHeight": {
-          "native": 18,
-          "desktop": 18
+          "native": 14,
+          "desktop": 14
         },
         "weight": "regular",
         "purpose": "the floor — use it deliberately, not to fit more in"

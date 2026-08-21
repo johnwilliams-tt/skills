@@ -47,8 +47,15 @@ const rootBlock = css.slice(css.indexOf(':root {'), css.indexOf('\n}'));
 const darkStart = css.indexOf('[data-pp-theme="dark"] {');
 const darkBlock = css.slice(darkStart, css.indexOf('\n}', darkStart));
 
+// The desktop half of the type ramp restates only the steps that move, so the
+// values in force above the breakpoint are the root block with that block laid
+// over it.
+const rampStart = css.indexOf('@media (min-width:');
+const rampBlock = rampStart === -1 ? '' : css.slice(rampStart, css.indexOf('\n  }', rampStart));
+
 const light = declsIn(rootBlock);
 const dark = new Map([...light, ...declsIn(darkBlock)]);
+const desktopType = new Map([...light, ...declsIn(rampBlock)]);
 
 /** Resolve a var() chain in the CSS to a literal. */
 function cssHex(name, table, seen = new Set()) {
@@ -288,10 +295,12 @@ for (const [key, unit] of UNITS_IN_CAPTURE) {
   }
 }
 
-// The type ramp's tracking, generator against capture, resolved from the other
-// end: what the stylesheet actually says against what the published styles
-// actually carry. Tracking is the one type property the variables do not hold —
-// it lives on the text styles — so nothing above this can see it.
+// The type ramp's tracking and leading, generator against capture, resolved
+// from the other end: what the stylesheet actually says against what the
+// published styles actually carry. Tracking is the one type property the
+// variables do not hold at all — it lives on the text styles. Leading they do
+// hold, in a column that disagrees with the styles on the four body steps, so
+// nothing that reads the capture alone can see which number shipped.
 //
 // The step-to-style pairing is a name rule, `title-3` to `Title/3`, and a rename
 // would re-pair the whole ramp without changing a single value. So the pairing
@@ -305,14 +314,26 @@ const styleFor = (step) => {
 const FIGMA_UNIT = { PIXELS: 'px', PERCENT: 'percent' };
 
 const utilities = new Map();
+const utilityLeading = new Map();
 for (const m of css.matchAll(/^\.pp-([\w-]+) \{\n([\s\S]*?)\n\}/gm)) {
   const ls = m[2].match(/letter-spacing:\s*var\((--pp-tracking-[\w-]+)\)/);
   utilities.set(m[1], ls ? ls[1] : null);
+  const lh = m[2].match(/line-height:\s*var\((--pp-line-height-[\w-]+)\)/);
+  utilityLeading.set(m[1], lh ? lh[1] : null);
+}
+
+checked++;
+if (rampStart === -1) {
+  problems.push(
+    'pushpin.css carries no min-width media query, so the desktop half of the type ramp is ' +
+      'unreachable and every step below is being checked against one breakpoint',
+  );
 }
 
 const trackingTokens = Object.entries(t.letterSpacing).filter(([k]) => !k.startsWith('$'));
 const wantedBy = new Map(trackingTokens.map(([name]) => [`--pp-tracking-${segment(name)}`, 0]));
 const nativeMode = t.font.$modes[0];
+const desktopMode = t.font.$modes[1];
 
 for (const [step, spec] of Object.entries(t.font)) {
   if (step.startsWith('$')) continue;
@@ -330,6 +351,60 @@ for (const [step, spec] of Object.entries(t.font)) {
         `${spec.size?.[nativeMode]}px and the style is ${style.size}px — the pairing rule and ` +
         `the kit disagree, so every tracking value below is being read off the wrong style`,
     );
+  }
+
+  // Leading, at both breakpoints. The percentage is a property of the style and
+  // the size in force is a property of the mode, so the product is the only
+  // number a designer applying the style to a node will see — which the
+  // stylesheet agreed with on the nine title steps and missed on the four body
+  // ones for as long as it read the Font variable instead. A note recording that
+  // disagreement is not a check; this is.
+  const lh = style.lineHeight;
+  checked++;
+  if (!lh || typeof lh.value !== 'number' || lh.unit !== 'PERCENT') {
+    problems.push(
+      `text style "${styleName}": lineHeight is not captured as { value, unit } in PERCENT, ` +
+        `and a leading that is not a proportion cannot be resolved against a size that changes ` +
+        `at the breakpoint`,
+    );
+  } else {
+    for (const [mode, decls] of [
+      [nativeMode, light],
+      [desktopMode, desktopType],
+    ]) {
+      checked++;
+      const size = spec.size?.[mode];
+      const name = `--pp-line-height-${segment(step)}`;
+      const raw = decls.get(name);
+      const emitted = /^(-?\d+(?:\.\d+)?)px$/.exec(raw ?? '');
+      if (typeof size !== 'number') {
+        problems.push(`type step "${step}" has no ${mode} size, so its leading resolves to nothing`);
+      } else if (!emitted) {
+        problems.push(`${name} [${mode}]: emits ${raw ?? 'nothing'}, which is not a pixel length`);
+      } else {
+        const want = Number(((size * lh.value) / 100).toFixed(4));
+        if (Number(emitted[1]) !== want) {
+          problems.push(
+            `${name} [${mode}]: emits ${raw} but "${styleName}" sets ${lh.value}% of ${size}px, ` +
+              `which is ${want}px`,
+          );
+        }
+      }
+    }
+  }
+
+  // The values above are only what the step renders at if its utility points at
+  // them, so a `.pp-*` that inlines a number or names another step's token
+  // passes everything checked so far. A missing utility is left to the tracking
+  // check below, which reports it once.
+  if (utilityLeading.has(step)) {
+    checked++;
+    if (utilityLeading.get(step) !== `--pp-line-height-${segment(step)}`) {
+      problems.push(
+        `.pp-${step}: line-height is ${utilityLeading.get(step) ?? 'not set from a token'} rather ` +
+          `than var(--pp-line-height-${segment(step)})`,
+      );
+    }
   }
 
   const ls = style.letterSpacing;

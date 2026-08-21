@@ -180,7 +180,9 @@ Three things to carry through rather than tidy away:
   `tokens.figma.json` — and the four Text steps do not: `Text/1` is 140% of 16,
   or 22.4, against 24 in the variable. That is the kit disagreeing with itself,
   not a capture bug, and both numbers are recorded so the disagreement stays
-  visible.
+  visible. The style is the one `build-css.mjs` emits, so a re-capture that
+  changes a percentage moves the stylesheet; `verify.mjs` fails until it is
+  rebuilt.
 - **Weights are named styles here and numbers in the token layer.** `Title/3` is
   `Thumbtack Rise Bold`; `title-3` is weight 590. The style is what renders.
 

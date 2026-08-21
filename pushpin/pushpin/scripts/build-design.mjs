@@ -27,6 +27,7 @@ const ASSETS = join(here, '..', 'assets');
 const json = (f) => JSON.parse(readFileSync(join(ASSETS, f), 'utf8'));
 
 const tokens = json('tokens.figma.json');
+const styles = json('styles.figma.json');
 const manifest = json('manifest.json');
 const components = json('components.figma.json');
 const specs = json('component-specs.figma.json');
@@ -49,7 +50,7 @@ const design = renderDesignMd(tokens, meta);
 // something this build can read twice and get the same answer from, or `--check`
 // fails on the timestamp alone and proves nothing; the capture is the only date
 // these files are a projection of, and no consumer reads the field.
-const sidecar = renderDesignJson(tokens, { ...meta, generatedAt: manifest.capturedAt });
+const sidecar = renderDesignJson(tokens, { ...meta, generatedAt: manifest.capturedAt, styles });
 const sidecarBody = JSON.stringify(sidecar, null, 2) + '\n';
 
 const OUTPUTS = [
