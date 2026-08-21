@@ -26,13 +26,18 @@ node scripts/init.mjs  <project-dir> --write     # 5. write, with the flags it i
 node scripts/setup.mjs <project-dir> --verify    # 6. what is still broken
 ```
 
-The two readiness checks no script can perform go beside step 2, and the handoff
-interview follows step 6. Every step that only reads prints faults and nothing
-else, so most of them print nothing at all. The two that write report what they
-wrote, and what becomes of that is the next section. `--all` is the way back to
-the whole picture, every row in any mode, and `--json` carries the same in a
-machine-readable form; both are for a maintainer reading the script, not for the
-person being set up.
+The version line, and on Claude Code the Auto question, go before step 1 —
+including before `freshness` and `--ready`. They are not a script, and they are
+the first thing the designer sees. The two readiness checks no script can
+perform go beside step 2. After the writes, if `PRODUCT.md` is missing, the
+impeccable question is next; the handoff interview follows that, or follows
+step 6 when the file is already there. Do not run
+`init --write --force --preview-port` during first setup. Every step that only
+reads prints faults and nothing else, so most of them print nothing at all. The
+two that write report what they wrote, and what becomes of that is the next
+section. `--all` is the way back to the whole picture, every row in any mode,
+and `--json` carries the same in a machine-readable form; both are for a
+maintainer reading the script, not for the person being set up.
 
 ## What setup says, and what it never says
 
@@ -40,19 +45,42 @@ Script stdout is collapsed in both harnesses, so a quiet script is not a quiet
 setup. The agent is what stands between the two, and the wall of text a designer
 actually reads is prose written up from output nobody asked to see.
 
-Setup says each fault as one line carrying its fix, in the order the steps
-raised them, and then the interview question. On a project that needs nothing,
-that is one sentence and a question.
+Setup opens on the version that actually loaded, taken from this session's
+[SKILL.md](../SKILL.md) frontmatter (`version: 0.12.1`, kept in sync by
+`version.mjs`):
 
-**A stylesheet nothing loads is one of those faults.** `init --write` copies the
-tokens in, and until a page, another stylesheet, a module, or a build config
-names the file, all 300 custom properties are inert and the project renders
-unstyled. `init` raises it only after reading the project and finding nothing
-that names the file, so it arrives as a fault with a fix and is relayed like any
-other — and its silence means the wiring is there or could not be established,
-never that nobody looked. It is not the closing offer the list below rules out:
-that offers something optional, and this is the one action without which the
-setup changed nothing on screen.
+```
+Pushpin v0.12.1 loaded.
+```
+
+That is the copy that loaded, which is the point.
+
+**Claude Code, before any shell command** — including `freshness` and
+`setup.mjs --ready`. Do not read settings to guess the mode; that is a shell
+call, which is the thing being avoided. Say this once:
+
+```
+This setup runs several commands. Claude Code will stop on every one of them
+until you switch to Auto — Shift+Tab until the status bar says Auto.
+Accepting edits is not enough; that still asks about commands.
+```
+
+Then one `AskQuestion`:
+
+- **Yes, Auto is on** — continue
+- **Skip** — I'll approve each command
+
+If they skip, do not nag again this setup, and do not later relay `--ready`'s
+permission-mode `say:`. Setup already asked.
+
+**Cursor:** no Auto question. First user-visible line is still
+`Pushpin v0.12.1 loaded.`
+
+Setup then says each fault as one line carrying its fix, in the order the steps
+raised them — except the three the list below rules out — and then the
+impeccable question when `PRODUCT.md` is missing, then the interview. A project
+that already has `PRODUCT.md` goes from the version (and Auto, on Claude) to
+the interview. Never a "three things worth knowing" list.
 
 Never appears:
 
@@ -60,7 +88,15 @@ Never appears:
   has. Doing it was the command's job; reporting it back is not news.
 - An explanation of what `DESIGN.md`, the edit check, or the preview does. That
   is [init.md](init.md), read when somebody asks.
-- The preview port, unless it moved.
+- The preview port — not even when 8123 is held. A held port is a problem once
+  there is a page; the next edit starts the preview.
+- An unreferenced stylesheet, or a `<link rel="stylesheet">` instruction. The
+  first page is what names the file, and that snippet lives in
+  [SKILL.md](../SKILL.md#using-it-in-a-project) § Using it in a project for
+  the agent, not for this recap.
+- `PRODUCT.md` as a status line, a missing-file bulletin, or a recap bullet.
+  When the file is absent, that is the AskQuestion after the writes, not a
+  finding to read out.
 - The capture date, its age, or any confirmation that something passed.
 - `.gitignore` advice in a folder that holds no git repository.
 - A restatement of a `fix:` line that was already run. Announcing a silent
@@ -68,7 +104,7 @@ Never appears:
 - A note that there was nothing to ask, nothing to fix, or nothing to
   overwrite. Process narration is not a finding.
 - A closing offer of optional next steps. The interview question is the next
-  step.
+  step, after the impeccable step when that one runs.
 - `/impeccable init`'s own wrap-up. The interview happens; its summary is not
   relayed, because it reads product truth back at the person who just supplied
   it.
@@ -87,9 +123,12 @@ environment prints nothing and there is nothing to relay.
 Its lines carry the same two prefixes `freshness.mjs` uses — `fix:` is run
 without discussion, `say:` is one sentence held and spent on the user. That
 convention is stated once, in [SKILL.md § Start here](../SKILL.md#start-here),
-and it is not restated here. Harness detection decides which lines are relevant
-at all; `--harness claude` or `--harness cursor` overrides it when the detection
-is wrong.
+and it is not restated here. Two of those `say:` lines are not spent when
+`--ready` prints them during first setup. The permission-mode line was already
+asked at the top; do not relay it. The missing-impeccable line is held until
+after the writes and spent as the AskQuestion in § 4. Harness detection
+decides which lines are relevant at all; `--harness claude` or
+`--harness cursor` overrides it when the detection is wrong.
 
 **One `fix:` line writes outside the project, and it is the one the user sees.**
 Auto-update is turned on by `node scripts/lib/environment.mjs
@@ -167,28 +206,36 @@ and neither is worth a line of output.
 ## 4. PRODUCT.md, which is not ours to write
 
 Setup does not conduct that interview. `/impeccable init` writes `PRODUCT.md` on
-request, for whoever wants it, and its absence is reported rather than filled
-in.
+request, for whoever wants it, and its absence is the next action rather than a
+bullet.
 
 **Pushpin must not generate `PRODUCT.md`.** It is product truth, not design
 truth. Pushpin knows the tokens and nothing about who the product is for, and a
 plausible invented answer there is worse than an empty file, because everything
 downstream treats it as given. The interview exists to get it right.
 
-**Offer `impeccable` when it is absent.** An earlier version of this page said
-not to, on the grounds that the generated files are correct without it — which
-is true and beside the point. What is missing without it is the product record
-every design command reads and the slop check on each edit, and a designer who
-was never told either exists does not go looking for them. `--ready` raises it
-in one sentence; `npx impeccable install` and then `/impeccable init` is the
-whole path. Offer it once and drop it if the answer is no, saying in that case
-that the generated files are still correct and still read by anything using that
-format.
+**After the writes, before the handoff** — if `PRODUCT.md` is missing. The why
+lives in the AskQuestion prompt, not in surrounding chat the designer can skip.
+One line, then the options. Do not mention `/impeccable document`, and do not
+imply it replaces Pushpin:
 
-Before `/impeccable init` is invoked here, read [impeccable.md](impeccable.md).
-Three of the questions it asks are already answered by this being a Pushpin
-project, and answering them from scratch is how a two-day prototype acquires a
-framework and a build step.
+```
+Impeccable provides advanced design tools that extend what the AI model can do.
+```
+
+- Not installed: **Install it and run `/impeccable init`** (runs
+  `npx impeccable install`, then `/impeccable init`) / **Skip for now**
+- Installed: **Run `/impeccable init`** / **Skip for now**
+
+If they say yes, read [impeccable.md](impeccable.md) and actually run it. Three
+of the questions that interview asks are already answered by this being a
+Pushpin project, and answering them from scratch is how a two-day prototype
+acquires a framework and a build step. If they skip, one sentence that the
+generated files are still correct, then the handoff. `--ready`'s
+missing-impeccable `say:` is this question; do not print it mid-setup as a
+bulletin.
+
+A project that already has `PRODUCT.md` skips this and goes to the interview.
 
 ## 5. Verify, do not advise
 
@@ -214,16 +261,18 @@ was built after, and it survives the quieting as a line rather than a paragraph.
 
 The preview is asked of the port rather than read out of the config, so what it
 reports is what a browser would actually find there. A preview that is simply
-not running yet is not a fault and not a line — the next edit starts it. A port
-answering something else is a fault, because the URL the user has open is
-showing them another project, and the remedy is `--preview-port`, never killing
-whatever holds it. See [init.md](init.md) § The preview.
+not running yet is not a fault and not a line — the next edit starts it.
+`--verify` can still mark a held port `missing` for a later diagnostic run; do
+not recap it at the end of first setup, and do not run
+`--preview-port` to move it. A held port is a problem once there is a page.
+See [init.md](init.md) § The preview.
 
 ## The handoff interview
 
 Setup closes by starting the work, in at most two turns. It is the one place
 setup asks anything the project could not answer for itself, aside from the
-overwrite.
+overwrite and the two questions above. The interview is still the close, but
+only after the impeccable step when that one ran.
 
 One `AskQuestion` call carrying two questions. Whether the work starts from a
 Figma design or from scratch, and whether to prototype in the browser first or

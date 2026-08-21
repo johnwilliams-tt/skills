@@ -244,10 +244,8 @@ function ready() {
     'permission mode',
     !claude ? 'skipped' : acceptsEdits(mode) ? 'ok' : 'say',
     !claude ? 'Claude Code only' : (mode ?? 'unset — the default, which asks every time'),
-    `Claude Code asks before every file edit until you tell it not to. Shift+Tab cycles to ` +
-      `accepting them, which is the difference between watching the browser and babysitting ` +
-      `the terminal. It does not cover the shell commands Pushpin's scripts run — the allow ` +
-      `rules setup writes are what keep those from asking.`,
+    `Claude Code will stop on every command until you switch to Auto — Shift+Tab until the ` +
+      `status bar says Auto. Accepting edits is not enough; that still asks about commands.`,
   );
 
   const figma = figmaDesktop();

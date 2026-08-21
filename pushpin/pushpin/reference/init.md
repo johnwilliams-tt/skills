@@ -249,8 +249,8 @@ One command, once per project, and `/pushpin setup` runs it for you:
 `/pushpin init --write` — tokens, the two generated files, `AGENTS.md`, and the
 Pushpin hooks.
 
-`/impeccable init` is a separate command, offered by setup when `impeccable` is
-absent and run on request otherwise. It writes **`PRODUCT.md` only.** Pushpin
+`/impeccable init` is a separate command, offered by setup after the writes when
+`PRODUCT.md` is missing. It writes **`PRODUCT.md` only.** Pushpin
 must not generate that file: it is product truth, not design truth, and
 `impeccable` boot emits `NO_PRODUCT_MD` and routes into its own interview to get
 it right. Three of the questions that interview asks are already answered by

@@ -77,35 +77,55 @@ made with.
 
 **Changed**
 
+- **The close of setup is no longer a three-bullet recap.** It was faithfully
+  relaying three script faults a designer does not need at that moment: the
+  preview port, a `<link rel="stylesheet">` instruction, and `PRODUCT.md` as a
+  status line. Setup now opens on the version that actually loaded —
+  `Pushpin v0.12.1 loaded.`, from the `SKILL.md` frontmatter — then, on Claude
+  Code only, an Auto `AskQuestion` before any shell command, including
+  `freshness` and `--ready`. Accepting edits is not enough; that still asks
+  about commands. After the writes, a missing `PRODUCT.md` is the next action,
+  not a bulletin: one `AskQuestion` whose prompt is the why
+  ("Impeccable provides advanced design tools that extend what the AI model can
+  do."), then Install-and-init or Run-init against Skip. A project that already
+  has the file goes from the version (and Auto, on Claude) to the handoff
+  interview. The port, the CSS link, and `PRODUCT.md`-as-status join Never
+  appears. `init --write` no longer prints the unreferenced-stylesheet `Next:`
+  line; Rise and `.gitignore` stay. `--ready`'s permission-mode `say:` now
+  names Auto, matching the opening question, and setup does not relay it —
+  it already asked. `--verify` can still mark a held port `missing` for a later
+  diagnostic; first setup does not recap it and does not run `--preview-port`.
 - **Every step of setup reports faults and nothing else.** `printVerify` prints
   the `missing` rows with their remedies, `printAssess` prints the open
-  questions, and `init --write` prints what a person still has to do: the
-  stylesheet import, plus the Rise font only when the machine does not have it
-  and `.gitignore` only inside a git repository. The `Ask:` header went with the
-  rest — printing "nothing to ask" is the process narrating itself, and it is
-  what put "the project answers everything itself" in front of a user who had
-  asked to set a folder up. Nothing is deleted: `--all` restores the
-  row-per-check output in both `--assess` and `--verify`, byte for byte apart
-  from the fault below, and carries the meaning it already has in `lookup.mjs`;
-  `--advice` restores `init`'s explanation of what it wrote; `--json` is
-  untouched. Quieting the scripts is not enough on its own,
-  because script stdout is collapsed in both harnesses and the wall of text a
-  designer reads is prose written up from output nobody asked to see, so
-  `reference/setup.md` gains an output contract and a list of what never appears
-  — modeled on [`reference/start.md`](pushpin/reference/start.md) § What never
-  appears, which was written after the same failure.
-- **`impeccable` is offered when it is absent.** The previous rule said not to,
-  and not even to mention it, on the grounds that the generated files are correct
-  without it — true, and beside the point. What is missing without it is the
-  product record every design command reads and the slop check on each edit, and
-  a designer who was never told either exists does not go looking for them.
+  questions, and `init --write` prints what a person still has to do: the Rise
+  font only when the machine does not have it, and `.gitignore` only inside a
+  git repository. The `Ask:` header went with the rest — printing "nothing to
+  ask" is the process narrating itself, and it is what put "the project answers
+  everything itself" in front of a user who had asked to set a folder up.
+  Nothing is deleted: `--all` restores the row-per-check output in both
+  `--assess` and `--verify`, byte for byte apart from the fault below, and
+  carries the meaning it already has in `lookup.mjs`; `--advice` restores
+  `init`'s explanation of what it wrote; `--json` is untouched. Quieting the
+  scripts is not enough on its own, because script stdout is collapsed in both
+  harnesses and the wall of text a designer reads is prose written up from
+  output nobody asked to see, so `reference/setup.md` gains an output contract
+  and a list of what never appears — modeled on
+  [`reference/start.md`](pushpin/reference/start.md) § What never appears,
+  which was written after the same failure.
+- **`impeccable` is offered after the writes when `PRODUCT.md` is missing.**
+  The previous rule said not to, and not even to mention it, on the grounds that
+  the generated files are correct without it — true, and beside the point. What
+  is missing without it is the product record every design command reads and the
+  slop check on each edit, and a designer who was never told either exists does
+  not go looking for them. The offer is the AskQuestion above, not `--ready`'s
+  `say:` printed mid-setup.
 - **The surface question is asked in one place.**
   [`SKILL.md`](pushpin/SKILL.md) § Which surface, `reference/start.md` § The
   question, and the handoff interview were three sites asking a version of "Figma
   or the browser", which on a project with no `pushpin.config.json` meant a user
-  answered it, ran a setup that is one sentence long, and was asked again a
-  sentence later. The interview asks last and inherits an answer that arrived
-  before it.
+  answered it, ran a setup that opens on the version and its own questions, and
+  was asked again a sentence later. The interview asks last and inherits an
+  answer that arrived before it.
 
 **Fixed**
 
