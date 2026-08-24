@@ -384,6 +384,34 @@ const notesOnPage = annotations.filter((n) =>
 const hits = (a, b) =>
   a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
 
+// The frame check below is for a note dropped on top of the design with
+// coordinates, covering the thing it describes so that neither can be read.
+// Every annotation was a sibling of the design frame when that check was
+// written — annotate.md's bundle puts the capstone above the body and the note
+// column beside it — so intersecting the frame and covering it were one fact,
+// and what was actually being tested was containment. A documentation frame that
+// heads its own sections with capstones inside it pulls the two apart: those
+// capstones are placed by the frame's own auto-layout and can cover nothing, and
+// the check reported every one of them.
+//
+// An unbroken auto-layout chain up to `root` is what separates the two, and the
+// `layoutPositioning` test is what keeps the exemption from being a hole — an
+// auto-layout frame can still carry an absolutely positioned child, and that
+// child is exactly the note the check exists to catch. The walk starts at the
+// node rather than at its parent for that reason: a note dropped straight into
+// the frame breaks the chain at itself and nowhere else. An ancestor that lays
+// nothing out breaks it too, a group as much as an unconfigured frame, both
+// placing their children by coordinate. Nothing outside `root` is exempted — a
+// `PAGE` carries no `layoutMode`, which is also what ends the walk rather than
+// running off the top of the tree.
+const laidOutInside = (n) => {
+  for (let p = n; p && p !== root; p = p.parent) {
+    if (p.layoutPositioning === 'ABSOLUTE') return false;
+    if (!p.parent || !('layoutMode' in p.parent) || p.parent.layoutMode === 'NONE') return false;
+  }
+  return true;
+};
+
 for (let i = 0; i < notesOnPage.length; i++) {
   const a = notesOnPage[i].absoluteBoundingBox;
   if (!a) continue;
@@ -393,11 +421,11 @@ for (let i = 0; i < notesOnPage.length; i++) {
       report.defects.push(`${notesOnPage[i].name} overlaps ${notesOnPage[j].name}`);
     }
   }
-  // A pointer belongs on the design; nothing else does. Drawn or instanced, the
-  // number dot sits on the element it numbers.
+  // A pointer is the one annotation meant to land on the design. Drawn or
+  // instanced, the number dot sits on the element it numbers.
   const box = root.absoluteBoundingBox;
   const isPointer = /^Annotations( \(drawn\))? \/ Pointers/.test(notesOnPage[i].name);
-  if (box && hits(a, box) && !isPointer) {
+  if (box && hits(a, box) && !isPointer && !laidOutInside(notesOnPage[i])) {
     report.defects.push(`${notesOnPage[i].name} overlaps the design frame`);
   }
 }
