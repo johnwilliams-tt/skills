@@ -16,7 +16,7 @@ Changes are grouped the way `diff.mjs` classifies them:
 An entry about the plugin rather than the capture adds **Fixed** for a bug in
 the toolchain, which `diff.mjs` has no category for.
 
-## Unreleased
+## 0.13.0 — 2026-08-24
 
 Setting a project up printed everything it had checked. Eleven `--verify` rows
 whether or not any of them was a problem, an `--assess` block that closed on
