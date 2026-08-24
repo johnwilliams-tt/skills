@@ -165,6 +165,7 @@ without editing a file first.
 | [`reference/propose.md`](pushpin/reference/propose.md) | When the kit falls short: the gate, deriving rather than rebuilding, and the note that argues the case. |
 | [`reference/annotate.md`](pushpin/reference/annotate.md) | Annotation types, the note format, and the auto-layout that keeps notes readable. |
 | [`reference/annotate-fallback.md`](pushpin/reference/annotate-fallback.md) | What to draw when an Annotation Kit import fails, and how it is reported. |
+| [`reference/flows.md`](pushpin/reference/flows.md) | Laying a flow out as a state catalog for engineering handoff: swim lanes, state cards, the arrangement, and the two ways in. |
 | [`reference/parallel.md`](pushpin/reference/parallel.md) | Splitting a Figma write into lanes: the invariant, the ladder, and where to join. |
 | [`reference/context.md`](pushpin/reference/context.md) | Grounding work in the page a link resolved to. |
 | [`reference/tokens.md`](pushpin/reference/tokens.md) | The token vocabulary and choosing between tokens. |
@@ -176,6 +177,7 @@ without editing a file first.
 | [`reference/impeccable.md`](pushpin/reference/impeccable.md) | What a Pushpin project has already answered before `/impeccable init` runs. |
 | [`reference/init.md`](pushpin/reference/init.md) | The mechanical half, the hooks, and how the generated files are protected. |
 | [`reference/maintaining.md`](pushpin/reference/maintaining.md) | Freshness layers, refreshing the capture, regenerating assets. |
+| [`reference/start.md`](pushpin/reference/start.md) | Answering a bare `/pushpin`: how the picks are chosen, the closing question, and what never appears. |
 
 ## Gotchas
 

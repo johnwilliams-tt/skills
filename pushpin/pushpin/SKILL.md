@@ -1,7 +1,7 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.12.1
+version: 0.13.0
 argument-hint: "[generate|audit|figma · setup|init|freshness · refresh] [target]"
 allowed-tools:
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/check.mjs *)
@@ -138,6 +138,7 @@ covers the same ground from plain speech. Load one doc, not the table.
 | nothing published fits — proposing a new component | [propose.md](reference/propose.md) |
 | "leave notes on this", an accessibility spec | [annotate.md](reference/annotate.md) |
 | an Annotation Kit import failed | [annotate-fallback.md](reference/annotate-fallback.md) |
+| "document this flow", "spec this for eng handoff", a flow to lay out as a state catalog | [flows.md](reference/flows.md) |
 | `/impeccable init` about to run on a Pushpin project, or asked whether to install it | [impeccable.md](reference/impeccable.md) |
 | "do these in parallel", a Figma write with many sections or notes to fill | [parallel.md](reference/parallel.md) |
 | "what else is on this page", a link landing beside work already done | [context.md](reference/context.md) |

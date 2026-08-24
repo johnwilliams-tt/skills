@@ -143,6 +143,18 @@ range of elements rather than one.
 for an area of canvas, so pick the size that matches the width of what it heads
 rather than the importance of the content.
 
+It gets used two ways in this plugin, and they are not the same job. One heads an
+annotated area from outside it, as [the bundle's first child](#placing-a-capstone)
+— one per design, at its published proportions, saying where this piece of work
+begins. The other is a **section separator inside a documentation frame**:
+several per frame, a member of the frame's own auto-layout rather than a sibling
+of it, dividing one long artifact into parts. That second use is what the state
+catalog in [flows.md](flows.md) is built from, and it is the only place the
+compact override in
+[generate.md](generate.md#the-one-exception-is-annotation-furniture) applies —
+a separator repeated five times down a frame cannot carry 112 points of heading
+each time.
+
 ### Sticky Note and Sticky Note Status
 
 `Sticky Note` is the plain one, `Regular` or `Small`. `Sticky Note Status` adds
@@ -491,8 +503,11 @@ a warning, because an unreadable note is worth exactly as much as an absent one
 and costs more to produce.
 
 The two rules that keep it true: everything below the bundle is laid out by a
-parent auto-layout, and nothing but a `Pointers` instance is ever placed on the
-design itself.
+parent auto-layout, and nothing is ever given coordinates on the design. A
+`Pointers` instance is the one annotation meant to land there, and a capstone
+heading a section inside a documentation frame is placed by that frame's own
+auto-layout — [flows.md](flows.md). Anything else that reaches the design got
+there by hand, and that is what the check reports.
 
 **Name a card `Proposal — <Name>` and not `Annotations …`.** The audit finds
 annotations by name and compares the outermost one in each nest, so a wrapper

@@ -116,6 +116,41 @@ Once placed, **do not override the instance's fills, radius, or type.** If it
 looks wrong, the variant is wrong — fix the variant. Restyling an instance is
 the same failure as drawing one, just harder to spot.
 
+### The one exception is annotation furniture
+
+**An Annotation Kit component heading a documentation frame may be overridden.
+Nothing else may be, and this does not extend one component further.**
+
+The prohibition above protects claims about product structure. A restyled Button
+says an engineer will build this button, and the screenshot cannot contradict it,
+which is why the rule is absolute for anything that will be built. A section
+header inside a documentation frame makes no such claim: nobody is shipping the
+capstone, and its padding is a fact about how a spec reads rather than about the
+product it specs. The concrete case is `Capstones` · `Small`, published 485×112
+with 64/32 padding around a 40px title — taller, three sections in, than several
+of the states it separates. The compact form overrides the
+padding on the *inner* `_base / Capstone` instance to 24 and 16, and the title to
+24px.
+
+`Proposed / Capstone · Compact` was the alternative and it is worse. A proposal
+puts a note and a specimen in front of a reviewer and asks them to approve a
+component — and this one would be asking about documentation chrome nobody was
+being asked to approve, on a frame whose whole subject is something else. See
+[propose.md](propose.md) for what a real proposal costs a reader; a section
+header is not worth it.
+
+Two things this exception does not do. The padding belongs on the inner
+`_base / Capstone` instance and not the outer one, which is a distinction with no
+enforcement behind it: **the audit catches neither placement**, because both
+`literalSpacing` and the fill check skip everything inside an instance
+— [audit-figma.md](audit-figma.md) — and the override sits inside one either way.
+This is a rule held by whoever is writing, not one a check is watching. And the
+24px title is a raw font size, which is otherwise never correct here; `Title/3`
+is the on-ramp if this ever narrows.
+
+The flow-spec arrangement that uses it — the state catalog, its swim lanes, and
+the two ways states get into one — is in [flows.md](flows.md).
+
 ## Property names are exact
 
 They are case-sensitive, space-sensitive, and several contain emoji. These are
