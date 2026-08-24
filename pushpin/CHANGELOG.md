@@ -74,6 +74,37 @@ made with.
   Pushpin's side rather than as a patch to that skill, because an update to it
   cannot undo what it never held. The three product-truth questions are still
   asked, and are still not ours to answer.
+- **[`reference/flows.md`](pushpin/reference/flows.md), a flow laid out as a
+  state catalog.** Nothing here covered a deliverable that is the flow rather
+  than a screen, and with no rule for it a handoff spec comes out as one frame
+  per screen in the order they were drawn, labels in Title Case, and no
+  statement of what moves a user from one to the next — which a reviewer can
+  follow and an engineer cannot build from. The doc's own content is the
+  reorganization: swim lanes consolidated by journey stage rather than by
+  screen, one row per lane, state-descriptive labels in sentence case
+  ("Shortlist visible", "Cap reached"), and each state's annotation carrying the
+  behavioral contract instead of a description of the picture. Everything
+  mechanical is a link rather than a restatement —
+  [`reference/generate.md`](pushpin/reference/generate.md) for the access
+  preflight, the single import batch, `space()`, and published styles;
+  [`reference/parallel.md`](pushpin/reference/parallel.md) for the
+  skeleton-then-fill invariant, the lane budget, and the ten-operation ceiling;
+  [`reference/annotate-fallback.md`](pushpin/reference/annotate-fallback.md) for
+  the drawn `Capstones` row when the Annotation Kit is out of reach. Two ways
+  in, because the request means either one: **reflow**, where the states are
+  already on the page and [`reference/context.md`](pushpin/reference/context.md)
+  reads them off the name suffixes, and they are duplicated rather than
+  reparented, since moving the originals edits the user's own document outside
+  their undo stack; and **build**, where no states exist and each is generated
+  through the whole of `generate.md`. Type comes from published styles and fills
+  from bound tokens, as everywhere else, and every gap in the arrangement is on
+  the spacing scale, so `space()` snaps nothing and no row carries a drift note.
+  Reached from plain speech — "document this flow", "spec this for eng handoff"
+  — and not an eighth command, on the same grounds as `annotate` and `propose`.
+  `generate.md`'s instance-override prohibition gains one narrowly scoped
+  exception for the compact capstone that heads a section: the rule protects
+  claims about product structure, a restyled Button being a claim about what an
+  engineer will build, and documentation chrome makes no such claim.
 
 **Changed**
 
@@ -143,6 +174,25 @@ made with.
   `init --write --force` as its remedy. Telling someone their files are guarded
   when they are not is the specific failure `--verify` was built after, and it
   survives the quieting as a line rather than a paragraph.
+- **The audit reported a flow spec as defective on every section header, and the
+  defect was the check.**
+  [`reference/audit-figma.md`](pushpin/reference/audit-figma.md) flags any node
+  named `Annotations`, `Capstones`, `Sticky Note`, or `Token drift` whose
+  bounding box intersects the audited frame, and reports it as `overlaps the
+  design frame`. That held while every annotation the plugin places is a sibling
+  of the design, because then intersecting the frame and covering the design are
+  one fact — so the check tested containment, named it overlap, and nothing
+  distinguished the two. A documentation frame heads its own sections with
+  capstones inside itself, which makes them two facts and a clean frame fail. The
+  check now exempts a node the frame's own auto-layout placed — an unbroken chain
+  of auto-layout parents up to the audited root, which cannot cover anything,
+  since being laid out is what moved everything else out of its way. The note it
+  exists to catch is one dropped on a design by coordinates, and that needs a
+  break in the chain: an ancestor with no `layoutMode`, or a member with
+  `layoutPositioning === 'ABSOLUTE'`. The second test is what keeps the exemption
+  from being a hole, since an auto-layout frame can still carry an absolutely
+  positioned child, and that child is exactly the note in question. The pairwise
+  comparison between annotations is untouched.
 
 ## 0.11.0 — 2026-08-21
 
