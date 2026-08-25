@@ -108,6 +108,61 @@ case, the product's own terms, active voice. What does not reach them is the
 per-component length limit, because no component owns them — the two-or-three
 ceiling above is this page's limit and it is the only one that binds here.
 
+## What a card shows is decided per lane
+
+*How much of the panel goes in each card* — the whole page, the modal, or just
+the part that changed — is the question this page is most likely to get asked out
+loud instead of answering. It has an answer, and it is not the user's to supply.
+Asking it during a build is also the thing
+[generate.md](generate.md#workflow) rules out at its checkpoint: departures get
+stated once, before anything is written, not raised one state at a time. **That
+checkpoint names the lanes and the region each one shows**, in a line, derived by
+the rule below — so a wrong guess costs the user a correction instead of a
+question.
+
+**A card shows the smallest region containing every element the lane's bullets
+mention, and every card in that lane shows the same region.**
+
+The lane is the unit because the row is what gets read. Cards sit side by side so
+a reviewer can see what changed between them, and that only works if both are the
+same crop of the same thing. A card holding a whole panel beside one holding a
+chip row asks the reader to align two frames themselves before they can spot a
+difference — which is the work the row was supposed to do for them.
+
+Both ends of the range fail, for opposite reasons. **The whole screen, six times
+across a row,** reduces the difference between two states to a few points of a
+very large picture: present, and nobody will find it. **The changed element
+alone** fails the other way, since a chip row with no panel around it does not say
+where it lives, and an engineer cannot place what they cannot locate. The
+smallest *enclosing* region clears both — the panel holding the chips, not the
+page holding the panel, and not the chips by themselves.
+
+Different lanes land on different regions, and usually should. A confirmation
+lane shows the dialog; a browse-and-filter lane shows the panel the filters live
+in. Nothing needs those two to agree, because nobody reads across two rows at
+once.
+
+**A state whose change is invisible at its lane's region is telling you about the
+lane, not the region.** Either the lane groups states that are not one journey —
+[lanes are journeys](#lanes-are-journeys-not-features) — or that state belongs in
+a different one. Zooming the one card that fell short breaks the comparison for
+the whole row to rescue a single member of it.
+
+None of this is a crop. `clipsContent` stays false on every structural frame —
+[the arrangement](#the-arrangement) — so the region is settled by **which
+component gets instanced**, never by masking a larger frame down to size.
+Instancing the panel and instancing the page then hiding most of it are different
+artifacts, and the second hands an engineer a page and a mask where they needed a
+panel.
+
+**On the reflow path the source has already decided it.** A state drawn as a full
+page gets duplicated as a full page — [two ways in](#two-ways-in) — because
+narrowing it to a panel means rebuilding the state rather than moving it, which is
+the other path entirely and a far larger job than was asked for. What still binds
+is the consistency: a lane whose source mixes a full page with a panel detail
+picks one and rebuilds the state that does not match. One card rebuilt is a cost
+worth paying where six is not.
+
 ## Two ways in
 
 Both paths land on the same arrangement. Which one applies is decided per state,
@@ -322,7 +377,7 @@ a drawn capstone is a frame this plugin created, so there is no instance to
 override and every ordinary rule — bound fill, bound padding, a published text
 style — applies to it unchanged.
 
-## Seven ways it turns back into a flow diagram
+## Eight ways it turns back into a flow diagram
 
 Each of these produces a document that still looks like a state catalog:
 
@@ -337,6 +392,9 @@ Each of these produces a document that still looks like a state catalog:
   a catalog's arrangement.
 - **A state shown twice.** Two cards that disagree the moment one is updated, and
   nothing to say which is current.
+- **Every card showing the whole screen.** A wall of near-identical pages, each
+  with its state difference somewhere inside it. It reads as a catalog and
+  answers nothing, because the change has to be found before it can be built.
 - **A paragraph where a bullet belongs.** Design rationale is not a behavioral
   contract, and a wall of states is scanned rather than read. It goes in Design
   notes at the bottom.

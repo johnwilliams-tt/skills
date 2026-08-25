@@ -11,6 +11,24 @@ developer a rounded rectangle where they expected `<Button theme="primary">`.
 A generated file that looks right and is structurally fake is worse than an
 obviously rough one, because nobody knows to check.
 
+## When the subject is a flow
+
+**Several states of one surface is a single artifact with an arrangement of its
+own, and [flows.md](flows.md) settles that arrangement before this page's
+workflow starts.** Load it first. It is not an alternative to this page — every
+state in a catalog is generated through the whole of what follows here — it is
+the half that knows what a flow spec is, where this is the half that knows how to
+place a component.
+
+The request that needs it rarely says "catalog". "Send this flow over to Figma",
+"spec this for handoff", a link to a document with eight states drawn in it: each
+one fits this page's own routing row, and each one wants that one read first. What
+comes of skipping it is a page of loose frames, correct component by component,
+with the reorganizing that made them worth handing over left undone. It also
+leaves questions to ask that the spec had already answered — how much of a
+surface a state shows is the one that comes up, and
+[flows.md](flows.md#what-a-card-shows-is-decided-per-lane) decides it.
+
 ## The rule
 
 **Never draw a component. Import and instance the published one — or, when the
@@ -963,7 +981,10 @@ return { mutatedNodeIds: [section.id /* , … */], drift };
    icons will be placeholders before the screen is built rather than after.
    This used to be two turns — the offer, then the statement — both waiting on
    the same answer: go ahead as described, or not. Skip the offer when the page
-   holds nothing else; the statement is not optional.
+   holds nothing else; the statement is not optional. Where the subject is a
+   flow, the statement is the lane list and the region each lane shows —
+   [flows.md](flows.md#what-a-card-shows-is-decided-per-lane) — stated, never
+   asked.
 4. **Look up what the layout needs, and claim the canvas, in one message.** Two
    calls, with no dependency between them.
    - The catalog, asked for everything at once: `node scripts/lookup.mjs
