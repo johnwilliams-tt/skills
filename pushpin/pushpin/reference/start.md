@@ -30,7 +30,7 @@ no check and nothing to say about there being none; open on the picks.
   JSON. `verify.mjs` is a maintainer's tool and is not run here.
 - Which copy of the plugin is loaded — the install path, the marketplace name,
   a folder versus a marketplace install. The version line
-  (`Pushpin v0.13.1 loaded.`) is the exception.
+  (`Pushpin v<version> loaded.`) is the exception.
 - Any suggestion that the invocation does not map to an action.
 - The name of any other skill. Pushpin ships standalone and cannot assume a
   sibling is installed.

@@ -46,12 +46,18 @@ setup. The agent is what stands between the two, and the wall of text a designer
 actually reads is prose written up from output nobody asked to see.
 
 Setup opens on the version that actually loaded, taken from this session's
-[SKILL.md](../SKILL.md) frontmatter (`version: 0.13.1`, kept in sync by
-`version.mjs`):
+[SKILL.md](../SKILL.md) frontmatter — its `version:` line, kept in sync with both
+manifests by `version.mjs`:
 
 ```
-Pushpin v0.13.1 loaded.
+Pushpin v<version> loaded.
 ```
+
+Substitute the frontmatter's own value; the brackets are not part of the line.
+**No number is quoted here on purpose.** `version.mjs` syncs the frontmatter and
+the manifests and cannot reach prose, so a number written into this page would
+survive the release that outdated it and then be read out to a user as the version
+they are running — which is the one thing this line exists not to get wrong.
 
 That is the copy that loaded, which is the point.
 
@@ -74,7 +80,7 @@ If they skip, do not nag again this setup, and do not later relay `--ready`'s
 permission-mode `say:`. Setup already asked.
 
 **Cursor:** no Auto question. First user-visible line is still
-`Pushpin v0.13.1 loaded.`
+`Pushpin v<version> loaded.`
 
 Setup then says each fault as one line carrying its fix, in the order the steps
 raised them — except the three the list below rules out — and then the

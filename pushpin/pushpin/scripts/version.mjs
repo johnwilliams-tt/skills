@@ -17,6 +17,14 @@
  * conditions rather than describing the product. The plugin description is
  * catalog copy for a human browsing `/plugin`. They are different jobs.
  *
+ * Nothing here reaches prose, and the reference docs do not ask it to: the recap
+ * line in setup.md and start.md is written `Pushpin v<version> loaded.` for the
+ * agent to substitute. A real number in a sentence is not syncable by find and
+ * replace without risking every other version-shaped string on the page, and one
+ * left behind gets read out to a user as the version they are running. If a doc
+ * ever needs the actual number, teach it the placeholder rather than teaching
+ * this script to edit paragraphs.
+ *
  * Usage:
  *   node scripts/version.mjs            # report the version and where it landed
  *   node scripts/version.mjs --check    # exit 1 if any copy has drifted
