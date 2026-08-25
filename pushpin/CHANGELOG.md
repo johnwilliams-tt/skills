@@ -16,6 +16,52 @@ Changes are grouped the way `diff.mjs` classifies them:
 An entry about the plugin rather than the capture adds **Fixed** for a bug in
 the toolchain, which `diff.mjs` has no category for.
 
+## 0.13.1 — 2026-08-25
+
+The state catalog shipped last release and then went unread. A request phrased as
+a push — "send this flow over to Figma" — fits the `generate` routing row word for
+word, and [flows.md](pushpin/reference/flows.md) was reachable from exactly one
+cross-reference, buried three hundred lines into `generate.md` inside the capstone
+exception. So the arrangement got skipped, and with it the one question a card's
+subject turns on, which the plugin then asked the user out loud instead: how much
+of the panel should each state card show.
+
+**Added**
+
+- **How much of a surface a state card shows is now a rule.** A card holds the
+  smallest region containing every element its lane's bullets mention, and every
+  card in that lane holds the same region — the lane being the unit because the
+  row is what gets read, and a comparison between two cards only works when both
+  are the same crop of the same thing. Both ends of the range had to be ruled out
+  for their own reasons: six full screens across a row reduce the difference
+  between two states to a few points of a very large picture, and the changed
+  element on its own does not say where it lives. The region is settled by which
+  component gets instanced rather than by masking, since `clipsContent` is already
+  false on every structural frame in a catalog. Two consequences worth naming.
+  Lanes are free to differ from each other, because nobody reads two rows at
+  once. And on the reflow path the source has already decided it — a state drawn
+  as a full page is duplicated as one, because narrowing it means rebuilding it —
+  so what binds there is the consistency rather than the extent, and a lane mixing
+  a full page with a panel detail rebuilds the single state that does not match.
+- **A state whose change is invisible at its lane's region is a fact about the
+  lane.** Either it is grouped with states it does not share a journey with, or it
+  belongs in a different lane. Zooming the one card that fell short breaks the
+  row's comparison for every other member of it, which is why it reads as the
+  obvious fix and is not one. The whole-screen card joins the list of ways a
+  catalog turns back into a flow diagram, now eight.
+
+**Fixed**
+
+- **A flow reaches `flows.md` before `generate.md` builds anything.**
+  `generate.md` hands off in its own first section rather than from a buried
+  cross-reference: several states of one surface is a single artifact whose
+  arrangement is settled elsewhere, and this page is the half that knows how to
+  place a component, not the half that knows what a flow spec is. The routing
+  table says which of the two competing rows wins and that this one row loads two
+  docs. And `generate.md`'s checkpoint now states the lanes and each lane's region
+  in its one line — stated, never asked, which is the rule that page already held
+  for every other departure and the one that was breached here.
+
 ## 0.13.0 — 2026-08-24
 
 Setting a project up printed everything it had checked. Eleven `--verify` rows
