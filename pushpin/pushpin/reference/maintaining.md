@@ -17,6 +17,7 @@ node scripts/freshness.mjs --max-age 14          # stricter age limit
 node scripts/freshness.mjs --offline             # never touch the network
 node scripts/freshness.mjs --json                # machine-readable
 node scripts/freshness.mjs --strict              # an unreachable layer fails
+node scripts/freshness.mjs --strict --allow-skip variables   # …unless the plan forbids it
 node scripts/freshness.mjs --brief               # silent when current, one sentence when not
 node scripts/freshness.mjs --offline --session   # session start: silent when current
 ```
@@ -38,13 +39,22 @@ config is not a finding — `init` is offered from [start.md](start.md) for a co
 project that has none of it yet. The plugin's own tree is skipped.
 
 The age layer is the one that matters day to day: it answers "can I trust this?"
-with no token, no plan, and no setup. The key layers need a `file_read` token and
-answer the sharper question — whether the component and style keys in the Pushpin
-catalog, and the Annotation Kit's own component keys, still exist. They matter
-because `importComponentByKeyAsync` throws at runtime on
-a key that has been unpublished, so a generation script written against a stale
-catalog fails halfway through rather than at review. Variables need Enterprise
-and are skipped politely without it.
+with no token, no plan, and no setup. The key layers need a token carrying
+`library_content:read` and answer the sharper question — whether the component
+and style keys in the Pushpin catalog, and the Annotation Kit's own component
+keys, still exist. They matter because `importComponentByKeyAsync` throws at
+runtime on a key that has been unpublished, so a generation script written
+against a stale catalog fails halfway through rather than at review. Variables
+are the exception: they need `file_variables:read`, which Figma grants only to
+full members of Enterprise orgs, so that layer skips politely on any lesser plan.
+
+**`library_content:read` is the whole requirement for the key layers, and the
+narrowest scope that covers them.** It reads the components, component sets, and
+styles a file publishes, which is exactly what the three key layers compare
+against. `library_assets:read` and `team_library_content:read` sound adjacent and
+are not: they serve individual-asset and team-level endpoints nothing here calls.
+Figma removed the old `file_read` scope in favour of these granular ones, so a
+token minted against instructions naming it will not authorize anything.
 
 The copy source layer asks a different host a different question — whether
 GitHub still serves the blob the content design rules were parsed from — so it
@@ -57,6 +67,29 @@ it as an unexplained 403 in somebody else's build.
 Exit 1 means something moved. A Figma layer means `refresh`, below; the copy
 source means a re-pull instead —
 [provenance.md](provenance.md#when-the-copy-source-changes).
+
+`--strict` also exits 1 when a layer could not be checked at all, which is the
+mode worth running unattended: without it a run where every Figma layer skipped
+still prints a reassuring summary, and that is precisely how four unpublished
+components sat in the catalog until a generation run threw on one. `--allow-skip`
+takes the names of layers permitted to skip, so a non-Enterprise org runs
+`--strict --allow-skip variables` and still fails on an expired token, a lost
+file grant, or a rate limit — the gaps that are somebody's to close. An unknown
+layer name is fatal rather than ignored, because a typo would quietly restore the
+false confidence the flag exists to prevent.
+
+## The scheduled check
+
+[`.github/workflows/pushpin-freshness.yml`](../../.github/workflows/pushpin-freshness.yml)
+runs the same command daily and on demand. The token lives there as the
+`FIGMA_TOKEN` repository secret, which is the only copy that needs to exist:
+consumers of the plugin never hold one, and a maintainer only needs a local token
+to take a capture.
+
+It exists because every part of this page assumes someone remembers to run a
+check, and the library publishes more often than anyone remembers anything. A
+failed run uploads its `--json` report as an artifact, so the finding is readable
+without spending another pass over the icon layer's 899 keys.
 
 Freshness answers for the catalog, not for the person running it. Keys belong to
 the file and resolve identically for everyone, but access does not — that is what
@@ -72,8 +105,12 @@ the tokens, or when `freshness` exits non-zero.
    are much more work than the check.
 1. Take the captures in [../scripts/check.md](../scripts/check.md). The kit capture
    alone is enough for a quick look; add the published and component captures
-   before actually updating anything.
-2. `node scripts/diff.mjs --kit kit.json --published published.json --components components-raw.json`
+   before actually updating anything. **Do not skip the component capture's import
+   pass.** It is what supplies `publishedProperties`, and without it the property
+   ids and variant options come from the kit's working file, which runs ahead of
+   what the library serves — `diff.mjs` will say it skipped the comparison rather
+   than pass it silently.
+2. `node scripts/diff.mjs --kit kit.json --published published.json --components components.json`
 3. **No output** — nothing to do. Stop.
 4. **Breaking** — stop and report. Name what depends on each item. Regenerating
    will not help: a removed token stays removed and a newly hidden variable
@@ -96,7 +133,7 @@ project through that file too.
    belongs in `CORE_COMPONENTS`.** That list in
    [`../scripts/impeccable-bridge.mjs`](../scripts/impeccable-bridge.mjs) is what
    `DESIGN.md` describes to every project, and it is curated rather than derived
-   — the kit publishes 117 entries and most are device mocks, brand marks, and
+   — the kit publishes 115 entries and most are device mocks, brand marks, and
    page furniture nobody hand-rolls. Nothing connects the diff's report to the
    list, so a newly published component that a project *would* hand-roll never
    reaches `DESIGN.md` on its own. The judgement stays here with a person; the

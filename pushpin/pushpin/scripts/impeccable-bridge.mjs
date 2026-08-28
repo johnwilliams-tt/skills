@@ -132,7 +132,7 @@ const SHADOW_PURPOSE = {
 /**
  * The components a browser build actually composes, in the order a form-heavy
  * screen tends to need them. Curated rather than the whole catalog: the kit
- * publishes 117 entries, most of which are device mocks, brand marks, and
+ * publishes 115 entries, most of which are device mocks, brand marks, and
  * page furniture that no one hand-rolls. Names are resolved against the
  * capture, so an entry the kit drops is skipped rather than invented.
  */

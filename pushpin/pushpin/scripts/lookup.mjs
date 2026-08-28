@@ -311,6 +311,9 @@ function renderComponent(name, e, { copy = false } = {}) {
   if (e.page) bits.push(`page "${e.page}"`);
   if (e.instanceCount) bits.push(`${e.instanceCount} instances`);
   p(`${name} — ${bits.join(' · ')}`);
+  // The library can serve an older name than the file carries, and the served
+  // name is the one a designer says and the one search_design_system returns.
+  if (e.publishedAs) p(`  published as ${e.publishedAs}`);
   p(`  import key   ${e.key}`);
   if (e.nodeId) p(`  node id      ${e.nodeId}`);
 
@@ -651,10 +654,19 @@ for (const term of terms) {
 
   if (kinds.includes('component')) {
     const all = real(components.components);
+    // A component filed under its file name may be served to the library under
+    // another — `_Bubble / Text` is `ChatBubble`. Searching only the catalog key
+    // makes the served name, which is the one a designer says, unfindable.
+    const servedBy = new Map();
+    for (const [n, e] of all) if (e.publishedAs) servedBy.set(e.publishedAs, n);
     const names = all.map(([n]) => n);
-    const { matches } = search(names, term);
-    missPool.push(...names);
-    const rows = matches.map((n) => [n, components.components[n]]);
+    const { matches } = search([...names, ...servedBy.keys()], term);
+    missPool.push(...names, ...servedBy.keys());
+    const seen = new Set();
+    const resolved = matches
+      .map((n) => servedBy.get(n) ?? n)
+      .filter((n) => !seen.has(n) && seen.add(n));
+    const rows = resolved.map((n) => [n, components.components[n]]);
     bucket.components = Object.fromEntries(rows);
     if (variantSel !== null) {
       bucket.specs = Object.fromEntries(

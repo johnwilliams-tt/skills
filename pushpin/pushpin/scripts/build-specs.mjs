@@ -44,14 +44,14 @@ export const CAP = 24;
  *
  * Two pages really can publish the same name — the kit has a `Tabs` on
  * `Additional components` and another on `Tabs`, six children against ten — and
- * the Code Connect dump keys by name too, so `components.figma.json` already
- * dropped one without saying. Resolving by lane order here would make which one
- * survives depend on the order the files were globbed in, so the catalog's own
- * node id decides and the loser is recorded by name, page and node id. The
- * silent overwrite is the failure this capture exists to stop, and doing it
- * again while capturing the evidence for it would be a poor joke.
+ * the catalog keys by name too, so it holds one of each pair and names the
+ * loser in `source.nameCollisions`. Resolving by lane order here would make
+ * which one survives depend on the order the files were globbed in, so the
+ * catalog's own node id decides and the loser is recorded by name, page and
+ * node id. The silent overwrite is the failure this capture exists to stop, and
+ * doing it again while capturing the evidence for it would be a poor joke.
  */
-export function distillSpecs(files, catalog = {}) {
+export function distillSpecs(files, catalog) {
   const components = {};
   const pages = new Map();
   const collisions = [];
@@ -79,6 +79,15 @@ export function distillSpecs(files, catalog = {}) {
       }
     }
     for (const [name, entry] of Object.entries(file.components ?? {})) {
+      // A spec for something the catalog does not hold is a spec for something
+      // that cannot be placed. The capture used to select owners by name, and
+      // recorded four components the library never published; the catalog now
+      // gates on publish status, so this is where a capture taken before that
+      // change — or one that reached an unpublished owner anyway — stops.
+      if (!(name in catalog)) {
+        notes.push(`${name}: recorded by the capture but not in the component catalog; dropped`);
+        continue;
+      }
       const held = components[name];
       if (!held) {
         components[name] = entry;
@@ -229,9 +238,9 @@ function main() {
     },
     coverage: {
       // Measured against components.figma.json, which is itself keyed by name
-      // and drops a duplicate silently — so "117 of 117" means every name the
-      // catalog holds, not every component the kit publishes. A name published
-      // twice counts once in both and cannot appear in `withoutSpec` at all.
+      // and holds one entry per name — so "113 of 115" means names the catalog
+      // holds, not components the kit publishes. A name published twice counts
+      // once in both and cannot appear in `withoutSpec` at all.
       // `nameCollisions` and `captureNotes` are where that gap is legible;
       // `withSpec` alone would read as completeness it does not have.
       measuredAgainst: 'components.figma.json',

@@ -13,3 +13,10 @@ design/
 
 # design-council's --local seat clones (install-seats.sh --local)
 seats/
+
+# Figma capture scratch. Every capture in pushpin/scripts/check.md is an input
+# the distillers consume and then nothing reads again — the committed artifact is
+# assets/*.figma.json, and the catalog records `source.propertiesCapturedAt` so
+# the provenance survives without the raw file. Keeping these out also keeps them
+# off the download every designer installing the plugin pays for.
+.cache/

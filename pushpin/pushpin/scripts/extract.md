@@ -198,17 +198,186 @@ exactly those three numbers as PERCENT, which is why `$unit` in
 
 ## 5. Component catalog
 
-`assets/components.figma.json` comes from the MCP tool
-`list_file_components_for_code_connect` (a read, despite the name — it takes
-only a `fileKey` and publishes nothing). Pipe its raw output through the
-distiller:
+`assets/components.figma.json` takes three reads, and the second is the one
+that decides what the catalog holds.
 
-```bash
-node scripts/build-components.mjs <path-to-raw-dump.json>
+**The candidates** come from the MCP tool
+`list_file_components_for_code_connect` (a read, despite the name — it takes
+only a `fileKey` and publishes nothing). Its own documentation says it returns
+only published components. It does not: the dump was 1074 entries at capture and
+956 of them are unpublished. Save the raw array.
+
+**The gate** is `getPublishStatusAsync()`, which is the only reading of "is this
+published" that a consuming file will agree with. It needs a node, so it needs
+`use_figma`, which is why the catalog spent so long guessing from names instead
+— and the guess was wrong in both directions. Sweep **every** candidate, not
+just the ones whose name looks public: `_Bubble / Text` and `_Stamps` are
+published, and four components that read as public were never pushed to the
+library.
+
+Node ids resolve across pages without `setCurrentPageAsync`, so this is one flat
+loop rather than a per-page fan-out. **300 ids per call** is measured — four
+calls covered 1074 with no errors and no truncation, and the ~10-operation
+guidance in `figma-use` is about writes, which each mutate the document; these
+are two reads per node and cost nothing to batch. Return the statuses as one
+string in input order rather than a map, or the response is mostly node ids.
+
+```js
+const IDS = ['25246:2695', '24017:20110', /* …one batch of the dump's nodeIds… */];
+let s = '';
+const errors = {};
+for (const id of IDS) {
+  try {
+    const n = await figma.getNodeByIdAsync(id);
+    if (!n) { s += 'M'; continue; }
+    const p = await n.getPublishStatusAsync();
+    s += p === 'CURRENT' ? 'C' : p === 'CHANGED' ? 'H' : p === 'UNPUBLISHED' ? 'U' : '?';
+  } catch (e) { s += 'E'; errors[id] = e.message; }
+}
+return { count: IDS.length, len: s.length, s, errors };
 ```
 
-The raw dump was 1071 entries at capture; 951 are internal parts named `_…` or
-`.…` that exist to build the public components and are dropped.
+`CURRENT` and `CHANGED` both mean published — `CHANGED` is a published
+component the file has edited since, which is a normal state and not a reason to
+drop anything. Only `UNPUBLISHED` is out.
+
+**Every candidate must come back with one of those three.** `M`, `?` and `E`
+are the script admitting it did not get an answer, so re-run those ids rather
+than merging them as anything; the distiller rejects a status it does not
+recognise, and rejects a map that covers fewer nodes than the dump holds. That
+check is the one thing standing between a batch that failed quietly and a
+catalog full of keys that throw at import — membership asks for a published
+status rather than testing for `UNPUBLISHED`, so an unanswered node falls out of
+the catalog rather than into it, and the count is what makes the fallout
+visible instead of silent.
+
+**The published names and properties** come from importing each surviving key,
+which doubles as proof that every key in the catalog resolves. Run it against the
+scratch file `8Uv6dYO4uKdGCyGSfpz9k0` or any file that subscribes to the kit —
+*not* the kit itself, where a component is not a library entry. Importing places
+nothing on the canvas. **29 keys per call** is measured — four calls covered all
+115 with nothing failing. These are network round trips rather than local reads,
+so they do not batch as wide as the status sweep above.
+
+```js
+const ROWS = [['ac6c54e89daf08a8753737e739e8258ace3c42ac', 'COMPONENT'], /* [key, type]… */];
+const ok = {};
+const props = {};
+const failed = {};
+for (const [key, type] of ROWS) {
+  try {
+    const n = type === 'COMPONENT_SET'
+      ? await figma.importComponentSetByKeyAsync(key)
+      : await figma.importComponentByKeyAsync(key);
+    ok[key] = n.name;
+    // The library's own answer for what this component exposes. Everything the
+    // dump says about properties is the file's unpublished state; this is what a
+    // consuming file can actually set.
+    props[key] = n.componentPropertyDefinitions || {};
+  } catch (e) { failed[key] = e.message; }
+}
+return { tried: ROWS.length, resolved: Object.keys(ok).length, ok, props, failed };
+```
+
+**`props` is the reason this pass is not optional any more.** The dump reads the
+kit's working file, and the file runs ahead of the library — measured across 115
+entries, 6 disagreed with the library about their own properties. `Button` is one
+of them: the library publishes `Label#13326:0`, `Icon Left#22316:0` and
+`Icon Right#22316:261`, offers `size` as `xlarge small medium large xxlarge`, and
+the dump reports none of those names and offers `size` as `default small`. A run
+that took `size: 'default'` from the dump throws, because the published set has no
+such variant. Since the import is already happening for the name, the definitions
+cost nothing extra.
+
+Variant *option* drift is the half that a property-name comparison misses, and it
+is the half that bites: `Bubble / Text` publishes `Theme` as `Received`/`Sent`
+while the file calls the same axis `Recipient`/`Sender`.
+
+`failed` must come back empty. A key that throws here is a key that would throw
+mid-generation, and the gate above is what is supposed to have removed it.
+
+The name that comes back is the name the **library** serves, which is not always
+the name the file carries: a component renamed after its last publish keeps the
+old name in every consuming file. Four are in that state — `_Bubble / Text` is
+served as `ChatBubble`, `_Stamps` as `Messenger Elements / Stamps`,
+`Bubble / Text` as `Messenger Elements / Bubbles`, `Bubble / Structure` as
+`Messenger Elements / Structured Bubble`. The catalog keys entries by the file
+name, because that is what §9's visual specs and every `data-pp-component`
+declaration already say, and records the served name as `publishedAs`.
+
+Merge the three into one capture file and distil it:
+
+```json
+{
+  "capturedAt": "2026-08-27",
+  "components": [ /* the raw dump, verbatim */ ],
+  "publishStatus": { "15267:72862": "CHANGED", "31675:40060": "UNPUBLISHED" },
+  "publishedNames": { "1f03fd762ff653f6feb24d0d162bb9109cee3b46": "ChatBubble" },
+  "publishedProperties": { "ebc80753…": { "Label#13326:0": { "type": "TEXT" } } }
+}
+```
+
+`publishedProperties` is the merged `props` from every batch, keyed by assetKey.
+Leave it out and the distiller falls back to the dump for that component and lists
+it under `source.propertiesFromDump`, so a partial capture says so instead of
+looking complete.
+
+**When only the properties have moved, skip the dump.** The two halves of the
+catalog go stale at different rates and cost different amounts to check:
+properties change on every republish and are what throws a run mid-screen, while
+the 1074-entry dump matters only when a component is added, removed or renamed.
+Merge the four batches into one file under `.cache/` — gitignored scratch — in
+either of two shapes:
+
+```json
+{
+  "capturedAt": "2026-08-28",
+  "properties": {
+    "1f03fd7…": { "n": "ChatBubble", "p": { "theme": { "t": "V", "o": ["sent"], "d": "sent" } } },
+    "ebc8075…": { "Label#13326:0": { "type": "TEXT", "defaultValue": "Label" } }
+  }
+}
+```
+
+The first entry is the compact form the sweep sends — `t` type (`V`/`T`/`B`/`I`),
+`o` variantOptions, `d` defaultValue, `n` published name — which exists because
+the response crosses a `use_figma` boundary where payload size is the reason for
+batching at all. The second is `componentPropertyDefinitions` saved verbatim,
+which is what the snippet above returns and what a file on disk has no reason to
+compress. Either is accepted per entry; anything else is refused by name rather
+than read as a component with no properties.
+
+`capturedAt` is required. `.cache/` is gitignored, so
+`source.propertiesCapturedAt` is the only provenance that outlives the run, and
+defaulting it would date the distillation rather than the read.
+
+```bash
+node scripts/build-components.mjs --properties-only .cache/published-properties.json
+```
+
+It rewrites property ids, variant options and defaults in place, keeps the
+INSTANCE_SWAP default names the dump resolved, names every component it changed,
+and warns if a captured key matches no catalog entry — which means membership
+moved and the full capture is needed after all. It writes nothing at all if the
+capture publishes no properties for a component the catalog records some for:
+that is a bad capture far more often than a real change, and a real one is
+structural and belongs to the full path.
+
+Components the capture does not mention keep what they have, and keep whatever
+`source.propertiesFromDump` already said about them — this path can clear that
+list for entries it refreshed from the library but cannot add to it, because it
+never sees the dump those entries would have come from.
+
+```bash
+node scripts/build-components.mjs <path-to-capture.json>
+```
+
+The distiller refuses a bare dump rather than falling back to the name rule.
+Expect 118 published owners under 115 distinct names: three names —
+`Tabs`, `iOS / Sheet` and `view` — are published twice, and `source.nameCollisions`
+names the node that lost. `source.nameStatusDisagreement` lists every component
+whose `_`/`.` prefix contradicts its publish status; it changes nothing and is
+where the next stale key will show up first.
 
 ## 6. Variable keys
 
@@ -288,8 +457,10 @@ for (const n of page.findAllWithCriteria({ types: ['COMPONENT', 'COMPONENT_SET']
   // A variant is reached through its set, and asking a variant for its
   // property definitions throws rather than returning the set's.
   if (n.parent && n.parent.type === 'COMPONENT_SET') continue;
-  // Internal parts, same rule as the Pushpin catalog: never placed directly.
-  if (n.name.startsWith('_') || n.name.startsWith('.')) continue;
+  // Same gate as the Pushpin catalog in §5, and for the same reason: a name is
+  // a guess at publish status and it is wrong in both directions. An entry
+  // whose key cannot be imported is one that throws mid-generation.
+  if ((await n.getPublishStatusAsync()) === 'UNPUBLISHED') continue;
 
   const properties = {};
   for (const [full, d] of Object.entries(n.componentPropertyDefinitions || {})) {
@@ -321,9 +492,16 @@ return { page: page.name, kept: Object.keys(entries).length, entries };
 Then merge the four `entries` objects into `components`, sorted by
 `localeCompare`, and rebuild `source` with the file key, the library key,
 today's date, the page ids, and the three counts — `capturedTotal` (every
-component node found), `internalOmitted`, and `publicKept`. `publicKept` must
-equal the number of keys in `components`; that is what makes the count checkable
-rather than decorative.
+component node found), `unpublishedOmitted`, and `publicKept`.
+`capturedTotal` must equal `unpublishedOmitted` plus the number of component
+nodes reached, and `publicKept` must equal the number of keys in `components`;
+that is what makes the counts checkable rather than decorative.
+
+The committed `annotations.figma.json` predates the publish-status gate and
+still records `internalOmitted: 20` from the old name rule. Its keys all resolve
+— `freshness.mjs` checks that on every run — so nothing in it is broken, but a
+component published under a `_…` name would be missing from it and the first
+re-capture is what will say so.
 
 Two things the merge has to handle:
 
@@ -344,7 +522,7 @@ adding any, so there is nothing here corresponding to sections 2, 3, 4 or 6.
 `assets/icons.figma.json` — `fileKey: jjhhb3Kp6a7JrtBLCjrf6u`, page `2:1`.
 
 **Icons are not published from the Pushpin file.** They never were: the Pushpin
-kit's component dump holds 117 public entries and not one of them is an icon,
+kit publishes 115 components under distinct names and not one of them is an icon,
 which is why the plugin had no way to place one until this catalog existed. The
 set lives on the Icons page of the Thumbprint UI Kit — deliberately, so one set
 of glyphs serves both systems — and publishes from that file's library. Capturing
@@ -418,7 +596,10 @@ one message each and merge, per [parallel.md](../reference/parallel.md).
 carry emoji prefixes — the Button page is `📌 Button`, and `❌`, `🚧`, `🎨` and
 `✋` also appear — and the kit has 91 pages, most of them decorative separators.
 A lookup by bare name finds nothing. Read `figma.root.children` for the current
-list and match on the suffix. The 44 as of this capture:
+list and match on the suffix. The 44 as of the last capture, with the component
+counts the old name rule produced — the gate below drops four of them, and
+`Guidelines` has since published one, so re-derive the counts rather than
+trusting this column:
 
 | Page | Node id | Components |
 |---|---|---|
@@ -467,12 +648,12 @@ list and match on the suffix. The 44 as of this capture:
 | Toast | `11231:728` | 1 |
 | Tooltip | `11231:737` | 1 |
 
-`Additional components` holds 44 of the 117 on its own, so split it across
+`Additional components` holds 42 of the 115 on its own, so split it across
 several calls with an `ONLY` list rather than asking for it whole — the response
 truncates well before it finishes.
 
 Run this once per page, substituting the id and setting `ONLY` to a list of
-component names or `null` for every public component on the page:
+component names or `null` for every published component on the page:
 
 ```js
 const PAGE_ID = '11231:729';
@@ -593,9 +774,16 @@ async function spec(node) {
   return s;
 }
 
-const owners = page
-  .findAllWithCriteria({ types: ['COMPONENT', 'COMPONENT_SET'] })
-  .filter((n) => !(n.parent && n.parent.type === 'COMPONENT_SET') && !/^[_.]/.test(n.name));
+// Same gate as §5, and it has to be the same one: a spec for a component the
+// catalog does not hold is a spec nothing can reach, and `verify.mjs` fails on
+// it. The old `!/^[_.]/.test(n.name)` test recorded four components the library
+// never published and skipped two it does.
+const owners = [];
+for (const n of page.findAllWithCriteria({ types: ['COMPONENT', 'COMPONENT_SET'] })) {
+  if (n.parent && n.parent.type === 'COMPONENT_SET') continue;
+  if ((await n.getPublishStatusAsync()) === 'UNPUBLISHED') continue;
+  owners.push(n);
+}
 
 const out = {};
 const skipped = [];
@@ -700,10 +888,10 @@ The distiller sorts, merges, and writes the coverage block. It is independent of
 the order the files are given in, deliberately: nothing about which lane
 finished first should be able to change the asset.
 
-Four things to know about the result:
+Five things to know about the result:
 
-- **The reduction is recorded, and `verify.mjs` holds it to the record.** 456
-  variants are kept out of 1079 real children. Each set stores `children`,
+- **The reduction is recorded, and `verify.mjs` holds it to the record.** 452
+  variants are kept out of 1073 real children. Each set stores `children`,
   `crossProduct`, `recorded` and a `reduced` block, and every axis option must
   be covered by a recorded variant or listed in `unreachable`. An unrecorded
   reduction reads as a complete answer, which is the failure this whole asset
@@ -723,18 +911,21 @@ Four things to know about the result:
   as `#450a0a`, which is neither mode — recorded under
   `coverage.coloursMatchingNeitherMode`, not reconciled.
 - **A name published twice keeps the catalog's node.** The kit has two `Tabs`
-  sets, on `Additional components` and on `Tabs`. §5's dump keys by name too, so
-  `components.figma.json` already dropped one silently. Unlike §7, the loser is
-  not kept under a `<name> [<nodeId>]` key: the catalog cannot name it, so no
-  `data-pp-component` declaration could ever reach the spec. It is recorded in
-  `coverage.nameCollisions` with both pages and both node ids instead.
+  sets, on `Additional components` and on `Tabs`. §5's catalog keys by name too,
+  so it holds one of them and names the loser in `source.nameCollisions`. Unlike
+  §7, the loser is not kept here under a `<name> [<nodeId>]` key: the catalog
+  cannot name it, so no `data-pp-component` declaration could ever reach the
+  spec. It is recorded in `coverage.nameCollisions` with both pages and both
+  node ids instead.
 - **`coverage.withSpec` is measured against the catalog, not against the kit.**
   Both key by name, so a name published twice counts once in each and can never
-  appear in `withoutSpec`. `117 of 117` therefore means every name the catalog
+  appear in `withoutSpec`. `113 of 115` therefore means names the catalog
   holds. The `Layouts` page publishes nine owners under eight names, and the
   ninth spec is missing from this capture for that reason — read
   `coverage.nameCollisions` and `coverage.captureNotes` before treating the
-  count as completeness.
+  count as completeness. The two in `withoutSpec`, `_Bubble / Text` and
+  `_Stamps`, are the components the publish-status gate added to the catalog
+  after this capture ran; they get specs the next time §9 is run.
 
 ## Transcription notes
 

@@ -176,10 +176,35 @@ a bigger event than a token change and worth stopping on.
 
 ## 3. Component capture
 
-From the MCP tool `list_file_components_for_code_connect` with
-`fileKey: VVRGrLgkPRU3vs765d5Q3r` — a read despite the name. Save the raw array
-as `components-raw.json`; `diff.mjs` distills it with the same code that built
-the committed catalog.
+Three reads, and the second is what decides membership. The dump alone cannot
+answer whether a component is published, and guessing from the name is the
+defect this capture exists to avoid.
+
+- From the MCP tool `list_file_components_for_code_connect` with
+  `fileKey: VVRGrLgkPRU3vs765d5Q3r` — a read despite the name. Keep the raw
+  array.
+- `getPublishStatusAsync()` for every `nodeId` in that array, via the batched
+  `use_figma` sweep in [extract.md §5](extract.md). 300 ids per call.
+- The import pass in [extract.md §5](extract.md), which returns
+  `publishedProperties` and `publishedNames` on one round trip. 29 keys per call.
+
+Save them together as `components.json` in the shape §5 documents —
+`{ components, publishStatus, publishedProperties, publishedNames }`.
+
+**Every `nodeId` in the dump needs a status.** The distiller counts them and
+refuses a capture that is short, because a sweep lane that failed silently looks
+exactly like a lane that reported nothing, and the components it skipped would
+otherwise arrive in the catalog with keys that throw at import.
+
+**Take the import pass.** `publishedNames` on its own is the optional half —
+`diff.mjs` compares `publishedAs` when it is present and says nothing when it is
+not — but it rides on the same calls as `publishedProperties`, which is the half
+that decides whether a generation run survives `setProperties`. Without it
+`diff.mjs` compares no properties at all and prints a note saying so, which is
+the quietest way for this capture to look complete and not be.
+
+`diff.mjs` distils the result with the same code that built the committed
+catalog, and refuses a bare array rather than falling back to the name rule.
 
 ## 4. Annotation Kit capture
 
@@ -234,7 +259,7 @@ the committed catalog.
 ## 6. Component spec capture
 
 `fileKey: VVRGrLgkPRU3vs765d5Q3r`. Run the per-page script from
-[extract.md §9](extract.md) against the 44 pages that hold public components,
+[extract.md §9](extract.md) against the 44 pages that hold published components,
 batched in parallel — see [parallel.md](../reference/parallel.md) — and distil
 the batches together with `node scripts/build-specs.mjs`.
 
@@ -264,7 +289,7 @@ What to look for in that diff, in descending order of how much it will hurt:
 
 ```bash
 node scripts/diff.mjs --kit kit.json --published published.json \
-                      --components components-raw.json \
+                      --components components.json \
                       --icons icons-raw.json --icons-page icons-page.xml
 ```
 

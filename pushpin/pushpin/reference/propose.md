@@ -1,7 +1,7 @@
 # Proposing a component
 
 Load this only once the gate below has actually opened. Most generation runs
-never reach it: the kit publishes 117 components, and the correct answer to
+never reach it: the kit publishes 115 components, and the correct answer to
 "nothing quite fits" is usually that something does.
 
 **Never draw a component.** The exception this page describes is a way to
@@ -53,6 +53,8 @@ Instance the closest variant, detach it, and change only what the proposal is
 actually about.
 
 ```js
+figma.skipInvisibleInstanceChildren = false;   // reads back true at the start of every call
+
 const set = await figma.importComponentSetByKeyAsync(closestKey);
 const inst = set.defaultVariant.createInstance();
 inst.setProperties({ theme: 'secondary', size: 'medium' });   // the closest variant
@@ -62,6 +64,42 @@ const frame = inst.detachInstance();   // keeps type, padding, strokes, radius, 
 const proposed = figma.createComponentFromNode(frame);
 proposed.name = 'Proposed / FilterChip';
 ```
+
+**The first line is not boilerplate, and it belongs above the detach rather than
+anywhere after it.** The flag reads back `true` at the start of every `use_figma`
+call in this harness, whatever the previous call set it to, so it is a per-script
+assignment rather than a setting — and the plugin API typings document the
+default as false in Figma and FigJam and true only in Dev Mode, so this is a
+divergence rather than something a reader could have predicted. What it costs to
+leave alone is the step this section is entirely about. `detachInstance()` with
+the flag on hands back a frame whose interior is not materialized, and every
+search API then answers a question about that frame confidently and wrongly
+instead of throwing: measured on a detached instance,
+`findAllWithCriteria({ types: ['FRAME'] })` returned 4 where 9 was correct,
+`findAll(() => true)` returned 12 of 25, and `query('FRAME')` returned 4 of 9 —
+a 26-node subtree six levels deep, more than half of it invisible to the thing
+looking for it. With the flag `false` the blind spot is not reduced but absent:
+the same detach reads 43 of 43 nodes on the first call, before anything has
+walked it. So one assignment is the whole fix here, and no materialization walk
+belongs in this snippet.
+
+The reason to care is that "…change only what Delta names…" is a search. Through
+a stale view of the detached frame, the text node or the padding the `Delta` names
+is the thing the edit misses, and everything else about the proposal is correct —
+which reviews as a proposal that changed nothing, or worse, as one whose note
+describes a change that is not on the canvas. Nothing throws, and
+[the audit](audit-figma.md) cannot tell that shape apart from a proposal that was
+genuinely derived.
+[generate.md](generate.md#stale-traversal-on-a-subtree-this-call-created) carries
+the full statement of the rule and the reasoning behind it.
+
+The two lines above the detach are safe and want no guard of their own.
+`createInstance()` did not reproduce the blind spot under measurement, and
+`setProperties` moves variants rather than reading a subtree. Nor is the absence
+of an `appendChild` between them an oversight to be repaired: `createInstance()`
+parents the new instance to the current page as it creates it — `inst.parent.type`
+is already `'PAGE'` — so there is no unparented state here and nothing to adopt it
+into.
 
 The gate above already made you name the closest published component and say why
 it falls short. That component is not just the argument — it is the **starting

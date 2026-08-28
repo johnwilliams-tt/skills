@@ -14,7 +14,7 @@
  *
  * Usage:
  *   node scripts/diff.mjs --kit kit.json [--published published.json]
- *                         [--components components-raw.json]
+ *                         [--components components.json]
  *                         [--icons icons-raw.json --icons-page icons-page.xml]
  */
 
@@ -22,7 +22,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { distillComponents } from './build-components.mjs';
+import { distillComponents, loadCapture } from './build-components.mjs';
 import { distillIcons } from './build-icons.mjs';
 import { TOKEN_GROUPS } from './lib/tokens.mjs';
 
@@ -41,7 +41,7 @@ const iconsPagePath = opt('--icons-page');
 
 if (!kitPath && !publishedPath && !componentsPath && !iconsPath) {
   console.error(
-    'usage: node scripts/diff.mjs --kit kit.json [--published published.json] [--components components-raw.json]\n' +
+    'usage: node scripts/diff.mjs --kit kit.json [--published published.json] [--components components.json]\n' +
       '                            [--icons icons-raw.json --icons-page icons-page.xml]\n' +
       '\nCaptures come from scripts/check.md.',
   );
@@ -345,8 +345,38 @@ if (publishedPath) {
 // --------------------------------------------------------- component capture
 
 if (componentsPath) {
-  const fresh = distillComponents(load(componentsPath));
+  let capture;
+  try {
+    capture = loadCapture(componentsPath);
+  } catch (e) {
+    // A rejected capture is not drift, and reporting it as a finding would put it
+    // in a list the reader is meant to act on item by item. Stop instead.
+    console.error(e.message);
+    process.exit(1);
+  }
+  const distilled = distillComponents(capture);
+  const fresh = distilled.components;
   const before = catalog.components;
+
+  // The published-name pass is optional in a drift check, because it costs one
+  // import per key and answers a question that breaks nothing. Without it every
+  // entry distils with no `publishedAs`, so comparing the field would report the
+  // committed catalog's four as removed on every run.
+  const namesCaptured = capture.publishedNames != null;
+
+  // Properties are the same story and a louder failure. The committed catalog
+  // takes them from the library; a capture without `publishedProperties` distils
+  // them from the file instead, and the file runs ahead — so comparing the two
+  // would report `Button`'s published `Label` as removed and its real ids as
+  // changed, on every run, for six components. A drift check that cries wolf six
+  // times is a drift check nobody reads.
+  const propsCaptured = capture.publishedProperties != null;
+
+  // A component whose name and publish status disagree is not a difference
+  // from the committed capture and does not belong above — but it is the shape
+  // of every entry that ever went stale here, so it is worth saying out loud
+  // even on a run where nothing moved.
+  for (const d of distilled.nameStatusDisagreement) notes.push(`components: ${d}`);
 
   for (const name of Object.keys(fresh)) {
     if (!(name in before)) added.push(`components: new component "${name}"`);
@@ -358,6 +388,14 @@ if (componentsPath) {
       breaking.push(`components: "${name}" was removed or unpublished`);
       continue;
     }
+    if (namesCaptured && now.publishedAs !== was.publishedAs) {
+      // The library serves a name the file no longer carries, or has caught up
+      // with one. Nothing imports by name, so this restyles a lookup rather
+      // than breaking one.
+      changed.push(
+        `components/${name}: published under "${was.publishedAs ?? name}", now "${now.publishedAs ?? name}"`,
+      );
+    }
     if (now.key !== was.key) {
       breaking.push(`components/${name}: key changed ${was.key} -> ${now.key}`);
     }
@@ -365,8 +403,8 @@ if (componentsPath) {
       breaking.push(`components/${name}: type changed ${was.type} -> ${now.type}`);
     }
 
-    const wasProps = was.properties ?? {};
-    const nowProps = now.properties ?? {};
+    const wasProps = propsCaptured ? (was.properties ?? {}) : {};
+    const nowProps = propsCaptured ? (now.properties ?? {}) : {};
     for (const [prop, wp] of Object.entries(wasProps)) {
       const np = nowProps[prop];
       if (!np) {
@@ -392,6 +430,17 @@ if (componentsPath) {
     for (const prop of Object.keys(nowProps)) {
       if (!(prop in wasProps)) added.push(`components/${name}: new property "${prop}"`);
     }
+  }
+
+  // Said once, not per component. Without it a capture taken without the import
+  // pass reports no property drift and reads as a clean bill of health on the
+  // layer most likely to break a generation run.
+  if (!propsCaptured) {
+    notes.push(
+      'components: properties were not compared — the capture carries no ' +
+        '`publishedProperties`. Re-run the import pass in extract.md section 5 to ' +
+        'check property ids and variant options.',
+    );
   }
 }
 

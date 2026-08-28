@@ -5,19 +5,22 @@
     "fileName": "Pushpin Thumbprint UI Kit",
     "extractedAt": "2026-08-21",
     "pagesRead": 44,
-    "componentsRecorded": 117,
-    "componentSets": 96,
+    "componentsRecorded": 113,
+    "componentSets": 95,
     "capPerSet": 24,
-    "realVariantChildren": 1079,
-    "variantsRecorded": 456,
+    "realVariantChildren": 1073,
+    "variantsRecorded": 452,
     "setsAtCap": 0,
     "colorMode": "Light"
   },
   "coverage": {
     "measuredAgainst": "components.figma.json",
-    "catalogComponents": 117,
-    "withSpec": 117,
-    "withoutSpec": [],
+    "catalogComponents": 115,
+    "withSpec": 113,
+    "withoutSpec": [
+      "_Bubble / Text",
+      "_Stamps"
+    ],
     "nameCollisions": [
       "\"Tabs\" is published twice — kept 13333:125819 on \"Additional components\" (the one the catalog names), dropped 20968:83266 on \"Tabs\""
     ],
@@ -31,9 +34,13 @@
       "Checkbox isIndeterminate=true Background/Primary/medium [default] rendered #009fd9, Light ? / Dark ?"
     ],
     "captureNotes": [
+      "Bubble / Media: recorded by the capture but not in the component catalog; dropped",
       "Carousel: The only component set on the Carousel page is named \"Coursel\" in Figma (misspelled); recorded verbatim.",
+      "Core / Safari (Big Sur) / Toolbar / Toolbar Item: recorded by the capture but not in the component catalog; dropped",
       "Counter: The page is named Counter but its only public component is named Stepper.",
       "Layouts: Script reported owners=9 but recorded=8: two public owners on this page share a name, so one overwrote the other in the script's own output object. Expected count of 8 matches what was returned.",
+      "Messager / Media modal: recorded by the capture but not in the component catalog; dropped",
+      "Messager Elements / Composer / Image: recorded by the capture but not in the component catalog; dropped",
       "Popover: The single component set on the Popover page is named \"Popovers\" (plural), not \"Popover\".",
       "Segemented Control: Page name is misspelled 'Segemented Control' in Figma; the component set inside it is spelled 'Segmented Control'.",
       "Tabs: Page has 2 public component sets (\"Tab\" and \"Tabs\"), not the 1 expected; both recorded.",
@@ -1876,166 +1883,6 @@
             297.7701,
             17.5443
           ]
-        }
-      ]
-    },
-    "Bubble / Media": {
-      "type": "COMPONENT_SET",
-      "page": "Additional components",
-      "nodeId": "31675:40060",
-      "axes": {
-        "Theme": [
-          "Recipient",
-          "Sender"
-        ],
-        "Type": [
-          "Media",
-          "File",
-          "File & Media"
-        ]
-      },
-      "defaults": {
-        "Theme": "Recipient",
-        "Type": "Media"
-      },
-      "children": 6,
-      "crossProduct": 6,
-      "recorded": 4,
-      "reduced": {
-        "children": 6,
-        "recorded": 4,
-        "cappedAt": null
-      },
-      "variants": [
-        {
-          "for": [
-            "Theme=Recipient",
-            "Type=Media"
-          ],
-          "props": {},
-          "radius": 0,
-          "size": [
-            375,
-            145.5
-          ],
-          "mode": "VERTICAL",
-          "sizing": [
-            "FILL",
-            "HUG"
-          ],
-          "gap": [
-            "Space",
-            "web/2",
-            8
-          ],
-          "padding": [
-            0,
-            40,
-            0,
-            0
-          ]
-        },
-        {
-          "for": [
-            "Theme=Sender"
-          ],
-          "props": {
-            "Theme": "Sender"
-          },
-          "radius": 0,
-          "size": [
-            375,
-            145.5
-          ],
-          "mode": "VERTICAL",
-          "sizing": [
-            "FILL",
-            "HUG"
-          ],
-          "gap": [
-            "Space",
-            "web/2",
-            8
-          ],
-          "padding": 0
-        },
-        {
-          "for": [
-            "Type=File"
-          ],
-          "props": {
-            "Type": "File"
-          },
-          "radius": 0,
-          "size": [
-            375,
-            61.8
-          ],
-          "mode": "VERTICAL",
-          "sizing": [
-            "FILL",
-            "HUG"
-          ],
-          "gap": [
-            "Space",
-            "web/2",
-            8
-          ],
-          "padding": [
-            0,
-            40,
-            0,
-            0
-          ],
-          "text": {
-            "layer": "Text",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "heading/neutral/default",
-              "#1f2022"
-            ],
-            "style": "Title/7",
-            "size": 14
-          }
-        },
-        {
-          "for": [
-            "Type=File & Media"
-          ],
-          "props": {
-            "Type": "File & Media"
-          },
-          "radius": 0,
-          "size": [
-            375,
-            215.3
-          ],
-          "mode": "VERTICAL",
-          "sizing": [
-            "FILL",
-            "HUG"
-          ],
-          "gap": [
-            "Space",
-            "web/2",
-            8
-          ],
-          "padding": [
-            0,
-            40,
-            0,
-            0
-          ],
-          "text": {
-            "layer": "Text",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "heading/neutral/default",
-              "#1f2022"
-            ],
-            "style": "Title/7",
-            "size": 14
-          }
         }
       ]
     },
@@ -5192,28 +5039,6 @@
           }
         }
       ]
-    },
-    "Core / Safari (Big Sur) / Toolbar / Toolbar Item": {
-      "type": "COMPONENT",
-      "page": "Additional components",
-      "nodeId": "13333:114724",
-      "resting": {
-        "radius": 6,
-        "size": [
-          33,
-          28
-        ],
-        "text": {
-          "layer": "􀁸",
-          "fill": [
-            "Tokens / Semantic Colors",
-            "heading/neutral/low",
-            "#686c72"
-          ],
-          "style": null,
-          "size": 17
-        }
-      }
     },
     "Coursel": {
       "type": "COMPONENT_SET",
@@ -8632,82 +8457,6 @@
           "padding": 0
         }
       ]
-    },
-    "Messager / Media modal": {
-      "type": "COMPONENT",
-      "page": "Additional components",
-      "nodeId": "20501:48138",
-      "resting": {
-        "fill": [
-          "Tokens / Semantic Colors",
-          "background/neutral/default",
-          "#ffffff"
-        ],
-        "radius": [
-          [
-            "cornerRadius",
-            "size",
-            16
-          ],
-          [
-            "cornerRadius",
-            "size",
-            16
-          ],
-          0,
-          0
-        ],
-        "size": [
-          [
-            "width",
-            "FINAL/width/small",
-            390
-          ],
-          382
-        ],
-        "mode": "VERTICAL",
-        "sizing": [
-          "FIXED",
-          "HUG"
-        ],
-        "gap": 0,
-        "padding": 0,
-        "text": {
-          "layer": "Media",
-          "fill": [
-            "Tokens / Semantic Colors",
-            "heading/neutral/default",
-            "#1f2022"
-          ],
-          "style": "Title/4",
-          "size": 20
-        }
-      }
-    },
-    "Messager Elements / Composer / Image": {
-      "type": "COMPONENT",
-      "page": "Additional components",
-      "nodeId": "20602:10238",
-      "resting": {
-        "radius": 0,
-        "size": [
-          64,
-          64
-        ],
-        "mode": "VERTICAL",
-        "sizing": [
-          "FIXED",
-          "FIXED"
-        ],
-        "gap": 0,
-        "padding": 0,
-        "text": {
-          "layer": "0:14",
-          "fill": "#ffffff",
-          "style": "Headings/Native/Title 8",
-          "size": 12
-        }
-      }
     },
     "Messenger Elements / Composer": {
       "type": "COMPONENT_SET",

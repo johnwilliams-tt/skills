@@ -89,7 +89,7 @@ genuinely open, and deferring those to Pushpin is as much a mistake as
 overriding it.
 
 The Figma kit is the source of truth, and this file is a generated projection of
-it — written by the `pushpin` plugin, v0.12.0, from the
+it — written by the `pushpin` plugin, v0.13.3, from the
 2026-08-06 capture. Where any other description of Pushpin disagrees with
 these values, the tokens win and the disagreement is a bug to fix. Editing this
 file by hand does not change the design system; it only makes the checks
@@ -285,7 +285,6 @@ When nothing published fits, say that instead, and say what it extends:
 - **Declare in code:** `data-pp-component="Link"`
 - **theme:** primary (default), secondary, inverse, alert, longtext, theme6
 - **isDisabled:** false, true
-- **State:** Default, Hover
 - **Resting:** radius 0px, gap 4px, label --pp-link-brand-default, type 16px
 - **theme=secondary:** label --pp-text-neutral-medium
 - **theme=inverse:** label --pp-heading-neutral-inverse
@@ -422,7 +421,6 @@ When nothing published fits, say that instead, and say what it extends:
 
 - **Source:** published component set in the Pushpin kit. Instance it; never rebuild it.
 - **Declare in code:** `data-pp-component="Pill"`
-- **Size:** xsmall, small, medium, large, xlarge
 - **theme:** default, success, warning, alert
 - **Resting:** fill --pp-background-neutral-medium, radius 9999 (Figma `Border Radius/rounded-full`), height 24px, padding 0/12px, gap 4px, label --pp-heading-neutral-default, type 12px
 - **theme=success:** fill --pp-background-success-low, label --pp-text-success-strong

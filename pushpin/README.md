@@ -152,7 +152,7 @@ without editing a file first.
 | `pushpin/SKILL.md` | Entry point the agent loads, and the routing table |
 | `pushpin/reference/` | The docs each route loads |
 | `pushpin/scripts/` | CLI scripts, the edit hook, and the capture toolchain |
-| `pushpin/assets/` | Generated capture: 300 custom properties, 117 components, 227 icons, 53 copy rules |
+| `pushpin/assets/` | Generated capture: 300 custom properties, 115 components, 227 icons, 53 copy rules |
 
 ## Reference docs
 

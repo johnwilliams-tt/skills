@@ -1,14 +1,109 @@
 {
-  "$comment": "Published components of the Pushpin Thumbprint UI Kit. `key` is the assetKey to pass to figma.importComponentByKeyAsync. Generated — see scripts/build-components.mjs.",
+  "$comment": "Every component and component set the Pushpin Thumbprint UI Kit publishes to its library, and nothing else. Membership is decided by getPublishStatusAsync() per node, not by the name, so an entry here is one whose `key` resolves. `key` is the assetKey to pass to figma.importComponentByKeyAsync — importComponentSetByKeyAsync for a COMPONENT_SET. `publishedAs` appears where the library still serves an older name than the file carries. Generated — see scripts/build-components.mjs.",
   "source": {
     "fileKey": "VVRGrLgkPRU3vs765d5Q3r",
     "fileName": "Pushpin Thumbprint UI Kit",
-    "extractedAt": "2026-08-11",
-    "publishedTotal": 1071,
-    "internalOmitted": 951,
-    "publicKept": 117
+    "extractedAt": "2026-08-27",
+    "capturedTotal": 1074,
+    "publishedTotal": 118,
+    "publishedSets": 98,
+    "unpublishedOmitted": 956,
+    "publicKept": 115,
+    "nameCollisions": [
+      "\"Tabs\" is published twice — kept 13333:125819 on \"Additional components\", dropped 20968:83266 on \"Tabs\"",
+      "\"iOS / Sheet\" is published twice — kept 13333:131648 on \"Layouts\", dropped 13333:131632 on \"Layouts\"",
+      "\"view\" is published twice — kept 25247:3665 on \"Playground\", dropped 25246:2695 on \"Guidelines\""
+    ],
+    "nameStatusDisagreement": [
+      "\"Availability Chip\" reads as public and is not published",
+      "\"Bubble / Media\" reads as public and is not published",
+      "\"Core / Safari (Big Sur) / Toolbar / Toolbar Item\" reads as public and is not published",
+      "\"Link Section\" reads as public and is not published",
+      "\"Messager / Media modal\" reads as public and is not published",
+      "\"Messager Elements / Composer / Image\" reads as public and is not published",
+      "\"Platform Section\" reads as public and is not published",
+      "\"Platform availability\" reads as public and is not published",
+      "\"_Bubble / Text\" reads as internal and is published",
+      "\"_Stamps\" reads as internal and is published"
+    ],
+    "propertiesCapturedAt": "2026-08-28"
   },
   "components": {
+    "_Bubble / Text": {
+      "key": "1f03fd762ff653f6feb24d0d162bb9109cee3b46",
+      "type": "COMPONENT_SET",
+      "page": "Additional components",
+      "nodeId": "15267:72862",
+      "publishedAs": "ChatBubble",
+      "instanceCount": 0,
+      "properties": {
+        "tailPosition": {
+          "type": "VARIANT",
+          "key": "tailPosition",
+          "options": [
+            "BottomLeft",
+            "BottomRight",
+            "TopLeft",
+            "TopRight"
+          ],
+          "default": "TopLeft"
+        },
+        "orientation": {
+          "type": "VARIANT",
+          "key": "orientation",
+          "options": [
+            "Vertical",
+            "Horizontal"
+          ],
+          "default": "Vertical"
+        },
+        "theme": {
+          "type": "VARIANT",
+          "key": "theme",
+          "options": [
+            "bg color",
+            "receieved",
+            "sent"
+          ],
+          "default": "sent"
+        }
+      }
+    },
+    "_Stamps": {
+      "key": "69f3d95493ad74cf242cc79b798c6e61899d694b",
+      "type": "COMPONENT_SET",
+      "page": "Additional components",
+      "nodeId": "13333:115494",
+      "publishedAs": "Messenger Elements / Stamps",
+      "instanceCount": 6,
+      "children": [
+        "Viewed Icon · Tiny",
+        "Warning Icon · Small"
+      ],
+      "properties": {
+        "Theme": {
+          "type": "VARIANT",
+          "key": "Theme",
+          "options": [
+            "Date",
+            "Status Update",
+            "Timestamp",
+            "Only visible to you"
+          ],
+          "default": "Status Update"
+        },
+        "Position": {
+          "type": "VARIANT",
+          "key": "Position",
+          "options": [
+            "Left",
+            "Right",
+            "Center"
+          ],
+          "default": "Center"
+        }
+      }
+    },
     "Accordion / Group": {
       "key": "452a8f5a6829044c6c9bedb2338d649643d07c78",
       "type": "COMPONENT",
@@ -120,7 +215,7 @@
       "type": "COMPONENT_SET",
       "page": "Avatar",
       "nodeId": "11231:876",
-      "instanceCount": 304,
+      "instanceCount": 326,
       "properties": {
         "isOnline": {
           "type": "BOOLEAN",
@@ -215,7 +310,7 @@
       "type": "COMPONENT_SET",
       "page": "Additional components",
       "nodeId": "13333:127154",
-      "instanceCount": 64,
+      "instanceCount": 63,
       "properties": {
         "OS": {
           "type": "VARIANT",
@@ -324,7 +419,7 @@
       "type": "COMPONENT_SET",
       "page": "Brand Assets",
       "nodeId": "5829:7239",
-      "instanceCount": 81,
+      "instanceCount": 87,
       "properties": {
         "Type": {
           "type": "VARIANT",
@@ -428,45 +523,12 @@
         "Logomark Building Block [Rise]"
       ]
     },
-    "Bubble / Media": {
-      "key": "90886b403d572593a255ee99a401a9e67bb496f7",
-      "type": "COMPONENT_SET",
-      "page": "Additional components",
-      "nodeId": "31675:40060",
-      "instanceCount": 0,
-      "properties": {
-        "Theme": {
-          "type": "VARIANT",
-          "key": "Theme",
-          "options": [
-            "Recipient",
-            "Sender"
-          ],
-          "default": "Recipient"
-        },
-        "Type": {
-          "type": "VARIANT",
-          "key": "Type",
-          "options": [
-            "Media",
-            "File",
-            "File & Media"
-          ],
-          "default": "Media"
-        }
-      },
-      "children": [
-        "Avatar",
-        "_Bubble / Assets",
-        "_Stamps",
-        "_Bubble / Files"
-      ]
-    },
     "Bubble / Structure": {
       "key": "7c26792bdf3e00981a775f352feb5c2ba6fe3a48",
       "type": "COMPONENT_SET",
       "page": "Additional components",
       "nodeId": "13333:115477",
+      "publishedAs": "Messenger Elements / Structured Bubble",
       "instanceCount": 18,
       "properties": {
         "👁️ Visibility message": {
@@ -495,8 +557,7 @@
             "Review Received",
             "Review Request",
             "Message with ease",
-            "Review Sent",
-            "Customer phone card"
+            "Review Sent"
           ],
           "default": "Review Request"
         }
@@ -520,21 +581,22 @@
       "type": "COMPONENT_SET",
       "page": "Additional components",
       "nodeId": "13333:115503",
+      "publishedAs": "Messenger Elements / Bubbles",
       "instanceCount": 4,
       "properties": {
         "👁 Time stamp": {
           "type": "BOOLEAN",
           "key": "👁 Time stamp#7009:0",
-          "default": false
+          "default": true
         },
         "Theme": {
           "type": "VARIANT",
           "key": "Theme",
           "options": [
-            "Recipient",
-            "Sender"
+            "Received",
+            "Sent"
           ],
-          "default": "Recipient"
+          "default": "Received"
         },
         "Length": {
           "type": "VARIANT",
@@ -564,9 +626,9 @@
     "Button": {
       "key": "ebc80753f095633977049c061a28a082816ef9c7",
       "type": "COMPONENT_SET",
-      "page": "Button",
+      "page": "📌 Button",
       "nodeId": "15239:14108",
-      "instanceCount": 1628,
+      "instanceCount": 528,
       "properties": {
         "👁️ icon (left)": {
           "type": "BOOLEAN",
@@ -585,15 +647,11 @@
         },
         "Icon Left": {
           "type": "INSTANCE_SWAP",
-          "key": "Icon Left#22316:0",
-          "default": "_Arrow-Left Icon · Medium",
-          "defaultSize": "Medium"
+          "key": "Icon Left#22316:0"
         },
         "Icon Right": {
           "type": "INSTANCE_SWAP",
-          "key": "Icon Right#22316:261",
-          "default": "_Arrow-Right Icon · Tiny",
-          "defaultSize": "Tiny"
+          "key": "Icon Right#22316:261"
         },
         "Platform": {
           "type": "VARIANT",
@@ -671,7 +729,8 @@
       "children": [
         "Icon / Left",
         "Icon / Right",
-        "Loader Dots"
+        "Loader Dots",
+        "Button"
       ]
     },
     "Button Row": {
@@ -679,7 +738,7 @@
       "type": "COMPONENT_SET",
       "page": "Button Row",
       "nodeId": "13576:93368",
-      "instanceCount": 78,
+      "instanceCount": 89,
       "properties": {
         "👁️ Title": {
           "type": "BOOLEAN",
@@ -903,7 +962,7 @@
       "type": "COMPONENT_SET",
       "page": "Chip",
       "nodeId": "20561:9440",
-      "instanceCount": 189,
+      "instanceCount": 231,
       "properties": {
         "👁️ iconRight": {
           "type": "BOOLEAN",
@@ -961,13 +1020,6 @@
         "Icon / Left",
         "Icon / Right"
       ]
-    },
-    "Core / Safari (Big Sur) / Toolbar / Toolbar Item": {
-      "key": "8f3b8f8b75999d0581b2d0793b617fde2ed4ccbd",
-      "type": "COMPONENT",
-      "page": "Additional components",
-      "nodeId": "13333:114724",
-      "instanceCount": 0
     },
     "Coursel": {
       "key": "68271ee1dde47698f5a4f161dcb464aa7181e5d5",
@@ -1121,7 +1173,7 @@
     "Dropdown": {
       "key": "fb605fd2eb1327afb7bbb59c280d491691532bab",
       "type": "COMPONENT_SET",
-      "page": "Dropdown",
+      "page": "📌 Dropdown",
       "nodeId": "11235:8445",
       "instanceCount": 153,
       "properties": {
@@ -1288,7 +1340,7 @@
       "type": "COMPONENT_SET",
       "page": "Icon Button",
       "nodeId": "21119:210039",
-      "instanceCount": 522,
+      "instanceCount": 204,
       "properties": {
         "Label": {
           "type": "TEXT",
@@ -1626,15 +1678,6 @@
             "true"
           ],
           "default": "false"
-        },
-        "State": {
-          "type": "VARIANT",
-          "key": "State",
-          "options": [
-            "Default",
-            "Hover"
-          ],
-          "default": "Default"
         }
       },
       "children": [
@@ -1670,55 +1713,6 @@
         }
       }
     },
-    "Messager / Media modal": {
-      "key": "99ccc1ff94409ce8de706af3dd67994a142c18e8",
-      "type": "COMPONENT",
-      "page": "Additional components",
-      "nodeId": "20501:48138",
-      "instanceCount": 0,
-      "properties": {
-        "isProUser": {
-          "type": "BOOLEAN",
-          "key": "isProUser#20602:0",
-          "default": true
-        }
-      },
-      "children": [
-        "Camera Icon · Medium",
-        "Messager Elements / Composer / Image",
-        "Folder Icon · Small",
-        "Horizontal Rule",
-        "Chat Icon · Small",
-        "Document Icon · Small",
-        "Money Icon · Small",
-        "Grabber handle",
-        "Close action",
-        "Native / Indicator"
-      ]
-    },
-    "Messager Elements / Composer / Image": {
-      "key": "8f949c6b838afda6fb34d3e259e7d9dd9348851b",
-      "type": "COMPONENT",
-      "page": "Additional components",
-      "nodeId": "20602:10238",
-      "instanceCount": 0,
-      "properties": {
-        "showClose": {
-          "type": "BOOLEAN",
-          "key": "showClose#20602:3",
-          "default": true
-        },
-        "isVideo": {
-          "type": "BOOLEAN",
-          "key": "isVideo#31658:16",
-          "default": false
-        }
-      },
-      "children": [
-        "Image",
-        "Close Icon · Tiny"
-      ]
-    },
     "Messenger Elements / Composer": {
       "key": "83e7413015b6501e917d8aa7d460129cdc01abfd",
       "type": "COMPONENT_SET",
@@ -1730,11 +1724,9 @@
           "type": "VARIANT",
           "key": "State",
           "options": [
-            "Default",
             "Active",
-            "State4",
-            "State5",
-            "Filled"
+            "Disabled",
+            "Default"
           ],
           "default": "Default"
         }
@@ -1995,11 +1987,6 @@
         "Content": {
           "type": "INSTANCE_SWAP",
           "key": "Content#4276:0"
-        },
-        "children": {
-          "type": "SLOT",
-          "key": "children#26172:0",
-          "default": "-1:-1"
         }
       }
     },
@@ -2078,16 +2065,6 @@
           "type": "BOOLEAN",
           "key": "pill?#7535:0",
           "default": false
-        },
-        "childern": {
-          "type": "SLOT",
-          "key": "childern#26172:1",
-          "default": "-1:-1"
-        },
-        "artwork": {
-          "type": "SLOT",
-          "key": "artwork#26172:4",
-          "default": "-1:-1"
         },
         "Breakpoint": {
           "type": "VARIANT",
@@ -2526,7 +2503,7 @@
       "type": "COMPONENT_SET",
       "page": "Additional components",
       "nodeId": "13333:119467",
-      "instanceCount": 40,
+      "instanceCount": 39,
       "properties": {
         "OS": {
           "type": "VARIANT",
@@ -2794,40 +2771,28 @@
       "type": "COMPONENT_SET",
       "page": "Pill",
       "nodeId": "11239:21525",
-      "instanceCount": 277,
+      "instanceCount": 91,
       "properties": {
         "👁️ icon": {
           "type": "BOOLEAN",
-          "key": "👁️ icon#8450:0",
+          "key": "👁️ icon#33865:24",
           "default": false
         },
         "icon": {
           "type": "INSTANCE_SWAP",
-          "key": "icon#8499:0",
+          "key": "icon#33865:25",
           "default": "_Video Icon · Tiny",
           "defaultSize": "Tiny"
         },
         "Label": {
           "type": "TEXT",
-          "key": "Label#8501:8",
+          "key": "Label#33865:26",
           "default": "Label"
         },
         "iconRight": {
           "type": "BOOLEAN",
-          "key": "iconRight#15280:32",
+          "key": "iconRight#33865:27",
           "default": false
-        },
-        "Size": {
-          "type": "VARIANT",
-          "key": "Size",
-          "options": [
-            "xsmall",
-            "small",
-            "medium",
-            "large",
-            "xlarge"
-          ],
-          "default": "small"
         },
         "theme": {
           "type": "VARIANT",
@@ -2898,7 +2863,7 @@
       "type": "COMPONENT",
       "page": "Additional components",
       "nodeId": "18412:46469",
-      "instanceCount": 11
+      "instanceCount": 13
     },
     "Progress Meter": {
       "key": "9617e6e8ece41453fa24e36d8a59c39d95e2cc58",
@@ -2926,7 +2891,7 @@
       "type": "COMPONENT_SET",
       "page": "Radio",
       "nodeId": "13232:25403",
-      "instanceCount": 167,
+      "instanceCount": 193,
       "properties": {
         "Label": {
           "type": "TEXT",
@@ -3227,7 +3192,7 @@
       "type": "COMPONENT_SET",
       "page": "Star Rating",
       "nodeId": "13288:11403",
-      "instanceCount": 227,
+      "instanceCount": 323,
       "properties": {
         "State": {
           "type": "VARIANT",
@@ -3262,7 +3227,7 @@
       "type": "COMPONENT_SET",
       "page": "Star Rating",
       "nodeId": "13289:11487",
-      "instanceCount": 398,
+      "instanceCount": 402,
       "properties": {
         "size": {
           "type": "VARIANT",
@@ -3303,7 +3268,7 @@
       "type": "COMPONENT_SET",
       "page": "Additional components",
       "nodeId": "11429:2411",
-      "instanceCount": 15,
+      "instanceCount": 17,
       "properties": {
         "Size": {
           "type": "VARIANT",
@@ -3446,7 +3411,7 @@
       "type": "COMPONENT_SET",
       "page": "Tabs",
       "nodeId": "20968:83022",
-      "instanceCount": 70,
+      "instanceCount": 80,
       "properties": {
         "showDropdown": {
           "type": "BOOLEAN",
@@ -3557,7 +3522,7 @@
     "Text Area": {
       "key": "42f39fd842e0ad4566870f9387dc86a93259adde",
       "type": "COMPONENT_SET",
-      "page": "Text Area",
+      "page": "📌 Text Area",
       "nodeId": "13268:34178",
       "instanceCount": 46,
       "properties": {
@@ -3658,7 +3623,7 @@
     "TextInput": {
       "key": "522dbc457c6160fe2d2673326448ee3c16245519",
       "type": "COMPONENT_SET",
-      "page": "Text Input",
+      "page": "📌 Text Input",
       "nodeId": "13232:23754",
       "instanceCount": 115,
       "properties": {

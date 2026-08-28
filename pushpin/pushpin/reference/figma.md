@@ -14,7 +14,7 @@ there is one set of glyphs for both systems and no second copy to drift. It is
 not a migration Pushpin has yet to finish, and it is not a gap — do not expect it
 to move, and do not propose an icon on the grounds that Pushpin lacks one.
 
-What it does mean is that the Pushpin kit publishes 117 public components and not
+What it does mean is that the Pushpin kit publishes 115 public components and not
 one of them is an icon. Searching the Pushpin library for a caret returns nothing,
 which reads as "no such icon" and is really "wrong library". Ask the catalog
 instead — `node scripts/lookup.mjs --icon caret` — and see
