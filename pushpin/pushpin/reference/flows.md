@@ -182,6 +182,25 @@ and `03 Payment — error` arrive named as what they are. Two rules on top of it
   single thing reflow does that copying the page does not, so a catalog that
   kept the duplicates did not get built.
 
+**Every reflow call opens with the traversal guard**, because
+duplicating is `clone()` and a state frame is a frame full of instances — the
+worst case for
+[stale traversal](generate.md#stale-traversal-on-a-subtree-this-call-created)
+and the one this path produces by the dozen. A call that duplicates six states
+and then reads into one of them to rename a label, measure a region, or check
+what it holds is asking the question all four search techniques answer wrongly:
+the clone reports 0 or 1 nodes where it has 9 or 24, and reports it without
+erroring. One line at the top of the call settles it:
+
+```js
+figma.skipInvisibleInstanceChildren = false;
+```
+
+A call that only duplicates and never reads back is unaffected, and so is every
+later call — a lane reading a state an earlier call cloned gets the whole
+subtree with no guard at all. The line costs nothing to write in either case and
+the failure it prevents is silent, so write it.
+
 **Build, when they are not.** Each state is generated through the whole of
 [generate.md](generate.md): the [access preflight](generate.md#the-access-preflight)
 before any node exists, [one import batch](generate.md#the-imports-go-in-one-batch)
@@ -329,36 +348,64 @@ depends on the two points.
 
 Setting the text is the ordinary annotation recipe: the body lives in a `TEXT`
 node rather than in a component property, and the kit's font is not one an agent
-has — [annotate.md](annotate.md#setting-the-text).
+has — [annotate.md](annotate.md#setting-the-text). Reaching that node means
+searching an instance created two lines above, which is the shape that goes
+wrong on the reflow path and does not go wrong here: the capstone arrived
+through `createInstance`, and a fresh instance answers a search completely.
+[Stale traversal](generate.md#stale-traversal-on-a-subtree-this-call-created) is
+about `clone()` and `detachInstance()`, and neither is on this path.
 
 ## One fill call per swim lane
 
 The catalog decomposes like every other write path here —
 [skeleton then fill](parallel.md#skeleton-then-fill).
 
-**The skeleton claims the main frame, the capstones, the lane frames, the states
-rows, and one empty state card per state — each named, each in its final order.**
-The order is the reason. A row of state cards is read left to right, so its child
-order *is* the flow, and two calls appending into the same row race for it with
-neither script able to tell which one ran first —
-[disjoint subtrees are not disjoint effects](parallel.md#the-invariant). Handing
-each lane a row of empty cards it fills in place removes the race entirely, and
-it is the same move [annotate.md](annotate.md#filling-the-cards-in-parallel)
-makes for the notes column.
+**The skeleton claims the main frame, the capstones, the lane frames and the
+states rows, and stops there** — each shimmering, each in its final order. The
+cards belong to the lane that fills them and are created inside the row by that
+lane.
+
+The order still decides this, read one step more carefully than it used to be.
+A row of state cards is read left to right, so its child order *is* the flow,
+and two calls appending into one row race for that order with neither script
+able to tell which ran first —
+[disjoint subtrees are not disjoint effects](parallel.md#the-invariant). What
+that rules out is two writers, not ordering. A states row has exactly one owning
+lane, so the sequence its cards come out in is the sequence that lane wrote them
+in, and there is no other call whose position it would have to know —
+[one ordered container, one writing lane](parallel.md#one-ordered-container-one-writing-lane).
+The notes column in [annotate.md](annotate.md#filling-the-cards-in-parallel) is
+the other case and keeps its pre-created cards, because more than one lane feeds
+it.
+
+**The budget collision goes with the cards.** A skeleton that had to pre-create
+every card for every lane grew with the catalog while the ten-operation ceiling
+stayed per call, so a twelve-state catalog put the structure and twelve cards
+into one write and neither budget could give. The main frame, the capstones, the
+lanes and the rows are a handful of operations however many states the catalog
+holds, and each card now costs a lane one operation it was going to spend on
+that card anyway.
 
 **Then one call per swim lane,** each holding [the lane contract](parallel.md#the-lane-contract):
 its own page switch, its own import batch, its own font load, its own ids pasted
-in as literals.
+in as literals. Issue them in the catalog's own top-to-bottom order, so the lane
+a reader meets first is the one that lands first; the lanes go out in one
+message either way, so the ordering costs nothing.
 
-Two budgets meet awkwardly on this path and it is worth knowing which gives.
-[About six lanes](parallel.md#the-ladder) is the ceiling on parallelism, and a
-catalog with more than six sections groups them rather than opening a seventh
-call. The ten-operation ceiling is per *call*, and a swim lane will routinely
-exceed it — six states at a label, an instance, and a notes frame apiece is
-already past twenty. **So a large lane splits sequentially inside itself, never
-into a second call onto the same row.** Two calls writing into one states row is
-precisely the collision the skeleton was built to rule out, and reopening it to
-save a round trip trades a correctness property for a few seconds.
+One budget still binds. [About six lanes](parallel.md#the-ladder) is the ceiling
+on parallelism, and a catalog with more than six sections groups them rather
+than opening a seventh call. The ten-operation ceiling is per *call*, and a swim
+lane will routinely exceed it — six states at a label, an instance, and a notes
+frame apiece is already past twenty. **So a large lane splits sequentially
+inside itself, never into a second call onto the same row.** One owning lane is
+what the ordering argument above rests on, and a second call onto the same row
+is exactly how a row acquires a second writer.
+
+A lane that split and then failed part way repairs the way
+[parallel.md](parallel.md#when-a-lane-fails) has it, on the branch for a lane
+that owns what it built: empty the states row and re-run the lane from its first
+call. The cards are the lane's own work rather than the skeleton's, so there is
+nothing of anyone else's in there to preserve, and the cost is one row.
 
 [Join before annotating or auditing](parallel.md#join-before-annotating-or-auditing),
 as everywhere else: a lane still running is indistinguishable from one that

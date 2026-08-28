@@ -1,7 +1,7 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.13.2
+version: 0.13.3
 argument-hint: "[generate|audit|figma · setup|init|freshness · refresh] [target]"
 allowed-tools:
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/check.mjs *)

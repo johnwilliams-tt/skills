@@ -172,8 +172,8 @@ the two ways states get into one — is in [flows.md](flows.md).
 ## Property names are exact
 
 They are case-sensitive, space-sensitive, and several contain emoji. These are
-not guessable, which is the reason the catalog exists — `node
-scripts/lookup.mjs Button` prints exactly this table for any component:
+not guessable, which is why they get looked up rather than typed from memory.
+This is the published Button:
 
 | Property | Type | Values |
 |---|---|---|
@@ -193,8 +193,8 @@ Two traps live in that table.
 
 **VARIANT properties take bare names; everything else takes a suffixed key.**
 `theme` is `theme`, but `Label` is `Label#13326:0`. Passing the bare name for a
-TEXT, BOOLEAN, or INSTANCE_SWAP property throws. The catalog stores the exact
-string to use in each property's `key` field.
+TEXT, BOOLEAN, or INSTANCE_SWAP property throws — resolve it with `idFor` from
+[Property ids come off the imported node](#property-ids-come-off-the-imported-node).
 
 ```js
 button.setProperties({
@@ -213,40 +213,110 @@ combinations but publishes only 260 variants. Start from
 `set.defaultVariant.createInstance()` and change a few properties, rather than
 specifying every axis and hoping the combination was built.
 
-Always look the component up before setting properties. Never set one from
-memory.
+Always look the component up before setting properties; never set one from
+memory. Look it up in two places, because they answer different questions:
+`lookup.mjs` for whether a component exists, what it is called, and what copy
+rule governs it, and the imported node for the exact property ids and variant
+options to pass.
 
-### A slot is filled by appending, not by setting a property
+### The Modals take their content through an INSTANCE_SWAP
 
-Two components in the kit publish slots, three between them, and a slot is the
-one property type `setProperties` cannot reach —
-`setProperties({ 'children#26172:0': … })` throws. `lookup.mjs` prints slots with
-a suffixed key like every other non-VARIANT property, but that key is only how
-the slot is announced. The content goes in by finding the slot node on the
-instance and appending to it.
+The two Modals publish an opening for content they do not supply themselves, and
+it is an `INSTANCE_SWAP` property set by its suffixed key like every other
+non-VARIANT property. There is no node to find and nothing to append. The value
+is the id of a component, so the swap-in has to be imported before it can be
+named.
 
 ```js
-const slot = instance
-  .findAllWithCriteria({ types: ['SLOT'] })
-  .find(n => n.name === 'childern');
-slot.appendChild(content);
+const set = await figma.importComponentSetByKeyAsync('2333a8ce880a7c536463a24850a4096422e59eeb');
+const modal = set.defaultVariant.createInstance();
+const art = await figma.importComponentByKeyAsync(
+  '3a851e0959e74155ad8078d07c329d3668cb6218',   // the illustration template the kit offers for this slot
+);
+
+modal.setProperties({
+  'title#3656:10': 'Save on your first booking',
+  'description#3656:13': 'Book by Friday and we cover the fee.',
+  'Artwork#7487:0': art.id,
+});
 ```
 
-Narrow by name rather than taking the first match, because Modal / Promotion
-publishes two — and both of the traps here live on it. `childern` is misspelled
-upstream, and `artwork` (SLOT) sits beside `Artwork` (INSTANCE_SWAP), differing
-only in case. Neither survives being typed from memory.
+| Component | Property | Type | Default |
+|---|---|---|---|
+| Modal / Promotion | `title#3656:10` | TEXT | `Title` |
+| Modal / Promotion | `description#3656:13` | TEXT | `Description` |
+| Modal / Promotion | `Artwork#7487:0` | INSTANCE_SWAP | `Modal / Promotion / Illustration template / Large` |
+| Modal / Promotion | `grabber?#3754:24` | BOOLEAN | `false` |
+| Modal / Promotion | `indicator?#3754:27` | BOOLEAN | `true` |
+| Modal / Promotion | `pill?#7535:0` | BOOLEAN | `false` |
+| Modal / Promotion | `Breakpoint` | VARIANT | `Large` |
+| Modal / Factory / Main | `Content#4276:0` | INSTANCE_SWAP | `Modal / Factory / Main / Content node` |
 
-| Component | Slot |
-|---|---|
-| Modal / Factory / Main | `children` |
-| Modal / Promotion | `childern` |
-| Modal / Promotion | `artwork` |
+**The breakpoint sizes the artwork, not the other way round.** `Breakpoint:
+Large` gives the illustration 624×312 and `Small` gives it 390×195, so a swap-in
+drawn at another size is stretched to whichever one the variant is on rather
+than widening the Modal. `Modal / Factory / Main` is a plain `COMPONENT` and its
+`Content` slot is 528×92 — `importComponentByKeyAsync`, no variant to set.
 
-`GRID` is not a legal `layoutMode` on a slot; content that needs a grid goes in a
-frame inside it. If an edit to the appended node then throws
-`Internal Figma Error: Parent not found`, the append invalidated the handle —
-re-find the node through `slot.children` and edit through the fresh one.
+**The Modal's footer Button is a nested instance and answers to Button's own
+keys.** It is not published as a property of the Modal, so it is reached by
+traversal and configured with `setProperties({ 'Label#13326:0': … })` — Button's
+key, on Button's instance. Setting it through the Modal throws, because the
+Modal publishes nothing by that name.
+
+**Ignore the three `SLOT` rows `lookup.mjs` prints.** `childern#26172:1` and
+`artwork#26172:4` on Modal / Promotion, and `children#26172:0` on
+Modal / Factory / Main, all come back with a default of `-1:-1`, which is what a
+property with nothing behind it looks like. Someone has converted both Modals
+from swap-based to slot-based composition inside the Pushpin library file and
+that conversion is not published;
+`importComponentSetByKeyAsync` and `importComponentByKeyAsync` resolve the
+published version, and the published version has no `SLOT` node in it at all —
+zero, in both the Pushpin kit and the Thumbprint UI Kit, searched for with
+`skipInvisibleInstanceChildren` both on and off. A run that goes looking for
+one finds `undefined` and dies on the append.
+
+## Stale traversal on a subtree this call created
+
+**A subtree this call produced with `clone()` or `detachInstance()` answers
+searches from a view of itself that was never filled in.** Nothing throws, and
+the short answer comes back with nothing on it saying it is short — the call
+returns a number that reads like a finding, which is why the same defect has now
+been diagnosed three times as three different bugs.
+
+One line at the top of the call is the whole guard:
+
+```js
+figma.skipInvisibleInstanceChildren = false;
+```
+
+**Set it in every call that clones or detaches, because it does not persist.**
+It reads back `true` at the start of every `use_figma` script, which contradicts
+the plugin typings — they document `false` outside Dev Mode — so a script that
+trusts the documented default is wrong before it starts.
+
+**Do not fix this by searching twice.** `findAll`, `findOne` and `query` return
+the unfilled view and fill it as a side effect, so a repeat looks correct;
+`findAllWithCriteria` reads an index the subtree never populated and returns the
+same wrong number forever. Three of the four recovering on their own is how this
+survived being diagnosed three times.
+
+On the path: `clone()` of a container, and `detachInstance()`. Off it:
+`createInstance()`, cloning an instance directly, and anything reading a subtree
+an *earlier* call created — which is why
+[the lane contract](parallel.md#the-lane-contract) carries no guard and must not
+gain one. A `createInstance` site is safe because of how the node was made, not
+how it is searched, so switching that site to `clone()` loses the protection
+without touching a search call.
+
+The flag costs tens to low hundreds of milliseconds inside a call whose round
+trip is seconds, and it pays for itself the first time it stops a lane rebuilding
+a section. A recursive `.children` walk forces the same materialization but has
+to be remembered per site and still omits hidden instance children, so it is the
+audit's belt-and-braces rather than the rule here —
+[audit-figma.md](audit-figma.md#what-the-walk-can-reach). Measurements behind all
+of this are in
+[UPSTREAM-figma-materialization.md](../../UPSTREAM-figma-materialization.md).
 
 ## Icons
 
@@ -303,21 +373,41 @@ defect.
 built it around. Take that one's size and swap to the same size:
 
 ```js
-const slot = instance.findOne((n) => n.type === 'INSTANCE' && / Icon · /.test(n.name));
-const size = /Icon · (Tiny|Small|Medium|Large)$/.exec(slot.name)[1];
+figma.skipInvisibleInstanceChildren = false;
+
+const slot = instance.findOne((n) => n.type === 'INSTANCE' && /^Icon \//.test(n.name));
+const main = await slot.getMainComponentAsync();
+const size = / Icon · (Tiny|Small|Medium|Large)$/.exec(main.name)[1];
 ```
 
-This is the whole rule for icons inside components, and it is worth preferring
-over any table because it cannot go stale. It needs no lookup, it stays correct
-when the kit rebuilds a component, and it gets the cases a table would miss —
-Button's left slot defaults to `Medium` while its right slot defaults to `Tiny`,
-which no reasonable table would have predicted. The catalog records the same
-answer statically as `defaultSize` on each `INSTANCE_SWAP` property, for reading
-ahead of a run.
+**Neither of the two lines this replaces could have worked, and neither would
+have said so.** The icon slots are invisible instance children: with the flag
+left alone, a fresh default-variant Button walks to two nodes and holds no
+reachable `INSTANCE` at all, so the `findOne` has nothing to match. With the
+flag off the walk reaches five and the slots appear, named `Icon / Left` and
+`Icon / Right` — which is the second half of it, because a pattern looking for
+` Icon · ` matches neither name and returns `null` under either setting.
 
-One caveat: the recorded default is the *default variant's* answer. A component
-with a `size` axis scales its icon along with it, so read the slot on the
-instance you actually configured, not on the one you first created.
+**The size is on the main component, not on the node and not in its
+measurements.** `Icon / Left` measures 14×14 on the canvas while the component
+behind it is `_Arrow-Left Icon · Medium`, a 28px icon, so `slot.width` answers
+the question wrongly and confidently. `getMainComponentAsync` is where the size
+is written down.
+
+This is still the whole rule for icons inside components, and it is worth
+preferring over any table because it cannot go stale. It needs no lookup, it
+stays correct when the kit rebuilds a component, and it gets the cases a table
+would miss — Button's left slot defaults to `Medium` while its right defaults to
+`Tiny`, which no reasonable table would have predicted. The catalog carries
+`defaultSize` on 6 of its 14 `INSTANCE_SWAP` properties for reading ahead of a
+run; the other 8, Button's two among them, are slots whose size the capture has
+no way to resolve, so the read above is the only answer for those.
+
+One caveat, narrower than it used to read: the recorded default is the *default
+variant's* answer. Button's does not move — `size=small`, `medium`, and `large`
+all answer `Medium` and `Tiny` — and whether any other component's does was not
+measured. Reading the slot off the instance you actually configured rather than
+the one you first created costs nothing, so read it there.
 
 For a **standalone** icon, with no slot to read:
 
@@ -792,12 +882,7 @@ probes.forEach(([library], i) => {
     : settled[i].reason.message;
 });
 
-const button = settled[0];
-const api = button.status === 'fulfilled'
-  ? { slots: typeof button.value.defaultVariant.createSlot === 'function' }
-  : {};
-
-return { reach, api };
+return { reach };
 ```
 
 The three probes are three separate libraries and no one of them tells you
@@ -810,18 +895,35 @@ Every icon is a plain `COMPONENT` rather than a set, which is why the icon probe
 uses `importComponentByKeyAsync`. Use the same call for any catalog entry whose
 `type` is `"COMPONENT"`.
 
-`api` rides back on the Button import rather than costing a call of its own: the
-resolved set's `defaultVariant` is a `ComponentNode`, so the answer is in hand
-already and nothing is mutated to get it. It crosses back as a boolean because a
-node handle cannot, and it travels beside `mode` for the rest of the run.
-
 **Silent when it passes**, like the session freshness check; only a negative is
-worth a sentence. And it is asymmetric. A positive forbids the claim that the
-API cannot do the thing, but it does not promise the call works — for the reason
+worth a sentence.
+
+**Nothing rides back on the Button import beside `reach`.** An earlier version
+of this page carried a capability probe there —
+`typeof button.value.defaultVariant.createSlot === 'function'` — and travelled
+its answer beside `mode` for the rest of the run. It could not have answered
+`false`. A bare `typeof` against a property this runtime does not have throws
+rather than evaluating to `'undefined'` — probing a `COMPONENT` for a method it
+lacks answers
+`TypeError: node.resetSlot: no such property 'resetSlot' on COMPONENT node`
+rather than the string the comparison was written against. So
+the one outcome the probe existed to record would have taken the whole preflight
+down with it, losing the three library answers that are the reason it runs at
+all — and the promise that a negative gets cross-checked before it is believed
+was unreachable, because there was no way to hold a negative.
+
+[rules.md](rules.md) asks for a live probe before any claim that the API cannot
+do something, and this is what a live probe has to look like here:
+
+```js
+const has = (node, method) => {
+  try { return typeof node[method] === 'function'; } catch { return false; }
+};
+```
+
+A positive still does not promise the call works — for the reason
 [the drift record](#the-drift-record-lives-on-the-node) gives about
-`setPluginData`, a method can answer `'function'` and still throw. A negative
-gets one cross-check against `figma-use`'s `component-patterns.md` before it is
-believed.
+`setPluginData`, a method can answer `'function'` and still throw.
 
 ### One library stops the run, and it is not all of them
 
@@ -874,6 +976,44 @@ person to propose a component that already exists.
 Failing here costs nothing. Failing halfway through leaves a partial screen that
 reads like a generation bug rather than a permissions one.
 
+### Reach is not existence
+
+The probes say the libraries answer; they say nothing about whether the keys this
+run will place are still published. Figma returns the same
+`Component with key "…" not found` either way, and the remedies differ: an
+unreachable library is the user's to fix by getting access, a key that will not
+resolve is the maintainer's to fix by re-capturing. Name which one, or the message
+sends someone to the wrong hour of debugging.
+
+The preflight creates no nodes, so it is the cheap place to find out. Add the
+distinct keys the plan calls for to the same `allSettled`, skipping any library
+the reach probes already failed. A key that does not resolve becomes an
+[unresolved atom](#unresolved-atoms-are-placed-never-dropped) — placeholder,
+sticky, a line in the handoff — planned rather than improvised out of a thrown
+call halfway through a screen. Point the remedy at
+[maintaining.md](maintaining.md#refreshing-the-capture).
+
+### Property ids come off the imported node
+
+`setProperties` matches the exact id, suffix included — `Label#13326:0`, not
+`Label` — so a renumbered suffix throws as hard as a deleted property. Variants
+are the exception and take bare names.
+
+Resolve the id from the component you are about to instance, not from the
+catalog:
+
+```js
+const defs = set.componentPropertyDefinitions ?? {};
+const idFor = (name) =>
+  Object.keys(defs).find((k) => k === name || k.startsWith(`${name}#`));
+
+button.setProperties({ theme: 'primary', [idFor('Label')]: 'Get estimates' });
+```
+
+That costs nothing — the import already happened — and it is immune to the
+suffix churn a republish causes. The catalog stays authoritative for what exists,
+what it is called, what it costs, and which copy rule governs it.
+
 ## The imports go in one batch
 
 A screen needs a dozen imports — a few component sets, the icons, the variables
@@ -910,9 +1050,13 @@ argues a designer cannot act on. `missing` carries the name it was asked for.
 Import each distinct key once and reuse the main component for every instance —
 one `Button` import serves eleven buttons. And leave out of the batch what the
 preflight already ruled out: the icon keys when `mode.icons` is `placeholder`,
-the annotation keys when `mode.annotations` is `drawn`. Importing a key from a
-library the preflight just failed on throws, and the preflight ran so this step
-would not have to guess.
+the annotation keys when `mode.annotations` is `drawn`, and any key the preflight
+found dead. Importing a key from a library the preflight just failed on throws,
+and the preflight ran so this step would not have to guess.
+
+Node handles do not survive the end of a `use_figma` call, so this batch
+re-imports what the preflight already resolved. That is the price of learning
+about a dead key before the skeleton exists rather than halfway through it.
 
 ## Filling the sections in parallel
 
@@ -926,8 +1070,27 @@ That is [skeleton then fill](parallel.md#skeleton-then-fill), and it is the shap
 every write path in this skill takes. The invariant that makes it safe, the
 [contract each lane holds](parallel.md#the-lane-contract), the ladder that
 decides whether the lanes are tool calls or subagents, and what to do when one of
-them fails are all on [parallel.md](parallel.md). Three things are specific to
+them fails are all on [parallel.md](parallel.md). Five things are specific to
 filling a screen.
+
+**The skeleton stops at the section containers.** It claims the frame, creates
+one shimmering container per section, and creates nothing inside them; every
+node a section holds is made by the lane that owns that section. Two lanes
+appending into one container is the collision the invariant rules out, but a
+section has exactly one writing lane, and a container with one writer has no
+second appender to order against —
+[one ordered container, one writing lane](parallel.md#one-ordered-container-one-writing-lane).
+What that buys is not speed. It is that the largest all-or-nothing write in the
+run stops being the first one: a skeleton of thirty nodes that throws on the
+twenty-ninth is a from-scratch restart, where a lane that throws costs one
+section, and content starts landing while the rest of the screen is still being
+written rather than all at once at the end.
+
+**Issue the lanes in the order the screen is read.** The lanes go out in one
+message either way, so nothing about this costs a round trip; what it decides is
+which section a user watching the canvas sees first. Lead with the section
+carrying the most meaning — the hero, the primary action, the content the screen
+is about — and let the footer land last.
 
 **Sections are filled in place rather than built off to one side and composed at
 the end,** and the sizing rule is the reason. `layoutSizingHorizontal = 'FILL'`
@@ -968,7 +1131,7 @@ return { mutatedNodeIds: [section.id /* , … */], drift };
    link still comes first, as ever — nothing in this message can be issued
    without it, and it is never searched for. Both are reads, so the preflight
    still lands before any node exists, which is the point of running it early.
-   Stop only if Pushpin is unreachable; otherwise carry `mode` and `api` forward.
+   Stop only if Pushpin is unreachable; otherwise carry `mode` forward.
 2. **Read the page.** Walk up to the resolved frame's page and take its children
    — [context.md](context.md). When the link carried a `node-id`, this rides in
    the first message too, since the walk starts from that id and needs nothing
@@ -1000,10 +1163,14 @@ return { mutatedNodeIds: [section.id /* , … */], drift };
      section, and returns `{ frameId, pageId, sections: [{ id, name }] }`. The
      original stays untouched from here on. The skeleton is containers rather
      than components, so it needs nothing the lookup is fetching — which is why
-     the two fit in one message — and the ids it returns are what the fill lanes
-     are handed.
+     the two fit in one message — it stops at the containers and creates nothing
+     inside them, and the ids it returns are what the fill lanes are handed.
+     The duplicate is a `clone()` of a frame holding instances, so a skeleton
+     that reads anything back out of it opens with the flag from
+     [stale traversal](#stale-traversal-on-a-subtree-this-call-created).
 5. **Fill the sections in parallel,** one `use_figma` call per section, all of
-   them in one message — [above](#filling-the-sections-in-parallel), and
+   them in one message and in the order the screen is read — the hero before the
+   footer — [above](#filling-the-sections-in-parallel), and
    [the ladder](parallel.md#the-ladder) for the runs big enough to want
    subagents instead of one message. Each lane batches its own imports, stays
    inside the section it was handed, binds its spacing through

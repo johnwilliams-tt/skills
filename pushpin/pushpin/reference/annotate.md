@@ -46,6 +46,16 @@ const swapped = await loadOrSubstitute(body);
 body.characters = 'Proposed: FilterChip\nExtends: Chip\n…';
 ```
 
+That `findOne` is safe because `note` came from `createInstance()`, which did not
+reproduce the unmaterialized-interior blind spot under measurement — that line
+run verbatim against a fresh `Annotations` · `Guide` instance finds the text node
+on the first call, 2 TEXT nodes in a 4-node subtree. It is emphatically not safe
+because `findOne` is reliable: on a subtree this script cloned or detached,
+`findOne` returns a partial answer and throws nothing. Copied into either of
+those contexts, this line carries the bug that has already been misdiagnosed
+three times — the guard for that case is in
+[generate.md](generate.md#stale-traversal-on-a-subtree-this-call-created).
+
 **The Annotation Kit is set in Helvetica Neue, and an agent does not have it.**
 Pushpin's own Thumbtack Rise is published to the file and loads; Helvetica Neue
 is a system font, so it is present on a designer's Mac and absent from the

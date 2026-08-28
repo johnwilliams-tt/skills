@@ -39,11 +39,28 @@ partial node behind for another lane to trip over.
 into one auto-layout column never touch each other's nodes and still collide,
 because what they share is the column's child order — and order is the one piece
 of state a parent holds on its children's behalf. Whichever call ran second
-appends second, and neither script knows which one that was. So a container
-whose members are ordered gets claimed and populated by the skeleton rather than
-raced for by the lanes.
+appends second, and neither script knows which one that was. So a container whose
+members are ordered and arrive from more than one lane gets claimed and populated
+by the skeleton rather than raced for by the lanes.
 [annotate.md](annotate.md#filling-the-cards-in-parallel) is where this bites, and
 it is the reason the annotate pass has a skeleton at all.
+
+### One ordered container, one writing lane
+
+The thing that makes the column above unsafe is two writers on one ordered
+container, not the ordering by itself. Order is state the parent holds, and state
+only needs arbitrating when more than one script is changing it. A lane creating
+children inside a container no other lane touches has no second appender to order
+against: whatever sequence it produces is the sequence it wrote, in the order its
+own script wrote it, and there is no other call whose position in that sequence it
+would have to know.
+
+So the rule reads in both directions rather than only against the lanes. A
+container fed by several lanes is claimed and populated by the skeleton.
+A container owned by exactly one lane can be built by that lane, children and
+all, and doing so races with nothing. Ownership is what carries the guarantee
+here, exactly as disjointness does above — established by reading the lanes
+before either runs, rather than observed afterwards.
 
 ## Skeleton then fill
 
@@ -93,7 +110,9 @@ one already collects the win.
   that each need their own catalog lookups and copy decisions rather than one
   prepared script. This rung requires the subagent to inherit the Figma MCP
   server; when it does not, drop a rung, because a subagent that cannot call
-  `use_figma` is not a lane.
+  `use_figma` is not a lane. Whether Cursor's subagents inherit it is untested —
+  treat that as an open question to settle by running one lane from a subagent,
+  rather than as a host difference this page has already established.
 - **Sequential** — the floor. Identical output, slower, and where all of this
   goes the moment a lane would have to reach outside its own subtree to do its
   job.
@@ -103,6 +122,17 @@ lanes of already-written script is slower than the single message it replaced.
 That is the ordinary case: most runs are three to six lanes and belong on the
 middle rung. The top rung earns its overhead when each lane has thinking to do
 that the message issuing it would otherwise have to do first.
+
+**Visible progress is the other thing the rungs differ on, and it points the
+opposite way to speed.** On the batched rung the join is free because the message
+does not continue until every call has come back — which is the same fact read
+from the other side: nothing is visible until everything is, and the user watches
+one silence and then a finished screen. The subagent rung is the only one where a
+lane lands and reports as it finishes, so a long run shows results accumulating
+rather than a wait of unknown length. That does not move the default, because the
+saving the middle rung collects is real and most runs are short enough that
+nobody is waiting on the first result. It does mean a run whose length is the
+complaint has a reason to go up a rung that speed alone would not give it.
 
 ### Hard limits on the subagent rung
 
@@ -178,10 +208,32 @@ works only on the rung it was written for.
 
 ## When a lane fails
 
-`use_figma` is atomic: a script that errors executes nothing. A failed lane
-leaves its subtree exactly as the skeleton left it and leaves every other lane
-alone. There are no partial nodes and nothing to clean up, so recovery is
-re-issuing that lane rather than rebuilding the screen.
+`use_figma` is atomic: a script that errors executes nothing, so a failed lane
+leaves every other lane alone. Where the lane was a single call it also leaves
+its subtree exactly as the skeleton left it — no partial nodes and nothing to
+clean up, so recovery is re-issuing that lane rather than rebuilding the screen.
+
+**Atomicity is per call, though, and a lane is not always one call.**
+[generate.md](generate.md) requires a section needing more than ten logical
+operations to split sequentially within its own lane, and
+[flows.md](flows.md) says a swim lane "will routinely exceed it — six states at a
+label, an instance, and a notes frame apiece is already past twenty". So the
+common case is a lane of four or five calls where call three throws and calls one
+and two landed. Re-issuing that lane from the top runs the two that succeeded a
+second time and duplicates everything they created, so a re-issue is not the
+recovery for that shape of failure. This is how a single throw turns into a full
+restart: the obvious move makes the section worse, and rebuilding from scratch is
+the only remaining move whose result can be predicted.
+
+**A lane that split sequentially repairs from observable canvas state instead.**
+Delete the section's children and re-run the lane from its first call. Nothing
+new has to be recorded for that to work: what landed is on the canvas, and
+emptying the section puts it back into the state the skeleton handed over. The
+cost is bounded to one section and never reaches the screen, which is the whole
+difference between this and a restart. Where a lane fills named cards the
+skeleton created, there is nothing to delete at all — the cards are addressed by
+name, so a re-issue that fills only the ones still empty is idempotent by
+construction and leaves what landed alone.
 
 Read the error before re-issuing. A failed lane is a script to fix, and a second
 identical call fails identically.

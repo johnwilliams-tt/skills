@@ -62,18 +62,113 @@ is not that: the forbidden list is short, none of it is a matter of taste, and a
 frame this plugin generated wrote those words itself. So a critical goes to
 `defects` and the frame does not hand over, and everything else reports.
 
+## What the walk can reach
+
+Every check below is a walk, and a walk reports on what it reaches. Two separate
+gates decide that, and each one has to be opened deliberately, because the
+default on both is to hide nodes rather than to report them missing.
+
+The first is `figma.skipInvisibleInstanceChildren`. The plugin API typings
+document its default as false in Figma and FigJam and true only in Dev Mode, and
+this harness diverges from that: read five times, it is `true` every time. What
+that costs is measurable. Turning it off raises the reachable nodes inside a
+single `Modal / Promotion` instance from 24 to 44, and the TEXT nodes inside it
+from 6 to 8. Left on, the flag hides 20 of that instance's 44 nodes and 2 of its
+8 TEXT layers from every check on this page, which is where a type-ramp check or
+a fill check passes by never being asked. A hidden node is also unaddressable
+rather than merely unwalked: with the flag on, `getNodeByIdAsync` returns `null`
+for a hidden node inside an instance, verified on three captured ids. Setting the
+flag explicitly is therefore the point rather than a formality: a documented
+default this harness does not honour is how a claim about covering instance
+interiors overstates itself, with nothing on the canvas or in the report saying
+so.
+
+The second gate is materialization. An instance's interior is materialized
+lazily, the search APIs only ever see what is already materialized, and none of
+them trigger it. That matters here whenever the audit shares a call with anything
+that wrote — generation, or the annotate pass ahead of it: a subtree created in
+this call answers a search confidently and wrongly instead of throwing. Only an
+explicit `.children` read forces the work, which is what `materialize` below is.
+The two gates are independent, and the walk opens exactly one of them —
+`.children` on an instance also omits hidden descendants while the flag is true,
+the same 24 against 44, so recursing through `.children` does not recover a
+single hidden node. Neither substitutes for the other.
+
+That is also why the assertion is worth its two extra index reads. A stale
+traversal does not throw and does not report a smaller number anywhere a reader
+will see: it comes back as a clean pass, which is the worst available failure
+mode for a check whose entire job is to catch silent omission. Calling the search
+twice is a tempting cheaper fix and it is only a partial one. On an unmaterialized
+subtree `findAll`, `findOne`, and `query` return the pre-materialization view on
+the first call and materialize as a side effect, so an identical second call is
+correct — 0 then 6, measured. `findAllWithCriteria` reads an index the subtree
+never populated and never self-corrects: 0 then 0, across two independent runs.
+Three of the four APIs recovering on their own is precisely how this bug survived
+three separate diagnoses, and this script's checks are built on the fourth.
+
+**The guard runs against the page rather than against the frame**, because the
+frame is not the only receiver here. Three lookups start at the page — the
+`Proposed:` notes, the `defs` index, and the annotation set that the overlap
+check and the `Token drift` check share — and all three go through the one API
+that never corrects itself. A frame-only guard cannot speak for any of them, and
+nothing in the runtime enforces the step boundary that would keep the gap
+theoretical: [generate.md](generate.md#workflow) annotates at step 6 and audits
+at step 7, so a call that ran both arrives with the frame built in an earlier call
+and already materialized. The assertion passes clean, and the notes written
+moments ago in this same call are the ones missing from the page's index. What
+comes back is `Proposed / <Name> — no annotation note` against a proposal whose
+note is sitting on the canvas, and a `Token drift` note that the same staleness
+has just made undiscoverable. That is the worse of the two failures: an omission
+costs one check quietly, while a defect that sends its reader looking for
+something already there costs the standing of every other line in the report.
+
+Materializing a page is a heavier walk than materializing a frame, and it is
+still the walk to take. It replaces the frame's walk rather than adding to it:
+the frame is a descendant of the page, so one pass materializes both, and the
+page's count includes the frame's, which makes a second assertion on the frame
+redundant rather than cheaper. Set against that, this script already traverses
+the page three times and the frame five more, and `materialize` evaluates no
+predicate and reads no property but `.children` — so it does less per node than
+any check that follows it. The genuinely cheaper option is not available:
+materializing only the annotation subtrees means finding them first, and finding
+them is the page read whose answer is in question. The walk is what repairs those
+reads; the assertion only reports that they needed repairing, which is why naming
+two types in it is enough and why the two named are the ones the notes come back
+through. On a page carrying work beside this frame the walk reaches nodes the
+audit will never report on, which is the real cost of it and the same trade the
+flag settles above.
+
+The flag makes traversal slower — how much was not measured here, so do not
+budget against a number. The audit is the one place in this skill where
+correctness outranks speed outright: a fast walk that misses 45% of an instance's
+interior answers a different question than the one being asked.
+
 ## The script
 
 ```js
+// Set before the two counts below rather than between them, so both are taken
+// under the same flag and the assertion cannot fire on the flag change itself.
+figma.skipInvisibleInstanceChildren = false;
+
 const root = await figma.getNodeByIdAsync('<generated frame id>');
+
+let page = root;
+while (page && page.type !== 'PAGE') page = page.parent;
+
+// The page rather than the frame: the frame is inside it, so one walk covers
+// both receivers, and TEXT is in the probe because the note lookups are the
+// reads a stale page index gets wrong.
+const materialize = (n) => { const kids = n.children; if (kids) for (const k of kids) materialize(k); };
+const before = page.findAllWithCriteria({ types: ['FRAME', 'TEXT'] }).length;
+materialize(page);
+if (page.findAllWithCriteria({ types: ['FRAME', 'TEXT'] }).length !== before) {
+  throw new Error('stale traversal');
+}
 
 // This runs as its own use_figma call, so the preflight's result is not in
 // scope — paste it in the same way the frame id is pasted in. `library` for
 // anything that resolved normally.
 const mode = { icons: '<library|placeholder>', annotations: '<library|drawn>' };
-
-let page = root;
-while (page && page.type !== 'PAGE') page = page.parent;
 
 const notes = new Map();
 for (const t of page.findAllWithCriteria({ types: ['TEXT'] })) {
@@ -115,6 +210,9 @@ const inInstance = (n) => enclosingInstance(n) !== null;
 // instance interior: what sits in one is this run's work, not the library's.
 // Stops at the enclosing INSTANCE for the reason `enclosingInstance` takes the
 // nearest — a Button placed in a slot still owns its own interior.
+// No published Pushpin component exposes a slot today, so this returns false
+// for every node the audit walks. Kept deliberately — see Why each check is
+// there. Do not "simplify" the `!inSlotContent(…)` guards away.
 const inSlotContent = (n) => {
   for (let p = n.parent; p; p = p.parent) {
     if (p.type === 'SLOT') return true;
@@ -553,7 +651,7 @@ run reported `library: 21` on a frame where 12 of the 21 came from the older
 library: the check confirmed the instance resolved and never asked to what.
 
 The keys are where the two differ, and the keys Pushpin publishes are already
-here — 117 components in `assets/components.figma.json`, 899 icon keys in
+here — 115 components in `assets/components.figma.json`, 899 icon keys in
 `icons.figma.json`, 91 Annotation Kit entries in `annotations.figma.json`. Those
 are files, so this bucket splits the way copy does and for the reason argued
 below: pasting a thousand keys into the script is the restatement
@@ -652,10 +750,30 @@ handoff rather than in a guess.
 
 Nodes inside an instance are skipped by both shape checks: their styling belongs
 to the library, and overriding it is already forbidden. Content inside a `SLOT`
-is not skipped, because the slot is the library saying it does not own what goes
-there. Without that exemption a drawn pill, a raw hex, or an unbound gap passes
-clean as long as it sits inside a Modal — which is the one place a frame is
-invited to put its own layout inside a component. Nodes inside a
+is exempt from that skip, because a slot is the library saying it does not own
+what goes there — without the exemption a drawn pill, a raw hex, or an unbound
+gap would pass clean as long as it sat inside one.
+
+**That exemption never fires today, and `inSlotContent` is kept for the day it
+does.** No published Pushpin component exposes a slot. Importing the only two the
+catalog claims one for and instancing them, `Modal / Promotion` and
+`Modal / Factory / Main` publish no `SLOT` property and contain zero `SLOT` nodes
+between them — `Modal / Promotion` is 44 nodes of instance, frame, text, vector,
+ellipse and rectangle, and not one slot. The slot rows the catalog and
+`lookup.mjs` still print come from the library's working file rather than from
+anything you can instance, which is
+[the same skew](generate.md#the-modals-take-their-content-through-an-instance_swap)
+that sends the content through an `INSTANCE_SWAP` instead. So every
+`inSlotContent` call in the script currently returns false and every
+`!inSlotContent(…)` reduces to its left-hand side. It costs one parent walk per
+node and it is the difference between a correct audit and a silently wrong one on
+the day slots ship, so leave it.
+
+That exemption decides what is checked rather than what the walk reaches, and the
+two are not the same coverage:
+inside one `Modal / Promotion`, 20 of the 44 nodes and 2 of the 8 TEXT layers are
+reachable only because the script sets `skipInvisibleInstanceChildren = false`
+first — [What the walk can reach](#what-the-walk-can-reach). Nodes inside a
 `Proposed / …` definition are exempt from the lookalike check — drawn shapes are
 how a component gets built — but not from the fill check, because a proposal
 built on literals cannot converge on a real component later. An
@@ -745,15 +863,16 @@ conversation with the person who designed it.
 Copy inside an instance splits where the ownership splits, which is a finer line
 than the shape and fill checks draw. Those take the whole interior of an
 instance at once, slot content aside: a screen may not restyle a library
-component, so a finding there is one nobody is allowed to act on. A label the frame left at the library's default is the same
-kind of finding and is skipped for the same reason. The three ways a frame does
-set copy are not — a text property is a slot the component published in order to
-be filled, an overridden text layer is this frame typing into a component that
-publishes no property, which is how `Link` carries its text, and a `SLOT` holds
-content the frame built and appended itself. All three are the frame's words,
-all three are checked, and everything else on the instance belongs to whoever
-published it. Slot content answers to no component limit, so it is measured the
-way an unenclosed heading is.
+component, so a finding there is one nobody is allowed to act on. A label the
+frame left at the library's default is the same kind of finding and is skipped
+for the same reason. The ways a frame does set copy are not — a text property is
+a slot the component published in order to be filled, and an overridden text
+layer is this frame typing into a component that publishes no property, which is
+how `Link` carries its text. Both are the frame's words, both are checked, and
+everything else on the instance belongs to whoever published it. A literal `SLOT`
+would be a third such case, holding content the frame built and appended itself
+and answering to no component limit, which is why the script handles it — but no
+published Pushpin component exposes one, so nothing reaches that branch today.
 
 ## What a real run returns
 
