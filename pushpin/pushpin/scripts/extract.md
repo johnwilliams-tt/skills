@@ -497,11 +497,11 @@ component node found), `unpublishedOmitted`, and `publicKept`.
 nodes reached, and `publicKept` must equal the number of keys in `components`;
 that is what makes the counts checkable rather than decorative.
 
-The committed `annotations.figma.json` predates the publish-status gate and
-still records `internalOmitted: 20` from the old name rule. Its keys all resolve
-— `freshness.mjs` checks that on every run — so nothing in it is broken, but a
-component published under a `_…` name would be missing from it and the first
-re-capture is what will say so.
+The 2026-08-28 capture is the first taken through the publish-status gate, and
+it settled the question the old name rule left open: the same 91 components come
+back, so no component was hidden behind a `_…` name. `unpublishedOmitted: 20`
+now records what the gate actually excluded, where `internalOmitted: 20` had
+recorded what the name rule guessed.
 
 Two things the merge has to handle:
 

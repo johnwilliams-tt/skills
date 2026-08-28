@@ -16,6 +16,32 @@ Changes are grouped the way `diff.mjs` classifies them:
 An entry about the plugin rather than the capture adds **Fixed** for a bug in
 the toolchain, which `diff.mjs` has no category for.
 
+## 0.13.5 — 2026-08-28
+
+Annotation Kit re-capture, taken because the freshness run reported a component
+edited 2026-08-24 against a 2026-08-10 capture. That finding was real. All four
+pages were re-read and the counts close exactly as before — 111 component nodes
+found, 20 unpublished, 91 kept — so nothing was added, removed or renamed, and
+one variant option moved.
+
+This is also the first Annotation Kit capture taken through the publish-status
+gate rather than the `_…` name rule. The same 91 components come back, which
+settles the question the old rule left open: nothing was hidden behind a name.
+
+**Breaking**
+
+- **`Team Member` lost the `Katie Hansen` option and gained `Team member37`.**
+  `setProperties({ 'Team member': 'Katie Hansen' })` now throws; the option is
+  `Kallen Michaels`. The roster went from 36 names to 37. Nothing in the skill
+  quoted the old option, so this only affects a board holding an instance set to
+  it.
+
+**Changed**
+
+- **`annotations.figma.json` records `unpublishedOmitted` where it recorded
+  `internalOmitted`.** Same count, honest provenance: 20 is now what
+  `getPublishStatusAsync()` excluded rather than what the name rule guessed.
+
 ## 0.13.4 — 2026-08-28
 
 The scheduled freshness run reported that a component in the kit changed on
