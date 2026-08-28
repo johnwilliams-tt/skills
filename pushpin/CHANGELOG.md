@@ -16,6 +16,274 @@ Changes are grouped the way `diff.mjs` classifies them:
 An entry about the plugin rather than the capture adds **Fixed** for a bug in
 the toolchain, which `diff.mjs` has no category for.
 
+## 0.13.3 — 2026-08-28
+
+The catalog's properties came from the kit's working file, and that file runs
+ahead of the library. Measured across all 115 entries, 6 disagreed with what the
+library serves. `Button` is one of them, which is on nearly every screen: the
+library publishes `Label#13326:0`, `Icon Left#22316:0` and `Icon Right#22316:261`
+and offers `size` as `xlarge small medium large xxlarge`, while the catalog
+reported neither icon slot, no `Label` at all, and `size` as `default small`. A
+run that took `size: 'default'` from the catalog throws, because no such variant is
+published.
+
+Nothing had noticed because every check compared the repo against itself.
+`getPublishStatusAsync()` cannot separate the two either — all 115 report
+`CHANGED`, including the 109 that agree perfectly, so publish status carries no
+information here.
+
+**Breaking**
+
+- **`components.figma.json` now carries the library's property ids, and 10 entries
+  changed.** `Button`, `Icon Button`, `Link`, `Bubble / Text`, `Bubble / Structure`,
+  `_Bubble / Text`, `_Stamps`, `Messenger Elements / Composer`,
+  `Modal / Factory / Main` and `Modal / Promotion`. The other 105 are
+  byte-identical, which is the check that nothing else moved. Anything holding a
+  copied-out property id for those 10 needs to re-read it — `Button`'s
+  `icon#34740:123` and `👁️ Icon#34731:2` never existed in the library, and its
+  published slots are `Icon Left#22316:0` and `Icon Right#22316:261`.
+- **`Button.size` no longer offers `default`.** The published options are
+  `xlarge small medium large xxlarge`, and `size: 'default'` throws. `theme` gains
+  `subtle` and `solid`. `State` loses `disabled` and `loading`, which are now the
+  separate `isDisabled` and `isLoading` variants.
+- **`Bubble / Text.Theme` is `Received`/`Sent`, not `Recipient`/`Sender`.** The
+  file's names never worked against the library. `_Bubble / Text` — served as
+  `ChatBubble` — gains `tailPosition` and `orientation`, so two thirds of what it
+  can do was previously invisible.
+
+**Fixed**
+
+- **The capture now takes property ids, variant options and defaults from the
+  library instead of the file.** [extract.md §5](pushpin/scripts/extract.md)
+  already imported every key to read its published name; the definitions ride back
+  on that same round trip, so this costs no extra Figma calls. The INSTANCE_SWAP
+  default stays with the file's reading, which is the one field the library cannot
+  supply: published definitions give a component key, while the dump gives a node
+  id that resolves to `_Arrow-Left Icon · Tiny` and the `Tiny` that sizes an icon
+  slot.
+- **A capture taken without the import pass now says so.** It falls back to the
+  file's properties and lists every affected component under
+  `source.propertiesFromDump`, and `diff.mjs` reports that it skipped the property
+  comparison rather than reporting no drift. Silence there is what let this sit.
+- **`diff.mjs` no longer compares properties it cannot compare like with like.**
+  The committed catalog now holds the library's ids; a capture without
+  `publishedProperties` distils the file's, so comparing them would have reported
+  `Button`'s `Label` as removed and its real ids as changed on every run, for six
+  components.
+- **Variant option drift is the half a property-name check misses.**
+  `Bubble / Text` publishes `Theme` as `Received`/`Sent` while the file calls the
+  same axis `Recipient`/`Sender`, so `setProperties({ Theme: 'Recipient' })` throws
+  today. `_Bubble / Text` is the mirror image: 4 variants in the file against 24
+  published, so the catalog was hiding two thirds of what `ChatBubble` can do.
+- The deprecated `file_read` scope is gone from `freshness.mjs` and
+  `maintaining.md`. `library_content:read` is what the key layers need, and it is
+  the narrowest scope that covers them.
+- **A capture that cannot account for the whole dump is now refused.** Membership
+  asks for `CURRENT` or `CHANGED` rather than testing for `UNPUBLISHED`, so a node
+  the sweep never reported falls out of the catalog instead of into it, and
+  `loadCapture` counts the status map against the dump and names what it missed.
+  The sweep goes out 300 ids at a time over 1074 components; a lane that failed
+  quietly was indistinguishable from a lane that reported nothing, and would have
+  put keys that throw at import back in the catalog by the same route the name
+  rule did. `M`, `?` and `E` are refused too — they are the sweep saying it has no
+  answer, and only the three values `getPublishStatusAsync()` returns are accepted.
+- **`--properties-only` reads both capture shapes and can no longer empty a
+  properties block.** The compact form the sweep sends and
+  `componentPropertyDefinitions` saved verbatim are now told apart per entry.
+  Reading the second as the first yielded no definitions at all and deleted the
+  properties the run was asked to refresh, reporting it as a change — and
+  [extract.md §5](pushpin/scripts/extract.md)'s own snippet produces the second.
+  A capture publishing nothing for a component the catalog records properties for
+  now writes nothing at all, because that is a bad capture far more often than a
+  real change and a real one is structural.
+- **`--properties-only` requires `capturedAt`.** It was defaulting to the run
+  date, which dated the distillation and called it the capture. `.cache/` is
+  gitignored, so `source.propertiesCapturedAt` is the only provenance that
+  outlives the run.
+- **`--properties-only` can clear `source.propertiesFromDump` but not add to
+  it.** It never sees the dump, so recomputing the list relabelled the 14
+  components that publish no properties as holding unpublished work.
+- **A non-VARIANT property definition with no `#id` suffix is refused** rather
+  than sliced against the absent `#`, which dropped its last character and
+  shipped the result as a property name.
+- **`check.md` §3 told you to skip the import pass** while
+  [maintaining.md](pushpin/reference/maintaining.md) told you not to. The pass
+  carries `publishedProperties` as well as `publishedNames`, and only the names
+  are optional. Its `diff.mjs` invocation also still named the pre-gate
+  `components-raw.json`.
+
+**Changed**
+
+- **`--properties-only` refreshes properties without re-pulling the dump.**
+  `node scripts/build-components.mjs --properties-only <capture>` rewrites ids,
+  variant options and defaults against the committed catalog. The two halves go
+  stale at different rates and cost different amounts to check: properties move on
+  every republish and are what throws a run mid-screen, while the 1074-entry dump
+  matters only when a component is added, removed or renamed. It warns when a
+  captured key matches no catalog entry, which is how it says the full capture is
+  needed after all.
+- **`generate.md`'s Button table and the catalog now agree, and that is checked
+  rather than assumed.** The table was measured against the live library while the
+  catalog said something else; they were reconciled by fixing the catalog, not the
+  table.
+- **`defaultSize` is absent on 8 of the 14 `INSTANCE_SWAP` properties**, Button's
+  two among them, because a published slot reports its default as a component key
+  the capture cannot resolve to a name. Nothing regressed — those 8 are slots the
+  catalog never knew existed — but the icon rule was overstating what it could be
+  read ahead of a run, so the read off the configured instance is now the only
+  answer offered for them.
+- **`--allow-skip` makes `--strict` usable below Enterprise.** The variables layer
+  needs `file_variables:read`, which Figma grants only to full members of
+  Enterprise orgs, so `--strict` alone failed every run on a gap the operator
+  cannot close — and a check that always fails is a check that gets muted.
+  `--strict --allow-skip variables` still fails on an expired token, a lost file
+  grant, or a rate limit. An unknown layer name is fatal rather than ignored,
+  because a typo would quietly restore the false confidence the flag exists to
+  prevent.
+- **A scheduled check now asks Figma rather than waiting for someone to
+  remember.** [`.github/workflows/pushpin-freshness.yml`](.github/workflows/pushpin-freshness.yml)
+  runs daily and on demand, with the token as a repository secret. Consumers of
+  the plugin never need one; session start is `--offline --session`.
+- **Geometry deliberately keeps coming from the file.** The library can publish
+  something broken: all five published `Tabs` `Theme=Even` variants measure 565×2
+  where the file has 565×41, a 40px row of links over a 1px rule, and the five
+  `Theme=Split` variants match to the pixel on both sides. Sourcing geometry from
+  the library would have written that 2px into `DESIGN.md`, `lookup --variant` and
+  `check.mjs`'s fidelity findings. Published state settles what a call must match;
+  it does not settle what a component should look like.
+- **The materialization measurements moved out of `generate.md` and into the
+  upstream report.** Reference files load into every designer's session, so a
+  paragraph is a recurring cost paid 40 times over while the rule it justifies is
+  five lines. `generate.md` grew 9.4KB across this release rather than 15.5KB, and
+  what remains of the growth is the slot rewrite, the key preflight and the
+  chunked skeleton rather than prose. The evidence is still written down, in
+  [UPSTREAM-figma-materialization.md](UPSTREAM-figma-materialization.md), which
+  nothing loads at generation time.
+- **The write path resolves a property id with `idFor` off the component it is
+  about to instance.** No extra round trip, no extra tokens, and immune to the
+  suffix churn a republish causes — so a catalog that goes stale between refreshes
+  degrades into a naming question rather than a thrown call.
+
+## 0.13.2 — 2026-08-27
+
+Three times now a Figma write has failed, been diagnosed, and been fixed, and
+three times it came back wearing a different face. Once it was a page that had
+not been loaded. Once it was a conclusion that `findAllWithCriteria` never
+descends into instances — false, and disprovable in one call: 2,413 text nodes on
+one page agree exactly across criteria, predicate, and a manual walk. Once it was
+a fresh clone. All three are one bug, which is why fixing each of them
+individually never held.
+
+A subtree this call produced with `clone()` or `detachInstance()` answers searches
+from a view of itself that was never filled in. Nothing throws. The short answer
+comes back with nothing on it saying it is short, so it reads as a finding, and
+the failure surfaces somewhere else entirely — a `slot` that is `undefined`, a
+`Parent not found`, an audit that passes clean. Measured on a cloned frame
+containing an instance: `findAllWithCriteria({ types: ['FRAME'] })` returns 0
+where 9 is correct, `findAll(() => true)` returns 1 of 24, `query('FRAME')`
+returns 0 of 9, and a `findOne` for a `TEXT` node simply does not find one.
+
+**Fixed**
+
+- **`figma.skipInvisibleInstanceChildren = false` is now the rule, stated once in
+  [generate.md](pushpin/reference/generate.md) and referenced from everywhere
+  else that clones or detaches.** One assignment removes the blind spot rather
+  than reducing it: the cloned frame above then reads all 44 of its nodes on the
+  first call, before anything has walked it. It has to be set per call, because
+  the flag reads back `true` at the start of every script whatever the last one
+  set — which is itself a divergence from the plugin typings, where the default
+  is documented as false outside Dev Mode. The recursive `materialize()` walk that
+  earlier analysis proposed is kept only as a footnote: it costs about as much as
+  one traversal, has to be remembered at every creation site, and with the flag
+  left alone it still leaves a run reading 455 of 1,205 nodes.
+- **The scope is narrower than the earlier diagnosis claimed, and saying so is
+  the point.** `createInstance()` never reproduced this across eight conditions,
+  including a depth-8 subtree with 11 nested instances, so the sites built on it
+  take no guard and the docs say why rather than adding one defensively. Cloning
+  an *instance* is safe; cloning a frame that *contains* one is not. Cross-call is
+  always clean, which is what keeps the lane contract free of a guard it would
+  otherwise have acquired forever.
+- **Re-running a failed search looked like a fix and was not.** `findAll`,
+  `findOne`, and `query` return the unfilled view and fill it as a side effect, so
+  a second call looks correct and buries the cause; `findAllWithCriteria` reads an
+  index the subtree never populated and never corrects itself. Three of four APIs
+  quietly healing is precisely how this survived being diagnosed three times.
+- **The audit could pass clean on a file it had only partly read.**
+  [audit-figma.md](pushpin/reference/audit-figma.md) now sets the flag and asserts
+  against stale traversal before it walks, so a partial read fails loudly instead
+  of reporting no findings. Its coverage claim was overstated for the same reason
+  and now carries the measured number.
+- **A lane that failed halfway could not be recovered by re-issuing it.**
+  [parallel.md](pushpin/reference/parallel.md) claimed `use_figma` atomicity made
+  re-running safe. Atomicity is per call, so a multi-call lane leaves partial work
+  and a re-run duplicates it. The recovery is now bounded and reads from the
+  canvas: empty the section's children and re-run it.
+- **The documented way to fill a Modal could never have worked.** The slot recipe
+  in `generate.md` was written against `SLOT` properties that exist in the
+  library's working file and in no published component — importing both
+  slot-bearing Modals returns zero `SLOT` nodes and no `SLOT` property between
+  them. Modals take their content through an `INSTANCE_SWAP`, which is what the
+  section now documents. The audit keeps its slot handling, with a note that it is
+  currently inert and should not be simplified away.
+- **The access preflight's capability probe could not fail.** A bare `typeof` on a
+  missing property throws in the `use_figma` sandbox rather than returning
+  `undefined`, so the negative branch and the cross-check it documented were both
+  unreachable. Also in `generate.md`: the icon-size read matched the wrong layer
+  name and took the size off a node that does not carry it — `Icon / Left`
+  measures 14×14 while the component behind it is a 28px icon.
+- **`build-components.mjs` said the kit declares no `preferredValues`.** All 14
+  published `INSTANCE_SWAP` properties declare them, two of them the entire icon
+  ramp at 120 and 194 legal values. The catalog ships none, because the raw dump
+  the build reads does not carry the field — so every swap slot in the kit is the
+  empty-icon failure that comment was written to prevent. The comment now records
+  what is actually true; the capture change it implies is not in this release.
+- **The catalog is now the list of published components it always claimed to
+  be.** It was the file's components minus those whose name starts with `_` or
+  `.`, and a leading underscore is a convention, not a publish state. It was
+  wrong in both directions. Four entries held keys that no import could resolve,
+  because those components live in the file and were never pushed to the library
+  — `Bubble / Media`, `Messager / Media modal`,
+  `Messager Elements / Composer / Image`, and
+  `Core / Safari (Big Sur) / Toolbar / Toolbar Item`, the last being scaffolding
+  misnamed relative to the 17 `_Browser / …` siblings it belongs with, which no
+  name rule could ever have caught. A generation run asking for any of them threw
+  mid-write. In the other direction the rule dropped two components the library
+  does publish: `_Bubble / Text`, published as `ChatBubble`, and `_Stamps`,
+  published as `Messenger Elements / Stamps`. The capture now calls
+  `getPublishStatusAsync()` on every candidate — 1,074 nodes in four batched
+  `use_figma` calls of 300 ids each, none of them truncating or erroring, since
+  the ten-operation guidance in `figma-use` is about writes and these are two
+  reads a node — and the build keeps a component if and only if the library says
+  it is published. 117 entries became 115. The name test survives only as a
+  cross-check: `source.nameStatusDisagreement` names all ten components whose
+  name and publish state disagree, which is the signal that would have surfaced
+  this without a failed generation run. Four entries whose published name differs
+  from the name the file carries now record it as `publishedAs`, because a
+  component renamed after its last publish keeps the old name in every consuming
+  file — the library serves `Bubble / Text` as `Messenger Elements / Bubbles`.
+  `component-specs.figma.json` loses the four specs that described components
+  nothing could place, and `build-specs.mjs` now drops a spec the catalog does
+  not hold rather than recording one. All 115 keys were swept through
+  `importComponentSetByKeyAsync` and `importComponentByKeyAsync` after the
+  rebuild; all 115 resolve.
+- **`lookup.mjs` could not find a component by the name the library serves it
+  under.** `publishedAs` made the catalog honest about the four renames and left
+  the search matching catalog keys only, so `lookup.mjs ChatBubble` answered
+  "nothing matches" for a component the kit publishes under exactly that name —
+  the name `search_design_system` returns and the one a designer says out loud.
+  Both names now resolve to the one entry, and the entry prints what the library
+  serves it as. The counts in `figma.md`, `propose.md`, `audit-figma.md`, and
+  `maintaining.md` followed the catalog down to 115.
+
+**Changed**
+
+- **The skeleton no longer builds everything before anything appears.** It claims
+  the frame and the section containers and stops; each lane creates its own cards.
+  Work lands in reading order as it completes rather than arriving in one dump at
+  the end, and a lane that throws now costs one section instead of the whole run.
+- The recap line's version reads `Pushpin v<version> loaded.` for the agent to
+  substitute, rather than a number hand-edited on every release.
+
 ## 0.13.1 — 2026-08-25
 
 The state catalog shipped last release and then went unread. A request phrased as
