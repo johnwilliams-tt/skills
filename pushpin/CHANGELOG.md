@@ -16,6 +16,32 @@ Changes are grouped the way `diff.mjs` classifies them:
 An entry about the plugin rather than the capture adds **Fixed** for a bug in
 the toolchain, which `diff.mjs` has no category for.
 
+## 0.13.4 — 2026-08-28
+
+The scheduled freshness run reported that a component in the kit changed on
+2026-08-26, after "the capture (2026-08-06)". The components catalog was
+captured 2026-08-27, a day after that edit. The date in the finding belonged to
+a different capture.
+
+An import pass over all 115 committed keys, read from a subscribing file rather
+than the kit, confirms it: every key resolves, every published name matches the
+catalog, and `build-components.mjs --properties-only` rewrote 0 of 115 entries.
+The catalog was already current.
+
+**Fixed**
+
+- **`freshness.mjs` dated the components layer by the tokens capture.**
+  `manifest.capturedAt` is `tokens.figma.json`'s `extractedAt`, and the
+  components catalog carries its own. The two are captured separately and were
+  three weeks apart, so every component edit made between them read as drift the
+  catalog already had. The layer now compares against
+  `components.figma.json`'s `source.extractedAt`.
+- **The `updated_at` sweep was narrowed to catalog keys for components and
+  annotations.** Only the icons layer passed `ours`, so the other two swept every
+  published component in their file — including the 3 the kit publishes that the
+  catalog drops as name collisions — and an edit to one of those reported as
+  drift in something Pushpin does not track.
+
 ## 0.13.3 — 2026-08-28
 
 The catalog's properties came from the kit's working file, and that file runs

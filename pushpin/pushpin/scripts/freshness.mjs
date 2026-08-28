@@ -492,10 +492,11 @@ if (offline) {
    * their hundreds of children.
    *
    * `ours` narrows the `updated_at` sweep to keys the catalog actually depends
-   * on. It matters for the icon library: that file publishes 170 components
-   * beyond the icon page, and any edit to one of them would otherwise read as
-   * "an icon changed after the capture" and send the reader re-capturing for
-   * nothing.
+   * on. Every file publishes more than its catalog keeps — the icon library
+   * publishes 170 components beyond the icon page, and the kit publishes 118
+   * components the catalog reduces to 115 — so an unnarrowed sweep reports an
+   * edit to something Pushpin does not track and sends the reader re-capturing
+   * for nothing.
    */
   async function publishedComponents(key, forLayer, ours) {
     const [compRes, setRes] = await Promise.all([
@@ -555,7 +556,11 @@ if (offline) {
   // Components. Any plan, library_content:read scope. The catalog holds one entry per
   // published name, which is fewer entries than the file publishes components,
   // so the count is a note and the key existence is the check.
-  const live = await publishedComponents(fileKey, 'components');
+  const live = await publishedComponents(
+    fileKey,
+    'components',
+    new Set(real(catalog.components).map(([, c]) => c.key)),
+  );
   if (live) {
     compareKeys(
       'components',
@@ -565,7 +570,11 @@ if (offline) {
       live.setCount,
       'component sets',
     );
-    flagLateEdits('components', live.newest, capturedAt, 'the kit');
+    // The components catalog is captured separately from the tokens, and
+    // `manifest.capturedAt` is the tokens' date. Dating this layer by it reports
+    // every component edit made between the two captures as drift the catalog
+    // does not have.
+    flagLateEdits('components', live.newest, catalog.source?.extractedAt ?? capturedAt, 'the kit');
   }
 
   // Styles. Same plan requirements. These keys are the only way to apply
@@ -630,7 +639,11 @@ if (offline) {
   // No count comparison either. The Annotation Kit capture counts nodes on the
   // canvas, not published assets, so `capturedTotal` and the endpoint total are
   // not the same quantity and a delta between them would mean nothing.
-  const liveAnnotations = await publishedComponents(annotationFileKey, 'annotations');
+  const liveAnnotations = await publishedComponents(
+    annotationFileKey,
+    'annotations',
+    new Set(real(annotationCatalog.components).map(([, c]) => c.key)),
+  );
   if (liveAnnotations) {
     compareKeys(
       'annotations',
