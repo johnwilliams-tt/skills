@@ -1,0 +1,112 @@
+# Asks Figma whether the committed captures are still what it serves.
+#
+# Every local check compares the repo against itself and passes happily on a
+# capture that went stale months ago. Only this one goes out to Figma, and it
+# needs a token to do it — which is why it had never run. Four catalog entries
+# pointed at components that no longer existed and nothing noticed until a
+# generation run tried to place one and threw halfway through building a screen.
+#
+# The token lives here as a repo secret rather than on anyone's machine.
+# Consumers of the plugin never need one: session start is `--offline --session`
+# and answers the question that matters day to day without a network call.
+#
+# `--strict` is the point of the whole file. Without it an unreachable layer
+# skips and the run still reports success, which is the exact shape of the
+# failure this is meant to catch: five of seven layers silently skipping while
+# the summary said "nothing moved".
+#
+# `--allow-skip variables` is not a softening of that. The variables layer needs
+# `file_variables:read`, which Figma grants only to full members of Enterprise
+# orgs, so on this Organization plan it is unreachable by plan rather than by
+# neglect — and a check that fails every run on a gap nobody can close is a check
+# that gets muted. Every other layer still has to answer, so an expired token, a
+# revoked file grant, or a rate limit all still fail the run. Drop the flag if
+# the org ever moves to Enterprise.
+
+name: Pushpin freshness
+
+on:
+  schedule:
+    # Daily, 13:00 UTC — roughly 9am ET, so a finding lands at the start of a
+    # working day rather than overnight. The library publishes often enough that
+    # a weekly check would leave the catalog wrong for most of the window.
+    - cron: '0 13 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  freshness:
+    name: Check captures against Figma
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # Without this the run fails on "5 of 7 layers could not be checked",
+      # which is true but reads as drift rather than as missing configuration.
+      - name: Require the Figma token
+        env:
+          FIGMA_TOKEN: ${{ secrets.FIGMA_TOKEN }}
+        run: |
+          if [ -z "${FIGMA_TOKEN:-}" ]; then
+            echo "::error::FIGMA_TOKEN is not set. Create a personal access token at" \
+                 "figma.com > Settings > Security with the library_content:read scope," \
+                 "then add it as a repository secret named FIGMA_TOKEN." >&2
+            exit 1
+          fi
+
+      # One pass, not two: the icon layer alone checks 899 keys, so running once
+      # for humans and again for machines would double every call. JSON is the
+      # artifact; the readable summary below is rendered from it.
+      - name: Check the captures against Figma
+        id: check
+        working-directory: pushpin/pushpin
+        env:
+          FIGMA_TOKEN: ${{ secrets.FIGMA_TOKEN }}
+        run: |
+          set +e
+          node scripts/freshness.mjs --strict --allow-skip variables --json \
+            > "${RUNNER_TEMP}/freshness.json"
+          status=$?
+          set -e
+
+          node -e '
+            const r = require(process.env.RUNNER_TEMP + "/freshness.json");
+            const excused = new Set(r.excused ?? []);
+            const pad = (s, n) => String(s).padEnd(n);
+            for (const l of r.layers ?? []) {
+              const mark = excused.has(l.name) ? "excused" : l.status;
+              console.log(`${pad(mark, 8)} ${pad(l.name, 14)} ${l.detail ?? ""}`);
+            }
+            // Excused layers are deliberately not counted here. Counting them
+            // would print "1 of 7 did not pass" on a green run, which trains
+            // people to ignore the line.
+            const bad = (r.layers ?? []).filter(
+              (l) => l.status !== "pass" && !excused.has(l.name),
+            );
+            console.log("");
+            console.log(
+              bad.length
+                ? `${bad.length} layer${bad.length === 1 ? "" : "s"} need attention: ` +
+                    bad.map((l) => l.name).join(", ")
+                : "Every layer that could be checked is current.",
+            );
+          '
+
+          exit $status
+
+      # Uploaded on failure too, which is when it is worth having: the finding is
+      # in here without spending another round of API calls to reproduce it.
+      - name: Upload the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: freshness-report
+          path: ${{ runner.temp }}/freshness.json
+          if-no-files-found: warn

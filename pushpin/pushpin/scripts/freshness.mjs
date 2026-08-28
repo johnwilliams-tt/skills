@@ -13,7 +13,7 @@
  *
  *   capture age    always, no token, no network — how old the captures are
  *   project pin    if cwd has pushpin.config.json — is this project behind
- *   components     FIGMA_TOKEN, any plan       — do our 117 import keys still exist
+ *   components     FIGMA_TOKEN, any plan       — do our 115 import keys still exist
  *   styles         FIGMA_TOKEN, any plan       — do our text and effect style keys
  *   variables      FIGMA_TOKEN, Enterprise     — has the kit published since
  *   annotations    FIGMA_TOKEN, any plan       — do our 91 Annotation Kit keys still exist
@@ -59,6 +59,7 @@
  *   node scripts/freshness.mjs --max-age 14         # stricter age limit
  *   node scripts/freshness.mjs --offline            # never touch the network
  *   node scripts/freshness.mjs --strict             # an unreachable layer fails
+ *   node scripts/freshness.mjs --strict --allow-skip variables   # …except by plan
  *   node scripts/freshness.mjs --json               # machine-readable
  *   node scripts/freshness.mjs --brief              # silent on success; one sentence when not
  *   node scripts/freshness.mjs --offline --session  # session start: age + project pin, no network
@@ -120,8 +121,8 @@ const styleKeyCount =
 
 if (has('--help') || has('-h')) {
   console.log(
-    'usage: node scripts/freshness.mjs [--max-age days] [--offline] [--strict] [--json] ' +
-      '[--brief] [--session]\n\n' +
+    'usage: node scripts/freshness.mjs [--max-age days] [--offline] [--strict] ' +
+      '[--allow-skip a,b] [--json] [--brief] [--session]\n\n' +
       'Reports how far the committed captures may have drifted from Figma.\n' +
       'Set FIGMA_TOKEN to check the import keys against the three live files: ' +
       `${real(catalog.components).length} components and ${styleKeyCount} styles in ` +
@@ -130,6 +131,11 @@ if (has('--help') || has('-h')) {
       `icon keys in ${manifest.iconLibrary.fileName}.\n` +
       `Set GITHUB_TOKEN to ask whether ${manifest.copySource.repo} still serves the blob the ` +
       'content design rules were parsed from; without it that layer reports the age.\n' +
+      '--strict fails when a layer could not be checked, so an unreachable layer stops ' +
+      'reading as success. --allow-skip excuses named layers from that, which is what a ' +
+      'non-Enterprise plan needs: the variables layer requires file_variables:read and is ' +
+      'unreachable by plan rather than by neglect, so --strict --allow-skip variables still ' +
+      'fails on an expired token or a lost file grant without failing on the plan.\n' +
       '--brief prints nothing when the capture is current and the project pin matches; ' +
       'otherwise one sentence to relay. --session says the same thing as a line the agent ' +
       'acts on: a fix: command to run, or a say: sentence for the user. Session start is ' +
@@ -150,6 +156,50 @@ const strict = has('--strict');
 const offline = has('--offline');
 const brief = has('--brief');
 const session = has('--session');
+
+/**
+ * Layers `--strict` will tolerate skipping.
+ *
+ * `--strict` exists so an unreachable layer stops reading as success, which is
+ * the shape of failure that let five of seven layers skip silently for months.
+ * But one layer is unreachable by plan rather than by neglect: the variables
+ * endpoint needs `file_variables:read`, which Figma grants to full members of
+ * Enterprise orgs and nobody else, so on any lesser plan `--strict` fails every
+ * run on a gap the operator cannot close. A check that always fails gets muted,
+ * which costs more than it buys.
+ *
+ * Naming the layer is the point. `--strict --allow-skip variables` still fails
+ * on an expired token, a lost file grant, or a rate limit, because those are
+ * layers nobody excused.
+ */
+const allowSkip = new Set(
+  (opt('--allow-skip', '') || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean),
+);
+
+// A typo here would silently defeat the flag and restore the exact
+// false-confidence this option exists to prevent, so an unknown name is fatal
+// rather than ignored.
+const LAYER_NAMES = new Set([
+  'capture age',
+  'project pin',
+  'components',
+  'styles',
+  'variables',
+  'annotations',
+  'icons',
+  'copy source',
+]);
+for (const name of allowSkip) {
+  if (!LAYER_NAMES.has(name)) {
+    console.error(
+      `--allow-skip: no layer named "${name}". Known layers: ${[...LAYER_NAMES].join(', ')}.`,
+    );
+    process.exit(1);
+  }
+}
 
 const PLUGIN = JSON.parse(
   readFileSync(join(here, '..', '..', '.claude-plugin', 'plugin.json'), 'utf8'),
@@ -361,8 +411,13 @@ function unreachable(name, r, where = fileKey) {
 /**
  * Compare our committed import keys against the keys the file publishes now.
  * Shared by components and styles because the question is identical.
+ *
+ * `counted` names what the two totals are totals *of*, which is not always the
+ * layer: the component layer's totals are component sets, because that is the
+ * only component figure the REST API and the capture both mean the same thing
+ * by.
  */
-function compareKeys(name, committed, liveKeys, expectedTotal, liveTotal) {
+function compareKeys(name, committed, liveKeys, expectedTotal, liveTotal, counted = name) {
   const missing = committed.filter(([, key]) => !liveKeys.has(key));
   if (missing.length) {
     layer(name, 'fail', `${missing.length} of ${committed.length} keys no longer published`);
@@ -385,7 +440,7 @@ function compareKeys(name, committed, liveKeys, expectedTotal, liveTotal) {
   if (expectedTotal != null && liveTotal !== expectedTotal) {
     const delta = liveTotal - expectedTotal;
     report.notes.push(
-      `The file publishes ${liveTotal} ${name} where the capture recorded ${expectedTotal} ` +
+      `The file publishes ${liveTotal} ${counted} where the capture recorded ${expectedTotal} ` +
         `(${delta > 0 ? '+' : ''}${delta}). Every key the catalog depends on still resolves, ` +
         `so nothing is broken — but the kit has ${delta > 0 ? 'gained' : 'lost'} work the ` +
         `catalog does not describe.`,
@@ -415,7 +470,8 @@ if (offline) {
   report.notes.push(
     'No Figma layer ran. For the stronger answer — whether our import ' +
       'keys still exist in the kit, the Annotation Kit, and the icon library — create a ' +
-      'personal access token at figma.com > Settings > Security with the file_read scope, ' +
+      'personal access token at figma.com > Settings > Security with the ' +
+      'library_content:read scope, ' +
       'then re-run with FIGMA_TOKEN set.',
   );
 } else {
@@ -425,11 +481,15 @@ if (offline) {
    * A component set publishes under its own key in `/component_sets`, while
    * `/components` lists the individual variants. Catalog entries of type
    * COMPONENT_SET carry the set's key, so checking `/components` alone would
-   * report every set as unpublished — 96 of Pushpin's 117 entries and 70 of the
+   * report every set as unpublished — 97 of Pushpin's 115 entries and 70 of the
    * Annotation Kit's 91.
    *
-   * `componentCount` stays the `/components` figure on its own, because that is
-   * what the capture's `publishedTotal` was counted against.
+   * `setCount` is the figure worth comparing against the capture. The catalog's
+   * `publishedSets` counts the component sets `getPublishStatusAsync()` called
+   * published, and `/component_sets` lists exactly those — one entry per set,
+   * like for like. `/components` cannot be compared to anything the catalog
+   * holds, because it enumerates variants: 98 published sets appear there as
+   * their hundreds of children.
    *
    * `ours` narrows the `updated_at` sweep to keys the catalog actually depends
    * on. It matters for the icon library: that file publishes 170 components
@@ -463,7 +523,7 @@ if (offline) {
     const both = [...live, ...liveSets];
     return {
       keys: new Set(both.map((c) => c.key)),
-      componentCount: live.length,
+      setCount: liveSets.length,
       newest: both
         .filter((c) => !ours || ours.has(c.key))
         .map((c) => c.updated_at)
@@ -492,17 +552,18 @@ if (offline) {
     );
   }
 
-  // Components. Any plan, file_read scope. The catalog keeps 117 public entries
-  // out of a much larger published set, so the count is a note and the key
-  // existence is the check.
+  // Components. Any plan, library_content:read scope. The catalog holds one entry per
+  // published name, which is fewer entries than the file publishes components,
+  // so the count is a note and the key existence is the check.
   const live = await publishedComponents(fileKey, 'components');
   if (live) {
     compareKeys(
       'components',
       real(catalog.components).map(([n, c]) => [n, c.key]),
       live.keys,
-      catalog.source?.publishedTotal,
-      live.componentCount,
+      catalog.source?.publishedSets,
+      live.setCount,
+      'component sets',
     );
     flagLateEdits('components', live.newest, capturedAt, 'the kit');
   }
@@ -610,7 +671,8 @@ if (offline) {
   if (networkLayers.every((l) => l.status === 'skipped')) {
     report.notes.push(
       'FIGMA_TOKEN was set but no layer could use it, so this run proved nothing beyond ' +
-        'the capture dates. Check the token is current and carries the file_read scope.',
+        'the capture dates. Check the token is current and carries the ' +
+          'library_content:read scope.',
     );
   }
 }
@@ -703,12 +765,21 @@ const skipped = report.layers.filter((l) => l.status === 'skipped');
 const failed = report.layers.filter((l) => l.status === 'fail');
 const checked = report.layers.filter((l) => l.status !== 'skipped');
 
+// Excused layers still report as skipped everywhere else, because they were
+// skipped; the only thing --allow-skip changes is whether that fails the run.
+const unexcused = skipped.filter((l) => !allowSkip.has(l.name));
+
+// Named in the report so a consumer can render a pass as a pass. Without this a
+// run that succeeded still reads "1 of 7 layers did not pass", which is the
+// species of misleading summary this file exists to stamp out.
+report.excused = skipped.filter((l) => allowSkip.has(l.name)).map((l) => l.name);
+
 // A finding is the unit of "something needs doing", so it governs the exit code
 // rather than the layer tally. The two agree today; making findings
 // authoritative means a future signal that fits no single layer cannot slip out
 // as a green run with a warning nobody reads.
 report.stale = failed.length > 0 || report.findings.length > 0;
-report.exitCode = report.stale || (strict && skipped.length) ? 1 : 0;
+report.exitCode = report.stale || (strict && unexcused.length) ? 1 : 0;
 
 if (asJson) {
   console.log(JSON.stringify(report, null, 2));
@@ -758,9 +829,12 @@ if (report.stale) {
   );
   process.exit(1);
 }
-if (strict && skipped.length) {
+if (strict && unexcused.length) {
+  const excused = skipped.length - unexcused.length;
   console.error(
-    `--strict: ${skipped.length} of ${report.layers.length} layers could not be checked.`,
+    `--strict: ${unexcused.length} of ${report.layers.length} layers could not be checked` +
+      `${excused ? ` (${excused} excused by --allow-skip)` : ''}: ` +
+      `${unexcused.map((l) => l.name).join(', ')}.`,
   );
   process.exit(1);
 }
