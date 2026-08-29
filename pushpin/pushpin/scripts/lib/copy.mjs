@@ -42,6 +42,54 @@ export const severityOf = (code) => COPY.codes[code]?.tier ?? null;
 
 const RANK = { critical: 3, major: 2, minor: 1, excellence: 0 };
 
+// ------------------------------------------------------------------- score
+
+/** The one rung a person has to grant, because P1 is not a pattern. */
+const JUDGED = new Set(Object.keys(COPY.codes).filter((c) => COPY.codes[c].tier === 'excellence'));
+
+/**
+ * The upstream's 1-5 score for a set of findings.
+ *
+ * The ladder is data — `COPY.score`, parsed from the capture — so a rung the
+ * upstream moves moves here without an edit. Rungs are tried in the order the
+ * document lists them and the first that holds wins, which is what makes a
+ * single critical worth every point on the scale.
+ *
+ * **The mechanical ceiling is one below the top.** The rung above it is P1, and
+ * P1 is the judgment that the copy reads like a person wrote it — the engine
+ * cannot grant that, so `ceiling` says what a clean run is actually worth and
+ * `awarding` names what a reader would have to decide to go higher. Printing 4
+ * as though it were the top would be a lie in the other direction.
+ *
+ * @returns {{score, of, because, ceiling, awarding}}
+ */
+export function scoreOf(findings = []) {
+  const counts = { critical: 0, major: 0, minor: 0 };
+  for (const f of findings) if (f.severity in counts) counts[f.severity] += 1;
+
+  const holds = (when) => {
+    if (when.code) return false;
+    if (when.clean) return !findings.length;
+    const n = counts[when.tier] ?? 0;
+    if (when.only) return n > 0 && Object.entries(counts).every(([t, c]) => t === when.tier || !c);
+    if (when.min !== undefined && n < when.min) return false;
+    if (when.max !== undefined && n > when.max) return false;
+    return n > 0;
+  };
+
+  const top = Math.max(...COPY.score.map((r) => r.score));
+  const rung = COPY.score.find((r) => holds(r.when));
+  const judged = COPY.score.filter((r) => JUDGED.has(r.when.code));
+
+  return {
+    score: rung?.score ?? null,
+    of: top,
+    because: rung?.raw ?? null,
+    ceiling: Math.max(...COPY.score.filter((r) => !JUDGED.has(r.when.code)).map((r) => r.score)),
+    awarding: judged.map((r) => ({ score: r.score, code: r.when.code, description: COPY.codes[r.when.code].description })),
+  };
+}
+
 // ---------------------------------------------------------------- patterns
 
 const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -206,12 +254,50 @@ const strip = (s) => s.replace(/\*\*/g, '');
 const words = (s) => strip(s).trim().split(/\s+/).filter(Boolean);
 const lines = (s) => s.split('\n').filter((l) => l.trim());
 
-/** Sentences, kept with their offsets so a long one can be pointed at. */
+/**
+ * Words that carry a period without ending anything.
+ *
+ * Splitting on every full stop reads "e.g. Atlanta, GA" as three sentences and
+ * reports a two-word placeholder as over its limit. A wrong finding on a string
+ * that is plainly fine costs more than the ones it would buy, which is the same
+ * bargain the passive and title-case rules are struck on. Initials are the other
+ * common shape — a pro is "J. Alvarez" on half the screens in this product.
+ */
+const ABBREVIATION = new RegExp(
+  '(?:^|[\\s("\'])(?:' +
+    ['e\\.g', 'i\\.e', 'etc', 'vs', 'approx', 'no', 'est', 'min', 'max', 'hr', 'hrs',
+     'mr', 'mrs', 'ms', 'dr', 'prof', 'jr', 'sr', 'st', 'ave', 'blvd', 'rd',
+     'inc', 'co', 'ltd', 'dept', '[a-z]'].join('|') +
+    ')\\.$',
+  'i',
+);
+
+/**
+ * Sentences, kept with their offsets so a long one can be pointed at.
+ *
+ * A terminator ends a sentence when what follows could open one — whitespace and
+ * then a capital, a quote or a bracket — or when nothing follows it at all. Text
+ * with no terminator anywhere is one sentence, which is what a button label is.
+ */
 function sentences(s) {
   const out = [];
-  for (const m of s.matchAll(/[^.!?]+[.!?]*/g)) {
-    if (m[0].trim()) out.push({ text: m[0].trim(), index: m.index + (m[0].length - m[0].trimStart().length) });
+  let start = 0;
+
+  const push = (end) => {
+    const raw = s.slice(start, end);
+    if (raw.trim()) out.push({ text: raw.trim(), index: start + (raw.length - raw.trimStart().length) });
+    start = end;
+  };
+
+  for (const m of s.matchAll(/[.!?]+/g)) {
+    const end = m.index + m[0].length;
+    if (ABBREVIATION.test(s.slice(start, end))) continue;
+    const after = s.slice(end);
+    if (after.trim() && !/^\s+["'(\u2018\u201c]?[A-Z0-9]/.test(after)) continue;
+    push(end);
   }
+  push(s.length);
+
   return out;
 }
 
@@ -273,7 +359,7 @@ export function scan(text, options = {}) {
     return { line: lo + 1, column: index - starts[lo] + 1 };
   };
 
-  const add = (code, rule, index, match, message, fix = null) => {
+  const add = (code, rule, index, match, message, extra = {}) => {
     const finding = {
       code,
       severity: COPY.codes[code].tier,
@@ -282,7 +368,13 @@ export function scan(text, options = {}) {
       match,
       index,
       ...place(index),
-      fix,
+      fix: null,
+      // `literal` says the fix is a substitution rather than advice, and
+      // `spans` carries the offenders a message names but `match` cannot hold.
+      // Both exist so rewrite() can act without re-deciding anything scan knew.
+      literal: false,
+      spans: null,
+      ...extra,
     };
     if (match === null) {
       whole.push(finding);
@@ -306,7 +398,10 @@ export function scan(text, options = {}) {
     for (const m of text.matchAll(BANNED)) {
       const entry = BANNED_BY.get(m[0].toLowerCase());
       const advice = !entry?.fix ? 'rewrite it' : entry.literal ? `use "${entry.fix}"` : entry.fix;
-      add('M4', 'banned-phrase', m.index, m[0], `banned phrase "${m[0]}" — ${advice}`, entry?.fix ?? null);
+      add('M4', 'banned-phrase', m.index, m[0], `banned phrase "${m[0]}" — ${advice}`, {
+        fix: entry?.fix ?? null,
+        literal: Boolean(entry?.literal),
+      });
     }
   }
 
@@ -315,7 +410,10 @@ export function scan(text, options = {}) {
       const key = m[0].toLowerCase();
       const term = WRONG_TERM.get(key) ?? WRONG_TERM.get(key.replace(/s$/, ''));
       if (term) {
-        add('M8', 'wrong-term', m.index, m[0], `"${m[0]}" — Thumbtack says "${term.prefer}"`, term.prefer);
+        add('M8', 'wrong-term', m.index, m[0], `"${m[0]}" — Thumbtack says "${term.prefer}"`, {
+          fix: term.prefer,
+          literal: true,
+        });
       }
     }
   }
@@ -361,6 +459,7 @@ export function scan(text, options = {}) {
             start + offenders[0].index,
             offenders[0].word,
             `title case on ${named} — sentence case unless it is a confirmed brand name`,
+            { spans: offenders.map((o) => ({ text: o.word, index: start + o.index })) },
           );
         }
       }
@@ -378,6 +477,82 @@ export function scan(text, options = {}) {
   return [...spans.values(), ...whole].sort(
     (a, b) => a.index - b.index || a.code.localeCompare(b.code),
   );
+}
+
+/**
+ * `text` with every substitution the rules themselves state already made.
+ *
+ * The upstream answers a review with a rewrite, and three of the seven codes the
+ * engine decides carry their own replacement: a banned phrase with a literal
+ * fix, a wrong term with the term Thumbtack prefers, and a title-cased word that
+ * sentence case simply lowercases. Those are transcription, not writing, and
+ * doing them by hand is where a report loses an hour and gains a typo.
+ *
+ * **The other four are left alone and named.** A generic CTA, a passive line, an
+ * over-length string and a phrase whose fix reads "cut entirely" all need a
+ * decision about what the copy is trying to say, and a machine filling that cell
+ * would produce something plausible that nobody chose. `left` is what a person
+ * still owes the table, and a caller printing a suggestion column shows an empty
+ * cell there rather than a guess.
+ *
+ * @returns {{suggested: string|null, applied: string[], left: string[], edits: Array}}
+ *   `suggested` is null when nothing mechanical applied — the string is already
+ *   what the rules would write, whatever else is wrong with it. `edits` are the
+ *   spans it changed, offsets relative to `text`, so a caller writing to a file
+ *   can splice each one instead of replacing the whole string — which is how an
+ *   interpolation survives a fix to the words around it.
+ */
+export function rewrite(text, findings) {
+  const edits = [];
+  const applied = new Set();
+  const left = new Set();
+
+  for (const f of findings) {
+    if (f.code === 'M1' && f.spans) {
+      for (const s of f.spans) {
+        edits.push({ index: s.index, length: s.text.length, from: s.text, to: s.text.toLowerCase(), code: f.code });
+      }
+      applied.add(f.code);
+    } else if (f.literal && f.fix && f.match) {
+      edits.push({
+        index: f.index,
+        length: f.match.length,
+        from: f.match,
+        to: matchCase(f.match, f.fix),
+        code: f.code,
+      });
+      applied.add(f.code);
+    } else {
+      left.add(f.code);
+    }
+  }
+
+  if (!edits.length) return { suggested: null, applied: [], left: [...left], edits: [] };
+
+  edits.sort((a, b) => b.index - a.index);
+  let out = text;
+  for (const e of edits) {
+    out = out.slice(0, e.index) + e.to + out.slice(e.index + e.length);
+  }
+  return { suggested: out, applied: [...applied], left: [...left], edits };
+}
+
+/**
+ * A replacement wearing the capitalisation of the word it replaces.
+ *
+ * "Contractors" opening a sentence has to come back as "Pros" rather than
+ * "pros", and a plural has to stay plural — the rules are written in the
+ * singular lowercase because that is how a document states a word, not because
+ * that is how the copy said it. The replacement's own case is discarded for the
+ * same reason: the banned-phrase table gives "In order to" → "To" as a sentence
+ * opener, and that capital is the table's, not the copy's.
+ */
+function matchCase(from, to) {
+  const plural = /s$/i.test(from) && !/s$/i.test(to) && from.length > to.length;
+  const word = plural ? `${to}s` : to;
+  if (from === from.toUpperCase() && from.length > 1) return word.toUpperCase();
+  if (/^[A-Z]/.test(from)) return word[0].toUpperCase() + word.slice(1);
+  return word[0].toLowerCase() + word.slice(1);
 }
 
 /** A line that could be a button, a heading or a link rather than prose. */

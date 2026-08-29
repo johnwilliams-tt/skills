@@ -8,8 +8,15 @@ stylesheet are not the same object and nothing reads both.
 
 ## Which target
 
-Three targets, one section each below: a repo or a file of code, words with no
+Three targets, and a section each below: a repo or a file of code, words with no
 design around them, and a Figma frame.
+
+**A request naming copy narrows the first one rather than adding a fourth.**
+"Check the copy on this modal", "does this sound like us", "review these labels" —
+that is a file of code with one of its three classes asked for, and it has a
+section of its own because the answer has a shape: a score and a table, from
+[one command](#a-copy-check). Words with no design around them are the target
+below only when there is no file to point at.
 
 **Figma or code is the question routing has already answered**, and the signals
 that answer it are not restated here: they live in
@@ -101,11 +108,15 @@ this command cannot answer is whether the capture still matches Figma, and
 
 This is the third class, and the hook `init` installs runs it on every edit.
 
-It reads JSX and HTML text nodes and the `label`, `title`, `placeholder`,
-`aria-label`, `alt`, and children props — never an identifier, an import, a
-class name, or a URL, and nothing at all in a region it could not fully parse. A
-copy check that fires on a variable name is one people switch off, and then none
-of the findings land.
+It reads what [§ What it reads](#what-it-reads) describes, off the same walk —
+text nodes, the five text attributes, and the same names assigned in script —
+never an identifier, an import, a class name, or a URL, and nothing at all in a
+region it could not fully parse. A copy check that fires on a variable name is
+one people switch off, and then none of the findings land.
+
+**Asked about copy, reach for `--report` instead.** This class is the sweep's
+share of it, phrased for an edit hook relaying one line. The report lane answers
+the question somebody asked out loud.
 
 `--no-copy` turns it off. `--component-only` does not: it drops the token class
 alone, which is the one class an installed impeccable detector would also be
@@ -133,6 +144,104 @@ when what they want is the row they broke. The `over-length` finding in it is
 there because the button carried `data-pp-component="Button"`; the declaration
 is the only thing in markup that says which row governs a string. Without one,
 every other rule still runs.
+
+## A copy check
+
+**"Check the copy" is one command, and its output is the answer.** Not a lane
+that gathers strings by hand, reads the rules and writes an essay about them:
+
+```bash
+node scripts/copy.mjs --report areas.html areas.js styles/areas.css
+node scripts/copy.mjs --report src/            # a directory walks
+```
+
+It prints a score and a markdown table — `Where`, `Current`, `Suggested`, `Why`,
+one row per string that broke something. **Relay that table as it printed.**
+Reformatting it is where a report turns back into paragraphs, and the columns are
+already the shape of the question: which string, what it says, what it should say
+instead.
+
+Then two things, and nothing else:
+
+- **Fill the blank `Suggested` cells, and correct the partial ones.** The script
+  only makes substitutions the rules state — a banned phrase with a literal
+  replacement, a wrong term, a title-cased word sentence case lowercases. A
+  generic CTA, a passive line and an over-length string all need a decision about
+  what the copy is trying to say, and the closing line of the report names which
+  codes were left. Those cells are the judgment being asked for.
+- **Add a row for anything the engine cannot see.** Seven of the sixteen rubric
+  codes are mechanical and [copy.md](copy.md#where-the-mechanical-part-ends) has
+  what the other nine are. A screen using three nouns for one thing, a title that
+  breaks the pattern of its siblings, an accessible name that does not contain its
+  visible label: real findings, none of them a pattern, all of them a row in the
+  same table with `—` for a code.
+
+**Then offer the rows, and write nothing until one is picked.** One `AskQuestion`,
+`allow_multiple`, one option per row in the table, each labelled with the change it
+makes — `1. Manage Your Service Areas → Manage your service areas`. Plus an option
+that takes none of them. Fill the blank cells first, so every option is a concrete
+change rather than an invitation to think about one.
+
+**No screenshots, no harness run, no sweep of the rest of the repo, and no edit
+that was not picked.** Someone who asks what is wrong with their copy has not asked
+you to rewrite their repo. The offer is one question at the end of an answer that
+was already complete; the failure to avoid is the ten minutes spent arriving
+somewhere they could reach in a line of their own.
+
+Then apply what came back, by number, in one call:
+
+```bash
+node scripts/copy.mjs src/ --apply 1,4                    # as suggested
+node scripts/copy.mjs src/ --apply '{"3":"Save areas"}'    # other words in a row
+```
+
+Same paths, in the same turn — `--apply` re-reads the files to find the rows, so
+the numbers mean what the reader saw only while the files are as the report found
+them. It refuses a row it cannot place rather than writing to a guess.
+
+**Do not hand-edit a row instead.** A suggestion is spliced span by span, so an
+interpolated value in the string survives it, and a row is one occurrence at one
+offset where the same string in two files is two rows. A `StrReplace` on the string
+is the one that either refuses as ambiguous or changes the copy nobody picked.
+
+Over ten rows, do not offer eleven options. Offer one that takes every mechanical
+suggestion at once, and an option each for the rows whose wording is a judgment.
+
+Exit 1 when anything was found and 0 when clean, so it gates what `check.mjs`
+gates. `--json` gives the same data with the score and the suggestions on it.
+
+### What it reads
+
+Markup, and script. Text nodes, the `label`, `title`, `placeholder`,
+`aria-label` and `alt` attributes, and — the part that used to need a grep — the
+same names handed to an element in code: `setAttribute('aria-label', …)`,
+`.placeholder =`, `.textContent =`. In a hand-rolled prototype that is where the
+placeholder, the accessible name and the live-region announcement actually live,
+and a report that skipped them called a file clean on the strength of not having
+looked.
+
+Never an identifier, an import, a class name, a URL, or a region it could not
+fully parse. A bare `const EMPTY = '…'` is not read either: the copy in it reaches
+a reader through the markup that interpolates it, and that is where the walk finds
+it, under whatever component the markup declares.
+
+**Length is the one rule a walk cannot settle by itself.** It needs the row, and
+only a `data-pp-component` on the element holding the text supplies one — a
+`placeholder` attribute is the exception, since that row governs it whatever
+element carries it. The report says how many strings went unmeasured rather than
+leaving the silence to be read as a pass.
+
+**Not the app layer, not checked.** A region marked `data-pp-content="pro"` is a
+pro's own words, and neither the report nor `--apply` touches it — the rules are
+Thumbtack's voice and a pro's headline is not written in it. The count of what a
+marker exempted is printed, so a marker on the wrong element does not quietly
+empty a report. [copy.md](copy.md#the-app-layer-and-a-pros-words) has the marker,
+the values that hand a region back, and the comment form for a string a script
+assigns.
+
+**Asked to fix a pro's copy anyway, say what the check does and does not cover.**
+The words are theirs and the rubric was not written for them; grammar and spelling
+are a different job from the one this does, and the score would be meaningless.
 
 ## Words with no design around them
 

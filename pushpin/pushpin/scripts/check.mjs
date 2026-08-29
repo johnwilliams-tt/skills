@@ -39,6 +39,14 @@
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { basename, extname, join, relative, resolve } from 'node:path';
 import {
+  MARKUP_EXT,
+  attrValue,
+  lineOf,
+  mask,
+  maskMarkup,
+  strings,
+} from './lib/copy-strings.mjs';
+import {
   binding,
   isBinding,
   loadSpecs,
@@ -185,41 +193,6 @@ const isCritical = (f) => f.severity === 'critical';
 
 /** Criticals are the only tier named, and named where the message is read. */
 const say = (f) => (isCritical(f) ? `critical: ${f.message}` : f.message);
-
-/**
- * Blank out comments and the contents of url() so a hex in either does not read
- * as a value someone chose. Positions are preserved so line numbers stay true.
- */
-function mask(src) {
-  return src
-    .replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '))
-    .replace(/(^|[^:])\/\/[^\n]*/g, (m, p) => p + ' '.repeat(m.length - p.length))
-    .replace(/url\([^)]*\)/g, (m) => ' '.repeat(m.length));
-}
-
-const lineOf = (src, index) => src.slice(0, index).split('\n').length;
-
-/** The attributes worth reading out of a tag, compiled once rather than per tag. */
-const ATTR = new Map(
-  ['data-pp-component', 'label', 'title', 'placeholder', 'aria-label', 'alt'].map((n) => [
-    n,
-    new RegExp(`(?:^|[\\s{])${n}\\s*=\\s*\\{?\\s*(?:"([^"]*)"|'([^']*)')`, 'i'),
-  ]),
-);
-
-/**
- * A quoted attribute value with its offset inside `attrs`, or null.
- *
- * Quoted literals only: a value the file computes at runtime is not a name or a
- * string this can read. Taken whole rather than up to the first space, because
- * catalog names carry both ("Icon Button", "Modal / Confirmation").
- */
-function attrValue(attrs, name) {
-  const m = ATTR.get(name).exec(attrs);
-  if (!m) return null;
-  const value = m[1] ?? m[2];
-  return { value, at: m.index + m[0].length - value.length - 1 };
-}
 
 /** The generated stylesheet is the token definitions; every hex in it is the point. */
 const isGenerated = (file, src) =>
@@ -610,103 +583,29 @@ function checkFidelity(file, line, name, selector, attrs) {
 
 // --------------------------------------------------------------------- copy
 
-/** Only the files that can hold markup; a stylesheet has no text nodes. */
-const MARKUP_EXT = new Set(['.js', '.jsx', '.ts', '.tsx', '.html', '.vue', '.svelte', '.astro']);
-
-/** Props that hold words a person reads. Children are the walk below. */
-const TEXT_PROPS = ['label', 'title', 'placeholder', 'aria-label', 'alt'];
-
-/** Elements whose contents are code rather than copy. */
-const OPAQUE = new Set(['script', 'style', 'code', 'pre']);
-
-const VOID = new Set([
-  'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
-  'link', 'meta', 'param', 'source', 'track', 'wbr',
-]);
-
 /**
- * A tag, with attribute values that carry their own quotes or braces — an
- * arrow function inside one holds a `>` that would otherwise end the tag three
- * characters in. Three levels of nesting covers real JSX; anything deeper is
- * not recognised as a tag at all, and the guard below is what keeps that from
- * turning into a finding.
- */
-const brace = (depth) => (depth ? `\\{(?:[^{}]|${brace(depth - 1)})*\\}` : '\\{[^{}]*\\}');
-const MARKUP = new RegExp(`<(/?)([a-zA-Z][\\w.:-]*)((?:'[^']*'|"[^"]*"|${brace(2)}|[^<>'"{])*)>`, 'g');
-const EXPRESSION = new RegExp(brace(2), 'g');
-
-/**
- * Text that is a URL, an identifier, or a region holding something this did not
- * parse. A leftover `<` or `{` means an unrecognised tag or expression is in
- * there, and the honest answer about a region we do not understand is nothing.
- */
-const NOT_COPY = /[<{}]|^(?:https?:|mailto:|tel:|[./#])|^\S*[._/\\]\S*$|^[A-Z0-9_]+$|^\S*[a-z][A-Z]\S*$/;
-
-const isCopy = (text) => /[A-Za-z]{2}/.test(text) && !NOT_COPY.test(text.trim());
-
-/**
- * Copy in a file's markup.
+ * Every string in a file, against the engine.
  *
- * Text is held until its element closes, so an opening tag that never closes —
- * a TypeScript generic, `Array<Item>` — takes the code that follows it down
- * with it instead of being read as the paragraph it is not.
+ * The walk itself is lib/copy-strings.mjs, shared with scripts/copy.mjs so the
+ * edit hook and a deliberate audit cannot disagree about what a file says. The
+ * length code needs a component and only a declaration on the text's immediate
+ * parent supplies one, which is why a string reached through a property — a
+ * placeholder assigned in a script — is checked on every rule but that.
  *
- * The length code needs a component, and it is applied only where the text's
- * immediate parent declares one. A declaration on a wrapper says which
- * component the region is, not which slot inside it any one line fills, and
- * measuring a heading against a modal's body limit is the kind of finding that
- * costs more than it buys.
+ * A string a `data-pp-content` marker attributed to somebody outside Thumbtack
+ * is passed over. The rules are Thumbtack's voice; a pro's own description of
+ * their own business is not written in it and reporting it on every edit is how
+ * a hook gets switched off.
  */
 function checkCopy(file, src) {
-  const s = mask(src).replace(/<!--[\s\S]*?-->/g, (m) => m.replace(/[^\n]/g, ' '));
-  const stack = [];
-  let cursor = 0;
-
-  for (const m of s.matchAll(MARKUP)) {
-    const [whole, closing, tag, attrs = ''] = m;
-    const open = stack[stack.length - 1];
-    if (open && !open.opaque && cursor < m.index) {
-      open.text.push({ body: s.slice(cursor, m.index), at: cursor });
-    }
-    cursor = m.index + whole.length;
-
-    if (closing) {
-      for (let i = stack.length - 1; i >= 0; i--) {
-        if (stack[i].tag !== tag) continue;
-        const [el] = stack.splice(i);
-        for (const t of el.text) scanCopy(file, s, t.body, t.at, el.component);
-        break;
-      }
-      continue;
-    }
-
-    const opaque = Boolean(open?.opaque) || OPAQUE.has(tag.toLowerCase());
-    const component = attrValue(attrs, 'data-pp-component')?.value ?? null;
-    const attrsAt = m.index + 1 + tag.length;
-    if (!opaque) {
-      for (const prop of TEXT_PROPS) {
-        const v = attrValue(attrs, prop);
-        if (v) scanCopy(file, s, v.value, attrsAt + v.at, component);
-      }
-    }
-
-    if (/\/\s*$/.test(attrs) || VOID.has(tag.toLowerCase())) continue;
-    stack.push({ tag, component, opaque, text: [] });
+  const s = maskMarkup(src);
+  for (const { text, at, component, authored } of strings(s)) {
+    if (authored) continue;
+    const found = scan(text, { component });
+    if (!found.length) continue;
+    const base = lineOf(s, at);
+    for (const f of found) add(file, base + f.line - 1, f.rule, f.message, f);
   }
-}
-
-/**
- * One run of text against the engine. Interpolations are blanked rather than
- * guessed at — what `{name}` renders is unknown here, and undercounting a
- * length is the side of that to be wrong on.
- */
-function scanCopy(file, src, text, at, component) {
-  const body = text.replace(EXPRESSION, (m) => m.replace(/[^\n]/g, ' '));
-  if (!isCopy(body)) return;
-  const found = scan(body, { component });
-  if (!found.length) return;
-  const base = lineOf(src, at);
-  for (const f of found) add(file, base + f.line - 1, f.rule, f.message, f);
 }
 
 // --------------------------------------------------------------------- run

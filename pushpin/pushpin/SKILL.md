@@ -1,7 +1,7 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.13.5
+version: 0.14.0
 argument-hint: "[generate|audit|figma · setup|init|freshness · refresh] [target]"
 allowed-tools:
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/check.mjs *)
@@ -127,6 +127,7 @@ covers the same ground from plain speech. Load one doc, not the table.
 | "make me a booking screen", "add a step to this flow" — no surface named | ask first, [above](#which-surface) |
 | **`generate`** — "mock this up in Figma", or a link to build against. One screen; several states of one surface is the flows row below | [generate.md](reference/generate.md) |
 | **`audit`** — "does this match Pushpin", "review this frame", "check this repo", "does this sound like us". A frame, a repo, or words on their own | [audit.md](reference/audit.md) |
+| "check the copy", "review these labels", "is this placeholder right" — a code file, copy alone | run [the report](#a-copy-check-is-one-command); [audit.md](reference/audit.md#a-copy-check) for the rest |
 | **`figma`** — a figma.com link where code is the goal, "build this screen" | [figma.md](reference/figma.md) |
 | **`setup`** — "set this repo up", "start a project", no `pushpin.config.json`. Once per project | [setup.md](reference/setup.md) |
 | **`init`** — re-run, repair, or update a project already set up | [init.md](reference/init.md) |
@@ -219,6 +220,47 @@ refused** — the Pushpin kit (`VVRGrLgkPRU3vs765d5Q3r`), the Annotation Kit
 
 [reference/generate.md](reference/generate.md) has the rest: duplicate beside
 the original, offer finalize, ask where net-new goes, and the access preflight.
+
+## A copy check is one command
+
+Asked whether the words on a screen are right, run this and relay what it prints:
+
+```bash
+node ${CLAUDE_SKILL_DIR}/scripts/copy.mjs --report <paths...>
+```
+
+It walks the files for every string a person reads — including the placeholders,
+accessible names and announcements assigned in script, which is the half nobody
+can grep reliably — and prints a score out of 5 and a markdown table of `Where`,
+`Current`, `Suggested`, `Why`.
+
+**The table is the answer, not the notes for one.** Relay it as printed. Fill the
+blank `Suggested` cells, which are the ones the rules deliberately leave to a
+person, and add a row for anything mechanical rules cannot see.
+
+**Then offer the rows and let the person pick.** One `AskQuestion` with
+`allow_multiple`, one option per row labelled with the change it makes, plus an
+option that takes none. What comes back is applied by number, in one call:
+
+```bash
+node ${CLAUDE_SKILL_DIR}/scripts/copy.mjs <paths...> --apply 1,4
+node ${CLAUDE_SKILL_DIR}/scripts/copy.mjs <paths...> --apply '{"3":"Save areas"}'
+```
+
+Applying by number rather than by hand is not a convenience: a suggestion is
+spliced word by word, so an interpolated value in the string survives it, and the
+same string in two files is two rows rather than one ambiguous replace. Nothing
+else happens in this lane — no screenshots, no harness run, no edit nobody picked.
+
+**Copy a pro wrote is not the app layer and is not checked.** A region marked
+`data-pp-content="pro"` is exempt from the report, the score and `--apply`. The
+rules are Thumbtack's voice, and a pro's own headline is not written in it.
+
+[audit.md § A copy check](reference/audit.md#a-copy-check) has the obligations in
+full, and [copy.md](reference/copy.md) has what the score means, where the
+mechanical part ends, and
+[the content marker](reference/copy.md#the-app-layer-and-a-pros-words). **None of
+them is needed to run the command.**
 
 ## Looking something up
 

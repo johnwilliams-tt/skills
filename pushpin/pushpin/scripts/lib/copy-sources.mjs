@@ -31,11 +31,14 @@ export const SOURCE = {
 /**
  * Read and deliberately not carried.
  *
- * The upstream is a review skill: it scores content 1-5 and answers with a
- * ---REWRITE--- block. Pushpin either writes copy correctly or corrects it on
- * arrival, so no lane produces a verdict and neither the response format nor
- * the score formula comes across. The severity codes underneath them do, and
- * they are the whole of what the engine acts on.
+ * The upstream is a review skill, and its response format is a rewrite block
+ * wrapped in `---REWRITE---` delimiters with a scored audit either side of it.
+ * The delimiters and the two-score shape do not come across: Pushpin's report
+ * lane names one score for the copy in front of it and puts its suggestions in
+ * a table rather than a block a reader has to diff by eye.
+ *
+ * The score ladder underneath that format does come across, because it is a
+ * rule rather than a presentation choice — see `scoreLadder`.
  */
 const DROPPED = new Set(['HOW TO RESPOND']);
 
@@ -170,6 +173,58 @@ function scoring(body) {
   }
   if (!Object.keys(codes).length) throw new Error('No severity codes found in SCORING');
   return codes;
+}
+
+/**
+ * The rungs of the 1-5 ladder, as conditions rather than as English.
+ *
+ * Carried where the response format around it is not, because the two are
+ * different kinds of thing. A rewrite block is how the upstream chose to answer;
+ * a critical costing every point on the scale is a judgment about severity, the
+ * same judgment the codes themselves encode, and re-deciding it here would put
+ * Pushpin's number and Content Design's number at odds over the same copy.
+ *
+ * Every rung has to parse. Hardcoding the ladder in the engine would let an
+ * upstream edit to it pass silently, which is the failure this whole adapter
+ * exists to prevent — so an unrecognised rung is a build failure, and the
+ * engine reads what comes out of here rather than a copy of it.
+ */
+function scoreLadder(body) {
+  const line = body.split('\n');
+  const at = line.findIndex((l) => /^\*\*Score formula:?\*\*/i.test(l.trim()));
+  if (at < 0) throw new Error('No score formula in SCORING');
+
+  const ladder = [];
+  for (const raw of line.slice(at + 1)) {
+    const text = raw.trim();
+    if (!text) continue;
+    if (!text.startsWith('- ')) break;
+
+    const [, condition, score] = text.match(/^-\s*(.+?)\s*=\s*(\d)\s*$/) ?? [];
+    if (!condition) throw new Error(`Cannot read a score rung: ${text}`);
+
+    // Ranges are written with an en dash upstream; tiers are named in the
+    // plural. Both are the document's habits rather than anything meaningful.
+    const c = condition.toLowerCase().replace(/[–—]/g, '-');
+    const tier = c.match(/\b(critical|major|minor)s?\b/)?.[1] ?? null;
+    const span = c.match(/(\d+)\s*-\s*(\d+)/);
+    const from = c.match(/(\d+)\s*\+/);
+    const code = condition.match(/\b([CMNP]\d+)\b/)?.[1] ?? null;
+
+    let when;
+    if (code) when = { code };
+    else if (/\bno issues\b/.test(c)) when = { clean: true };
+    else if (tier && span) when = { tier, min: Number(span[1]), max: Number(span[2]) };
+    else if (tier && from) when = { tier, min: Number(from[1]) };
+    else if (tier && /\bonly\b/.test(c)) when = { tier, only: true };
+    else if (tier && /\bany\b/.test(c)) when = { tier, min: 1 };
+    else throw new Error(`Cannot read a score rung: ${text}`);
+
+    ladder.push({ raw: condition, score: Number(score), when });
+  }
+
+  if (!ladder.length) throw new Error('The score formula in SCORING has no rungs');
+  return ladder;
 }
 
 function styleRules(body) {
@@ -316,6 +371,7 @@ function parseSkillMd(text) {
     guidance: [],
     examples: [],
     limits: {},
+    score: [],
     rules: [],
     legalTriggers: [],
     style: {},
@@ -337,6 +393,7 @@ function parseSkillMd(text) {
     switch (name) {
       case 'SCORING':
         out.codes = scoring(body);
+        out.score = scoreLadder(body);
         m4 = quoted(out.codes.M4?.description ?? '');
         out.passive = quoted(out.codes.M2?.description ?? '');
         out.genericCtas = quoted(out.codes.M3?.description ?? '');

@@ -7,7 +7,10 @@
     "extractedAt": "2026-08-06",
     "bindableCount": 131,
     "hiddenCount": 168,
-    "verifiedBy": "Imported successfully into file rXFecV4AAtgjaES8935fbh on 2026-08-06."
+    "verifiedAt": "2026-08-29",
+    "verifiedIn": "rXFecV4AAtgjaES8935fbh",
+    "verifiedCount": 131,
+    "verifiedBy": "All 131 bindable keys imported successfully into file rXFecV4AAtgjaES8935fbh on 2026-08-29, and every published key matched the committed one in both directions. Written from verifiedAt, verifiedIn and verifiedCount; see scripts/check.md section 2 for the pass that sets them."
   },
 
   "$howToUse": {

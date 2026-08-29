@@ -16,6 +16,139 @@ Changes are grouped the way `diff.mjs` classifies them:
 An entry about the plugin rather than the capture adds **Fixed** for a bug in
 the toolchain, which `diff.mjs` has no category for.
 
+## 0.14.0 — 2026-08-28
+
+A copy check asked for in one sentence took eight minutes and answered in
+several pages of prose. Three things caused that, and all three were the
+plugin's, not the model's.
+
+The strings were not reachable. `check.mjs` read markup and five attributes, so
+every placeholder, accessible name and announcement a script hands to an element
+was invisible to it — which in a hand-rolled prototype is most of the copy on the
+screen. Answering anyway meant grepping the files by hand, labelling 23 strings,
+and running them back through `copy.mjs` in four separate calls. Two real
+findings were being missed silently the whole time: a passive line and
+`contractors` for `pro`, both assigned through `textContent`.
+
+There was no shape to answer in. The lane's own doc said there is no score and no
+rewrite block, so the only model for a report was paragraphs, and the two docs
+read to find that out are 380 lines between them.
+
+And the lane did not stop. `audit.md` said code and words are advisory, then said
+nothing about editing, so the run ended by applying fixes, rewriting the README,
+screenshotting the result and re-running a 30-check browser harness — none of it
+asked for.
+
+The same check now runs in one command and answers in a table. On the project
+that produced the eight-minute run: 120 strings, 44ms.
+
+**Added**
+
+- **`copy.mjs --report`.** A score out of 5 and a markdown table — `Where`,
+  `Current`, `Suggested`, `Why` — one row per string that broke a rule. Takes
+  files or a directory. `--json` carries the score and the suggestions too.
+- **The score is the upstream's own ladder**, parsed out of the capture into
+  `copy.json` like every other rule rather than invented here or hardcoded in the
+  engine, so a rung Content Design moves moves with a rebuild. An unrecognised
+  rung is a build failure. 4/5 is the mechanical ceiling and the report says so,
+  because the rung above it is P1 and no pattern decides that.
+- **Suggestions, where the rules state one.** A banned phrase with a literal
+  replacement, a term Thumbtack prefers, a title-cased word sentence case
+  lowercases — with the capitalisation and plural of the word being replaced, so
+  `Contractors` comes back `Pros`. The four codes that need a decision about
+  meaning are left blank and named, rather than filled with something plausible
+  that nobody chose.
+- **Copy assigned in script is read.** `setAttribute('aria-label', …)`,
+  `.placeholder =`, `.textContent =`, `.title =`, `.ariaLabel =`. A bare
+  `const EMPTY = '…'` is still not read: that copy reaches a reader through the
+  markup that interpolates it, and treating every string constant as copy is how
+  a check starts firing on identifiers.
+- **A `placeholder` attribute resolves its own length row**, which is a limit the
+  walk could not previously reach without a `data-pp-component`.
+- **The rows are numbered, and `--apply` writes the picked ones back.** The report
+  is still the answer and still changes nothing; the fixes are then offered as a
+  list to choose from, and what comes back is applied by number —
+  `--apply 1,4` for the suggestions, `--apply '{"3":"Save areas"}'` for other
+  wording. Applying by number rather than by hand is what makes an interpolation
+  survive a fix: a suggestion is spliced span by span, so
+  `` `Contractors near you. ${count} within ${miles} miles.` `` keeps both values
+  and changes one word. It is also the only way to fix one occurrence of a string
+  that appears in four files, where a replace on the text either refuses as
+  ambiguous or changes all four. Refused, with the reason, on a row that does not
+  exist, a row with no suggestion to take, a string not in a file, and wording of
+  your own over a string holding a runtime value.
+- **`data-pp-content` marks copy that is not Thumbtack's to write.** A pro's
+  headline, their service description, a review a customer left. The rules are
+  Thumbtack's voice, so a region marked `data-pp-content="pro"` is left out of the
+  report, the score and any fix. It covers everything under it, because pro content
+  arrives as a block, and `data-pp-content="app"` on a child hands that part back,
+  because the app layer reaches inside one. For a string a script assigns, a
+  `// pushpin-content: pro` comment covers its line and the next.
+
+  Unmarked, a pro's `Bay Area's Finest Plumbing — Serving You Since 1998` came back
+  as six title case findings and a suggestion to lowercase their business name, and
+  the score those findings dragged down was the app layer's. Most pro content never
+  needed this — it arrives as a value, and a value is not a literal — but the copy
+  typed into a prototype as a stand-in for a pro's is exactly what a mock is full
+  of. The report prints how many strings a marker exempted and who it attributed
+  them to, so a marker on the wrong element cannot quietly empty a report.
+
+**Changed**
+
+- **`copy.mjs <path>` on markup or a script now walks it for strings** instead of
+  reading the whole file as a copy deck. Pointing it at a `.js` file used to scan
+  the code as prose. A `.md`, `.txt` or anything else is still read as a deck, and
+  its labels are still the input form.
+- **One string extractor, in `lib/copy-strings.mjs`**, shared by `check.mjs` and
+  `copy.mjs` for the reason `lib/copy.mjs` is one engine: the edit hook and a
+  deliberate audit must not disagree about what a file says.
+- **`audit.md` has a copy lane with an output contract** — relay the table, fill
+  the blank cells, add rows for what the engine cannot see, offer the rows as a
+  pick-list, and apply only what comes back. No screenshots, no harness run, no
+  sweep of the rest of the repo, no edit nobody picked. `SKILL.md` carries the
+  command so neither reference doc has to be read to run it.
+- **`copy.md` no longer says the rules apply to everything on the screen.** They
+  apply to the app layer. The page carries the marker, the values that hand a
+  region back, and why a pro's own words are not ours to correct.
+
+**Fixed**
+
+- **Sentence counting broke on abbreviations and initials.** `e.g. Atlanta, GA`
+  counted as three sentences and was reported as over the placeholder's two, and
+  `J. Alvarez` split a sentence in half. A terminator now ends a sentence only
+  where what follows could open one, and known abbreviations do not end one at
+  all. This affects every sentence-based limit: body text, modal body,
+  placeholder, confirmation, error message.
+- **The published-variables check sent you to a file that could not answer it.**
+  `getAvailableLibraryVariableCollectionsAsync` reports the libraries a file has
+  switched on rather than the ones it can read, and it answers a file with none
+  switched on with `[]` — the same answer it gives when the library has been
+  unpublished, which is the one outcome §2 says to stop on. The check that catches
+  a re-keyed token was therefore unrunnable, and the reason read as the emergency
+  instead of as a setting. §2 now names a file that has them enabled and says how
+  the two failures differ. The scratch file the component pass uses is right for
+  that pass — `importComponentByKeyAsync` resolves from the key alone — so a file
+  that serves §3 can still return nothing here.
+- **`diff.mjs --published` compares in one direction.** It walks the committed
+  keys and asks whether each is still published, so a variable *added* to a
+  published collection is invisible to it, which is the ordinary way
+  `variable-keys.figma.json` falls behind. §2 now asks for the reverse comparison,
+  and carries the import pass that proves the keys still resolve — the thing a
+  name-and-key comparison cannot tell you.
+- **`variable-keys.figma.json` kept its verification as a sentence.** The only
+  evidence that its 131 bindable keys resolve was prose dated 2026-08-06, which
+  nothing reads and nothing ages. `verifiedAt`, `verifiedIn` and `verifiedCount`
+  now hold it and the sentence is written from them. That matters more here than
+  elsewhere: `freshness.mjs` checks variables over REST, which is Enterprise-only
+  and skips with a 403 on every other plan, so on those plans this field is the
+  only record that the keys were checked at all.
+
+**Changed (capture)**
+
+- Re-verified against the kit on 2026-08-29: all 131 bindable keys import, and the
+  published set matches the committed one in both directions — no token added,
+  removed, renamed or re-keyed since 2026-08-06.
+
 ## 0.13.5 — 2026-08-28
 
 Annotation Kit re-capture, taken because the freshness run reported a component

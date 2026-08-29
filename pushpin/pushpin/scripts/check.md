@@ -147,8 +147,15 @@ return {
 
 ## 2. Published capture
 
-Run against **any file that subscribes to the kit** — not the kit itself. A
-scratch file is fine. Save the result as `published.json`.
+Run against a file that has the kit's **variable libraries switched on** — not
+the kit itself. Enablement is the catch, and it is stricter than access:
+`getAvailableLibraryVariableCollectionsAsync` reports the libraries a file has
+enabled under Libraries, so a file that can merely read the kit returns `[]`,
+which is indistinguishable from the library having been unpublished. That is the
+one failure here that lies. `rXFecV4AAtgjaES8935fbh` has them on. The component
+import pass in `extract.md` has no such requirement — `importComponentByKeyAsync`
+resolves from the key alone — so a file that works for §3 can still return
+nothing here. Save the result as `published.json`.
 
 ```js
 const cols = await figma.teamLibrary.getAvailableLibraryVariableCollectionsAsync();
@@ -172,7 +179,57 @@ return { capturedAt: new Date().toISOString().slice(0, 10), total, published };
 
 If a collection you expect is missing from `getAvailableLibraryVariableCollectionsAsync`
 entirely, the library was unpublished or the file lost its subscription. That is
-a bigger event than a token change and worth stopping on.
+a bigger event than a token change and worth stopping on — but rule out the
+enablement above first, since both look the same from here.
+
+`diff.mjs --published` walks the committed keys and asks whether each is still
+published under the same name. Run the reverse too, because it does not: a
+variable *added* to a published collection is invisible to that direction and is
+the normal way `variable-keys.figma.json` falls behind.
+
+### Verifying the keys still import
+
+A name-and-key comparison catches a rename, a re-key and an unpublish. It cannot
+catch a key that is still published but no longer resolves, and resolving is the
+only thing consumers of this asset do with it. One pass in the same file settles
+that for the whole set:
+
+```js
+const cols = await figma.teamLibrary.getAvailableLibraryVariableCollectionsAsync();
+const tokens = cols.filter(
+  (c) => c.libraryName === 'Pushpin Thumbprint UI Kit' && /^Tokens\s*\//.test(c.name),
+);
+const failures = [];
+let attempted = 0;
+let imported = 0;
+for (const c of tokens) {
+  for (const v of await figma.teamLibrary.getVariablesInLibraryCollectionAsync(c.key)) {
+    attempted++;
+    try {
+      const local = await figma.variables.importVariableByKeyAsync(v.key);
+      if (local && local.key === v.key) imported++;
+      else failures.push(`${c.name}/${v.name}: imported but key mismatch`);
+    } catch (e) {
+      failures.push(`${c.name}/${v.name}: ${e.message}`);
+    }
+  }
+}
+return { attempted, imported, failureCount: failures.length, failures: failures.slice(0, 20) };
+```
+
+Filtering to `Tokens / *` is deliberate: the kit also publishes 39 variables under
+`Figma / *` that describe the kit's own documentation frames, and the catalog
+does not carry them. Importing places nothing on the canvas.
+
+`imported` must equal `attempted` and `failures` must come back empty. Record the
+run in the `source` block of `variable-keys.figma.json` — `verifiedAt`,
+`verifiedIn` and `verifiedCount` are the fields, and the `verifiedBy` sentence is
+written from them rather than kept independently.
+
+Nothing schedules this pass. `freshness.mjs` covers variables over REST, which is
+Enterprise-only and skips with a 403 everywhere else, so on any other plan
+`verifiedAt` is the only record that the keys were ever checked, and its age is
+the only signal that they need checking again.
 
 ## 3. Component capture
 

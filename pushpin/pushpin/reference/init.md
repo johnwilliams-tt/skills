@@ -164,7 +164,7 @@ A designer reading that as a sign something is wrong is reading it correctly.
 | Script | What it does |
 |---|---|
 | `check.mjs` | reports what is off-system in a file |
-| `copy.mjs` | checks a label or a draft against the content rules, including words not in a file yet |
+| `copy.mjs` | checks copy against the content rules — a label, a draft, or `--report` over files for a score and a numbered table, whose rows `--apply` writes back once picked |
 | `freshness.mjs` | compares the captures against Figma |
 | `lookup.mjs` | answers one catalog entry |
 | `setup.mjs` | reads the project, and with `--ready` the machine around it — Node's version, impeccable, Figma's desktop app, Claude Code's own settings; its only write is `--backup` copying aside |

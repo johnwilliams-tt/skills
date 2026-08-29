@@ -654,9 +654,15 @@ This project uses **Pushpin**, Thumbtack's design system.
   off-guideline copy in the file you just wrote. To ask for the same report
   yourself, or to check a file the hook did not see:
   \`node <pushpin>/scripts/check.mjs <path>\`.
-- Copy follows Thumbtack's content design rules, and nothing turns them on. To
-  hold words against them before they reach a file:
-  \`node <pushpin>/scripts/copy.mjs --text "Send request" --component Button\`.
+- Copy follows Thumbtack's content design rules, and nothing turns them on. For a
+  score and a current-beside-suggested table over files you have:
+  \`node <pushpin>/scripts/copy.mjs --report <paths>\`. Its rows are numbered, and
+  \`--apply 1,4\` on the same paths writes those two back. For words not in a file
+  yet: \`node <pushpin>/scripts/copy.mjs --text "Send request" --component Button\`.
+- The rules are Thumbtack's voice, so they cover the app layer and not copy a pro
+  or a customer wrote. Mark a region of somebody else's words
+  \`data-pp-content="pro"\` and it is left out of the check, the score and any fix;
+  \`data-pp-content="app"\` on a child inside one hands that part back.
 ${previewNote()}- Component and token names are case-sensitive and not guessable — look one up
   with \`node <pushpin>/scripts/lookup.mjs <name>\` rather than typing it from
   memory.

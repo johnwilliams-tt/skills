@@ -122,10 +122,10 @@ const copy = {
   $comment:
     'Thumbtack content design rules, parsed from assets/copy.source.md and joined to the ' +
     'component catalog through assets/copy-map.json. GENERATED FILE. Do not edit by hand; ' +
-    'rebuild with node scripts/build-copy.mjs. The upstream is a review skill that scores ' +
-    'content 1-5 and answers with a rewrite block; neither the score nor the response format ' +
-    'is carried here, because no Pushpin lane produces a review. The severity codes are, and ' +
-    'they are what scripts/lib/copy.mjs acts on.',
+    'rebuild with node scripts/build-copy.mjs. The upstream is a review skill that answers ' +
+    'with a rewrite block wrapped in delimiters; that response format is not carried here. ' +
+    'The severity codes and the score ladder under it are, and they are what ' +
+    'scripts/lib/copy.mjs acts on.',
   source: {
     kind: source.kind,
     repo: source.repo,
@@ -136,6 +136,7 @@ const copy = {
     url: source.url,
   },
   codes: parsed.codes,
+  score: parsed.score,
   forbidden: parsed.forbidden,
   bannedPhrases: parsed.bannedPhrases,
   genericCtas: parsed.genericCtas,

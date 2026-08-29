@@ -1,5 +1,5 @@
 {
-  "$comment": "Thumbtack content design rules, parsed from assets/copy.source.md and joined to the component catalog through assets/copy-map.json. GENERATED FILE. Do not edit by hand; rebuild with node scripts/build-copy.mjs. The upstream is a review skill that scores content 1-5 and answers with a rewrite block; neither the score nor the response format is carried here, because no Pushpin lane produces a review. The severity codes are, and they are what scripts/lib/copy.mjs acts on.",
+  "$comment": "Thumbtack content design rules, parsed from assets/copy.source.md and joined to the component catalog through assets/copy-map.json. GENERATED FILE. Do not edit by hand; rebuild with node scripts/build-copy.mjs. The upstream is a review skill that answers with a rewrite block wrapped in delimiters; that response format is not carried here. The severity codes and the score ladder under it are, and they are what scripts/lib/copy.mjs acts on.",
   "source": {
     "kind": "skill-md",
     "repo": "jallard-code/content-design-assistant",
@@ -75,6 +75,55 @@
       "description": "Reads like a real Thumbtack person wrote it, leads with the most important info, every word is necessary, ships immediately with zero changes"
     }
   },
+  "score": [
+    {
+      "raw": "Any critical",
+      "score": 1,
+      "when": {
+        "tier": "critical",
+        "min": 1
+      }
+    },
+    {
+      "raw": "3+ majors",
+      "score": 2,
+      "when": {
+        "tier": "major",
+        "min": 3
+      }
+    },
+    {
+      "raw": "1–2 majors",
+      "score": 3,
+      "when": {
+        "tier": "major",
+        "min": 1,
+        "max": 2
+      }
+    },
+    {
+      "raw": "Minors only",
+      "score": 4,
+      "when": {
+        "tier": "minor",
+        "only": true
+      }
+    },
+    {
+      "raw": "P1 true",
+      "score": 5,
+      "when": {
+        "code": "P1"
+      }
+    },
+    {
+      "raw": "No issues",
+      "score": 4,
+      "when": {
+        "clean": true
+      }
+    }
+  ],
   "forbidden": [
     "click here",
     "you won't believe",

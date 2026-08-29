@@ -11,6 +11,12 @@ screen can be on-system in every other respect — every instance resolved, ever
 gap bound, every icon at its own size — and still say something Thumbtack does
 not say. That screen has not passed.
 
+**They apply to the app layer, which is not everything on the screen.** The rules
+are Thumbtack's voice, and a pro's description of their own business is not
+written in it. `data-pp-content="pro"` is how a region says so, and the strings
+inside one are neither checked nor scored —
+[the app layer and a pro's words](#the-app-layer-and-a-pros-words).
+
 ## Three ways copy is governed
 
 They differ in when the rules land, and in what is left over afterwards.
@@ -31,15 +37,115 @@ one who can fine-tune the result, and they can only do that if they know it
 moved.
 
 **Being asked about it.** `audit`, pointed at pasted text, a file, or a frame —
-[audit.md](audit.md). This one reports and changes nothing.
+[audit.md](audit.md). This one reports first and changes nothing until a specific
+row is picked — [taking a suggestion](#taking-a-suggestion-is-the-readers-call).
 
-**There is no score and no rewrite block.** The upstream is a review skill: it
-rates content 1-5 and answers with a rewritten version, and neither survives the
-vendoring, because no lane here hands anyone a verdict. The number is the worse
-of the two to have kept — it invites arguing with the number instead of fixing
-the line — and the severity codes underneath it already carry the decision.
-`critical` is do not ship, `major` is fix before handoff, `minor` is worth a
-pass.
+## Being asked is a score and a table
+
+The third lane has a shape, and
+[audit.md § A copy check](audit.md#a-copy-check) is where the command and the
+obligations live. What it produces:
+
+```
+Score 3/5 — 1–2 majors
+4/5 is as high as a scan goes; 5 is P1, which is a person's call.
+
+| Where | Current | Suggested | Why |
+```
+
+**The score is the upstream's, not one invented here.** The rules carry a 1-5
+ladder — any critical is a 1, three majors a 2, one or two a 3, minors alone a 4 —
+and it is parsed out of the capture into `assets/copy.json` like every other rule,
+so a rung Content Design moves moves here without an edit. What does not come
+across is the response format around it: the upstream answers with a
+`---REWRITE---` block, and a table saying which string changed to what is the same
+information without the diffing by eye.
+
+**Four is the top of what a scan can say.** The rung above it is P1 — reads like a
+real person wrote it, every word necessary — and no pattern decides that. A clean
+run printing 4/5 is the honest number, and the second line of the report says what
+the missing point is for rather than leaving 4 to look like a failure.
+
+**A suggestion is only ever a substitution the rules state.** A banned phrase with
+a literal replacement, a term Thumbtack prefers, a title-cased word sentence case
+lowercases: those are transcription, and doing them by hand is where a report loses
+an hour and gains a typo. A generic CTA, a passive line, an over-length string —
+the rules say what is wrong and not what to say instead, so the cell is left for a
+person and the report names which codes it left.
+
+Severity is still what decides anything: `critical` is do not ship, `major` is fix
+before handoff, `minor` is worth a pass. **The number is a summary of those, not a
+thing to argue with** — a 2 that becomes a 3 because one major was talked away is a
+worse outcome than the major.
+
+## Taking a suggestion is the reader's call
+
+The rows are numbered, and the numbers are the interface. After the table is
+relayed, the fixes go to the person as a list to pick from, and what comes back is
+applied by number:
+
+```bash
+node scripts/copy.mjs --report src/            # numbered rows
+node scripts/copy.mjs src/ --apply 1,4         # those two, as suggested
+node scripts/copy.mjs src/ --apply '{"3":"Save areas"}'   # other words in row 3
+```
+
+**Offering the list is not the same as applying it.** The reason a copy check
+reports rather than edits is that a rewrite in Thumbtack's voice is still somebody
+else's screen, and nine of the sixteen codes need a decision no scan can make. A
+pick-list keeps that intact: the score and the table are the answer, the offer is
+one question, and nothing is written until a row is named.
+
+**Applying by number rather than by find-and-replace is the whole reason this is a
+command.** A modal title appears in its page and again in whatever embeds it, so a
+replace on the string either refuses for being ambiguous or changes both when one
+was chosen. A row is one occurrence at one offset.
+
+**A suggestion is spliced word by word, not written over the string.** A label
+assembled in code holds an interpolated value, and replacing the whole string
+deletes it — `Where you work. ${count} areas so far.` keeps its count while
+`contractors` becomes `pros`. Wording of your own does replace the string, so it is
+refused on a string with a value in it rather than silently dropping the value.
+
+## The app layer and a pro's words
+
+**Only the app layer is Thumbtack's to write.** A pro's headline, their service
+description, a review a customer left: those are on the screen, they are not in
+Thumbtack's voice, and they are not ours to correct. Left unmarked they are worse
+than noise — a pro's `Bay Area's Finest Plumbing — Serving You Since 1998` breaks
+title case, and the score it drags down is the app layer's score, which then means
+nothing.
+
+`data-pp-content` marks the region. It covers everything under it, because pro
+content arrives as a block, and it reverses on a child, because the app layer
+reaches back inside one:
+
+```html
+<section data-pp-content="pro">
+  <h1>Bay Area's Finest Plumbing — Serving You Since 1998</h1>
+  <button data-pp-content="app" data-pp-component="Button">Edit headline</button>
+</section>
+```
+
+`app`, `thumbtack`, `pushpin` and `ours` name the app layer. Any other value —
+`pro`, `customer` — names somebody whose words are their own.
+
+For a string a script assigns, where there is no tag to carry an attribute, the
+marker is a comment covering its own line and the next:
+
+```js
+// pushpin-content: pro
+tagline.textContent = 'We serve the whole Bay Area.';
+```
+
+**Most pro content needs no marker.** It arrives as a value — `bio.textContent =
+profile.bio` — and a value is not a literal, so nothing extracts it. What needs
+marking is the copy typed into a prototype as a stand-in for a pro's, which is
+exactly the copy a mock is full of.
+
+The report says how many strings a marker swallowed and who it attributed them to.
+That line is the check on the mechanism: a marker on the wrong element quietly
+empties a report, and the count is how anyone notices.
 
 ## The rules broken most often
 
