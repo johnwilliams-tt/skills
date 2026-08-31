@@ -134,12 +134,18 @@ catch up.
 
 1. Load the `figma-use` skill before any `use_figma` call, and
    `figma-generate-design` when building a full screen.
-2. Call `search_design_system` **first**, scoped to the Pushpin library key, and
+2. **Stop at the checkpoint before anything is written** —
+   [generate.md](generate.md#the-checkpoint-is-one-call-with-two-questions). One
+   `AskQuestion`: where the work lands, and which of annotation and the copy pass
+   to run. Neither is a default, because both cost time the user may not want
+   spent on a first look at a layout, and the destination is the answer that
+   keeps this from being an edit in place.
+3. Call `search_design_system` **first**, scoped to the Pushpin library key, and
    build from real components. Never draw a button as a rectangle when the kit
    publishes one.
-3. Bind fills and spacing to the kit's variables rather than setting literal
+4. Bind fills and spacing to the kit's variables rather than setting literal
    values, so the result stays live against the library.
-4. For a web page being captured for the first time, run `generate_figma_design`
+5. For a web page being captured for the first time, run `generate_figma_design`
    and `use_figma` in parallel — the screenshot for fidelity, the component
    assembly for correctness — then reconcile and delete the screenshot. Issue
    both in one message; [parallel.md](parallel.md) sets how far a write may be

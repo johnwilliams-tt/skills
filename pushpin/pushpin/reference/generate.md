@@ -548,11 +548,24 @@ around that width. A screen written legal hands over without a copy pass.
 
 Anything else the rules say is one question away:
 `node scripts/lookup.mjs --copy Toast` answers the notification limits, and
-`--copy contractor` answers with the word that replaces it. A string arriving
-from somewhere else — carried in from pushed code, or read off the frame being
-rebuilt — goes through `node scripts/copy.mjs` before it is written in, the same
-move [figma.md](figma.md#copy-is-corrected-on-the-way-in) makes on the way from
-a design.
+`--copy contractor` answers with the word that replaces it.
+
+**A string arriving from somewhere else is the one part of this that is asked
+about.** Words carried in from pushed code, or read off the frame being rebuilt,
+are somebody's existing decision rather than this lane's, and running them
+through `node scripts/copy.mjs` is a pass with a cost — so the checkpoint asks,
+and it asks once
+[for the whole run](#the-checkpoint-is-one-call-with-two-questions). Picked, the
+call rides in step 4's message, before any lane writes a word. Declined, the
+strings go across as written and the summary says they were not checked. The four
+rules above still bind on every word this lane composes itself, which is most of
+them.
+
+The other direction does not ask —
+[figma.md](figma.md#copy-is-corrected-on-the-way-in) corrects a frame's words on
+the way into markup unconditionally, because there the strings are the whole of
+what is being carried across and the code being written is the cheap thing to
+change.
 
 Nothing this lane writes gets a score, an alternative, or an annotation arguing
 for the wording. Copy is composed correct the way a fill is bound correct, and
@@ -821,20 +834,44 @@ Neither is a file- or page-level URL with a frame selected in the desktop app �
 confirm rather than listing candidates. Ask a follow-up only when traversal
 leaves a real choice.
 
-**Duplicate beside the original.** The first pass copies the resolved frame onto
-the same page, next to the original, under a dated name of the form
-`Booking flow — Pushpin [Aug 10]`. The original is not modified, moved, or
-renamed. Same-page placement is deliberate: the point of a first pass is
-comparing old and new at a glance.
+**The destination is asked, not defaulted.** It is the first question of
+[the checkpoint](#the-checkpoint-is-one-call-with-two-questions), and one of
+three answers:
+
+- **Beside the original on this page**, under a dated name of the form
+  `Booking flow — Pushpin [Aug 10]`. Same-page placement is what makes a first
+  pass comparable: old and new at a glance, in one screenful. This option is
+  omitted when there is nothing to duplicate.
+- **On a clean review page**, named to the file's conventions — the
+  `↪ R1 explorations [Aug 10]` and `↪ Design crit [mon date]` pattern. A busy
+  page, or a flow being reviewed before anyone decides whether it lands, is what
+  this is for.
+- **Somewhere the user names.** Then wait for the link. Nothing is searched for
+  here any more than it is above.
+
+**The original is not modified, moved, or renamed by the first pass**, whichever
+answer comes back. That is not one of the options, because a write that replaces
+work is a write the user cannot take back — and the version they wanted to keep
+is the one that was already there.
 
 **Finalize is a second pass, and it is offered.** Once the user says the result
-is good, offer to move the accepted work onto its own page named to the file's
-conventions — the `↪ R1 explorations [Aug 10]` and `↪ Design crit [mon date]`
-pattern. Never do it automatically. A page appearing unannounced is the same
-class of surprise as an overwrite.
+is good, offer the two places accepted work goes, and let them pick:
 
-**Ask where net-new screens go.** When there is nothing to duplicate, the
-destination is a question, not a default.
+- **Its own page**, named to the file's conventions, when the work is still
+  sitting beside the original. Where the checkpoint already put it on a review
+  page, it is already there and there is nothing to offer.
+- **The original's place** — the new frame where the old one was, and the old one
+  renamed `Booking flow — archived [Aug 10]`.
+
+**Nothing is deleted.** An archived frame is a rename and a move, both visible
+and both reversible by hand, which is what makes this the honest form of "replace
+the existing flow" — the request the undo argument refuses is overwriting, not
+superseding.
+
+Offer it; never perform it. A frame changing places unannounced is the same class
+of surprise as an overwrite even when nothing was lost. And do not offer it at
+all when [the audit](#the-audit) returned `report.ok === false`: work that did
+not pass does not take the original's place.
 
 **Shared library files are refused outright.** Never write into the Pushpin
 Thumbprint UI Kit (`VVRGrLgkPRU3vs765d5Q3r`), the Annotation Kit
@@ -1123,6 +1160,67 @@ section.placeholder = false;
 return { mutatedNodeIds: [section.id /* , … */], drift };
 ```
 
+## The checkpoint is one call with two questions
+
+**One `AskQuestion`, one turn**, and it is the only place this path asks the user
+anything. It used to be two turns — the page-context offer, then the statement of
+what would be built — both waiting on the same answer, and adding a third would
+put three turns between a link and a frame.
+
+**The preamble states; the questions ask.** Everything below is said in the
+preamble, in a line each, so the user can stop you over any of it without being
+asked to choose about it:
+
+- What is on the page — [context.md](context.md). Skip this when the page holds
+  nothing else.
+- What will be duplicated and what the copy is named, or that the artifact is
+  net-new and nothing is being copied.
+- Every intended departure from the page's patterns, all of them here rather
+  than one at a time during the build.
+- Anything the preflight degraded, so the user learns their icons will be
+  placeholders before the screen is built rather than after.
+- Where the subject is a flow, the lane list and the region each lane shows —
+  [flows.md](flows.md#what-a-card-shows-is-decided-per-lane). Stated, never
+  asked.
+
+**Question one: where it lands.** Single select, the three answers in
+[Where the work gets written](#where-the-work-gets-written) — beside the original,
+a clean review page, or a location the user names. Replacing the original is not
+among them; it is the finalize offer, after the work has been seen.
+
+**Question two: which paid passes run.** `allow_multiple`, because they are
+independent and a user who wants notes but not a copy pass has no way to say so
+otherwise:
+
+- **Annotate the result** — every proposal's note, the open questions for
+  unresolved atoms, and the `Token drift` disclosure. Step 6.
+- **Correct the copy that came in with the source** — the `copy.mjs` run over
+  strings carried in from pushed code or read off a frame being rebuilt.
+- **Neither — just build it.**
+
+Both are real work, and both are work on top of a screen that is already
+finished and already correct. Annotation is a second bundle of Figma writes
+against a second library; the copy run is a script call plus the corrections it
+argues for. Defaulting them on spends that on every push, including the ones
+where the user wanted to look at a layout.
+
+**What declining annotation costs is said, not hidden.** The notes are where a
+proposal is argued and where a snapped value is disclosed, so without them that
+disclosure moves into the chat summary at step 7 and the audit stops treating
+their absence as a defect — [audit-figma.md](audit-figma.md#when-annotation-was-declined).
+The finalize offer then carries annotation with it, so the canvas can catch up
+once the design is settled.
+
+**Composing copy correct is not in the question.** It is free, it happens at the
+moment `characters` is set, and [§ Writing the copy](#writing-the-copy) is the
+argument for why it cannot be a pass afterwards: a button that loses two words is
+a button whose row was balanced around the old width. What question two governs
+is only the correction of words that arrived from somewhere else.
+
+**The audit is not in the question either.** It is one script call, it is the
+check that decides whether the frame hands over at all, and a build nobody
+verified is not a cheaper build.
+
 ## Workflow
 
 1. **Resolve the link and run the access preflight, in one message.** Traversal
@@ -1136,20 +1234,14 @@ return { mutatedNodeIds: [section.id /* , … */], drift };
    — [context.md](context.md). When the link carried a `node-id`, this rides in
    the first message too, since the walk starts from that id and needs nothing
    from the traversal either.
-3. **One checkpoint, before anything is written.** Offer the page context,
-   naming what is on it. State in one line what will be duplicated and what the
-   copy is named, so the user can stop you. Name every intended departure from
-   the page's patterns here, in one question rather than several during the
-   build. And say if the preflight degraded anything, so the user learns their
-   icons will be placeholders before the screen is built rather than after.
-   This used to be two turns — the offer, then the statement — both waiting on
-   the same answer: go ahead as described, or not. Skip the offer when the page
-   holds nothing else; the statement is not optional. Where the subject is a
-   flow, the statement is the lane list and the region each lane shows —
-   [flows.md](flows.md#what-a-card-shows-is-decided-per-lane) — stated, never
-   asked.
+3. **One checkpoint, before anything is written** —
+   [above](#the-checkpoint-is-one-call-with-two-questions). One `AskQuestion`
+   call, carrying the destination and which of the paid passes to run, under a
+   preamble that states everything the user is not being asked. Nothing is
+   written until it is answered.
 4. **Look up what the layout needs, and claim the canvas, in one message.** Two
-   calls, with no dependency between them.
+   calls, with no dependency between them — three where the checkpoint asked for
+   the copy pass.
    - The catalog, asked for everything at once: `node scripts/lookup.mjs
      Button,Card,Toast`, and `--icon` with the glyphs comma-separated. A screen
      needs a dozen entries and each one asked separately is a wasted round trip.
@@ -1157,13 +1249,20 @@ return { mutatedNodeIds: [section.id /* , … */], drift };
      [figma.md](figma.md) — Pushpin for components, the Thumbprint UI Kit for
      icons. When the source is code that declares its own components, resolve
      those declarations here — [above](#when-the-code-already-says-what-it-is).
-   - One `use_figma` call that duplicates the resolved frame beside the original
-     on the same page, builds the skeleton inside the copy with
+   - `node scripts/copy.mjs --text` over the strings the source brought with it,
+     when that pass was picked. It belongs in this message and not later: a lane
+     writes the words it was handed, so a correction arriving after step 5 is a
+     correction to a screen whose widths were already chosen around the old ones
+     — [§ Writing the copy](#writing-the-copy).
+   - One `use_figma` call that duplicates the resolved frame to wherever the
+     checkpoint settled — beside the original, onto a review page it creates, or
+     into the page the user named — and builds the skeleton inside the copy with
      `figma.createAutoLayout()` containers and `placeholder = true` on each
      section, and returns `{ frameId, pageId, sections: [{ id, name }] }`. The
      original stays untouched from here on. The skeleton is containers rather
-     than components, so it needs nothing the lookup is fetching — which is why
-     the two fit in one message — it stops at the containers and creates nothing
+     than components, so it needs nothing the lookup or the copy pass is
+     fetching — which is why they fit in one message — it stops at the
+     containers and creates nothing
      inside them, and the ids it returns are what the fill lanes are handed.
      The duplicate is a `clone()` of a frame holding instances, so a skeleton
      that reads anything back out of it opens with the flag from
@@ -1178,14 +1277,15 @@ return { mutatedNodeIds: [section.id /* , … */], drift };
    [the content design rules](#writing-the-copy), and clears that section's
    `placeholder` as it finishes. Nothing the design calls for is left out: what
    cannot be resolved gets a marked placeholder.
-6. **Annotate,** into the auto-layout bundle beside the frame: every proposal's
-   note, a specimen instance of the proposal next to it, its anchor, an open
-   question for every unresolved atom, and the
+6. **Annotate, when the checkpoint asked for it,** into the auto-layout bundle
+   beside the frame: every proposal's note, a specimen instance of the proposal
+   next to it, its anchor, an open question for every unresolved atom, and the
    [`Token drift` note](#one-dev-note-when-something-drifted) when any lane
    returned a snap. This precedes the audit rather than following it, because the
    audit reads these notes — run it first and a proposal whose note has not been
    placed yet is indistinguishable from one that has no note at all, which is a
-   defect.
+   defect. When it was declined, the step is skipped whole and the audit is told
+   so, so that the same absence is a result rather than that defect.
 7. **Join, then audit before declaring done** — see below. Nothing in this step
    or the last one starts until every lane has returned, because an unfilled
    `placeholder` is a defect the audit reports and a lane still running looks
@@ -1197,7 +1297,18 @@ return { mutatedNodeIds: [section.id /* , … */], drift };
    listing proposals, unresolved atoms, any spacing that snapped, any library
    the preflight could not reach, and any declaration that did not resolve
    against the catalog.
-8. **Offer the finalize pass.** Offer it; do not perform it unprompted.
+
+   **Where step 6 was declined the summary is the only disclosure there is,** so
+   it carries what the notes would have said: each proposal with what it extends
+   and why, each unresolved atom as an open question, and every snapped value
+   with the number that was asked for beside the one on the canvas. A copy pass
+   the checkpoint declined is a line here too — the source's words went across as
+   written, unchecked.
+8. **Offer the finalize pass**, and annotation with it when step 6 was declined.
+   Offer both; perform neither unprompted. The finalize offer is where "replace
+   the existing flow" is answered —
+   [above](#where-the-work-gets-written) — and it is not offered at all when the
+   audit did not pass.
 
 ## The audit
 

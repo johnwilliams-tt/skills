@@ -114,9 +114,11 @@ ceiling above is this page's limit and it is the only one that binds here.
 the part that changed — is the question this page is most likely to get asked out
 loud instead of answering. It has an answer, and it is not the user's to supply.
 Asking it during a build is also the thing
-[generate.md](generate.md#workflow) rules out at its checkpoint: departures get
-stated once, before anything is written, not raised one state at a time. **That
-checkpoint names the lanes and the region each one shows**, in a line, derived by
+[generate.md](generate.md#the-checkpoint-is-one-call-with-two-questions) rules
+out at its checkpoint: departures get stated once, before anything is written,
+not raised one state at a time — and the checkpoint's own two questions are
+where and what to run, not what a card holds. **Its preamble names the lanes and
+the region each one shows**, in a line, derived by
 the rule below — so a wrong guess costs the user a correction instead of a
 question.
 
@@ -212,11 +214,12 @@ Nothing about a documentation frame loosens any of it. A state card holding a
 drawn lookalike is worse here than on a product screen, because the whole point
 of the card is to tell an engineer what to build.
 
-Where the frame goes is a question either way. A reflow has no frame to duplicate
-— the catalog is net-new even when every state in it already exists — so it takes
-the "ask where net-new screens go" branch of
-[generate.md](generate.md#where-the-work-gets-written) rather than the duplicate
-one.
+Where the frame goes is a question either way, and it is
+[the checkpoint's first question](generate.md#the-checkpoint-is-one-call-with-two-questions).
+A catalog is net-new even when every state in it already exists, so there is no
+frame to duplicate and the "beside the original" answer is not on offer: a
+catalog is a new artifact about a flow rather than a second copy of it. What the
+user picks between is a clean review page and a page they name.
 
 ## The arrangement
 

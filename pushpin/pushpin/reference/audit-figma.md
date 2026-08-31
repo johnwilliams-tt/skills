@@ -20,7 +20,8 @@ Seven buckets:
   call gathers the keys and a shell command holds them against the catalogs:
   this bucket carries keys until the second step has run and a count after it.
 - **Proposed** — local components named `Proposed / …` that have a parseable
-  note on the page.
+  note on the page, plus, on a run that was not annotated, the ones that have
+  none — [below](#when-annotation-was-declined).
 - **Unresolved** — placeholders standing in for something the system could not
   supply.
 - **Degraded** — which libraries the preflight could not reach, and what was
@@ -37,7 +38,9 @@ Seven buckets:
   no `Token drift` note discloses, drift recorded in a form this cannot read,
   `Proposed /` components whose note is missing or incomplete or whose type and
   geometry drifted from the component they claim to extend, overlapping
-  annotations, and copy that breaks a rule the rubric calls critical.
+  annotations, and copy that breaks a rule the rubric calls critical. The two
+  entries about a missing note apply only to a run that annotated —
+  [below](#when-annotation-was-declined).
 
 The run fails on defects only. A populated `proposed`, `unresolved`, `degraded`,
 `drift`, or `copy` bucket is a result to report, not a failure — this is a
@@ -61,6 +64,35 @@ the frame is better placed to decide with the words in front of them. A critical
 is not that: the forbidden list is short, none of it is a matter of taste, and a
 frame this plugin generated wrote those words itself. So a critical goes to
 `defects` and the frame does not hand over, and everything else reports.
+
+## When annotation was declined
+
+Two of the defects above are the absence of a note, and
+[generate.md](generate.md#the-checkpoint-is-one-call-with-two-questions) lets the
+user decline annotation at the checkpoint. **A note nobody was asked for is not a
+note anyone failed to write**, so the script is told which case it is in — a
+pasted-in `annotated` beside `mode`, on the same grounds: the audit is its own
+`use_figma` call and cannot see what the earlier ones did.
+
+With `annotated === false`, two checks change and nothing else does:
+
+- A `Proposed /` component with no note reports into `proposed` carrying
+  `note: 'not annotated'`, instead of failing as `no annotation note`. The note's
+  *contents* are still checked wherever one exists, because a note that was
+  written is a note that has to be complete.
+- Recorded drift with no `Token drift` note on the page is the `drift` bucket and
+  nothing more.
+
+**The disclosure moves rather than lapses.** What the notes would have carried is
+what step 7's chat summary carries instead — every proposal with what it extends,
+every unresolved atom as an open question, and every snapped value beside the
+number that was asked for. The defect these two checks exist to catch is silence,
+and a summary is not silence; a canvas with neither notes nor a summary is, which
+is why declining the step does not decline the obligation.
+
+`degraded` also stops carrying an `annotations` line. It reports which libraries
+the preflight could not reach *and were needed*, and a run that placed no notes
+never reached for the Annotation Kit at all.
 
 ## What the walk can reach
 
@@ -170,6 +202,11 @@ if (page.findAllWithCriteria({ types: ['FRAME', 'TEXT'] }).length !== before) {
 // anything that resolved normally.
 const mode = { icons: '<library|placeholder>', annotations: '<library|drawn>' };
 
+// Whether step 6 ran at all — the checkpoint offers annotation and the user can
+// decline it. Pasted in the same way. `mode.annotations` says how notes were
+// placed; this says whether any were.
+const annotated = <true|false>;
+
 const notes = new Map();
 for (const t of page.findAllWithCriteria({ types: ['TEXT'] })) {
   if (!t.characters.includes('Proposed:')) continue;
@@ -188,7 +225,10 @@ const report = {
   proposed: [],
   unresolved: [],
   degraded: Object.entries(mode)
-    .filter(([, how]) => how !== 'library')
+    // A run that placed no notes did not fall back to drawing them either, so
+    // `mode.annotations` says nothing about it and reporting it would name a
+    // library that was never reached for.
+    .filter(([what, how]) => how !== 'library' && (annotated || what !== 'annotations'))
     .map(([what, how]) => `${what} — ${how}, library unreachable`),
   drift: [],
   copy: [],
@@ -326,7 +366,12 @@ for (let i = 0; i < instanceNodes.length; i++) {
 
 for (const [name, instances] of localMains) {
   const fields = notes.get(name.slice('Proposed / '.length));
-  if (!fields) { report.defects.push(`${name} — no annotation note`); continue; }
+  if (!fields) {
+    // Missing because nobody wrote it, or missing because nobody was asked to.
+    if (annotated) report.defects.push(`${name} — no annotation note`);
+    else report.proposed.push({ name, tier: null, instances, note: 'not annotated' });
+    continue;
+  }
   const missing = ['Extends', 'Derived', 'Tier'].filter((k) => !fields[k]);
   if (fields.Extends === 'none') { if (!fields.Case) missing.push('Case'); }
   else if (!fields.Delta) missing.push('Delta');
@@ -535,8 +580,11 @@ for (let i = 0; i < notesOnPage.length; i++) {
 // Either name discloses it: the instance is `Token drift`, and the drawn
 // stand-in carries the `Annotations (drawn) / ` prefix every other stand-in
 // carries. Requiring the bare name would have made the fallback undisclosable.
+//
+// A run that was not annotated discloses in the chat summary instead, so the
+// canvas is silent by arrangement and the `drift` bucket is the whole report.
 const DRIFT_NOTE = /^(Annotations \(drawn\) \/ )?Token drift$/;
-if (report.drift.length && !annotations.some((n) => DRIFT_NOTE.test(n.name))) {
+if (annotated && report.drift.length && !annotations.some((n) => DRIFT_NOTE.test(n.name))) {
   report.defects.push(
     `${report.drift.length} snapped value${report.drift.length === 1 ? '' : 's'} recorded, ` +
       `no Token drift note on the page`,
@@ -945,7 +993,10 @@ the three non-empty buckets are the report, and they are the part to lead with
 when handing it over. `drift` passed because the note is on the page — drawn,
 in this run, so named `Annotations (drawn) / Token drift`, which discloses the
 snap exactly as the instance would. The same run without that note is a defect
-and does not hand over. Neither of the two things this run added reached the
+and does not hand over — unless the checkpoint declined annotation, which is the
+one way this bucket reports a snap that nothing on the canvas mentions
+([above](#when-annotation-was-declined)), and then the summary carries it.
+Neither of the two things this run added reached the
 deck: the placeholder icon carries no words, and a drawn `Token drift` note is a
 note rather than product copy.
 

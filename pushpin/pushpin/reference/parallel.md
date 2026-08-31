@@ -81,12 +81,14 @@ flowchart LR
   laneA --> join[Join: every lane returned]
   laneB --> join
   laneC --> join
-  join --> audit[Annotate, then audit]
+  join --> audit["Annotate if asked, then audit"]
 ```
 
 The checkpoint sits before the skeleton rather than before the lanes, because the
 skeleton is the call that duplicates the frame — it is the first thing on the
-diagram the user has to have agreed to.
+diagram the user has to have agreed to, and where it lands is one of the two
+things they were asked
+([generate.md](generate.md#the-checkpoint-is-one-call-with-two-questions)).
 
 **What the skeleton returns is the whole interface between the two halves.** A
 page id, so the lane can switch to it; one id per subtree, so the lane can reach

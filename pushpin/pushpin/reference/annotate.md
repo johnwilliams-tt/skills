@@ -8,6 +8,14 @@ screenshot and behaves differently in every other respect — it will not update
 with the kit, it is invisible to the audit, and it tells a reviewer that the
 file was assembled rather than composed.
 
+**On a build, annotating is the user's call and it is asked once.** The checkpoint
+in [generate.md](generate.md#the-checkpoint-is-one-call-with-two-questions) offers
+it before anything is written, because a note bundle is a second round of writes
+against a second library and a first look at a layout may not want to pay for it.
+Everything on this page governs annotation that was asked for; nothing here is a
+reason to annotate a build that declined it, and what the notes would have
+disclosed goes into the chat summary instead.
+
 **One exception, and it is decided by the preflight rather than by preference.**
 When the access preflight in [generate.md](generate.md#the-access-preflight)
 reports the Annotation Kit out of reach, notes are drawn — see [When the

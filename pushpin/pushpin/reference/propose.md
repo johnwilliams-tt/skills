@@ -250,6 +250,14 @@ A note missing `Tier` or `Derived`, or a `Proposed /` component with no note at
 all, is a defect. The annotation requirement is not satisfied by an empty
 sticky.
 
+**On a build that declined annotation the note is owed to the chat summary
+instead** —
+[audit-figma.md](audit-figma.md#when-annotation-was-declined). The same fields
+are the same argument wherever they are written, and a proposal nobody argued
+for is still the thing this page exists to prevent; what changes is only whether
+the canvas or the summary carries it. A note that does exist is held to every
+field either way.
+
 ## Each proposal is a card, and the card carries a specimen
 
 `Delta: adds a count badge` is not a readable claim unless the thing with the

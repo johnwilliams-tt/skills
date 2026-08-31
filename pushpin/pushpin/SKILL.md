@@ -1,7 +1,7 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.14.0
+version: 0.15.0
 argument-hint: "[generate|audit|figma · setup|init|freshness · refresh] [target]"
 allowed-tools:
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/check.mjs *)
@@ -218,8 +218,15 @@ refused** — the Pushpin kit (`VVRGrLgkPRU3vs765d5Q3r`), the Annotation Kit
 (`Qefv6O2RMPSBtSYBrCGcdI`), the Thumbprint UI Kit that publishes the icons
 (`jjhhb3Kp6a7JrtBLCjrf6u`), and any subscribed library.
 
-[reference/generate.md](reference/generate.md) has the rest: duplicate beside
-the original, offer finalize, ask where net-new goes, and the access preflight.
+**One question settles the rest of it, before the first write.** Where the work
+lands — beside the original, a clean review page, or somewhere the user names —
+and which of annotation and the copy pass to run, since both cost time a first
+look at a layout may not want spent. Replacing the original is not one of the
+answers: it is offered afterwards, as a move plus an `— archived [date]` rename,
+and it never deletes anything.
+
+[reference/generate.md](reference/generate.md) has the rest: the checkpoint's two
+questions, the finalize offer, and the access preflight.
 
 ## A copy check is one command
 

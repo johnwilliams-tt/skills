@@ -80,7 +80,7 @@ false confidence the flag exists to prevent.
 
 ## The scheduled check
 
-[`.github/workflows/pushpin-freshness.yml`](../../.github/workflows/pushpin-freshness.yml)
+[`.github/workflows/pushpin-freshness.yml`](../../../.github/workflows/pushpin-freshness.yml)
 runs the same command daily and on demand. The token lives there as the
 `FIGMA_TOKEN` repository secret, which is the only copy that needs to exist:
 consumers of the plugin never hold one, and a maintainer only needs a local token

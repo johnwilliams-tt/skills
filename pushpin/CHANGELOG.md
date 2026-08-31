@@ -16,6 +16,50 @@ Changes are grouped the way `diff.mjs` classifies them:
 An entry about the plugin rather than the capture adds **Fixed** for a bug in
 the toolchain, which `diff.mjs` has no category for.
 
+## 0.15.0 — 2026-08-31
+
+Pushing a flow into Figma was preceded by the same hand-written instruction every
+time: replace this in Figma, but do not replace it — put a new version somewhere
+on the page. The plugin already worked that way, and never said so. A default
+nobody is told about is a default nobody can rely on, so the user restates it in
+the prompt and pays for the restatement on every push.
+
+The same run then spent two passes nobody asked for. Annotation is a second round
+of writes against a second library, and correcting the strings that came in with
+the source is a script call plus the corrections it argues for — both worth their
+cost on a handoff, both wasted on a first look at a layout.
+
+**Changed**
+
+- **The checkpoint is one `AskQuestion` with two questions.** Where the work
+  lands — beside the original, a clean review page, or a page the user names —
+  and, as a multi-select, which of annotation and the incoming-copy pass to run.
+  It stays one turn, which is what it cost before: the page-context offer and the
+  statement of what would be built were already folded together, and the
+  departures, the lane list and each lane's region, and anything the preflight
+  degraded are all still stated in the preamble rather than asked about. The
+  destination answer is what accepts them.
+- **Finalize can replace the original, and replacing does not delete.** The
+  offer after the work is accepted is its own page, or the original's place with
+  the original renamed `— archived [date]`. A move and a rename are both visible
+  and both undoable by hand, which is the form of "replace this flow" the undo
+  argument permits — what it refuses is overwriting, not superseding. Still
+  offered, never performed, and not offered at all when the audit did not pass.
+- **Annotation and the incoming-copy pass are opt-in on the push path.**
+  Composing copy correct as it is written is not, and never was: a button that
+  loses two words is a button whose row was balanced around the old width, so it
+  cannot be a pass afterwards. The other direction does not ask either —
+  correcting a frame's words on the way into markup is where the code is still
+  the cheap thing to change.
+- **Declining annotation does not manufacture defects.** The audit is told
+  whether step 6 ran. Without it, a `Proposed /` component with no note reports
+  into `proposed`, recorded drift with no `Token drift` note is the `drift`
+  bucket and nothing more, and `degraded` stops naming a library the run never
+  reached for. The disclosure moves rather than lapses: step 7's summary carries
+  every proposal, every unresolved atom and every snapped value beside the number
+  that was asked for, and the finalize offer carries annotation with it so the
+  canvas can catch up. A note that does exist is still held to every field.
+
 ## 0.14.0 — 2026-08-28
 
 A copy check asked for in one sentence took eight minutes and answered in

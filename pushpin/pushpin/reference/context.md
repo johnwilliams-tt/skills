@@ -154,10 +154,16 @@ doing a thing is not a pattern, and treating it as one turns this into an
 interrogation. If it would take an argument to establish that a pattern exists,
 it does not.
 
-Every intended departure goes into a single question before anything is
-written, folded into the checkpoint at step 3 of the workflow in
-[generate.md](generate.md#workflow). Each one carries its reason — a list of
-differences with no reasoning is not answerable either.
+Every intended departure is stated once before anything is written, in the
+preamble of [the checkpoint](generate.md#the-checkpoint-is-one-call-with-two-questions).
+Each one carries its reason — a list of differences with no reasoning is not
+answerable either.
+
+It is stated rather than asked as its own question, and the answer to the
+checkpoint's destination question is what accepts it. That is the same bargain
+this has always been: one turn, one answer, meaning go ahead as described or do
+not. A departure the user will not have costs them a correction rather than a
+second round trip, and the alternative was a checkpoint asking three things.
 
 > Before I build: the page puts the primary action in a sticky bar and numbers
 > each step in the header. I am planning neither. The action sits inline because
