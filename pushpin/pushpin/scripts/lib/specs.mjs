@@ -34,7 +34,8 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { ASSETS, TOKEN_GROUPS, loadAsset } from './tokens.mjs';
+import { overlayPath } from './overlay.mjs';
+import { ASSETS, TOKEN_GROUPS, activeOverlay, loadAsset } from './tokens.mjs';
 
 /**
  * Collection name to candidate groups, under every name a capture can report.
@@ -85,7 +86,10 @@ export const SPECS_FILE = 'component-specs.figma.json';
  * answered — by naming the read — so a hard failure would only turn a useful
  * answer into a stack trace.
  */
-export const loadSpecs = () => (existsSync(join(ASSETS, SPECS_FILE)) ? loadAsset(SPECS_FILE) : null);
+export const loadSpecs = () =>
+  overlayPath(activeOverlay(), SPECS_FILE) || existsSync(join(ASSETS, SPECS_FILE))
+    ? loadAsset(SPECS_FILE)
+    : null;
 
 /**
  * A bound variable resolved against the token capture. `css` is null when the

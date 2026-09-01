@@ -542,11 +542,11 @@ async function verify() {
     'prompts',
     missingRules.length
       ? 'not pre-approved here, so a catalog lookup asks permission every time it runs'
-      : `Pushpin's ${ALLOWED_SCRIPTS.length} read-only scripts run without asking — ${SETTINGS_REL}`,
+      : `Pushpin's ${ALLOWED_SCRIPTS.length} project scripts run without asking — ${SETTINGS_REL}`,
   );
   if (missingRules.length) {
     advice.push(
-      `\`node scripts/init.mjs ${target} --write\` pre-approves Pushpin's read-only scripts, so a catalog lookup stops asking.`,
+      `\`node scripts/init.mjs ${target} --write\` pre-approves Pushpin's project scripts, so a catalog lookup stops asking.`,
     );
   }
 

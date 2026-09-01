@@ -30,12 +30,43 @@
  * common case.
  */
 
-import { readFileSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const OUT = join(here, '..', 'assets', 'components.figma.json');
+
+/**
+ * `--out` is what lets a consuming project distil its own re-capture without a
+ * writable plugin checkout. Under a plugin cache install the default path is
+ * inside a version-named directory the host deletes on the next update, so a
+ * project that re-captured in place would lose it silently — see
+ * lib/overlay.mjs.
+ */
+const outFlag = process.argv.indexOf('--out');
+const OUT =
+  outFlag === -1
+    ? join(here, '..', 'assets', 'components.figma.json')
+    : resolve(process.argv[outFlag + 1]);
+
+/** argv with `--out <path>` removed, so the positional arguments keep their places. */
+const ARGS =
+  outFlag === -1
+    ? process.argv.slice(2)
+    : [...process.argv.slice(2, outFlag), ...process.argv.slice(outFlag + 2)];
+
+/**
+ * The catalog `--properties-only` patches.
+ *
+ * That path rewrites an existing catalog rather than building one, so it needs
+ * an input as well as an output, and the two are the same file only when a
+ * maintainer runs it in place. A project writing its first overlay has no file
+ * at `--out` yet and must start from the plugin's copy; a project refreshing an
+ * overlay it already has must start from that, or the second run would silently
+ * discard the first.
+ */
+const SHIPPED = join(here, '..', 'assets', 'components.figma.json');
+const BASE = existsSync(OUT) ? OUT : SHIPPED;
 
 /**
  * The old gate, kept as a cross-check and nothing else.
@@ -393,7 +424,7 @@ function propertiesOnly(path) {
     );
   }
   const published = normalisePublished(capture.properties, path);
-  const doc = JSON.parse(readFileSync(OUT, 'utf8'));
+  const doc = JSON.parse(readFileSync(BASE, 'utf8'));
 
   const rewritten = [];
   const unknown = [];
@@ -474,8 +505,8 @@ function propertiesOnly(path) {
 }
 
 function main() {
-if (process.argv[2] === '--properties-only') {
-  const path = process.argv[3];
+if (ARGS[0] === '--properties-only') {
+  const path = ARGS[1];
   if (!path) {
     console.error('usage: node scripts/build-components.mjs --properties-only <published-properties.json>');
     process.exit(1);
@@ -484,7 +515,7 @@ if (process.argv[2] === '--properties-only') {
   return;
 }
 
-const capturePath = process.argv[2];
+const capturePath = ARGS[0];
 if (!capturePath) {
   console.error(
     'usage: node scripts/build-components.mjs <path-to-capture.json>\n' +

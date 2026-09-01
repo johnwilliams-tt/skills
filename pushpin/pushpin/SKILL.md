@@ -1,13 +1,14 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.18.0
+version: 0.19.0
 argument-hint: "[generate|audit|figma · setup|init|freshness · refresh] [target]"
 allowed-tools:
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/check.mjs *)
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/copy.mjs *)
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/freshness.mjs *)
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/lookup.mjs *)
+  - Bash(node ${CLAUDE_SKILL_DIR}/scripts/refresh.mjs *)
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/setup.mjs *)
   - Bash(node .pushpin/pushpin-check.mjs *)
 ---
@@ -132,7 +133,8 @@ covers the same ground from plain speech. Load one doc, not the table.
 | **`setup`** — "set this repo up", "start a project", no `pushpin.config.json`. Once per project | [setup.md](reference/setup.md) |
 | **`init`** — re-run, repair, or update a project already set up | [init.md](reference/init.md) |
 | **`freshness`** — "can I trust this", "when was this captured" | [maintaining.md](reference/maintaining.md) |
-| **`refresh`** — "Pushpin shipped a release", the kit moved, `freshness` exited non-zero | [maintaining.md](reference/maintaining.md) |
+| **`refresh`** — "this component is wrong", `setProperties` threw, a variant option the kit no longer offers. One project, blocked today | [refresh.md](reference/refresh.md) |
+| **`refresh`** in the plugin's own checkout — "Pushpin shipped a release", the kit moved, `freshness` exited non-zero | [maintaining.md](reference/maintaining.md) |
 | "what's our card radius", "which token for a disabled label", dark mode | [tokens.md](reference/tokens.md) |
 | "which Thumbprint component is this", building the same UI in React | [components.md](reference/components.md) |
 | "what are our content rules", "is `contractor` allowed", why a label reads wrong | [copy.md](reference/copy.md) |
@@ -150,6 +152,14 @@ covers the same ground from plain speech. Load one doc, not the table.
 
 - **A clear signal** — take it and load the doc in its row. Ask once when two
   rows genuinely fit; when one is plainly stronger, pick it instead of asking.
+- **`refresh` has two lanes and the project settles which.** In a project that
+  consumes Pushpin, a stale component is repaired for that project from its own
+  Figma access, and nothing is released — [refresh.md](reference/refresh.md). In
+  the plugin's own checkout it is the shipped capture being refreshed for
+  everybody, which is seven captures and a diff —
+  [maintaining.md](reference/maintaining.md). Running the maintainer lane from a
+  consuming project writes into a plugin cache directory the host deletes on the
+  next update, so the work is lost silently.
 - **A flow is not a screen.** "Send this flow to Figma" fits the `generate` row
   word for word and is the flows row anyway, because a catalog has an arrangement
   `generate.md` does not describe. It is the one row that loads a second doc:

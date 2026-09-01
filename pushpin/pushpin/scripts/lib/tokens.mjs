@@ -17,6 +17,8 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { findOverlay, overlayPath } from './overlay.mjs';
+
 const here = dirname(fileURLToPath(import.meta.url));
 export const ASSETS = join(here, '..', '..', 'assets');
 
@@ -26,7 +28,27 @@ export const real = (o) => Object.entries(o ?? {}).filter(([k]) => !k.startsWith
 /** Figma variable paths become custom property names by swapping the slash. */
 export const seg = (path) => String(path).replace(/\//g, '-');
 
-export const loadAsset = (file) => JSON.parse(readFileSync(join(ASSETS, file), 'utf8'));
+/**
+ * Resolved once per process. The overlay is a property of where the command was
+ * run, which cannot change mid-run, and re-reading `.pushpin/assets/` on every
+ * one of `lookup`'s six catalog loads would stat the same directory six times.
+ */
+let overlay;
+export const activeOverlay = () => (overlay === undefined ? (overlay = findOverlay()) : overlay);
+
+/**
+ * A capture, from the project's own re-capture where it has one and from the
+ * plugin otherwise. See lib/overlay.mjs for why only the catalogs are eligible
+ * and why nothing here is allowed to be silent about it.
+ */
+export const loadAsset = (file) => {
+  const own = overlayPath(activeOverlay(), file);
+  return JSON.parse(readFileSync(own ?? join(ASSETS, file), 'utf8'));
+};
+
+/** The plugin's own copy, whatever the project holds. */
+export const loadShippedAsset = (file) =>
+  JSON.parse(readFileSync(join(ASSETS, file), 'utf8'));
 
 /**
  * Every token group, its custom property name, and whether it can be bound as

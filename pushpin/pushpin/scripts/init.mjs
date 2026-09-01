@@ -532,7 +532,7 @@ function planClaudeLocal() {
   const missing = ALLOW_RULES.filter((r) => !allow.includes(r));
 
   if (hookCurrent && !missing.length && !FORCE) {
-    skipped.push(`${rel} — already runs the Pushpin check and allows its read-only scripts`);
+    skipped.push(`${rel} — already runs the Pushpin check and allows its scripts`);
     return;
   }
 
@@ -568,7 +568,7 @@ function planClaudeLocal() {
           : 'run the Pushpin check after each edit, reporting off-system values, undeclared lookalikes, and off-guideline copy in place'
         : null,
       missing.length
-        ? `let Pushpin's ${ALLOWED_SCRIPTS.length} read-only scripts run without a permission prompt`
+        ? `let Pushpin's ${ALLOWED_SCRIPTS.length} project scripts run without a permission prompt`
         : null,
     ]
       .filter(Boolean)
@@ -794,7 +794,7 @@ if (WRITE && plan.length) {
 
     if (plan.some((p) => p.rel === SETTINGS_REL)) {
       console.log(
-        `\nGranted: Pushpin's ${ALLOWED_SCRIPTS.length} read-only scripts (${ALLOWED_SCRIPTS.join(', ')}) now run`,
+        `\nGranted: Pushpin's ${ALLOWED_SCRIPTS.length} project scripts (${ALLOWED_SCRIPTS.join(', ')}) now run`,
       );
       console.log(`  without a permission prompt, because they are asked for constantly and only`);
       console.log(`  ever read. Named by full path in .claude/settings.local.json, which is this`);

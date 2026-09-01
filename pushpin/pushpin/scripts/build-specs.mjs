@@ -21,14 +21,20 @@
  */
 
 import { readFileSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { SPECS_FILE } from './lib/specs.mjs';
 import { loadAsset, real, resolveHex } from './lib/tokens.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const OUT = join(here, '..', 'assets', 'component-specs.figma.json');
+
+/** See build-components.mjs — the same reason, for the same consumer path. */
+const outFlag = process.argv.indexOf('--out');
+const OUT =
+  outFlag === -1
+    ? join(here, '..', 'assets', 'component-specs.figma.json')
+    : resolve(process.argv[outFlag + 1]);
 
 /**
  * Per-set cap, and the number is not arbitrary. Button carries 260 real variant
@@ -276,7 +282,10 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) main();
 function main() {
   const argv = process.argv.slice(2);
   const merge = argv.includes('--merge');
-  const paths = argv.filter((a) => a !== '--merge');
+  const out = argv.indexOf('--out');
+  const paths = (out === -1 ? argv : [...argv.slice(0, out), ...argv.slice(out + 2)]).filter(
+    (a) => a !== '--merge',
+  );
   if (!paths.length) {
     console.error(
       'usage: node scripts/build-specs.mjs <lane.json> [<lane.json>...]\n' +

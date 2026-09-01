@@ -85,6 +85,15 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import {
+  OVERLAY_MANIFEST,
+  OVERLAY_REL,
+  captureDate,
+  findOverlay,
+  overlayPath,
+  supersededBy,
+} from './lib/overlay.mjs';
+import { readKitState } from './kit-state.mjs';
 import { inspectPin } from './pin.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -95,10 +104,26 @@ const argv = process.argv.slice(2);
 const has = (n) => argv.includes(n);
 const opt = (n, fallback) => (has(n) ? argv[argv.indexOf(n) + 1] : fallback);
 
+const overlay = findOverlay(process.cwd());
+
+/**
+ * The catalog this project will actually import from.
+ *
+ * The key layers ask Figma whether our keys still resolve, and "our" has to mean
+ * the project's. A project holding a fresh overlay would otherwise be told about
+ * six unpublished components it no longer references — a finding it cannot act
+ * on and did not earn. `load` stays the plugin's copy, which is what the overlay
+ * is compared against.
+ */
+const loadCatalog = (f) => {
+  const own = overlayPath(overlay, f);
+  return own ? JSON.parse(readFileSync(own, 'utf8')) : load(f);
+};
+
 const manifest = load('manifest.json');
-const catalog = load('components.figma.json');
-const annotationCatalog = load('annotations.figma.json');
-const iconCatalog = load('icons.figma.json');
+const catalog = loadCatalog('components.figma.json');
+const annotationCatalog = loadCatalog('annotations.figma.json');
+const iconCatalog = loadCatalog('icons.figma.json');
 const styleCatalog = load('styles.figma.json');
 
 /**
@@ -355,6 +380,51 @@ if (pin) {
 }
 
 /**
+ * A project reading its own catalogs instead of the plugin's.
+ *
+ * Reported for the same reason `lookup` prints a line above its answer: an
+ * overlay makes this project's idea of Button legitimately different from every
+ * other project's, and a difference nobody is told about is the one that gets
+ * debugged as a bug in the plugin. The layer passes — an overlay is a
+ * deliberate act, not a finding — and fails only where the plugin has since
+ * shipped something newer, which is the point at which holding it stops being
+ * a repair and starts being a pin to a capture nobody diffed.
+ */
+report.overlay = overlay;
+if (overlay?.broken) {
+  layer('overlay', 'fail', `${join(overlay.dir, OVERLAY_MANIFEST)} could not be parsed`, 'broken');
+  report.findings.push(
+    `This project has a ${OVERLAY_REL} directory whose ${OVERLAY_MANIFEST} could not be parsed, ` +
+      `so it is being ignored and the plugin's catalogs are being read instead.`,
+  );
+  report.brief.push(
+    `This project's own Pushpin catalog capture cannot be read, so it is being ignored — ` +
+      `re-running the refresh, or clearing it, is the first thing I'd do.`,
+  );
+} else if (overlay?.files.length) {
+  const superseded = overlay.files.filter((f) => {
+    try {
+      return supersededBy(overlay, captureDate(load(f)));
+    } catch {
+      return false;
+    }
+  });
+  if (superseded.length) {
+    layer('overlay', 'fail', `${superseded.join(', ')} superseded by the plugin`, 'superseded');
+    report.findings.push(
+      `This project reads its own capture of ${superseded.join(', ')} (${overlay.capturedAt}), ` +
+        `and the plugin now ships a newer one. The shipped capture has been through diff and ` +
+        `verify and is the one everyone else is on.`,
+    );
+    report.brief.push(
+      `This project is pinned to its own Pushpin catalog capture and the plugin has since shipped a newer one — clearing the overlay with refresh.mjs --clear is the first thing I'd do.`,
+    );
+  } else {
+    layer('overlay', 'pass', `${overlay.files.length} catalog(s) from this project, ${overlay.capturedAt}`);
+  }
+}
+
+/**
  * The command that settles a repairable pin finding, so `--session` can hand
  * over the repair rather than the sentence describing it. `--no-share` because
  * the one file init writes that a team commits is `.claude/settings.json`, and
@@ -462,11 +532,37 @@ function escalate(name, detail) {
 // never offered to.
 const NETWORK_LAYERS = ['components', 'styles', 'variables', 'annotations', 'icons'];
 
+/**
+ * What the scheduled check last found, for the run that cannot ask Figma
+ * itself.
+ *
+ * Only when no live layer ran. A recorded verdict is yesterday's answer to the
+ * question the token answers now, so where both exist the live one wins outright
+ * and reporting the recording beside it would double every finding.
+ *
+ * `readKitState` returns null once any capture date has moved past the one the
+ * verdict was formed against, which is what stops a refresh being nagged about
+ * until the next scheduled run.
+ */
+function reportRecordedState() {
+  const state = readKitState();
+  if (!state) return;
+  if (state.verdict !== 'moved') {
+    layer('kit state', 'pass', `checked against Figma ${state.observedAt}, nothing had moved`);
+    return;
+  }
+  layer('kit state', 'fail', `${state.layers.join(', ')} — as of ${state.observedAt}`, 'moved');
+  report.findings.push(...state.findings);
+  report.brief.push(...state.brief);
+}
+
 if (offline) {
   for (const name of NETWORK_LAYERS) layer(name, 'skipped', '--offline');
+  reportRecordedState();
 } else if (!token) {
   const why = 'FIGMA_TOKEN is not set';
   for (const name of NETWORK_LAYERS) layer(name, 'skipped', why);
+  reportRecordedState();
   report.notes.push(
     'No Figma layer ran. For the stronger answer — whether our import ' +
       'keys still exist in the kit, the Annotation Kit, and the icon library — create a ' +
@@ -497,6 +593,11 @@ if (offline) {
    * components the catalog reduces to 115 — so an unnarrowed sweep reports an
    * edit to something Pushpin does not track and sends the reader re-capturing
    * for nothing.
+   *
+   * `edited` carries the name beside the date for those same entries. The names
+   * are already in this payload, and reducing them to a single date is what made
+   * a run say "a component changed" and leave the reader to find out which —
+   * the answer a re-capture has to start from.
    */
   async function publishedComponents(key, forLayer, ours) {
     const [compRes, setRes] = await Promise.all([
@@ -522,15 +623,11 @@ if (offline) {
       return null;
     }
     const both = [...live, ...liveSets];
+    const mine = both.filter((c) => (!ours || ours.has(c.key)) && c.updated_at);
     return {
       keys: new Set(both.map((c) => c.key)),
       setCount: liveSets.length,
-      newest: both
-        .filter((c) => !ours || ours.has(c.key))
-        .map((c) => c.updated_at)
-        .filter(Boolean)
-        .sort()
-        .pop(),
+      edited: mine.map((c) => ({ name: c.name, updatedAt: c.updated_at })),
     };
   }
 
@@ -538,18 +635,36 @@ if (offline) {
    * A component that changed after the capture is a real risk even when its key
    * survives, because variant options and property keys move underneath a
    * stable key and a changed property key breaks setProperties.
+   *
+   * The names are the point. A re-capture is per page and per component, so
+   * "something changed" leaves the reader to rediscover what this call already
+   * knew — and the pages those names sit on are exactly the argument the spec
+   * capture takes.
    */
-  function flagLateEdits(forLayer, newest, since, what) {
-    if (!newest || newest.slice(0, 10) <= since) return;
-    const on = newest.slice(0, 10);
-    escalate(forLayer, `keys intact, but a component changed ${on}`);
+  const NAME_CAP = 12;
+  function flagLateEdits(forLayer, edited, since, what) {
+    const changed = (edited ?? [])
+      .filter((c) => c.updatedAt.slice(0, 10) > since)
+      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    if (!changed.length) return;
+
+    const on = changed[0].updatedAt.slice(0, 10);
+    const names = changed.map((c) => c.name);
+    const shown = names.slice(0, NAME_CAP);
+    const rest = names.length - shown.length;
+    const count = `${names.length} component${names.length === 1 ? '' : 's'}`;
+
+    escalate(forLayer, `keys intact, but ${count} changed since ${since}`);
     report.findings.push(
-      `A component in ${what} was updated ${on}, after the capture (${since}). Every ` +
-        `import key still resolves, but variant options and property keys may have ` +
-        `moved, and a changed property key breaks setProperties.`,
+      `${count} in ${what} changed after the capture (${since}), most recently on ${on}. ` +
+        `Every import key still resolves, but variant options and property keys may have ` +
+        `moved, and a changed property key breaks setProperties:\n` +
+        shown.map((n) => `   ${n}`).join('\n') +
+        (rest ? `\n   …and ${rest} more` : ''),
     );
     report.brief.push(
-      `A component in ${what} changed after the capture, so a generation run against it may die partway rather than at review — refreshing is the first thing I'd do.`,
+      `${shown.slice(0, 3).join(', ')}${names.length > 3 ? ` and ${names.length - 3} more` : ''} ` +
+        `changed in ${what} after the capture, so a generation run against ${names.length === 1 ? 'it' : 'them'} may die partway rather than at review — refreshing is the first thing I'd do.`,
     );
   }
 
@@ -574,7 +689,7 @@ if (offline) {
     // `manifest.capturedAt` is the tokens' date. Dating this layer by it reports
     // every component edit made between the two captures as drift the catalog
     // does not have.
-    flagLateEdits('components', live.newest, catalog.source?.extractedAt ?? capturedAt, 'the kit');
+    flagLateEdits('components', live.edited, catalog.source?.extractedAt ?? capturedAt, 'the kit');
   }
 
   // Styles. Same plan requirements. These keys are the only way to apply
@@ -654,7 +769,7 @@ if (offline) {
     );
     flagLateEdits(
       'annotations',
-      liveAnnotations.newest,
+      liveAnnotations.edited,
       manifest.annotationKit.capturedAt,
       'the Annotation Kit',
     );
@@ -675,7 +790,7 @@ if (offline) {
   );
   if (liveIcons) {
     compareKeys('icons', iconKeyPairs, liveIcons.keys, null, liveIcons.componentCount);
-    flagLateEdits('icons', liveIcons.newest, manifest.iconLibrary.capturedAt, 'the icon library');
+    flagLateEdits('icons', liveIcons.edited, manifest.iconLibrary.capturedAt, 'the icon library');
   }
 
   // A token that reaches nothing is worse than no token, because the run still

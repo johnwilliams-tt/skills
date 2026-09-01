@@ -1,8 +1,15 @@
 # Maintaining the capture
 
-How to ask whether a source has moved, and what to do when it has. Consumers of
-Pushpin do not need this; session start is `--offline --session` and is covered
-in [../SKILL.md](../SKILL.md).
+How to ask whether a source has moved, and what to do when it has, for the
+capture this plugin ships to everybody. Session start is `--offline --session`
+and is covered in [../SKILL.md](../SKILL.md).
+
+**A project blocked on one stale component wants [refresh.md](refresh.md)
+instead.** It repairs that project from its own Figma access and commits the
+result beside the project, where this page rebuilds the shipped capture and ends
+in a release. Nothing here can be run from a consuming project anyway: every
+build script writes relative to its own directory, which under a plugin cache
+install is a version-named directory the host deletes on the next update.
 
 ## Freshness layers
 
@@ -90,6 +97,25 @@ It exists because every part of this page assumes someone remembers to run a
 check, and the library publishes more often than anyone remembers anything. A
 failed run uploads its `--json` report as an artifact, so the finding is readable
 without spending another pass over the icon layer's 899 keys.
+
+**It also commits the verdict**, as `assets/kit-state.json`, which is how the
+finding reaches anyone who is not reading CI. Consumers never hold a token and
+session start never touches the network, so before this the one check that talks
+to Figma was also the one nobody saw: a project would be told its pin was current
+while the capture behind it had been wrong for a fortnight. `freshness.mjs` reads
+the recorded verdict whenever no live layer ran, and ignores it entirely when one
+did — a recording is yesterday's answer to the question a token answers now.
+
+Two things keep it from becoming noise. It is **not** in `manifest.mjs`'s
+`TRACKED` list, deliberately: a verdict is not a capture, and hashing one would
+make every CI update report every project as holding an older build. And it
+**expires against the captures it describes** — `against` records the six
+capture dates it was formed from, and any of them moving retires it, so the
+refresh below cannot be nagged about until the next scheduled run.
+
+```bash
+node scripts/kit-state.mjs --show   # what is recorded, or that it no longer applies
+```
 
 Freshness answers for the catalog, not for the person running it. Keys belong to
 the file and resolve identically for everyone, but access does not — that is what
@@ -186,6 +212,7 @@ node scripts/manifest.mjs              # rehash and re-count the captures
 node scripts/manifest.mjs --check      # fail if the manifest is stale
 node scripts/verify.mjs                # resolve every var() chain, verify hashes
 node scripts/freshness.mjs             # ask whether the sources have moved underneath it
+node scripts/kit-state.mjs --show      # what the last scheduled check found
 ```
 
 Six different failures, six different checks. `build-css --check` catches a CSS

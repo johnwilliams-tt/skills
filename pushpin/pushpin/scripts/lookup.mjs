@@ -65,6 +65,7 @@ import {
 import {
   TOKEN_GROUPS,
   UNIT_LABEL,
+  activeOverlay,
   leading,
   loadAsset,
   metric,
@@ -779,10 +780,31 @@ Object.assign(jsonOut, terms.length > 1 ? perTerm : (perTerm[terms[0]] ?? {}));
 
 // -------------------------------------------------------------------- report
 
+/**
+ * An overlaid catalog is the one thing here that can make a correct answer
+ * disagree with the plugin's, and the disagreement is invisible in the answer
+ * itself. Saying so once, above the entry, is the price of reading it at all.
+ */
+const inEffect = activeOverlay();
+const overlayNote = inEffect && !inEffect.broken && inEffect.files.length
+  ? `Read from this project's own capture of ${inEffect.files.join(', ')} ` +
+    `(${inEffect.capturedAt ?? 'undated'}), not the plugin's. ` +
+    `node scripts/refresh.mjs for where it came from.`
+  : null;
+
 if (asJson) {
+  if (overlayNote) {
+    jsonOut.$overlay = {
+      dir: inEffect.dir,
+      capturedAt: inEffect.capturedAt,
+      files: inEffect.files,
+    };
+  }
   console.log(JSON.stringify(jsonOut, null, 2));
   process.exit(found ? 0 : 1);
 }
+
+if (overlayNote) console.log(`${overlayNote}\n`);
 
 const where = `the ${kinds.join(', ')} catalog${kinds.length === 1 ? '' : 's'}`;
 const quoted = (list) => list.map((t) => `"${t}"`).join(' or ');

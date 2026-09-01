@@ -16,6 +16,60 @@ Changes are grouped the way `diff.mjs` classifies them:
 An entry about the plugin rather than the capture adds **Fixed** for a bug in
 the toolchain, which `diff.mjs` has no category for.
 
+## 0.19.0 — 2026-09-01
+
+Three changes, all answering the same gap: the kit republishes on its own
+schedule, and until now nothing carried that fact to the people it breaks. The
+daily check already caught Button changing on 2026-09-01. It named no component,
+told no consumer, and offered no repair short of waiting for this release.
+
+**Added**
+
+- **A project can re-capture the component catalogs for itself.**
+  `scripts/refresh.mjs` distils a capture taken through the project's own Figma
+  MCP into `.pushpin/assets/`, and the consumer scripts read it in preference to
+  the plugin's copy. This is the repair for a project blocked today on a
+  component the shipped catalog describes wrongly — previously there was none,
+  because every build script writes relative to its own directory, which under a
+  plugin cache install is a version-named directory the host deletes on the next
+  update. See [pushpin/reference/refresh.md](pushpin/reference/refresh.md).
+
+  Four catalogs are eligible and the boundary is load-bearing: components,
+  component specs, icons and annotations. Tokens are not, because
+  `pushpin.css`, `DESIGN.md` and `design.json` are generated from them and
+  hashed into the project pin, so an overlaid token would be a value `lookup`
+  reports and the stylesheet does not have.
+
+  Nothing about it is silent. `lookup` prints the catalogs it read above its
+  answer, `freshness` carries an `overlay` layer, and the overlay expires: when
+  the plugin ships a capture newer than the project's, session start asks for it
+  to be cleared, because the shipped one has been through `diff.mjs` and
+  `verify.mjs` and an overlay never was.
+
+- **The scheduled check commits its verdict**, as `assets/kit-state.json`, and
+  `freshness.mjs` reads it whenever no live layer ran. Consumers hold no token
+  and session start touches no network, so the one check that talks to Figma was
+  also the one nobody saw. It is deliberately absent from `manifest.mjs`'s
+  `TRACKED` list — a verdict is not a capture, and hashing one would report
+  every project as holding an older build every time CI ran — and it expires
+  against the six capture dates it was formed from, so a refresh is not nagged
+  about until the next scheduled run.
+
+**Changed**
+
+- **`freshness.mjs` names the components that changed** instead of reporting
+  that one did. The names were always in the payload: `publishedComponents`
+  fetched `name`, `key` and `updated_at` for every entry and reduced them to a
+  single date. Today's run said "a component in the kit was updated 2026-09-01"
+  when it could have said Button.
+
+- `build-components.mjs` and `build-specs.mjs` take `--out`, which is what lets
+  a capture be distilled somewhere other than the plugin's own `assets/`.
+
+- `refresh.mjs` joins the scripts `init` pre-approves, so a re-capture does not
+  prompt once per lane. Six now, and two of them write — both only inside
+  `.pushpin/`, to files no person authored.
+
 ## 0.18.0 — 2026-09-01
 
 Button was republished in the Pushpin Thumbprint UI Kit and the capture caught

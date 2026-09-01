@@ -33,8 +33,12 @@ on:
     - cron: '0 13 * * *'
   workflow_dispatch:
 
+# `write` for the kit-state commit below. The finding used to end in an artifact
+# nobody opens, which meant the one check that talks to Figma reached only
+# whoever went looking. Committing the verdict is what carries it to consumers,
+# who reach it through the ordinary plugin update and never hold a token.
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   freshness:
@@ -100,6 +104,37 @@ jobs:
           '
 
           exit $status
+
+      # The verdict, committed so it travels to every install.
+      #
+      # `always()` because the interesting case is the one where the step above
+      # exited non-zero — a verdict written only on green would record nothing
+      # but "nothing moved", which is the half nobody needs.
+      #
+      # kit-state.mjs rewrites the file only when the verdict or its findings
+      # change, so a run that finds what yesterday found leaves the tree clean
+      # and no commit is made. `git diff --quiet` is what turns that into a
+      # skipped push rather than an empty commit.
+      # Both outcomes, and only those two: a token step that failed leaves no
+      # freshness.json behind, and reading it would turn missing configuration
+      # into a crash in an unrelated step.
+      - name: Record the verdict
+        if: always() && (steps.check.outcome == 'success' || steps.check.outcome == 'failure')
+        working-directory: pushpin/pushpin
+        run: node scripts/kit-state.mjs --from "${RUNNER_TEMP}/freshness.json"
+
+      - name: Commit it
+        if: always() && github.ref == 'refs/heads/main' && (steps.check.outcome == 'success' || steps.check.outcome == 'failure')
+        run: |
+          if git diff --quiet -- pushpin/pushpin/assets/kit-state.json; then
+            echo "No change to kit-state.json — nothing to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pushpin/pushpin/assets/kit-state.json
+          git commit -m "Record what Figma answered on $(date -u +%Y-%m-%d)"
+          git push
 
       # Uploaded on failure too, which is when it is worth having: the finding is
       # in here without spending another round of API calls to reproduce it.

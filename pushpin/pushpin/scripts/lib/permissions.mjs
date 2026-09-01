@@ -1,5 +1,5 @@
 /**
- * The permission rules that let this plugin's own read-only scripts run without
+ * The permission rules that let this plugin's own project scripts run without
  * asking, shared by `init.mjs` — which writes them — and `setup.mjs`, which
  * reports whether they are still the rules this plugin needs.
  *
@@ -14,13 +14,20 @@
  * which is narrower than asking someone to lower their guard for every tool in
  * every session.
  *
- * Why only these five. Each one reads and reports, and each is one an agent
- * runs mid-task in a project that consumes Pushpin — which is why the
- * maintainer's tools beside them are not here, read-only though several are.
- * `init.mjs` is deliberately absent: it is the script that can replace a
- * stylesheet, and the prompt in front of a `--force` is worth keeping.
- * `setup.mjs` qualifies because its only write is an additive copy into
- * `.pushpin/backups/`.
+ * Why only these six. Each one is a command an agent runs mid-task in a project
+ * that consumes Pushpin — which is why the maintainer's tools beside them are
+ * not here, read-only though several are. `init.mjs` is deliberately absent: it
+ * is the script that can replace a stylesheet, and the prompt in front of a
+ * `--force` is worth keeping.
+ *
+ * Two of the six write, and both write only inside `.pushpin/`, to files no
+ * person authored and nothing else produces: `setup.mjs` copies into
+ * `.pushpin/backups/`, and `refresh.mjs` writes the catalogs it just distilled
+ * into `.pushpin/assets/` and removes that same directory under `--clear`. The
+ * prompt is worth keeping where a command can destroy work; neither of these
+ * can. `refresh.mjs` in particular is invoked in the middle of a re-capture the
+ * user asked for, several times in a row, so a prompt per lane would land in
+ * the one place it is pure friction.
  */
 
 import { existsSync, readFileSync } from 'node:fs';
@@ -30,7 +37,14 @@ import { fileURLToPath } from 'node:url';
 /** Claude Code's machine-local settings file, where these rules belong. */
 export const SETTINGS_REL = join('.claude', 'settings.local.json');
 
-export const ALLOWED_SCRIPTS = ['check.mjs', 'copy.mjs', 'freshness.mjs', 'lookup.mjs', 'setup.mjs'];
+export const ALLOWED_SCRIPTS = [
+  'check.mjs',
+  'copy.mjs',
+  'freshness.mjs',
+  'lookup.mjs',
+  'refresh.mjs',
+  'setup.mjs',
+];
 
 const SCRIPTS = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
