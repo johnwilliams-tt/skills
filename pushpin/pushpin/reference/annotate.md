@@ -1,12 +1,40 @@
 # Annotating a design
 
-Notes on a Thumbtack design are placed as instances from the **Annotation Kit**,
-a second published library alongside Pushpin. File `Qefv6O2RMPSBtSYBrCGcdI`,
-library key `lk-7faccc61…`. The same rule applies here as everywhere else in
-this plugin: import and instance, never draw. A drawn note looks the same in a
-screenshot and behaves differently in every other respect — it will not update
-with the kit, it is invisible to the audit, and it tells a reviewer that the
-file was assembled rather than composed.
+Notes a reviewer reads beside a Thumbtack design are placed as instances from the
+**Annotation Kit**, a second published library alongside Pushpin. File
+`Qefv6O2RMPSBtSYBrCGcdI`, library key `lk-7faccc61…`. The same rule applies here
+as everywhere else in this plugin: import and instance, never draw. A drawn note
+looks the same in a screenshot and behaves differently in every other respect —
+it will not update with the kit, it is invisible to the audit, and it tells a
+reviewer that the file was assembled rather than composed.
+
+## Two annotation systems
+
+Figma publishes annotations of its own — the `Y` tool, `node.annotations` in the
+API — and everything above is about the other kind. **They are different tools
+for different readers, and a run picks one rather than layering both.**
+
+| | Annotation Kit | Native annotation |
+|---|---|---|
+| Is | an instance on the canvas | a note attached to a node |
+| Read by | a reviewer, looking at the design | an engineer, having selected the element |
+| Shows in | design mode, as a card | Dev Mode, against the element |
+| Says | why this was designed this way | what this control does |
+| Carries | prose, a specimen, an open question | prose, a category, optional property pins |
+| Removed by | deleting the instance | `node.annotations = []` |
+
+The split is about who is reading. A kit note argues a proposal, discloses a
+snapped value, or raises a question the design cannot answer — all of which are
+addressed to someone deciding whether the design is right. A native annotation
+tells someone who has already accepted the design what an element does when it is
+used. Running both puts the same fact in two places and leaves no rule for which
+one is current.
+
+**A state catalog takes native annotations and no kit notes**, because its cards
+already carry the reviewer's channel —
+[flows.md](flows.md#dev-mode-annotations-on-a-catalog) has that argument and the
+rails that keep the pass small. Everything else on this page is the kit, and the
+kit is the default for a single design frame.
 
 **On a build, annotating is the user's call and it is asked once.** The checkpoint
 in [generate.md](generate.md#the-checkpoint-is-one-call-with-two-questions) offers

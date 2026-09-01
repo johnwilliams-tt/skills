@@ -295,7 +295,7 @@ that did not run looks exactly like the rule passing.
 
 [audit-figma.md](audit-figma.md) carries the whole procedure, and it is a
 `use_figma` script rather than a shell command because nearly everything it
-inspects lives in the Figma document. Seven buckets, failing on defects only.
+inspects lives in the Figma document. Eight buckets, failing on defects only.
 The failure it exists to catch is work that looks right in a screenshot and is
 structurally fake — which is exactly why a screenshot cannot stand in for
 running it.

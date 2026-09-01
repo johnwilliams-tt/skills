@@ -16,6 +16,119 @@ Changes are grouped the way `diff.mjs` classifies them:
 An entry about the plugin rather than the capture adds **Fixed** for a bug in
 the toolchain, which `diff.mjs` has no category for.
 
+## 0.17.0 — 2026-09-01
+
+A services catalog was checkpointed at whole-modal cards and handed over with
+eighteen cards showing one panel each. Nothing in the run was reckless. Mid-build
+it found the file's local modal component hard-wired a pane-head the prototype had
+replaced with a combobox, judged hiding it a forbidden instance override, judged
+hand-building eight modals too expensive, narrowed every card to a single panel,
+and disclosed the retreat accurately — in the last paragraph of a summary written
+after the work was done, to a user already looking at the wrong artifact.
+
+Three separate holes let a sound chain of local decisions arrive somewhere the
+user had refused: nothing said a stated region survives contact with a blocker,
+nothing put the cost of a wider region in front of the person paying for it, and
+`flows.md`'s smallest-enclosing-region rule reads as a licence for the cheaper
+artifact to a run under cost pressure.
+
+**Changed**
+
+- **A stated region is a commitment.** Once the checkpoint's preamble has named
+  the region and an answer has come back, a blocker found mid-build stops the run
+  and returns with the blocker and the choices. It does not narrow the region and
+  disclose in the summary. A blocker found *before* the checkpoint is a departure
+  and belongs in the preamble like any other — a stale local component by name,
+  since reading the component costs nothing and happens before any card exists.
+- **The checkpoint states what a wider region would cost.** Where the derived
+  region is narrower than the surface its states live in, the preamble names the
+  alternative and its price in one clause. Deriving the region is not the user's
+  to do; the spend is, and a run that resolved it quietly in favour of cheap is
+  what this release is about.
+- **Coupled regions resolve to their parent.** Two sibling regions where one's
+  content is a function of the other's state — a rail and the pane it drives, a
+  filter column and its results, a step list and the step — are one region, and
+  the answer is the parent holding both. The rail alone shows a press with no
+  result; the pane alone shows a result with no cause.
+- **The panels of one modal are never separate lanes**, stated in the merge signal
+  rather than left to be derived from it. The region is derived from the lane, so
+  a lane holding one panel can only ever produce a card holding one panel.
+- **The region valve tests intelligibility, not visibility.** A state whose change
+  is *unreadable* at its lane's region is the signal, replacing *invisible*. A
+  tinted row in a rail is plainly different from the card beside it and still does
+  not say what the selection produced, so the old test passed exactly the artifact
+  it existed to catch.
+- **The audit's note-overlap check is scoped to the artifact being audited.** The
+  walk stays page-wide because the stale index leaves nowhere narrower to walk
+  from, so the comparison is scoped where the walk cannot be: the nearest ancestor
+  named `<frame> — annotated`, or the frame itself where there is none. Two notes
+  belonging to two artifacts, each laid out correctly, no longer fail a run.
+
+**Added**
+
+- **A batch path for a request covering several surfaces.** One artifact per
+  surface, enumerated before anything is written; one skeleton call claiming every
+  artifact's frame in sequence, because five calls choosing where a frame goes on
+  one page are five guesses about the same free space; then one subagent per
+  artifact, with the six-lane ceiling applying per artifact rather than to the
+  batch. The catalogs stack in an auto-layout column at a gap of 96 — no
+  coordinates, so nothing can overlap.
+- **One checkpoint for the whole batch, one line per artifact.** The line carries
+  the region and the lane count. Five catalogs at five lanes each is twenty-five
+  stated lines, and the argument for stating rather than asking rests on a wrong
+  guess costing one correction — at twenty-five it costs a careful read of a wall,
+  which is the same as costing nothing. An artifact whose lanes genuinely differ in
+  region spends the extra lines rather than hiding a mixture behind one.
+- **A blocked artifact is set aside and the rest of the batch finishes**, with one
+  return at the join naming every blocked artifact and what it needs. They share
+  nothing with the blocked one, so stopping them buys the user nothing. What must
+  not happen is finishing the blocked artifact anyway: its frame stays as the
+  skeleton left it, shimmering, which the audit reports as a defect — the right
+  outcome, since half a catalog at a region nobody approved is worse than an empty
+  frame with a question against it.
+- **A `neighbours` bucket in the Figma audit**, the eighth, reporting notes that
+  belong to other work on the page and land on this artifact. It reports rather
+  than fails: the note is real and a reviewer will hit it, but nothing in this run
+  put it there or can move it, and failing over it hands the user a passing build
+  only once they tidy something they never asked about. Both exemptions the
+  artifact's own notes get are dropped — a pointer is meant to land on *its*
+  design, and a note laid out inside a neighbour cannot cover the neighbour and can
+  still cover this one.
+- **A ninth way a catalog turns back into a flow diagram**: one half of a two-half
+  interaction per card. Each row is internally consistent and the flow between them
+  is gone, which is a transition diagram with the transitions deleted.
+
+## 0.16.0 — 2026-09-01
+
+The frame exists a long time before anyone is told where it is. The skeleton
+call creates it and hands back its id, the fill lanes then go out in one message,
+and that message does not continue until every one of them has come back — so
+the user gets one silence of unknown length and then a finished frame, with the
+canvas they could have been watching the whole time never named.
+
+A flow catalog is the worst case and the most common one. It is a dozen states
+across several lanes where a screen is one frame, it is net-new by construction,
+so there is no original for it to appear beside, and where the checkpoint sent it
+to a review page the user is not even on the page it is landing on.
+
+**Added**
+
+- **The frame's link is handed over as soon as the skeleton returns**, in that
+  turn and before the fill lanes are issued. Built from the returned `frameId`
+  and the user's own link — the path through the file-name segment, the query
+  dropped, `node-id` appended with the colon as a hyphen — so it costs no call
+  and waits for nothing. The step 7 summary repeats it, since by then the whole
+  of the run's output sits between the reader and step 4's copy.
+- **One link, to the frame.** A lane writes inside it, so the frame's link
+  already reaches every lane's work, and a link per lane is six links to one
+  place. A review page this run created needs none of its own either: the frame's
+  id opens the page.
+- **It answers the length complaint from the batched rung.** The silence was in
+  the chat rather than on the canvas — lanes land as they land whichever rung
+  issued them — so a run whose length is the objection no longer has a reason to
+  climb to subagents that speed alone would not have given it. That rung is for
+  lanes with thinking to do, which is what it was for.
+
 ## 0.15.0 — 2026-08-31
 
 Pushing a flow into Figma was preceded by the same hand-written instruction every
@@ -370,7 +483,7 @@ information here.
   because a typo would quietly restore the false confidence the flag exists to
   prevent.
 - **A scheduled check now asks Figma rather than waiting for someone to
-  remember.** [`.github/workflows/pushpin-freshness.yml`](.github/workflows/pushpin-freshness.yml)
+  remember.** [`.github/workflows/pushpin-freshness.yml`](../.github/workflows/pushpin-freshness.yml)
   runs daily and on demand, with the token as a repository secret. Consumers of
   the plugin never need one; session start is `--offline --session`.
 - **Geometry deliberately keeps coming from the file.** The library can publish

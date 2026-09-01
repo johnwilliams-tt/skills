@@ -108,7 +108,8 @@ one already collects the win.
   goes. It does not depend on Figma running the scripts concurrently: even fully
   serialized on that side, the saving is intact.
 - **Subagents** — only when the decomposition is larger than one message of
-  lanes carries well. More than about six lanes, a multi-screen run, or lanes
+  lanes carries well. More than about six lanes, a multi-screen run — which has
+  its own section, [A batch of artifacts](#a-batch-of-artifacts) — or lanes
   that each need their own catalog lookups and copy decisions rather than one
   prepared script. This rung requires the subagent to inherit the Figma MCP
   server; when it does not, drop a rung, because a subagent that cannot call
@@ -125,16 +126,24 @@ That is the ordinary case: most runs are three to six lanes and belong on the
 middle rung. The top rung earns its overhead when each lane has thinking to do
 that the message issuing it would otherwise have to do first.
 
-**Visible progress is the other thing the rungs differ on, and it points the
+**Reported progress is the other thing the rungs differ on, and it points the
 opposite way to speed.** On the batched rung the join is free because the message
 does not continue until every call has come back — which is the same fact read
-from the other side: nothing is visible until everything is, and the user watches
-one silence and then a finished screen. The subagent rung is the only one where a
+from the other side: nothing is reported until everything is, and the user reading
+the chat gets one silence and then a finished screen. The subagent rung is the only one where a
 lane lands and reports as it finishes, so a long run shows results accumulating
 rather than a wait of unknown length. That does not move the default, because the
 saving the middle rung collects is real and most runs are short enough that
 nobody is waiting on the first result. It does mean a run whose length is the
 complaint has a reason to go up a rung that speed alone would not give it.
+
+**Handing over the frame's link answers most of that complaint from the middle
+rung** — [generate.md](generate.md#the-frame-gets-linked-before-it-gets-filled).
+The silence is in the chat, not on the canvas: lanes land as they land, and a
+user watching Figma sees them arrive whichever rung issued them. What the batched
+rung withholds is the report, and a link sent before the lanes go out costs
+nothing and replaces it with the thing the report was standing in for. Reach for
+the rung when the lanes each have thinking to do, which is what it was for.
 
 ### Hard limits on the subagent rung
 
@@ -250,3 +259,79 @@ left carrying `placeholder === true` is a defect the audit reports, so a subtree
 nobody filled fails the run instead of passing as done. That check walks the
 audited frame, though, so it says nothing about a lane that was filling something
 placed beside it — which is the other half of why the join is not optional.
+
+## A batch of artifacts
+
+"Push this page and each of its flows" is one request and several artifacts. Every
+ceiling on this page was written for one — about six lanes to a message, ten
+operations to a call, one owning lane per ordered container — and a run that
+improvises its way past them is the thing this section exists to replace.
+
+**Enumerate the artifacts before anything is written.** One per surface, named in
+[the checkpoint's preamble](generate.md#a-batch-states-artifacts-not-lanes) with
+its region and its lane count. A page and five modals is six artifacts, not one
+catalog with thirty lanes: a single catalog conflating five surfaces is
+[the lanes failure](flows.md#lanes-are-journeys-not-features) at a scale where
+nothing in the arrangement can recover it.
+
+**One skeleton call claims every artifact's frame, in sequence, inside that one
+call.** Not one skeleton per artifact. This is
+[disjoint subtrees are not disjoint effects](#the-invariant) read one level up:
+five frames are five disjoint subtrees, and where they sit is one piece of shared
+state — the page's free space, or the child order of the column they stack in. Two
+calls each choosing where a frame goes are two guesses about the same number, made
+without either being able to see the other, which is the same race as two lanes
+appending to one row and produces overlapping catalogs rather than a scrambled
+order.
+
+Doing it in one call also makes the arrangement cheap to get right. The catalogs
+go in an auto-layout column — [flows.md](flows.md#several-catalogs-go-in-a-column)
+— so the skeleton appends N frames to one container it owns and computes no
+coordinates at all. It stays within its budget because a frame, its capstones and
+its lane rows are a handful of operations each and the skeleton creates nothing
+inside the rows.
+
+**Then one subagent per artifact.** This is the rung [the ladder](#the-ladder)
+already prescribes and the wording already names it — "more than about six lanes,
+a multi-screen run" — because each artifact has its own catalog lookups, its own
+copy decisions, and its own component resolutions rather than one prepared script.
+Inside an artifact nothing changes: its lanes are
+[one call per swim lane](flows.md#one-fill-call-per-swim-lane) under
+[the lane contract](#the-lane-contract), and the six-lane ceiling applies to that
+artifact's lanes rather than to the batch's total.
+
+**The hard limits hold unchanged, and one of them does the most work here.**
+[A lane never resolves a destination and never asks the user anything](#hard-limits-on-the-subagent-rung),
+and an artifact's subagent is a lane by that definition however much thinking it
+does. So the parent resolves all N destinations, states all N regions, and gets
+one answer, before the first subagent starts. Six artifacts is not six
+checkpoints; the checkpoint still does not move.
+
+### One blocked artifact does not stop the batch
+
+An artifact that hits a blocker — a stale local component, a region that turns out
+to mean hand-building the surface, a library the preflight said was there and was
+not — is **set aside, and the artifacts that are not blocked finish.** The return
+then carries the blocked one with its choices.
+
+That is the batch reading of
+[a stated region is a commitment](flows.md#a-stated-region-is-a-commitment), and
+the two rules answer different questions. That rule says a blocker returns to the
+user instead of being resolved cheaply and disclosed late. This one says the return
+does not have to be immediate for the other five artifacts, because they share
+nothing with the blocked one: separate frames, separate lanes, separate
+components. Stopping them buys the user nothing and costs them the work already
+issued.
+
+**What must not happen is finishing the blocked artifact anyway.** Setting it aside
+means its frame stays as the skeleton left it — shimmering, which
+[the audit reports as a defect](audit-figma.md) and is exactly the right outcome,
+since an unfinished artifact should not pass as done. Half a catalog at a region
+nobody approved is worse than an empty frame with a question against it.
+
+**One return, at the join, naming every blocked artifact and what it needs.** Not
+one interruption per blocker: the artifacts run concurrently, so their blockers
+arrive at whatever moment each subagent reaches its own, and interrupting on each
+turns one question into a drip. Wait for the join — which is
+[not optional anyway](#join-before-annotating-or-auditing) — then ask once about
+all of them.

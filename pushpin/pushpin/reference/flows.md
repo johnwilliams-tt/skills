@@ -38,6 +38,14 @@ Picking, capping, and the empty slot are all "Selecting reviews". Eight lanes is
 usually the source's table of contents wearing a new name, and it hands over as
 eight headings a reader has to re-merge themselves.
 
+**The panels of one modal are never separate lanes**, and that is the signal
+applied rather than an exception to it. A two-pane modal — a rail that selects and
+a pane that shows what was selected — is one surface the user never leaves, so
+"browsing the rail" and "filling the fields" are one journey however cleanly the
+source separates them. Splitting there is the failure that then propagates: the
+region below is derived from the lane, so a lane holding one panel can only ever
+produce a card holding one panel.
+
 Lane names are sentence case, like every other label this plugin writes —
 [rules.md](rules.md).
 
@@ -112,8 +120,16 @@ ceiling above is this page's limit and it is the only one that binds here.
 
 *How much of the panel goes in each card* — the whole page, the modal, or just
 the part that changed — is the question this page is most likely to get asked out
-loud instead of answering. It has an answer, and it is not the user's to supply.
-Asking it during a build is also the thing
+loud instead of answering. **The derivation is not the user's to supply; the cost
+of exceeding it is.** The rule below settles what the region *is* from the lane's
+own bullets, with nothing to ask, and that half is this page's answer. What it
+cannot settle is whether a wider region is worth paying for when the derived one
+is cheap and the wider one means building the surface by hand — that is a
+tradeoff about the user's time, and
+[generate.md](generate.md#the-checkpoint-is-one-call-with-two-questions) states it
+at the checkpoint rather than resolving it quietly in favour of cheap.
+
+Asking the derivation during a build is still the thing
 [generate.md](generate.md#the-checkpoint-is-one-call-with-two-questions) rules
 out at its checkpoint: departures get stated once, before anything is written,
 not raised one state at a time — and the checkpoint's own two questions are
@@ -139,16 +155,41 @@ where it lives, and an engineer cannot place what they cannot locate. The
 smallest *enclosing* region clears both — the panel holding the chips, not the
 page holding the panel, and not the chips by themselves.
 
+**Two sibling regions that are one control surface count as one region, and the
+answer is the parent that holds both.** The test is whether one region's content
+is a function of the other's state: a rail that selects and a pane that shows
+what was selected, a filter column and the results it filters, a step list and
+the step. Press something in one and the other is what changed — so the smallest
+region containing what the bullets mention is the parent, and deriving otherwise
+means the bullets were written about one half of a two-half interaction.
+
+The rail alone shows a press with no result. The pane alone shows a result with
+no cause, and an engineer reading it cannot tell what produced the state they are
+being asked to build. Neither is a smaller version of the right answer; both are
+a different artifact that happens to be cheaper.
+
+This is also why [the merge signal](#lanes-are-journeys-not-features) rules the
+panels of one modal out as lanes. Coupling is the same fact read at the level of
+the region rather than the level of the journey, and a run that got the lanes
+right will usually never reach this paragraph.
+
 Different lanes land on different regions, and usually should. A confirmation
 lane shows the dialog; a browse-and-filter lane shows the panel the filters live
 in. Nothing needs those two to agree, because nobody reads across two rows at
 once.
 
-**A state whose change is invisible at its lane's region is telling you about the
+**A state whose change is unreadable at its lane's region is telling you about the
 lane, not the region.** Either the lane groups states that are not one journey —
 [lanes are journeys](#lanes-are-journeys-not-features) — or that state belongs in
 a different one. Zooming the one card that fell short breaks the comparison for
 the whole row to rescue a single member of it.
+
+**Unreadable, not invisible**, and the difference is the whole test. A visible
+difference an engineer cannot act on passes a visibility check and fails this
+one: a rail card where the selected row tints is plainly different from the card
+beside it and still does not say what the selection produced. Asking whether
+something changed is a question about pixels; asking whether the state can be
+built from what is in frame is the question the catalog exists to answer.
 
 None of this is a crop. `clipsContent` stays false on every structural frame —
 [the arrangement](#the-arrangement) — so the region is settled by **which
@@ -164,6 +205,45 @@ the other path entirely and a far larger job than was asked for. What still bind
 is the consistency: a lane whose source mixes a full page with a panel detail
 picks one and rebuilds the state that does not match. One card rebuilt is a cost
 worth paying where six is not.
+
+### A stated region is a commitment
+
+The region reached the user at the checkpoint and an answer came back. **From that
+point it is not a plan this run may revise; it is a thing that was agreed.** When
+something found mid-build makes it unaffordable or wrong — a local component that
+no longer matches the prototype, a variant the kit does not author, a
+whole-surface card that turns out to mean hand-building the surface six times —
+the run **stops and returns with the blocker and the choices.** It does not narrow
+the region and disclose in the closing summary.
+
+This is the failure the rule is written from. A services catalog was checkpointed
+at whole-modal cards; the build then found the file's local modal component
+hard-wired a pane-head the prototype had replaced with a combobox, judged hiding
+it a forbidden instance override, judged hand-building eight modals too
+expensive, and retreated to one panel per lane. Eighteen cards landed at a region
+nobody had approved. The retreat was disclosed, accurately, in the last paragraph
+of the summary — after the work was done, to a user already looking at the wrong
+artifact.
+
+Three things about that are why it is a rule rather than a line in the
+[nine ways](#nine-ways-it-turns-back-into-a-flow-diagram) below:
+
+- **The reasoning was sound at every step.** The component really was stale, the
+  override really is forbidden, and eight hand-built modals really is expensive.
+  A correct chain of local decisions arrived somewhere the user had refused.
+- **This page supplied the justification.** The smallest-enclosing-region rule
+  reads as a licence for the cheaper artifact, and a run under cost pressure will
+  find it. Deriving a region is what that rule is for; defending one the user was
+  never asked about again is not.
+- **The retreat is to a question, never to the cheaper artifact.** Cost is the
+  user's to weigh — [above](#what-a-card-shows-is-decided-per-lane) — and a
+  blocker is the moment that weighing became necessary, not the moment it stopped
+  being theirs.
+
+A blocker found *before* the checkpoint is not this rule. It is a departure, and
+departures are stated in the preamble like any other. A stale local component
+belongs there by name: it changes what the catalog can be built from, and it is
+discoverable by reading the component before a single card exists.
 
 ## Two ways in
 
@@ -279,6 +359,29 @@ Pushpin components cast past their own bounds. An instance is the opposite case:
 a component that clips does so deliberately — a card cropping a photograph — and
 turning that off shows a reviewer something the built component will not do.
 
+### Several catalogs go in a column
+
+A request covering more than one surface produces one catalog per surface —
+[parallel.md](parallel.md#a-batch-of-artifacts) has the orchestration. **The
+catalogs stack in a single auto-layout column**, one per row, in the order the
+user meets the surfaces, with a gap of 96 and the same 48 of padding a main frame
+carries.
+
+The column is auto-layout for the reason nothing else here is positioned by hand:
+a catalog hugs its widest lane, so its width is not known until it is filled, and
+two catalogs placed at computed coordinates are two guesses about a number
+neither one has settled yet. A column asks for no coordinates and cannot overlap.
+
+Ninety-six rather than the main frame's 32 because the reader is crossing between
+artifacts rather than between lanes of one, and the section headers inside each
+catalog already spend 32-scale gaps. A separation that reads the same as an
+internal one turns five catalogs into one long catalog with confusing headings.
+
+Each catalog keeps everything above unchanged — its own capstones, its own hug
+sizing, its own regions. Nothing about being one of several loosens a rule, and
+the column has no fill, no name of its own beyond the batch's, and no capstone:
+the catalogs head themselves.
+
 ### Type and colour
 
 | | Style | Colour |
@@ -368,6 +471,14 @@ states rows, and stops there** — each shimmering, each in its final order. The
 cards belong to the lane that fills them and are created inside the row by that
 lane.
 
+**Its link goes to the user before the lanes go out** —
+[generate.md](generate.md#the-frame-gets-linked-before-it-gets-filled) — and a
+catalog is the run that most needs it. It is the longest thing this plugin
+writes, a dozen states across several lanes where a screen is one frame, and it
+is net-new by construction, so there is no original for it to appear beside.
+Where the checkpoint sent it to a review page, the user is not even on the page
+it is landing on.
+
 The order still decides this, read one step more carefully than it used to be.
 A row of state cards is read left to right, so its child order *is* the flow,
 and two calls appending into one row race for that order with neither script
@@ -427,7 +538,143 @@ a drawn capstone is a frame this plugin created, so there is no instance to
 override and every ordinary rule — bound fill, bound padding, a published text
 style — applies to it unchanged.
 
-## Eight ways it turns back into a flow diagram
+## Dev Mode annotations on a catalog
+
+A catalog can carry notes beyond its bullets, and they are not the ones
+[annotate.md](annotate.md) describes. Figma publishes annotations of its own —
+the `Y` tool, `node.annotations` in the API — which attach to a node and open in
+Dev Mode against the element itself. The Annotation Kit publishes cards that sit
+on the canvas beside a design. Both are called annotations, and which one a
+catalog wants is settled in
+[annotate.md](annotate.md#two-annotation-systems).
+
+**A catalog takes native annotations and no kit notes at all.** The state card
+already carries [two or three bullets](#a-bullet-is-a-behavioral-contract) about
+what the state shows, so a kit note parked beside that card is a second copy of
+the same channel — same subject, same reader, twice the furniture. What a card
+cannot do is point at a control. A note on the commit button is read by an
+engineer who has selected the commit button, and no arrangement of cards
+arranges that.
+
+They also cost the canvas nothing. A native annotation is invisible in design
+mode, so the catalog still reads as a catalog, and `node.annotations = []`
+takes one back.
+
+### Interaction is the only category
+
+Every annotation carries a category. Figma's presets are Development,
+Interaction, Accessibility and Content, and a file usually adds more beside them.
+**On a catalog, Interaction is the whole allowlist.**
+
+The three it leaves out are left out for one reason, and the reason is
+arithmetic rather than taste. Development, Accessibility and Content are
+per-element reads — every heading, every landmark, every label, every token. On
+one screen that is a bounded pass, and
+[annotate.md](annotate.md#read-them-off-the-markup-not-off-the-mock) governs it.
+On a catalog the same pass multiplies by the state count and annotates the same
+button once per card that contains it, where the sixth copy is worth nothing the
+first was not. That product is the wall of notes that gets a catalog handed back
+unread, and no amount of restraint inside an unbounded category fixes it.
+
+An accessibility spec is still worth having. It belongs on one annotated screen,
+through [annotate.md](annotate.md), where the markup is the source and each
+element is read exactly once.
+
+### No property pins
+
+An annotation pins properties as well as prose — `width`, `fills`, `fontSize`,
+`padding`, `itemSpacing`, `cornerRadius` and about twenty more, each rendering as
+a chip beneath the note. **A catalog pins none of them.**
+
+A pin restates what the Dev Mode inspector shows the moment the node is selected,
+to a reader who has just selected it. It costs a row and carries nothing, and
+**the pin count is what turns a measured pass into an unreadable one** — pins
+multiply per annotation, while notes multiply per decision. A pass held to six
+notes still hands over sixty rows if each one pins ten properties, which is the
+shape this rail exists to prevent and the one a note budget alone does not catch.
+
+The carve-out, if it is ever wanted, is a value that is a constraint rather than
+a measurement — `maxWidth` on a column that must not grow, `minHeight` on a row
+that must not collapse. A constraint is the one thing the inspector cannot show,
+because it reports this frame's value and the constraint is about the frames this
+one is not. Nothing else qualifies.
+
+### One note per control, in the state that shows the behaviour
+
+A control appearing in six states is annotated once, in the state where the
+behaviour is legible — the commit button where rows are staged, not where the
+panel is empty — and left bare in the other five.
+
+Annotating each appearance produces six notes a reviewer must compare before
+concluding they agree, and six places to correct when the behaviour changes. The
+row is what makes one enough: cards sit side by side, so a reader who found the
+note has the other five states already in view.
+
+### A control its card already describes gets nothing
+
+The bullets are a behavioural contract, so an annotation earns its place only by
+saying what they do not. A plus button whose card already reads *plus becomes a
+close button* has been documented; annotating it adds a pin and no fact.
+
+This is the test that does most of the work, and it is why lanes come out uneven.
+A lane whose bullets happen to cover its controls gets no annotations at all,
+and that is the rule working rather than the pass giving up.
+
+### What the budget lands on
+
+Six controls across a thirteen-state catalog is the observed shape — one or two
+per lane, and one lane with none. **Roughly one annotation per two states is the
+calibration**, and a pass arriving at one per state has stopped applying the test
+above.
+
+### Writing them
+
+Category ids are per file, so resolve by label rather than pasting one in:
+
+```js
+const cats = await figma.annotations.getAnnotationCategoriesAsync();
+const interaction = cats.find((c) => c.label === 'Interaction');
+
+node.annotations = [{
+  labelMarkdown: 'Commits the staged rows and closes the panel. Staging is '
+    + 'client-side — nothing is written to the service list until this is pressed.',
+  categoryId: interaction.id,
+}];
+```
+
+**Annotations reach inside instances**, which is what makes per-control targeting
+possible at all. A note lands on a `remove action` nested four levels into a modal
+instance, and that is the normal case here rather than a trick: a state card holds
+one instance, and every control worth annotating is inside it.
+
+### Three ways the write goes wrong
+
+- **Read-back is not the write shape.** Reading `annotations` returns both
+  `label` and `labelMarkdown` populated, and the setter refuses an entry carrying
+  both — `Only one of label or labelMarkdown should be given`. So a
+  filter-and-reassign cannot pass back what it read; it rebuilds each entry it
+  keeps.
+
+```js
+node.annotations = keep.map((a) => ({
+  labelMarkdown: a.labelMarkdown || a.label,
+  categoryId: a.categoryId,
+}));
+```
+
+- **A failed annotation write is not reliably atomic.** The guarantee everywhere
+  else in this plugin is that a thrown script changed nothing. A pass that threw
+  on the read-back shape above had already cleared notes from two nodes it
+  reached first. **Re-audit after a throw** rather than assuming the file is
+  where it was, and repair from the audit rather than from the plan.
+
+- **An instance sublayer id does not survive the edit.** `I7376:30302;13256:41171`
+  resolved on one call and was gone on the next, because the enclosing instance
+  had been re-resolved. Reach a control by traversing from the state card, which
+  is a frame this catalog owns and whose id is stable, rather than by pasting a
+  path recorded earlier in the run.
+
+## Nine ways it turns back into a flow diagram
 
 Each of these produces a document that still looks like a state catalog:
 
@@ -445,6 +692,11 @@ Each of these produces a document that still looks like a state catalog:
 - **Every card showing the whole screen.** A wall of near-identical pages, each
   with its state difference somewhere inside it. It reads as a catalog and
   answers nothing, because the change has to be found before it can be built.
+- **One half of a two-half interaction per card.** A rail of presses whose results
+  are in another row, or panes of results with the presses that caused them
+  elsewhere. Each row is internally consistent and the flow between them is gone,
+  which is a transition diagram with the transitions deleted —
+  [coupled regions](#what-a-card-shows-is-decided-per-lane).
 - **A paragraph where a bullet belongs.** Design rationale is not a behavioral
   contract, and a wall of states is scanned rather than read. It goes in Design
   notes at the bottom.

@@ -1,7 +1,7 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.15.0
+version: 0.17.0
 argument-hint: "[generate|audit|figma · setup|init|freshness · refresh] [target]"
 allowed-tools:
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/check.mjs *)
@@ -140,6 +140,7 @@ covers the same ground from plain speech. Load one doc, not the table.
 | "leave notes on this", an accessibility spec | [annotate.md](reference/annotate.md) |
 | an Annotation Kit import failed | [annotate-fallback.md](reference/annotate-fallback.md) |
 | "send this flow to Figma", "document this flow", "spec this for eng handoff" — several states of one surface, laid out as a state catalog | [flows.md](reference/flows.md) |
+| "push this page and each of its flows", "send all of these to Figma" — several surfaces in one request | [parallel.md](reference/parallel.md#a-batch-of-artifacts), then flows.md per catalog |
 | `/impeccable init` about to run on a Pushpin project, or asked whether to install it | [impeccable.md](reference/impeccable.md) |
 | "do these in parallel", a Figma write with many sections or notes to fill | [parallel.md](reference/parallel.md) |
 | "what else is on this page", a link landing beside work already done | [context.md](reference/context.md) |
@@ -154,6 +155,11 @@ covers the same ground from plain speech. Load one doc, not the table.
   `generate.md` does not describe. It is the one row that loads a second doc:
   [flows.md](reference/flows.md) first, then
   [generate.md](reference/generate.md) for each state in it.
+- **Several surfaces is not one flow.** A page and its modals is one artifact per
+  surface, and the ceilings that govern a single catalog — six lanes to a message,
+  one owning lane per ordered container — were all written for one. That row
+  decomposes the request before any of them is reached, and it is the only row
+  that loads three docs.
 - **No signal** — ordinary design work under the hard rules below, on whichever
   surface [Which surface](#which-surface) settled. No signal is not a licence to
   pick one. Once a project is set up, plain speech is the whole interface and
@@ -224,6 +230,10 @@ and which of annotation and the copy pass to run, since both cost time a first
 look at a layout may not want spent. Replacing the original is not one of the
 answers: it is offered afterwards, as a move plus an `— archived [date]` rename,
 and it never deletes anything.
+
+**The frame is linked as soon as it exists** — the empty frame, before anything
+is written into it, so the user watches it fill rather than waiting on a report
+that it filled.
 
 [reference/generate.md](reference/generate.md) has the rest: the checkpoint's two
 questions, the finalize offer, and the access preflight.

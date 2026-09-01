@@ -882,6 +882,43 @@ user cannot undo it. Contributing a component to the kit goes through a Figma
 branch and the contribution flow, which this plugin documents in
 [annotate.md](annotate.md) and does not perform.
 
+## The frame gets linked before it gets filled
+
+**The skeleton's return is the first moment the work has an address, and the link
+goes out in that turn** — before the fill lanes are issued, not with the summary
+that follows them. That the frame is empty at that point is what makes the link
+worth sending rather than a reason to hold it: everything after it lands inside
+something the user is already looking at.
+
+Nothing later in the run can do it. The lanes go out in one message and the
+message does not continue until every call has come back, so
+[nothing is reported until everything is](parallel.md#the-ladder) — one silence
+of unknown length, then a finished frame. The lanes are landing on the canvas the
+whole time; what the link decides is whether anyone is looking at it. It is also
+what makes [issuing the lanes in reading order](#filling-the-sections-in-parallel)
+worth anything, since a hero landing before a footer is an improvement only for
+someone who can see it land.
+
+**Build it from the link the user gave.** Keep the path through the file-name
+segment, drop the query, and append the frame id with its colon as a hyphen:
+
+```
+https://www.figma.com/design/<fileKey>/<file name>?node-id=12-340
+```
+
+The file name is in hand already, which is the reason to take it from there:
+`figma.root.name` is another call, and a slug composed from nothing is a guess,
+with both spent on a segment Figma ignores once it has the id.
+
+**One link, to the frame.** Not one per lane and not one per section — a lane
+writes inside the frame, so the frame's link already reaches its work, and six
+links to one place read as six places. A destination the user did not name needs
+no extra link either: a review page this run created opens by the frame's own
+id, and a link to the page says less than a link to the frame.
+
+The step 7 summary repeats it. The whole of the run's output sits between the
+two, and a link scrolled past is a link nobody kept.
+
 ## The access preflight
 
 Keys are not per-user. File keys, library keys, and component keys belong to the
@@ -1182,6 +1219,15 @@ asked to choose about it:
 - Where the subject is a flow, the lane list and the region each lane shows —
   [flows.md](flows.md#what-a-card-shows-is-decided-per-lane). Stated, never
   asked.
+- **What a wider region would cost, where the derived one is narrower than the
+  surface its states live in.** One clause, naming the alternative and its price:
+  *each card crops to the rail; the whole modal instead means hand-building it
+  eight times.* The derivation is not the user's to make and the spend is, so the
+  number goes where they can see it and one word comes back. A run that resolved
+  this silently in favour of cheap built eighteen cards nobody wanted —
+  [flows.md](flows.md#a-stated-region-is-a-commitment).
+- **Where the request covers several surfaces, the artifacts** rather than every
+  lane in all of them — [below](#a-batch-states-artifacts-not-lanes).
 
 **Question one: where it lands.** Single select, the three answers in
 [Where the work gets written](#where-the-work-gets-written) — beside the original,
@@ -1193,7 +1239,9 @@ independent and a user who wants notes but not a copy pass has no way to say so
 otherwise:
 
 - **Annotate the result** — every proposal's note, the open questions for
-  unresolved atoms, and the `Token drift` disclosure. Step 6.
+  unresolved atoms, and the `Token drift` disclosure. Step 6. Where the subject
+  is a flow this buys the native Dev Mode pass instead of a note bundle —
+  [flows.md](flows.md#dev-mode-annotations-on-a-catalog).
 - **Correct the copy that came in with the source** — the `copy.mjs` run over
   strings carried in from pushed code or read off a frame being rebuilt.
 - **Neither — just build it.**
@@ -1220,6 +1268,41 @@ is only the correction of words that arrived from somewhere else.
 **The audit is not in the question either.** It is one script call, it is the
 check that decides whether the frame hands over at all, and a build nobody
 verified is not a cheaper build.
+
+### A batch states artifacts, not lanes
+
+A request covering several surfaces — a page and each of its flows — is still one
+checkpoint, and the preamble does not grow with the work.
+[parallel.md](parallel.md#a-batch-of-artifacts) has how such a run is decomposed
+and issued; this is the shape of the one question in front of it.
+
+**One line per artifact, carrying its region and its lane count.** Not one line
+per lane. Five catalogs at five lanes each is twenty-five stated lines, and the
+argument for stating rather than asking rests on a wrong guess costing one
+correction — at twenty-five it costs the user a careful read of a wall, which is
+the same thing as costing nothing:
+
+```
+Adding a service — 4 lanes, whole modal
+Adding an FAQ — 5 lanes, whole modal
+Adding reviews — 6 lanes, whole modal
+Page picker — 3 lanes, the picker and its menu
+Exit gate — 2 lanes, the dialog
+```
+
+**An artifact whose lanes genuinely differ in region names them.** Most do not:
+a catalog of one modal is one region for all of its lanes, which is what makes
+the summary line honest. Where a catalog really does hold a dialog lane beside a
+panel lane — legitimate, per
+[flows.md](flows.md#what-a-card-shows-is-decided-per-lane) — that artifact spends
+the extra lines rather than hiding a mixture behind one.
+
+**The lane lists are not deferred to a second checkpoint.** Naming the regions
+after the first artifact is written is the hole
+[a stated region is a commitment](flows.md#a-stated-region-is-a-commitment)
+closes, arrived at from the other direction: a region stated once the build is
+under way is a region nobody agreed to. Everything in this section is settled
+before the first node exists.
 
 ## Workflow
 
@@ -1267,6 +1350,14 @@ verified is not a cheaper build.
      The duplicate is a `clone()` of a frame holding instances, so a skeleton
      that reads anything back out of it opens with the flag from
      [stale traversal](#stale-traversal-on-a-subtree-this-call-created).
+     A batch claims **every** artifact's frame in this one call —
+     [parallel.md](parallel.md#a-batch-of-artifacts) — rather than one call per
+     artifact, because two calls choosing where a frame goes on a shared page are
+     two guesses about the same free space.
+   - **Then hand over the frame's link, in this turn and before the lanes go
+     out** — [above](#the-frame-gets-linked-before-it-gets-filled). It is built
+     from the skeleton's `frameId` and the user's own link, so it costs no call
+     and there is nothing to wait for.
 5. **Fill the sections in parallel,** one `use_figma` call per section, all of
    them in one message and in the order the screen is read — the hero before the
    footer — [above](#filling-the-sections-in-parallel), and
@@ -1296,7 +1387,8 @@ verified is not a cheaper build.
    the structural one, never a substitute for it. Then print the chat summary,
    listing proposals, unresolved atoms, any spacing that snapped, any library
    the preflight could not reach, and any declaration that did not resolve
-   against the catalog.
+   against the catalog — under the frame's link again, since step 4's copy of it
+   is now above everything the run wrote.
 
    **Where step 6 was declined the summary is the only disclosure there is,** so
    it carries what the notes would have said: each proposal with what it extends
@@ -1314,5 +1406,6 @@ verified is not a cheaper build.
 
 Run it before declaring the work done. It sorts what it finds into library
 instances, proposals, unresolved atoms, degraded libraries, snapped spacing, the
-words the frame owns, and defects, and it fails on defects only. The script and
-the seven buckets are in [audit-figma.md](audit-figma.md).
+words the frame owns, notes belonging to neighbouring work, and defects, and it
+fails on defects only. The script and the eight buckets are in
+[audit-figma.md](audit-figma.md).

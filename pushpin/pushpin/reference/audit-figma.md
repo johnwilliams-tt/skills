@@ -13,7 +13,7 @@ than assumed.
 
 ## What it sorts into
 
-Seven buckets:
+Eight buckets:
 
 - **Library** — the keys the frame's own instances resolved to. `remote` says an
   instance came from a published library and not which one, so the `use_figma`
@@ -32,6 +32,8 @@ Seven buckets:
 - **Copy** — the words the frame owns, held against the content design rules.
   The `use_figma` call gathers them and a shell command settles them, so this
   bucket holds strings until the second step has run and findings after it.
+- **Neighbours** — notes belonging to other work on the page that land on this
+  artifact — [below](#notes-belong-to-one-artifact).
 - **Defects** — detached instances, lookalikes, undeclared local components,
   instances resolved from a key no Pushpin catalog publishes, literal fills,
   unbound spacing and radius, resized icons, nodes left shimmering, drift that
@@ -43,7 +45,7 @@ Seven buckets:
   [below](#when-annotation-was-declined).
 
 The run fails on defects only. A populated `proposed`, `unresolved`, `degraded`,
-`drift`, or `copy` bucket is a result to report, not a failure — this is a
+`drift`, `copy`, or `neighbours` bucket is a result to report, not a failure — this is a
 `use_figma` script, so "exit non-zero" means `report.ok === false`: do not hand
 the frame over, and do not offer the finalize pass.
 
@@ -93,6 +95,40 @@ is why declining the step does not decline the obligation.
 `degraded` also stops carrying an `annotations` line. It reports which libraries
 the preflight could not reach *and were needed*, and a run that placed no notes
 never reached for the Annotation Kit at all.
+
+## Notes belong to one artifact
+
+The overlap check gathers notes page-wide, because
+[the stale index](generate.md#stale-traversal-on-a-subtree-this-call-created)
+leaves it no narrower place to walk from, and then compares every pair it found. On a page
+holding one artifact those are the same set. On a page holding five — a batch of
+catalogs, or a push landing beside last week's — they are not, and comparing
+across them fails the run over two notes belonging to two artifacts that were
+each laid out correctly. A batch would then fail on arithmetic: the pairs grow
+with the square of the notes on the page, and none of the cross-artifact ones is
+this run's work.
+
+**So the pairwise comparison is scoped to the artifact being audited, and
+crossings are still reported.** `annotate.md`'s bundle is named
+`<frame> — annotated` and adopts the design frame into itself, so the nearest
+ancestor carrying that suffix is this artifact's container and everything under it
+is this artifact's notes. A frame with no such ancestor is its own container,
+which covers both an un-annotated run and a catalog — [a catalog takes native
+annotations and no kit notes](flows.md#dev-mode-annotations-on-a-catalog), so the
+only notes inside one are its capstones.
+
+What crosses the boundary goes to `neighbours`, which reports rather than fails.
+A neighbour's note covering this artifact is worth saying — it is real, and a
+reviewer will hit it — but nothing in this run put it there and nothing in this
+run can move it: the fix is on the page, not in the frame, and failing a build
+over the page it landed on gives the user a passing build only after they tidy
+something they did not ask about.
+
+That check drops both exemptions the artifact's own notes get. A pointer is meant
+to land on *its* design and not on this one, and a note laid out inside a
+neighbour's auto-layout cannot cover the neighbour and can still cover this
+artifact. Both exemptions are arguments about a note's own container, and a
+neighbour's container is not this one.
 
 ## What the walk can reach
 
@@ -232,6 +268,7 @@ const report = {
     .map(([what, how]) => `${what} — ${how}, library unreachable`),
   drift: [],
   copy: [],
+  neighbours: [],
   defects: [],
 };
 const ancestor = (n, test) => {
@@ -527,6 +564,23 @@ const notesOnPage = annotations.filter((n) =>
 const hits = (a, b) =>
   a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
 
+// Which of those notes are this artifact's. The walk is page-wide because the
+// stale index leaves no alternative, and on a page carrying several artifacts
+// that gathers the neighbours' notes too — so the comparison is scoped where the
+// walk cannot be. `annotate.md`'s bundle is named `<frame> — annotated` and
+// adopts the design frame into itself, so the nearest ancestor carrying that
+// suffix is this artifact's outermost container; a frame with no bundle is its
+// own container, which is the un-annotated case and the batch case both.
+const container = (() => {
+  for (let p = root.parent; p && p.type !== 'PAGE'; p = p.parent) {
+    if (/ — annotated$/.test(p.name)) return p;
+  }
+  return root;
+})();
+const mine = (n) => n === container || ancestor(n, (p) => p === container);
+const notesHere = notesOnPage.filter(mine);
+const notesBeside = notesOnPage.filter((n) => !mine(n));
+
 // The frame check below is for a note dropped on top of the design with
 // coordinates, covering the thing it describes so that neither can be read.
 // Every annotation was a sibling of the design frame when that check was
@@ -555,22 +609,32 @@ const laidOutInside = (n) => {
   return true;
 };
 
-for (let i = 0; i < notesOnPage.length; i++) {
-  const a = notesOnPage[i].absoluteBoundingBox;
+const box = root.absoluteBoundingBox;
+
+for (let i = 0; i < notesHere.length; i++) {
+  const a = notesHere[i].absoluteBoundingBox;
   if (!a) continue;
-  for (let j = i + 1; j < notesOnPage.length; j++) {
-    const b = notesOnPage[j].absoluteBoundingBox;
+  for (let j = i + 1; j < notesHere.length; j++) {
+    const b = notesHere[j].absoluteBoundingBox;
     if (b && hits(a, b)) {
-      report.defects.push(`${notesOnPage[i].name} overlaps ${notesOnPage[j].name}`);
+      report.defects.push(`${notesHere[i].name} overlaps ${notesHere[j].name}`);
     }
   }
   // A pointer is the one annotation meant to land on the design. Drawn or
   // instanced, the number dot sits on the element it numbers.
-  const box = root.absoluteBoundingBox;
-  const isPointer = /^Annotations( \(drawn\))? \/ Pointers/.test(notesOnPage[i].name);
-  if (box && hits(a, box) && !isPointer && !laidOutInside(notesOnPage[i])) {
-    report.defects.push(`${notesOnPage[i].name} overlaps the design frame`);
+  const isPointer = /^Annotations( \(drawn\))? \/ Pointers/.test(notesHere[i].name);
+  if (box && hits(a, box) && !isPointer && !laidOutInside(notesHere[i])) {
+    report.defects.push(`${notesHere[i].name} overlaps the design frame`);
   }
+}
+
+// A neighbour's note landing on this artifact is real and is not this run's to
+// fail on. It is reported so the run can say it, and the pointer and
+// auto-layout exemptions do not apply: a note laid out inside its own artifact
+// cannot cover that one and can still cover this one.
+for (const n of notesBeside) {
+  const a = n.absoluteBoundingBox;
+  if (box && a && hits(a, box)) report.neighbours.push(`${n.name} overlaps this artifact`);
 }
 
 // A snap that was corrected and disclosed is a result. A snap that was corrected
@@ -944,6 +1008,7 @@ returns this:
     { node: 'value', component: 'TextInput', text: 'ZIP code', count: 1 },
     { node: 'Header', component: null, text: 'Find a pro for any project', count: 1 },
   ],
+  neighbours: [],
   defects: [],
   pending: ['library', 'copy'],
 }
@@ -955,7 +1020,7 @@ against the file that decides it. They are the two decks in the sections above
 and both run clean, so the settled report is the one to hand over:
 
 ```
-{ library: 4, proposed: [], unresolved: [], degraded: [], drift: [], copy: [], defects: [], ok: true }
+{ library: 4, proposed: [], unresolved: [], degraded: [], drift: [], copy: [], neighbours: [], defects: [], ok: true }
 ```
 
 Four instances the frame placed resolved to keys the catalogs publish — what
@@ -982,6 +1047,7 @@ same way — and says what it cost:
   ],
   drift: [{ node: 'Hero', prop: 'itemSpacing', from: 80, to: 96, source: 'intent' }],
   copy: [],
+  neighbours: [],
   defects: [],
   ok: true,
 }
@@ -1019,6 +1085,7 @@ its place:
       message: 'title case on "Right", "Pro" — sentence case unless it is a confirmed brand name',
     },
   ],
+  neighbours: [],
   defects: ['Button / Label — "guaranteed" is on the forbidden list'],
   ok: false,
 }
