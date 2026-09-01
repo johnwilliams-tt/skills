@@ -5,6 +5,12 @@ what it cannot detect, runs this, and then checks what is actually true. `init`
 is the mechanical half of that, and the right call on its own for a re-run, a
 repair, or an update after the plugin moves.
 
+**It repairs the plumbing and reconciles nothing.** The stylesheet, the
+generated files and the pin are all it looks at; the components the project
+actually declares are held against the catalog by
+[update.md](update.md), which is the other half of an update after the plugin
+moves and the one a `catalog` finding hands over.
+
 `init` is once per project, not once per agent. The marker is
 `pushpin.config.json`. A later session does not re-run this; it pin-checks on
 pickup via `freshness.mjs --offline --session`, repairs a missing or misdirected
@@ -158,7 +164,7 @@ first five minutes. **`Accept edits` does not help.** It auto-approves file edit
 and a fixed list of filesystem commands; every other shell command still prompts.
 A designer reading that as a sign something is wrong is reading it correctly.
 
-`init` writes an allow rule per read-only script into
+`init` writes an allow rule per project script into
 `.claude/settings.local.json`:
 
 | Script | What it does |
@@ -168,6 +174,18 @@ A designer reading that as a sign something is wrong is reading it correctly.
 | `freshness.mjs` | compares the captures against Figma |
 | `lookup.mjs` | answers one catalog entry |
 | `setup.mjs` | reads the project, and with `--ready` the machine around it — Node's version, impeccable, Figma's desktop app, Claude Code's own settings; its only write is `--backup` copying aside |
+| `refresh.mjs` | distils a capture this project took into `.pushpin/assets/`, and clears it |
+| `update.mjs` | sweeps the declared components against the catalog; **writes project source** under `--write` and `--resolve` |
+
+**`update.mjs` is a real widening and is listed as one.** Every other rule on
+that list either only reads or writes inside `.pushpin/`, to files no person
+authored. This one edits the project's own markup and stylesheets, and calls
+`init --force` after the sweep — the very command left off the list. It is here
+because the report is the form that gets run: it is handed over as a `fix:` line
+at session start, its default mode writes nothing, and a prompt in front of a
+read-only report is a prompt in front of the only form that cannot change
+anything. What guards the writing halves is the command's shape rather than the
+prompt — see [update.md](update.md).
 
 **`init.mjs` is deliberately not on that list.** It is the script that can
 replace a stylesheet, and one prompt in front of a `--force` is worth keeping.

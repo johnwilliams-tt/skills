@@ -188,6 +188,12 @@ project through that file too.
 9. Commit the JSON, the CSS, `DESIGN.md`, `design.json`, and the manifest
    together. They are one fact about one moment; splitting them across commits
    makes provenance unreadable.
+10. **A released component change is a sweep in every project that declares
+    one.** The two catalog dates go into every pin, so a project on the older
+    capture raises a `catalog` finding at its next session start and is handed
+    `update` — which is where a restyled fill gets written and a deleted variant
+    gets asked about. Nothing here reaches into a project, so the release is not
+    the end of the change: [update.md](update.md).
 
 Never hand-edit a capture to make a diff go away. `verify.mjs` hashes every
 asset against the manifest and will catch it.

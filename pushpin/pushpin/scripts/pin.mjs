@@ -22,10 +22,39 @@ import { fileURLToPath } from 'node:url';
 import { hashAsset } from './canonical.mjs';
 import { GENERATED, generatedState } from './lib/generated.mjs';
 import { inspectHooks } from './lib/hooks.mjs';
+import { captureDate } from './lib/overlay.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
+const ASSETS = join(here, '..', 'assets');
 const PLUGIN_ROOT = resolve(here, '..', '..');
 const within = (root, p) => p === root || p.startsWith(root + sep);
+
+/**
+ * The component catalog dates a pin records, as the plugin currently carries
+ * them.
+ *
+ * Not in `manifest.json`, whose `capturedAt` is the tokens': the two catalogs
+ * are captured on their own clocks, and a republished component moves them
+ * without touching a token. `captureDate` rather than `extractedAt` so a
+ * properties-only or single-page refresh is not invisible.
+ *
+ * Exported because `init.mjs` writes what this compares against, and one
+ * function for both is what stops the written value and the comparison from
+ * drifting apart.
+ */
+export function catalogPins() {
+  const load = (f) => JSON.parse(readFileSync(join(ASSETS, f), 'utf8'));
+  return {
+    componentsCapturedAt: captureDate(load('components.figma.json')),
+    specsCapturedAt: captureDate(load('component-specs.figma.json')),
+  };
+}
+
+/** What each recorded catalog date is called in a finding. */
+const CATALOG_LABEL = {
+  componentsCapturedAt: 'component catalog',
+  specsCapturedAt: 'component specs',
+};
 
 /**
  * The findings a plain `init --write` settles on its own, which is the line the
@@ -44,6 +73,12 @@ const within = (root, p) => p === root || p.startsWith(root + sep);
  * report the file it just restored as hand-edited from the next session onward.
  * A silent repair that trades one finding for a permanent one is worse than the
  * sentence.
+ *
+ * `catalog` is not here for a stronger reason: `init --write` does not answer it
+ * at all. It rewrites the recorded dates and looks at nothing the project is
+ * built out of, so the finding would disappear without a single declared
+ * component having been held against the catalog that moved. Answering it means
+ * sweeping the project, which is `update`.
  */
 const REPAIRABLE = new Set(['hook', 'hook-missing', 'hook-broken', 'hook-legacy']);
 
@@ -54,6 +89,7 @@ const REPAIRABLE = new Set(['hook', 'hook-missing', 'hook-broken', 'hook-legacy'
  *   status: 'ok' | 'stale' | 'unreadable',
  *   details: string[],
  *   brief: string | null,
+ *   reasons: string[],
  *   repairable: boolean,
  *   pluginVersion?: string,
  *   capturedAt?: string,
@@ -91,6 +127,24 @@ export function inspectPin(dir, { manifest, pluginVersion }) {
         details.push(`${prev.css}: is an older build of the tokens`);
         reasons.push('css');
       }
+    }
+
+    // The two component catalogs. They move independently of the tokens and of
+    // each other, so `capturedAt` above cannot see a republished component —
+    // and a republished component is what changes the fill, radius or variant
+    // set the project's declared markup is already holding. Recorded dates
+    // absent means the project predates the fields, which is silence.
+    const catalogs = catalogPins();
+    const moved = Object.entries(CATALOG_LABEL).filter(
+      ([field]) => prev[field] && catalogs[field] && prev[field] !== catalogs[field],
+    );
+    if (moved.length) {
+      for (const [field, label] of moved) {
+        details.push(
+          `${label}: project pinned to ${prev[field]}, plugin now carries ${catalogs[field]}`,
+        );
+      }
+      reasons.push('catalog');
     }
 
     // The two generated files. Both are read as the design system, and
@@ -159,6 +213,7 @@ export function inspectPin(dir, { manifest, pluginVersion }) {
         status: 'ok',
         details,
         brief: null,
+        reasons,
         repairable: false,
         pluginVersion: prev.pluginVersion,
         capturedAt: prev.capturedAt,
@@ -193,6 +248,15 @@ export function inspectPin(dir, { manifest, pluginVersion }) {
         'hook-missing',
         `This project's Pushpin edit check is recorded as installed but no longer runs — ${REMEDY}.`,
       ],
+      // Above `plugin`, and the one brief in this list that does not send the
+      // reader to init. It outranks the version finding because init is how the
+      // version finding is settled, and a plain `--write --force` rewrites the
+      // catalog dates too — so a reader sent to init first answers one finding
+      // and erases the other without looking at the project.
+      [
+        'catalog',
+        `Pushpin's component catalogs have moved since this project was pinned, so a component it declares may have been restyled or lost a variant it uses — running update over the project is the first thing I'd do.`,
+      ],
       [
         'plugin',
         `This project's Pushpin files were written by ${prev.pluginVersion} and the plugin is now ${pluginVersion} — ${REMEDY}.`,
@@ -225,6 +289,7 @@ export function inspectPin(dir, { manifest, pluginVersion }) {
       status: 'stale',
       details,
       brief,
+      reasons,
       repairable: reasons.every((r) => REPAIRABLE.has(r)),
       pluginVersion: prev.pluginVersion,
       capturedAt: prev.capturedAt,
@@ -234,6 +299,7 @@ export function inspectPin(dir, { manifest, pluginVersion }) {
       status: 'unreadable',
       details: ['pushpin.config.json could not be parsed'],
       brief: `This project's pushpin.config.json could not be parsed — re-running init with --write --force is the first thing I'd do.`,
+      reasons: [],
       repairable: false,
     };
   }

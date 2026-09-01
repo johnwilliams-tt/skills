@@ -31,7 +31,7 @@ import { GUARD_FLAG, hookCommands, PREVIEW_FLAG, SHIM_REL, withoutHook } from '.
 import { ALLOWED_SCRIPTS, allowRules, SETTINGS_REL } from './lib/permissions.mjs';
 import { DEFAULT_PORT, previewUrl } from './lib/preview.mjs';
 import { describeStack, detectStack } from './lib/project.mjs';
-import { inspectPin } from './pin.mjs';
+import { catalogPins, inspectPin } from './pin.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const ASSETS = join(here, '..', 'assets');
@@ -186,7 +186,8 @@ const skipped = [];
 // declining to overwrite. A silently outdated stylesheet is the failure this
 // whole plugin exists to prevent. Same comparison freshness.mjs uses on
 // session start, so the two cannot disagree about whether the pin is current.
-const stale = inspectPin(target, { manifest: MANIFEST, pluginVersion: PLUGIN.version })?.details ?? [];
+const before = inspectPin(target, { manifest: MANIFEST, pluginVersion: PLUGIN.version });
+const stale = before?.details ?? [];
 
 function planFile(rel, describe, writeFn) {
   const abs = join(target, rel);
@@ -227,10 +228,16 @@ planFile('pushpin.config.json', 'Figma keys and the capture this project is pinn
           'came from — compare them against the plugin to find out if it is behind. ' +
           '`designHash` and `sidecarHash` are what the plugin build of the two generated ' +
           'files hashes to, which is what lets an overwrite of either be noticed. ' +
+          '`componentsCapturedAt` and `specsCapturedAt` are the latest date each component ' +
+          'catalog carries — the catalogs move on their own clocks, and when they move, a ' +
+          'component this project declares may have been restyled or lost a variant. ' +
           '`preview` is where the prototype is served and whether Pushpin may start it.',
         designSystem: 'pushpin',
         pluginVersion: PLUGIN.version,
         capturedAt: MANIFEST.capturedAt,
+        // Spread rather than named here so the keys written are the keys
+        // pin.mjs compares, from the one function that knows both.
+        ...catalogPins(),
         css: './' + cssPath.split('\\').join('/'),
         cssHash: MANIFEST.hashes['pushpin.css'],
         designHash,
@@ -746,6 +753,18 @@ if (WRITE && plan.length) {
     next.push(
       `Thumbtack Rise is not installed on this machine — install it, or point\n` +
         `     --pp-font-family at something else.`,
+    );
+  }
+
+  // A catalog finding is cleared by this write rather than answered by it: the
+  // config is rewritten with the plugin's dates, and nothing here has looked at
+  // what the project builds out of the components that moved. Saying so is the
+  // difference between a repair and a finding that quietly stopped reporting.
+  if (before?.reasons?.includes('catalog')) {
+    next.push(
+      `The component catalogs moved since this project was pinned, and this run only\n` +
+        `     recorded the new dates. Sweep the project for components that were restyled\n` +
+        `     or lost a variant: node "${join(here, 'update.mjs')}"`,
     );
   }
 

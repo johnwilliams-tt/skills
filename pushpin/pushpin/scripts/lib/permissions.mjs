@@ -10,24 +10,37 @@
  * built-in read-only set, and `node` is not in that set, so each `lookup.mjs`
  * call asks — a dozen times while one layout is built. `acceptEdits` does not
  * help: it covers file edits and a fixed list of filesystem commands, nothing
- * else. Pre-approving these five by full path removes the prompts in every mode,
+ * else. Pre-approving these by full path removes the prompts in every mode,
  * which is narrower than asking someone to lower their guard for every tool in
  * every session.
  *
- * Why only these six. Each one is a command an agent runs mid-task in a project
- * that consumes Pushpin — which is why the maintainer's tools beside them are
- * not here, read-only though several are. `init.mjs` is deliberately absent: it
- * is the script that can replace a stylesheet, and the prompt in front of a
- * `--force` is worth keeping.
+ * Why only these seven. Each one is a command an agent runs mid-task in a
+ * project that consumes Pushpin — which is why the maintainer's tools beside
+ * them are not here, read-only though several are. `init.mjs` is deliberately
+ * absent: it is the script that can replace a stylesheet, and the prompt in
+ * front of a `--force` is worth keeping.
  *
- * Two of the six write, and both write only inside `.pushpin/`, to files no
- * person authored and nothing else produces: `setup.mjs` copies into
- * `.pushpin/backups/`, and `refresh.mjs` writes the catalogs it just distilled
- * into `.pushpin/assets/` and removes that same directory under `--clear`. The
- * prompt is worth keeping where a command can destroy work; neither of these
- * can. `refresh.mjs` in particular is invoked in the middle of a re-capture the
- * user asked for, several times in a row, so a prompt per lane would land in
- * the one place it is pure friction.
+ * Two of the seven write inside `.pushpin/` only, to files no person authored
+ * and nothing else produces: `setup.mjs` copies into `.pushpin/backups/`, and
+ * `refresh.mjs` writes the catalogs it just distilled into `.pushpin/assets/`
+ * and removes that same directory under `--clear`. The prompt is worth keeping
+ * where a command can destroy work; neither of these can. `refresh.mjs` in
+ * particular is invoked in the middle of a re-capture the user asked for,
+ * several times in a row, so a prompt per lane would land in the one place it
+ * is pure friction.
+ *
+ * `update.mjs` is a real widening and is not filed with those two. Under
+ * `--write` or `--resolve` it edits the project's own source — a fill in a
+ * stylesheet, a variant option in markup somebody wrote — and it calls
+ * `init --write --force` to bring the pin current afterwards, which is the very
+ * command left off this list. It is here because the alternative is worse: the
+ * script is handed over as a `fix:` line at session start, its default mode
+ * writes nothing at all, and a prompt in front of the report is a prompt in
+ * front of the one form that cannot change anything. What guards the writing
+ * halves is the shape of the command rather than the prompt — the report comes
+ * first, every mechanical value is confirmed against the file before it is
+ * replaced, every judgement call is put to the user by number, and a `--force`
+ * init is withheld where the pin says a file was hand-edited.
  */
 
 import { existsSync, readFileSync } from 'node:fs';
@@ -44,6 +57,7 @@ export const ALLOWED_SCRIPTS = [
   'lookup.mjs',
   'refresh.mjs',
   'setup.mjs',
+  'update.mjs',
 ];
 
 const SCRIPTS = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -53,7 +67,7 @@ const SCRIPTS = resolve(dirname(fileURLToPath(import.meta.url)), '..');
  *
  * Full paths rather than `Bash(node *)`: a wildcard there would approve
  * arbitrary code execution, which is not a plugin's to grant on someone's
- * behalf. These name five files this plugin ships and nothing else.
+ * behalf. These name files this plugin ships and nothing else.
  *
  * A trailing ` *` also matches end-of-string, so one rule covers both the bare
  * invocation and any arguments. A path holding a space cannot be typed

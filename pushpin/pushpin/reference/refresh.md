@@ -96,8 +96,21 @@ quietly:
 
 **Commit it.** It is a fact about the kit, not about your machine, and everyone
 on the project should be reading the same catalog. The rest of `.pushpin/` is
-machine-local — `preview.pid`, `preview.log`, `backups/` — so gitignore those
-rather than the directory.
+machine-local — `preview.pid`, `preview.log`, `backups/`, `update.json` — so
+gitignore those rather than the directory.
+
+**Then hold the project against it.** A re-capture repairs what this project
+reads and changes nothing it has already built, so the markup that was written
+against the old catalog is still there — declaring a theme that has been deleted,
+painting a fill that has moved. Nothing in `pushpin.config.json` records a
+capture you took yourself, so no pin finding will raise it either:
+
+```bash
+node ${CLAUDE_SKILL_DIR}/scripts/update.mjs
+```
+
+That sweep is [update.md](update.md). It reports first and writes nothing until
+`--write`.
 
 ## When it expires
 

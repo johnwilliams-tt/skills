@@ -184,9 +184,20 @@ const findings = [];
  * `copy` is a finding from the engine, whose rubric code and tier ride along.
  * The other two classes have neither, so carrying the code is also how the
  * report tells a copy finding apart from the rest.
+ *
+ * `fix` is where the value a finding is about actually sits, for the callers
+ * that go on to write it. Nothing printed reads it — it exists only in `--json`,
+ * and only the fidelity check has one to give.
  */
-const add = (file, line, rule, message, copy = null) =>
-  findings.push({ file, line, rule, message, ...(copy && { code: copy.code, severity: copy.severity }) });
+const add = (file, line, rule, message, copy = null, fix = null) =>
+  findings.push({
+    file,
+    line,
+    rule,
+    message,
+    ...(copy && { code: copy.code, severity: copy.severity }),
+    ...(fix && { fix }),
+  });
 
 const isCopyFinding = (f) => Boolean(f.code);
 const isCritical = (f) => f.severity === 'critical';
@@ -314,7 +325,12 @@ function checkIdentity(file, src) {
           `data-pp-component="${name}" is not in the catalog${near ? ` — did you mean "${near}"?` : ''}`);
       } else {
         const variants = attrs.match(/data-pp-variant\s*=\s*["'{]?\s*["']([^"']+)/);
-        if (variants) checkVariants(file, line, name, entry, variants[1], attrs);
+        // Attributes open where the tag name ends, which is what turns an
+        // offset inside them into an offset in the file.
+        if (variants) {
+          checkVariants(file, line, name, entry, variants[1], attrs,
+            { file, src, base: m.index + 1 + tag.length });
+        }
       }
     }
 
@@ -351,7 +367,7 @@ function lookalikeSignals(tag, attrs) {
   return out;
 }
 
-function checkVariants(file, line, name, entry, spec, attrs) {
+function checkVariants(file, line, name, entry, spec, attrs, where) {
   let valid = true;
   for (const pair of spec.split(',')) {
     const [k, v] = pair.split('=').map((x) => x?.trim());
@@ -371,7 +387,7 @@ function checkVariants(file, line, name, entry, spec, attrs) {
   // A selector that names something unpublished has already been reported, and
   // measuring a declaration against a variant that does not exist would report
   // the same mistake a second time in a more confusing form.
-  if (valid) checkFidelity(file, line, name, spec, attrs);
+  if (valid) checkFidelity(file, line, name, spec, attrs, where);
 }
 
 // -------------------------------------------------------- declared fidelity
@@ -390,6 +406,11 @@ function checkVariants(file, line, name, entry, spec, attrs) {
  * the scanned files. Everything else is silence, the same discipline the copy
  * check holds: a fidelity check that guesses at a computed class name is one
  * people switch off, and then it reports nothing at all.
+ *
+ * Each of the three carries where its value sits, so a caller holding a finding
+ * can replace the value rather than re-deriving which of the three it came
+ * from. A class rule's value lives in the stylesheet, not in the file the tag
+ * is in, which is why the range names its own file.
  */
 const specs = loadSpecs();
 
@@ -406,7 +427,7 @@ const CLASS_RULES = [];
 
 const CLASS_ONLY = /^(?:\.[-\w]+)+$/;
 
-/** Every `{…}` block with its prelude and the at-rules it sits inside. */
+/** Every `{…}` block with its prelude, the at-rules it sits inside, and where its body starts. */
 function eachBlock(s, fn) {
   const stack = [];
   let start = 0;
@@ -416,17 +437,23 @@ function eachBlock(s, fn) {
       start = i + 1;
     } else if (s[i] === '}') {
       const prelude = stack.pop();
-      if (prelude !== undefined) fn(stack, prelude, s.slice(start, i));
+      if (prelude !== undefined) fn(stack, prelude, s.slice(start, i), start);
       start = i + 1;
     }
   }
 }
 
-function indexStylesheet(src) {
-  eachBlock(mask(src), (ancestors, prelude, body) => {
+/**
+ * @param {string} file as the report names it
+ * @param {string} src the whole file, unmasked, which is what a range indexes
+ * @param {number} from where the CSS begins — past `<style>` in a single-file component
+ * @param {number} to where it ends
+ */
+function indexStylesheet(file, src, from = 0, to = src.length) {
+  eachBlock(mask(src.slice(from, to)), (ancestors, prelude, body, at) => {
     if (prelude.startsWith('@') || body.includes('{')) return;
     if (ancestors.some((a) => a.startsWith('@'))) return;
-    const decls = parseDecls(body);
+    const decls = parseDecls(body, { file, src, base: from + at, syntax: 'css' });
     if (!decls.size) return;
     for (const sel of prelude.split(',')) {
       const one = sel.trim();
@@ -436,15 +463,47 @@ function indexStylesheet(src) {
   });
 }
 
+/**
+ * A declaration with the span its value occupies, confirmed against the file.
+ *
+ * Every parse here reads masked text, where a comment and a `url()` are spaces.
+ * Positions survive that, but content does not: a span whose masked reading and
+ * whose real reading differ holds something the parse never saw, and an offset
+ * into it is a guess. A guess costs a caller that only reports nothing and a
+ * caller that writes the file it was reporting on, so such a declaration keeps
+ * its value and loses its range.
+ *
+ * `raw` is the file's own text across the span, not the value as compared —
+ * `style={{ height: 40 }}` compares as `40px` and is written as `40`.
+ */
+function located(where, value, raw, at) {
+  const start = where.base + at;
+  const fits = where.src.slice(start, start + raw.length) === raw;
+  return {
+    value,
+    raw,
+    file: where.file,
+    syntax: where.syntax,
+    start: fits ? start : null,
+    end: fits ? start + raw.length : null,
+  };
+}
+
 /** `a: b; c: d` as a map, last declaration winning as the cascade does. */
-function parseDecls(body) {
+function parseDecls(body, where) {
   const out = new Map();
+  let from = 0;
   for (const part of body.split(';')) {
-    const at = part.indexOf(':');
-    if (at < 1) continue;
-    const prop = part.slice(0, at).trim().toLowerCase();
-    const value = part.slice(at + 1).trim();
-    if (/^[-a-z]+$/.test(prop) && value) out.set(prop, value);
+    const start = from;
+    from += part.length + 1;
+    const colon = part.indexOf(':');
+    if (colon < 1) continue;
+    const prop = part.slice(0, colon).trim().toLowerCase();
+    const raw = part.slice(colon + 1);
+    const value = raw.trim();
+    if (!/^[-a-z]+$/.test(prop) || !value) continue;
+    const at = start + colon + 1 + (raw.length - raw.trimStart().length);
+    out.set(prop, located(where, value, value, at));
   }
   return out;
 }
@@ -454,19 +513,29 @@ const KEBAB = (k) => k.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
 /**
  * A `style={{…}}` prop. React writes a bare number as pixels, so a `height: 40`
  * there means the same thing as `height: 40px` in a stylesheet.
+ *
+ * The span kept is the whole literal, quotes included, because what sits there
+ * is a JavaScript expression: a caller replacing `40` with `8px` has to write
+ * the quotes, and a caller replacing `'#fff'` has to keep them.
  */
-function parseStyleObject(text) {
+function parseStyleObject(text, where) {
   const out = new Map();
   for (const m of text.matchAll(/([A-Za-z][\w]*|'[^']+'|"[^"]+")\s*:\s*('[^']*'|"[^"]*"|[-\d.]+)/g)) {
     const key = KEBAB(m[1].replace(/['"]/g, ''));
     const raw = m[2];
-    out.set(key, /^['"]/.test(raw) ? raw.slice(1, -1) : `${raw}px`);
+    const value = /^['"]/.test(raw) ? raw.slice(1, -1) : `${raw}px`;
+    out.set(key, located(where, value, raw, m.index + m[0].length - raw.length));
   }
   return out;
 }
 
-/** Every declaration reachable for one tag, in cascade order. */
-function declarationsFor(attrs) {
+/**
+ * Every declaration reachable for one tag, in cascade order.
+ *
+ * `where` positions `attrs` inside its file. A class rule brings its own, since
+ * the stylesheet it came from is usually not this file.
+ */
+function declarationsFor(attrs, where) {
   const out = new Map();
   const classes = attrs.match(/\bclass(?:Name)?\s*=\s*["']([^"']*)["']/);
   if (classes) {
@@ -476,9 +545,15 @@ function declarationsFor(attrs) {
     }
   }
   const inline = attrs.match(/\bstyle\s*=\s*["']([^"']*)["']/);
-  if (inline) for (const [k, v] of parseDecls(inline[1])) out.set(k, v);
+  if (inline) {
+    const at = where.base + inline.index + inline[0].length - inline[1].length - 1;
+    for (const [k, v] of parseDecls(inline[1], { ...where, base: at, syntax: 'css' })) out.set(k, v);
+  }
   const obj = attrs.match(/\bstyle\s*=\s*\{\{([\s\S]*?)\}\}/);
-  if (obj) for (const [k, v] of parseStyleObject(obj[1])) out.set(k, v);
+  if (obj) {
+    const at = where.base + obj.index + obj[0].length - obj[1].length - 2;
+    for (const [k, v] of parseStyleObject(obj[1], { ...where, base: at, syntax: 'js' })) out.set(k, v);
+  }
   return out;
 }
 
@@ -557,7 +632,44 @@ const kitValue = (want, kind) =>
     ? `var(${want.css})${want.literal === null ? '' : ` (${want.literal}${kind === 'length' ? 'px' : ''})`}`
     : `${want.literal}${kind === 'length' && typeof want.literal === 'number' ? 'px' : ''}`;
 
-function checkFidelity(file, line, name, selector, attrs) {
+/** The same value as something writable: the token name where there is one. */
+const kitText = (want, kind) =>
+  want.css
+    ? `var(${want.css})`
+    : `${want.literal}${kind === 'length' && typeof want.literal === 'number' ? 'px' : ''}`;
+
+/**
+ * A drift as an edit: the span holding the value, and what belongs there.
+ *
+ * `current` is there so a writer can confirm the span before replacing it. A
+ * report and the write that acts on it are two runs, and an offset taken in the
+ * first is the one thing that cannot be re-derived once an edit in between has
+ * moved it.
+ *
+ * `want` is already in the span's own syntax, since a `style={{…}}` span holds
+ * a JavaScript expression and everything else holds a bare CSS value. Where the
+ * span could not be confirmed the offsets and `current` are all null together
+ * and `why` says what happened — the drift is still worth reporting, it is just
+ * not one to write.
+ */
+function fixFor(decl, prop, want, kind) {
+  const text = kitText(want, kind);
+  const known = decl.start !== null;
+  return {
+    file: decl.file,
+    start: decl.start,
+    end: decl.end,
+    syntax: decl.syntax,
+    property: prop,
+    current: known ? decl.raw : null,
+    want: decl.syntax === 'js' ? JSON.stringify(text) : text,
+    ...(!known && {
+      why: 'the file does not read the same across the value, so no range is offered',
+    }),
+  };
+}
+
+function checkFidelity(file, line, name, selector, attrs, where) {
   if (!specs || !attrs) return;
   const set = specs.components?.[name];
   if (!set) return;
@@ -567,7 +679,7 @@ function checkFidelity(file, line, name, selector, attrs) {
   const variant = pairs.length ? variantForAll(set, pairs) : restingVariant(set);
   if (!variant) return;
 
-  const declared = declarationsFor(attrs);
+  const declared = declarationsFor(attrs, where);
   if (!declared.size) return;
 
   for (const [prop, field, kind] of FIDELITY) {
@@ -575,9 +687,11 @@ function checkFidelity(file, line, name, selector, attrs) {
     if (decl === undefined) continue;
     const want = wantOf(variant, field);
     if (!want) continue;
-    if (agrees(decl, want, kind) !== false) continue;
+    if (agrees(decl.value, want, kind) !== false) continue;
     add(file, line, 'variant-drift',
-      `${name} ${selector} declares ${prop}: ${decl.trim()} — the kit's is ${kitValue(want, kind)}`);
+      `${name} ${selector} declares ${prop}: ${decl.value.trim()} — the kit's is ${kitValue(want, kind)}`,
+      null,
+      fixFor(decl, prop, want, kind));
   }
 }
 
@@ -625,12 +739,18 @@ for (const file of files) {
   const src = readFileSync(file, 'utf8');
   if (isGenerated(file, src)) continue;
   const r = relative(ROOT, file);
-  sources.push([file, !r || r.startsWith('..') ? file : r, src]);
+  const rel = !r || r.startsWith('..') ? file : r;
+  sources.push([file, rel, src]);
 
   const ext = extname(file);
-  if (STYLE_EXT.has(ext)) indexStylesheet(src);
+  if (STYLE_EXT.has(ext)) indexStylesheet(rel, src);
   else if (EMBEDS_STYLE.has(ext)) {
-    for (const m of src.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)) indexStylesheet(m[1]);
+    // `[^>]*` cannot run past the opening tag, so the first `>` in the match is
+    // the one the CSS starts after.
+    for (const m of src.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)) {
+      const from = m.index + m[0].indexOf('>') + 1;
+      indexStylesheet(rel, src, from, from + m[1].length);
+    }
   }
 }
 

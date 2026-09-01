@@ -67,9 +67,20 @@ const within = (root, p) => p === root || p.startsWith(root + sep);
  * advances the file without advancing `extractedAt`. Reading the older of the
  * two would date a capture taken today as weeks old and report it as superseded
  * by the very catalog it was taken to replace.
+ *
+ * The spec catalog is captured a page at a time and dates each page in
+ * `source.pageCaptures`, so that map is folded in on the same rule. Deliberately
+ * its latest date and not its oldest: the oldest is the file's age, which is a
+ * different question, and a value that only moves once the last stale page is
+ * re-read would sit still through exactly the single-page recapture this date
+ * exists to notice.
  */
 export function captureDate(doc) {
-  const dates = [doc?.source?.extractedAt, doc?.source?.propertiesCapturedAt].filter(Boolean);
+  const dates = [
+    doc?.source?.extractedAt,
+    doc?.source?.propertiesCapturedAt,
+    ...Object.values(doc?.source?.pageCaptures ?? {}),
+  ].filter(Boolean);
   return dates.length ? dates.sort().pop() : null;
 }
 

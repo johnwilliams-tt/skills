@@ -1,8 +1,8 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.19.0
-argument-hint: "[generate|audit|figma · setup|init|freshness · refresh] [target]"
+version: 0.20.0
+argument-hint: "[generate|audit|figma · setup|init|update|freshness · refresh] [target]"
 allowed-tools:
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/check.mjs *)
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/copy.mjs *)
@@ -10,6 +10,7 @@ allowed-tools:
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/lookup.mjs *)
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/refresh.mjs *)
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/setup.mjs *)
+  - Bash(node ${CLAUDE_SKILL_DIR}/scripts/update.mjs *)
   - Bash(node .pushpin/pushpin-check.mjs *)
 ---
 
@@ -120,7 +121,7 @@ create a file, start in a scratch one, or build and offer to move it — see
 
 ## Routing
 
-Seven commands, and after `setup` none of them need typing — the left column
+Eight commands, and after `setup` none of them need typing — the left column
 covers the same ground from plain speech. Load one doc, not the table.
 
 | The request sounds like | Load |
@@ -132,6 +133,7 @@ covers the same ground from plain speech. Load one doc, not the table.
 | **`figma`** — a figma.com link where code is the goal, "build this screen" | [figma.md](reference/figma.md) |
 | **`setup`** — "set this repo up", "start a project", no `pushpin.config.json`. Once per project | [setup.md](reference/setup.md) |
 | **`init`** — re-run, repair, or update a project already set up | [init.md](reference/init.md) |
+| **`update`** — "Pushpin moved, bring this project current", a component that was restyled or lost a variant this project declares, a catalog finding at session start | [update.md](reference/update.md) |
 | **`freshness`** — "can I trust this", "when was this captured" | [maintaining.md](reference/maintaining.md) |
 | **`refresh`** — "this component is wrong", `setProperties` threw, a variant option the kit no longer offers. One project, blocked today | [refresh.md](reference/refresh.md) |
 | **`refresh`** in the plugin's own checkout — "Pushpin shipped a release", the kit moved, `freshness` exited non-zero | [maintaining.md](reference/maintaining.md) |
@@ -160,6 +162,14 @@ covers the same ground from plain speech. Load one doc, not the table.
   [maintaining.md](reference/maintaining.md). Running the maintainer lane from a
   consuming project writes into a plugin cache directory the host deletes on the
   next update, so the work is lost silently.
+- **`init` repairs the plumbing; `update` reconciles the work.** init replaces
+  the stylesheet and the generated files and rewrites the pin, having looked at
+  nothing the project is built out of. `update` holds every component the
+  project declares against the catalog it now reads, writes the values whose
+  replacement is not a decision, and puts a variant the kit has deleted to the
+  user by number. That is why a catalog finding at session start hands over
+  `update` and not init: init would retire the finding without comparing
+  anything. It reports and writes nothing until `--write`.
 - **A flow is not a screen.** "Send this flow to Figma" fits the `generate` row
   word for word and is the flows row anyway, because a catalog has an arrangement
   `generate.md` does not describe. It is the one row that loads a second doc:

@@ -254,6 +254,15 @@ three, with `--force` where the file it has to replace is still there. A row
 confirming that a file is where setup just put it is not news to the person who
 just ran setup.
 
+**One pin finding is not init's to settle.** Where the pin is behind on the
+component catalogs, `init --force` rewrites the recorded dates and compares
+nothing, so the finding disappears without the project's declared components
+having been held against the catalog that moved. Run
+[update.md](update.md) there instead — it sweeps first and brings the pin
+current afterwards, in that order and for that reason. Setting a project up for
+the first time never reaches this; a `setup` over a project that has been
+running for a release or two does.
+
 Two states look like health, and neither gets softened into one. A project set
 up before the generated-file hashes existed is genuinely working and genuinely
 unprotected, and it is not even a fault: the row is marked `--`, the command

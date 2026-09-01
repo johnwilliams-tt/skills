@@ -435,6 +435,23 @@ const repair = pin?.repairable
   : null;
 if (repair) report.fix.push(repair);
 
+/**
+ * The pin finding init cannot settle, handed over the same way.
+ *
+ * A catalog that moved changes what the project's own markup is held against,
+ * and there is nothing in `pushpin.config.json` to repair — rewriting the dates
+ * would retire the finding without a declared component having been compared to
+ * anything. `update` is the sweep that answers it, and it reports before it
+ * writes, so handing it over costs the session a report rather than an edit.
+ *
+ * Never both this and `repair`: `catalog` is outside the repairable set, so a
+ * pin carrying it is not repairable.
+ */
+const sweep = pin?.reasons?.includes('catalog')
+  ? `node "${join(here, 'update.mjs')}"`
+  : null;
+if (sweep) report.fix.push(sweep);
+
 // -------------------------------------------------------------- live evidence
 
 const token = process.env.FIGMA_TOKEN;
@@ -918,7 +935,13 @@ if (session) {
   // A finding the fix settles is not also spoken. Saying "this project's edit
   // check is missing" and then repairing it in the same breath is two lines
   // where the right number is none.
-  const say = repair ? report.brief.filter((b) => b !== pin.brief) : report.brief;
+  //
+  // `repair` settles the pin's whole sentence by construction, since every
+  // reason behind it is repairable. `sweep` only answers the catalog reason, so
+  // a pin carrying anything else keeps its sentence — the brief it spoke is
+  // about the finding update does not touch.
+  const settled = repair || (sweep && pin.reasons.every((r) => r === 'catalog'));
+  const say = settled ? report.brief.filter((b) => b !== pin.brief) : report.brief;
   for (const f of report.fix) console.log(`fix: ${f}`);
   for (const s of say) console.log(`say: ${s}`);
   process.exit(0);

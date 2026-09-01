@@ -16,6 +16,126 @@ Changes are grouped the way `diff.mjs` classifies them:
 An entry about the plugin rather than the capture adds **Fixed** for a bug in
 the toolchain, which `diff.mjs` has no category for.
 
+## 0.20.0 — 2026-09-01
+
+`/pushpin update`: one verb for "the design system moved, bring me current". The
+detection it runs on already existed and never ran. `check.mjs` has held a
+declared tag against the variant it names since the fidelity check landed — fill,
+border, radius, padding, height, colour, font size — and nothing triggered that
+sweep after a republish, no pin field could tell when one was warranted, and a
+finding was not addressable enough to fix in code. So when Button lost `subtle`,
+`solid`, `xlarge`, `medium` and `xxlarge` in 0.18.0, every project declaring one
+of them kept passing every check in the repo, and the loudest thing anyone saw
+was a sentence about the plugin's version number.
+
+**Added**
+
+- **`scripts/update.mjs`, which reconciles the components a project declares
+  against the catalog it now reads.** Three forms: the default reports and writes
+  nothing, `--write` applies the fixes whose replacement is not a decision and
+  numbers the rest, `--resolve '{"1":"secondary"}'` writes picked answers back —
+  the same JSON-object spelling `copy.mjs --apply` takes, for the same reason.
+  The default has to be silent because `freshness.mjs` hands the command over as
+  a `fix:` line at session start, and a session start that rewrites project
+  source unasked is not a repair.
+
+  The split down the middle is mechanical against judgement. A fill that moved
+  to another token, a radius, a padding, a border width — the kit's value is
+  knowable and the substitute is unambiguous, so it is written. A variant that
+  was deleted is a design decision: whether a `subtle` button becomes
+  `secondary` or `tertiary` is not this script's to make, so it becomes a
+  numbered row and the answer comes back from the user. Three write targets, and
+  a class rule announces itself, because the span is right and its reach is
+  wider than the finding that named it.
+
+  Numbers survive between the two calls or they refuse. `--write` records what
+  each row was and a hash of every file a row would write to in
+  `.pushpin/update.json`; `--resolve` re-derives the questions from the project
+  as it stands and refuses unless both agree, because a row number that has
+  stopped meaning what it meant is the one failure a questionnaire produces that
+  the reader cannot see. Undeclared markup is out of scope and says so with a
+  count rather than implying coverage — it names no component, so no captured
+  variant is attached to it. See
+  [pushpin/reference/update.md](pushpin/reference/update.md).
+
+- **A `variant-drift` finding is addressable.** `check.mjs` carried where a
+  declared value came from as far as the comparison and discarded it, so a report
+  said `background-color: #ffffff` disagreed with the kit and left the reader to
+  find it. Provenance — file, and the confirmed span the value occupies — now
+  runs through `indexStylesheet`, `declarationsFor` and into a `fix` payload on
+  the `--json` finding: `{ file, start, end, syntax, property, current, want }`.
+  Nothing about the reporting changed; the payload is additive and only the
+  fidelity check has one to give.
+
+  Two of its properties are what make a second process safe to write from.
+  `fix.file` is not `finding.file` — a class-rule drift is reported at the tag
+  and fixed in the stylesheet — and `want` is already in the span's own syntax,
+  since a `style={{…}}` span holds a JavaScript expression and everything else
+  holds a bare CSS value. A span whose masked reading and whose real reading
+  differ holds something the parse never saw, so it keeps its value, loses its
+  offsets, and says why: an offset that cannot be confirmed costs a reporter
+  nothing and costs a writer the file.
+
+- **The pin knows about the two component catalogs.** `pushpin.config.json`
+  gained `componentsCapturedAt` and `specsCapturedAt`, written from the same
+  exported `catalogPins()` that `pin.mjs` compares them with, so the value
+  written and the comparison cannot drift apart. `capturedAt` is the tokens' date
+  and moves on its own clock; a republished component moves neither it nor the
+  stylesheet hash, which is why nothing before this could see the change that
+  actually restyles a project's markup.
+
+  The new `catalog` reason is deliberately **not** repairable. `init --write
+  --force` rewrites the recorded dates and looks at nothing the project is built
+  out of, so it would retire the finding without a single declared component
+  having been held against the catalog that moved — and `freshness.mjs` hands
+  over the sweep for that reason, ranked above the version finding so a reader is
+  not sent to init first and left answering one finding while erasing the other.
+  `init` itself now says the same thing on the way out, where a `--write` cleared
+  a catalog finding it did not answer.
+
+**Changed**
+
+- **`update.mjs` joins the scripts `init` pre-approves, and it is the first one
+  that writes a project's own source.** Seven now. The other six either only read
+  or write inside `.pushpin/`, to files no person authored; this one edits markup
+  and stylesheets somebody wrote and calls `init --write --force` afterwards,
+  which is the command deliberately left off that list. It is pre-approved
+  because the report is the form that actually gets run, and a prompt in front of
+  a read-only report is a prompt in front of the only form that cannot change
+  anything. The widening is stated in `lib/permissions.mjs` and in
+  [pushpin/reference/init.md](pushpin/reference/init.md) rather than slipped in.
+
+- **`update` runs `init` after the sweep and never before it**, replaying what
+  the project already chose — `--no-hook`, `--no-preview`, a recorded preview
+  port — so a run meant to bring a pin current cannot install a hook the project
+  declined. Where the pin says a file was hand-edited the step is withheld and
+  the command printed instead: `--force` replaces those files, and a repair that
+  deletes somebody's work is not one.
+
+- **A project reading its own re-captured catalog is swept too.**
+  `refresh.mjs` writes into `.pushpin/assets/` and touches `pushpin.config.json`
+  not at all, so a project that re-captured for itself reads a newer catalog than
+  the one it is pinned to and no `catalog` finding fires. `update` compares the
+  recorded date against the catalog actually in force rather than against the
+  plugin's, names which of the two moved, and says plainly that the line stands
+  until the plugin ships a capture at least as new, because there is no pin field
+  for a capture a project took itself.
+
+- `SKILL.md` carries an `update` row above `freshness` and `refresh`, and the
+  count in front of the routing table is eight. `refresh.md`, `init.md`,
+  `setup.md` and `maintaining.md` each hand over to it where they used to end: a
+  re-capture repairs what a project reads and changes nothing it has already
+  built, and a release is not the end of a component change in the projects
+  declaring one.
+
+**Fixed**
+
+- **`captureDate` folds in `source.pageCaptures`**, so a single-page spec
+  re-capture advances the date it should. The spec catalog is captured a page at a
+  time and only `extractedAt` and `propertiesCapturedAt` were being read, which
+  dated a lane captured today by whenever the whole file was last distilled — and
+  that date is now what a pin and an overlay are both compared against.
+
 ## 0.19.0 — 2026-09-01
 
 Three changes, all answering the same gap: the kit republishes on its own
