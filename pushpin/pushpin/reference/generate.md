@@ -177,22 +177,21 @@ This is the published Button:
 
 | Property | Type | Values |
 |---|---|---|
-| `theme` | VARIANT | `primary` `secondary` `tertiary` `subtle` `caution` `alert` `solid` `link` |
-| `size` | VARIANT | `xlarge` `small` `medium` `large` `xxlarge` |
-| `isFullWidth` | VARIANT | `false` `true` — strings, not booleans |
+| `theme` | VARIANT | `primary` `secondary` `tertiary` `link` `caution` `alert` |
+| `size` | VARIANT | `large` `small` |
+| `isFullWidth` | VARIANT | `true` `false` — strings, not booleans |
 | `isDisabled` | VARIANT | `false` `true` |
 | `isLoading` | VARIANT | `false` `true` |
 | `State` | VARIANT | `default` `hover` `pressed` |
-| `Platform` | VARIANT | `Native & Mobile` |
 | `Label` | TEXT | |
-| `👁️ icon (left)` | BOOLEAN | |
+| `👁️ Icon (left)` | BOOLEAN | |
 | `👁️ iconRight` | BOOLEAN | |
-| `Icon Left` / `Icon Right` | INSTANCE_SWAP | |
+| `icon` / `iconRight` | INSTANCE_SWAP | |
 
 Two traps live in that table.
 
 **VARIANT properties take bare names; everything else takes a suffixed key.**
-`theme` is `theme`, but `Label` is `Label#13326:0`. Passing the bare name for a
+`theme` is `theme`, but `Label` is `Label#35422:0`. Passing the bare name for a
 TEXT, BOOLEAN, or INSTANCE_SWAP property throws — resolve it with `idFor` from
 [Property ids come off the imported node](#property-ids-come-off-the-imported-node).
 
@@ -201,15 +200,15 @@ button.setProperties({
   theme: 'primary',            // VARIANT — bare name
   size: 'large',
   isFullWidth: 'true',         // VARIANT boolean — the STRING 'true'
-  'Label#13326:0': 'Get estimates',   // TEXT — suffixed key
+  'Label#35422:0': 'Get estimates',   // TEXT — suffixed key
 });
 ```
 
 **VARIANT booleans are strings** (`'true'` / `'false'`), while BOOLEAN
 properties take real booleans. Mixing them throws.
 
-**Not every variant combination exists.** Button exposes 8 × 5 × 2 × 2 × 2 × 3
-combinations but publishes only 260 variants. Start from
+**Not every variant combination exists.** Button exposes 6 × 2 × 2 × 2 × 2 × 3
+combinations but publishes only 120 variants. Start from
 `set.defaultVariant.createInstance()` and change a few properties, rather than
 specifying every axis and hoping the combination was built.
 
@@ -245,36 +244,31 @@ modal.setProperties({
 |---|---|---|---|
 | Modal / Promotion | `title#3656:10` | TEXT | `Title` |
 | Modal / Promotion | `description#3656:13` | TEXT | `Description` |
-| Modal / Promotion | `Artwork#7487:0` | INSTANCE_SWAP | `Modal / Promotion / Illustration template / Large` |
+| Modal / Promotion | `artwork#26172:4` | SLOT | |
+| Modal / Promotion | `childern#26172:1` | SLOT | |
 | Modal / Promotion | `grabber?#3754:24` | BOOLEAN | `false` |
 | Modal / Promotion | `indicator?#3754:27` | BOOLEAN | `true` |
 | Modal / Promotion | `pill?#7535:0` | BOOLEAN | `false` |
 | Modal / Promotion | `Breakpoint` | VARIANT | `Large` |
-| Modal / Factory / Main | `Content#4276:0` | INSTANCE_SWAP | `Modal / Factory / Main / Content node` |
+| Modal / Factory / Main | `children#26172:0` | SLOT | |
 
 **The breakpoint sizes the artwork, not the other way round.** `Breakpoint:
-Large` gives the illustration 624×312 and `Small` gives it 390×195, so a swap-in
+Large` gives the illustration 624×312 and `Small` gives it 390×195, so artwork
 drawn at another size is stretched to whichever one the variant is on rather
-than widening the Modal. `Modal / Factory / Main` is a plain `COMPONENT` and its
-`Content` slot is 528×92 — `importComponentByKeyAsync`, no variant to set.
+than widening the Modal. `Modal / Factory / Main` is a plain `COMPONENT` —
+`importComponentByKeyAsync`, no variant to set.
 
 **The Modal's footer Button is a nested instance and answers to Button's own
 keys.** It is not published as a property of the Modal, so it is reached by
-traversal and configured with `setProperties({ 'Label#13326:0': … })` — Button's
+traversal and configured with `setProperties({ 'Label#35422:0': … })` — Button's
 key, on Button's instance. Setting it through the Modal throws, because the
 Modal publishes nothing by that name.
 
-**Ignore the three `SLOT` rows `lookup.mjs` prints.** `childern#26172:1` and
-`artwork#26172:4` on Modal / Promotion, and `children#26172:0` on
-Modal / Factory / Main, all come back with a default of `-1:-1`, which is what a
-property with nothing behind it looks like. Someone has converted both Modals
-from swap-based to slot-based composition inside the Pushpin library file and
-that conversion is not published;
-`importComponentSetByKeyAsync` and `importComponentByKeyAsync` resolve the
-published version, and the published version has no `SLOT` node in it at all —
-zero, in both the Pushpin kit and the Thumbprint UI Kit, searched for with
-`skipInvisibleInstanceChildren` both on and off. A run that goes looking for
-one finds `undefined` and dies on the append.
+**Both Modals compose through `SLOT` properties rather than swaps.**
+`childern#26172:1` (the kit's spelling) and `artwork#26172:4` on
+Modal / Promotion, and `children#26172:0` on Modal / Factory / Main, replaced
+the `Artwork#7487:0` and `Content#4276:0` swaps the library used to publish. A
+call that still passes either of those keys to `setProperties` throws.
 
 ## Stale traversal on a subtree this call created
 
@@ -1069,7 +1063,7 @@ call halfway through a screen. Point the remedy at
 
 ### Property ids come off the imported node
 
-`setProperties` matches the exact id, suffix included — `Label#13326:0`, not
+`setProperties` matches the exact id, suffix included — `Label#35422:0`, not
 `Label` — so a renumbered suffix throws as hard as a deleted property. Variants
 are the exception and take bare names.
 

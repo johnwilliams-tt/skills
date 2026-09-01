@@ -3,15 +3,62 @@
   "source": {
     "fileKey": "VVRGrLgkPRU3vs765d5Q3r",
     "fileName": "Pushpin Thumbprint UI Kit",
-    "extractedAt": "2026-08-21",
-    "pagesRead": 44,
+    "extractedAt": "2026-09-01",
+    "pagesRead": 45,
     "componentsRecorded": 113,
     "componentSets": 95,
     "capPerSet": 24,
-    "realVariantChildren": 1073,
-    "variantsRecorded": 452,
+    "realVariantChildren": 837,
+    "variantsRecorded": 441,
     "setsAtCap": 0,
-    "colorMode": "Light"
+    "colorMode": "Light",
+    "pageCaptures": {
+      "Accordion": "2026-08-21",
+      "Action Sheet": "2026-08-21",
+      "Alert": "2026-08-21",
+      "Additional components": "2026-08-21",
+      "Avatar": "2026-08-21",
+      "Badge": "2026-08-21",
+      "Brand Assets": "2026-08-21",
+      "📌 Button": "2026-08-21",
+      "Button Row": "2026-08-21",
+      "Calendar": "2026-08-21",
+      "Callout": "2026-08-21",
+      "Checkbox": "2026-08-21",
+      "Chip": "2026-08-21",
+      "Carousel": "2026-08-21",
+      "Layouts": "2026-08-21",
+      "Disclosure": "2026-08-21",
+      "📌 Dropdown": "2026-08-21",
+      "Form Note": "2026-08-21",
+      "Horizontal Rule": "2026-08-21",
+      "Icon Button": "2026-09-01",
+      "Fab": "2026-08-21",
+      "Image": "2026-08-21",
+      "Input Row": "2026-08-21",
+      "Label": "2026-08-21",
+      "Link": "2026-09-01",
+      "Loader Dots": "2026-08-21",
+      "Modal": "2026-08-21",
+      "Pill": "2026-08-21",
+      "Popover": "2026-08-21",
+      "Progress Meter": "2026-08-21",
+      "Radio": "2026-08-21",
+      "Segemented Control": "2026-08-21",
+      "Service Card": "2026-08-21",
+      "Slider": "2026-08-21",
+      "Star Rating": "2026-08-21",
+      "Counter": "2026-08-21",
+      "Switch": "2026-08-21",
+      "Tabs": "2026-08-21",
+      "📌 Text Area": "2026-08-21",
+      "📌 Text Input": "2026-08-21",
+      "Tip": "2026-08-21",
+      "Toast": "2026-08-21",
+      "Tooltip": "2026-08-21",
+      "Playground": "2026-08-21",
+      "Button": "2026-09-01"
+    }
   },
   "coverage": {
     "measuredAgainst": "components.figma.json",
@@ -21,30 +68,20 @@
       "_Bubble / Text",
       "_Stamps"
     ],
-    "nameCollisions": [
-      "\"Tabs\" is published twice — kept 13333:125819 on \"Additional components\" (the one the catalog names), dropped 20968:83266 on \"Tabs\""
-    ],
     "coloursMatchingNeitherMode": [
       "Alert theme=Success heading/neutral/default rendered #450a0a, Light #1f2022 / Dark #f5f6f6",
       "Alert theme=Warning heading/neutral/default rendered #450a0a, Light #1f2022 / Dark #f5f6f6",
       "Alert theme=Alert heading/neutral/default rendered #450a0a, Light #1f2022 / Dark #f5f6f6",
       "Alert theme=Info heading/neutral/default rendered #450a0a, Light #1f2022 / Dark #f5f6f6",
       "Alert theme=Neutral heading/neutral/default rendered #450a0a, Light #1f2022 / Dark #f5f6f6",
+      "Button theme=alert border/alert/default rendered #ffffff, Light #dc2626 / Dark #f87171",
+      "Button State=pressed background/brand/strong/pressed rendered #0b516f, Light #07344a / Dark #009fd9",
       "Checkbox isChecked=true Background/Primary/medium [default] rendered #009fd9, Light ? / Dark ?",
-      "Checkbox isIndeterminate=true Background/Primary/medium [default] rendered #009fd9, Light ? / Dark ?"
+      "Checkbox isIndeterminate=true Background/Primary/medium [default] rendered #009fd9, Light ? / Dark ?",
+      "Icon Button State=pressed background/brand/strong/pressed rendered #0b516f, Light #07344a / Dark #009fd9"
     ],
     "captureNotes": [
-      "Bubble / Media: recorded by the capture but not in the component catalog; dropped",
-      "Carousel: The only component set on the Carousel page is named \"Coursel\" in Figma (misspelled); recorded verbatim.",
-      "Core / Safari (Big Sur) / Toolbar / Toolbar Item: recorded by the capture but not in the component catalog; dropped",
-      "Counter: The page is named Counter but its only public component is named Stepper.",
-      "Layouts: Script reported owners=9 but recorded=8: two public owners on this page share a name, so one overwrote the other in the script's own output object. Expected count of 8 matches what was returned.",
-      "Messager / Media modal: recorded by the capture but not in the component catalog; dropped",
-      "Messager Elements / Composer / Image: recorded by the capture but not in the component catalog; dropped",
-      "Popover: The single component set on the Popover page is named \"Popovers\" (plural), not \"Popover\".",
-      "Segemented Control: Page name is misspelled 'Segemented Control' in Figma; the component set inside it is spelled 'Segmented Control'.",
-      "Tabs: Page has 2 public component sets (\"Tab\" and \"Tabs\"), not the 1 expected; both recorded.",
-      "📌 Text Area: Figma page name carries a pushpin emoji prefix; catalogPage is plain 'Text Area'."
+      "Additional components: read under an ONLY list for the three components whose axes moved in the 2026-09-01 republish"
     ]
   },
   "components": {
@@ -2384,74 +2421,64 @@
     },
     "Button": {
       "type": "COMPONENT_SET",
-      "page": "📌 Button",
+      "page": "Button",
       "nodeId": "15239:14108",
       "axes": {
-        "Platform": [
-          "Native & Mobile"
-        ],
         "theme": [
           "primary",
           "secondary",
           "tertiary",
-          "subtle",
+          "link",
           "caution",
-          "alert",
-          "solid",
-          "link"
+          "alert"
         ],
         "size": [
-          "xlarge",
-          "small",
-          "medium",
           "large",
-          "xxlarge"
+          "small"
         ],
         "isFullWidth": [
+          "true",
+          "false"
+        ],
+        "State": [
+          "default",
+          "hover",
+          "pressed"
+        ],
+        "isLoading": [
           "false",
           "true"
         ],
         "isDisabled": [
           "false",
           "true"
-        ],
-        "isLoading": [
-          "false",
-          "true"
-        ],
-        "State": [
-          "default",
-          "hover",
-          "pressed"
         ]
       },
       "defaults": {
-        "Platform": "Native & Mobile",
         "theme": "primary",
-        "size": "xlarge",
+        "size": "large",
         "isFullWidth": "false",
-        "isDisabled": "false",
+        "State": "default",
         "isLoading": "false",
-        "State": "default"
+        "isDisabled": "false"
       },
-      "children": 260,
-      "crossProduct": 960,
-      "recorded": 17,
+      "children": 120,
+      "crossProduct": 288,
+      "recorded": 12,
       "reduced": {
-        "children": 260,
-        "recorded": 17,
+        "children": 120,
+        "recorded": 12,
         "cappedAt": null
       },
       "variants": [
         {
           "for": [
-            "Platform=Native & Mobile",
             "theme=primary",
-            "size=xlarge",
+            "size=large",
             "isFullWidth=false",
-            "isDisabled=false",
+            "State=default",
             "isLoading=false",
-            "State=default"
+            "isDisabled=false"
           ],
           "props": {},
           "fill": [
@@ -2516,136 +2543,6 @@
           },
           "fill": [
             "Tokens / Semantic Colors",
-            "background/neutral/default",
-            "#ffffff"
-          ],
-          "stroke": [
-            "Tokens / Semantic Colors",
-            "border/neutral/default",
-            "#dddee1"
-          ],
-          "strokeWeight": [
-            "Figma / Semantic Dimensions",
-            "Border/inputs",
-            1.5
-          ],
-          "radius": [
-            "Tokens / Corner Radius",
-            "sides",
-            9999
-          ],
-          "size": [
-            88,
-            [
-              "Figma / Semantic Dimensions",
-              "Control Sizes/xl",
-              52
-            ]
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "HUG",
-            "FIXED"
-          ],
-          "gap": [
-            "Tokens / Space",
-            "2",
-            8
-          ],
-          "padding": [
-            12,
-            [
-              "Tokens / Space",
-              "6",
-              24
-            ],
-            12,
-            [
-              "Tokens / Space",
-              "6",
-              24
-            ]
-          ],
-          "text": {
-            "layer": "Label",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "link/brand/default",
-              "#0175a3"
-            ],
-            "style": null,
-            "size": 16
-          }
-        },
-        {
-          "for": [
-            "theme=tertiary"
-          ],
-          "props": {
-            "theme": "tertiary"
-          },
-          "fill": [
-            "Tokens / Semantic Colors",
-            "background/neutral/default",
-            "#ffffff"
-          ],
-          "radius": [
-            "Tokens / Corner Radius",
-            "sides",
-            9999
-          ],
-          "size": [
-            88,
-            [
-              "Figma / Semantic Dimensions",
-              "Control Sizes/xl",
-              52
-            ]
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "HUG",
-            "FIXED"
-          ],
-          "gap": [
-            "Tokens / Space",
-            "2",
-            8
-          ],
-          "padding": [
-            12,
-            [
-              "Tokens / Space",
-              "6",
-              24
-            ],
-            12,
-            [
-              "Tokens / Space",
-              "6",
-              24
-            ]
-          ],
-          "text": {
-            "layer": "Label",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "heading/neutral/default",
-              "#1f2022"
-            ],
-            "style": null,
-            "size": 16
-          }
-        },
-        {
-          "for": [
-            "theme=subtle"
-          ],
-          "props": {
-            "theme": "subtle"
-          },
-          "fill": [
-            "Tokens / Semantic Colors",
             "background/neutral/low",
             "#f5f6f6"
           ],
@@ -2690,7 +2587,7 @@
             "layer": "Label",
             "fill": [
               "Tokens / Semantic Colors",
-              "heading/neutral/default",
+              "text/neutral/default",
               "#1f2022"
             ],
             "style": null,
@@ -2699,165 +2596,15 @@
         },
         {
           "for": [
-            "theme=caution"
+            "theme=tertiary"
           ],
           "props": {
-            "theme": "caution"
+            "theme": "tertiary"
           },
           "fill": [
             "Tokens / Semantic Colors",
             "background/neutral/default",
             "#ffffff"
-          ],
-          "stroke": [
-            "Tokens / Semantic Colors",
-            "border/neutral/default",
-            "#dddee1"
-          ],
-          "strokeWeight": [
-            "Figma / Semantic Dimensions",
-            "Border/inputs",
-            1.5
-          ],
-          "radius": [
-            "Tokens / Corner Radius",
-            "sides",
-            9999
-          ],
-          "size": [
-            88,
-            [
-              "Figma / Semantic Dimensions",
-              "Control Sizes/xl",
-              52
-            ]
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "HUG",
-            "FIXED"
-          ],
-          "gap": [
-            "Tokens / Space",
-            "2",
-            8
-          ],
-          "padding": [
-            12,
-            [
-              "Tokens / Space",
-              "6",
-              24
-            ],
-            12,
-            [
-              "Tokens / Space",
-              "6",
-              24
-            ]
-          ],
-          "text": {
-            "layer": "Label",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "text/alert/medium",
-              "#dc2626"
-            ],
-            "style": null,
-            "size": 16
-          }
-        },
-        {
-          "for": [
-            "theme=alert"
-          ],
-          "props": {
-            "theme": "alert"
-          },
-          "fill": [
-            "Tokens / Semantic Colors",
-            "background/alert/medium",
-            "#dc2626"
-          ],
-          "stroke": [
-            "Tokens / Semantic Colors",
-            "border/alert/default",
-            "#dc2626"
-          ],
-          "strokeWeight": [
-            "Tokens / Semantic Colors",
-            "Controls/Stroke/Width",
-            1.5
-          ],
-          "radius": [
-            "Tokens / Corner Radius",
-            "sides",
-            9999
-          ],
-          "size": [
-            88,
-            [
-              "Figma / Semantic Dimensions",
-              "Control Sizes/xl",
-              52
-            ]
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "HUG",
-            "FIXED"
-          ],
-          "gap": [
-            "Tokens / Space",
-            "2",
-            8
-          ],
-          "padding": [
-            12,
-            [
-              "Tokens / Space",
-              "6",
-              24
-            ],
-            12,
-            [
-              "Tokens / Space",
-              "6",
-              24
-            ]
-          ],
-          "text": {
-            "layer": "Label",
-            "fill": [
-              "Tokens / Base Colors",
-              "system/white",
-              "#ffffff"
-            ],
-            "style": null,
-            "size": 16
-          }
-        },
-        {
-          "for": [
-            "theme=solid"
-          ],
-          "props": {
-            "theme": "solid"
-          },
-          "fill": [
-            "Tokens / Semantic Colors",
-            "background/neutral/default",
-            "#ffffff"
-          ],
-          "stroke": [
-            "Tokens / Semantic Colors",
-            "border/neutral/strong",
-            "#1f2022"
-          ],
-          "strokeWeight": [
-            "Figma / Semantic Dimensions",
-            "Border/inputs",
-            1.5
           ],
           "radius": [
             "Tokens / Corner Radius",
@@ -2952,130 +2699,150 @@
         },
         {
           "for": [
+            "theme=caution"
+          ],
+          "props": {
+            "theme": "caution"
+          },
+          "fill": [
+            "Tokens / Semantic Colors",
+            "background/neutral/default",
+            "#ffffff"
+          ],
+          "stroke": [
+            "Tokens / Semantic Colors",
+            "border/neutral/default",
+            "#dddee1"
+          ],
+          "strokeWeight": [
+            "Figma / Semantic Dimensions",
+            "Border/inputs",
+            1.5
+          ],
+          "radius": [
+            "Tokens / Corner Radius",
+            "sides",
+            9999
+          ],
+          "size": [
+            88,
+            [
+              "Figma / Semantic Dimensions",
+              "Control Sizes/xl",
+              52
+            ]
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "HUG",
+            "FIXED"
+          ],
+          "gap": [
+            "Tokens / Space",
+            "2",
+            8
+          ],
+          "padding": [
+            12,
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            12,
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
+          "text": {
+            "layer": "Label",
+            "fill": [
+              "Tokens / Semantic Colors",
+              "text/alert/medium",
+              "#dc2626"
+            ],
+            "style": null,
+            "size": 16
+          }
+        },
+        {
+          "for": [
+            "theme=alert"
+          ],
+          "props": {
+            "theme": "alert"
+          },
+          "fill": [
+            "Tokens / Semantic Colors",
+            "background/alert/medium",
+            "#dc2626"
+          ],
+          "stroke": [
+            "Tokens / Semantic Colors",
+            "border/alert/default",
+            "#ffffff"
+          ],
+          "strokeWeight": [
+            "Tokens / Semantic Colors",
+            "Controls/Stroke/Width",
+            1.5
+          ],
+          "radius": [
+            "Tokens / Corner Radius",
+            "sides",
+            9999
+          ],
+          "size": [
+            88,
+            [
+              "Figma / Semantic Dimensions",
+              "Control Sizes/xl",
+              52
+            ]
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "HUG",
+            "FIXED"
+          ],
+          "gap": [
+            "Tokens / Space",
+            "2",
+            8
+          ],
+          "padding": [
+            12,
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            12,
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
+          "text": {
+            "layer": "Label",
+            "fill": [
+              "Tokens / Base Colors",
+              "system/white",
+              "#ffffff"
+            ],
+            "style": null,
+            "size": 16
+          }
+        },
+        {
+          "for": [
             "size=small"
           ],
           "props": {
             "size": "small"
-          },
-          "fill": [
-            "Tokens / Semantic Colors",
-            "background/brand/strong",
-            "#07344a"
-          ],
-          "radius": [
-            "Tokens / Corner Radius",
-            "sides",
-            9999
-          ],
-          "size": [
-            54,
-            [
-              "Figma / Semantic Dimensions",
-              "Control Sizes/sm",
-              28
-            ]
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "HUG",
-            "FIXED"
-          ],
-          "gap": [
-            "Tokens / Space",
-            "2",
-            8
-          ],
-          "padding": [
-            6,
-            [
-              "Tokens / Space",
-              "3",
-              12
-            ],
-            6,
-            [
-              "Tokens / Space",
-              "3",
-              12
-            ]
-          ],
-          "text": {
-            "layer": "Label",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "text/on-brand/strong",
-              "#7cdcfd"
-            ],
-            "style": null,
-            "size": 12
-          }
-        },
-        {
-          "for": [
-            "size=medium"
-          ],
-          "props": {
-            "size": "medium"
-          },
-          "fill": [
-            "Tokens / Semantic Colors",
-            "background/brand/strong",
-            "#07344a"
-          ],
-          "radius": [
-            "Tokens / Corner Radius",
-            "sides",
-            9999
-          ],
-          "size": [
-            62,
-            [
-              "Figma / Semantic Dimensions",
-              "Control Sizes/md",
-              32
-            ]
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "HUG",
-            "FIXED"
-          ],
-          "gap": [
-            "Tokens / Space",
-            "2",
-            8
-          ],
-          "padding": [
-            6,
-            [
-              "Tokens / Space",
-              "4",
-              16
-            ],
-            6,
-            [
-              "Tokens / Space",
-              "4",
-              16
-            ]
-          ],
-          "text": {
-            "layer": "Label",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "text/on-brand/strong",
-              "#7cdcfd"
-            ],
-            "style": null,
-            "size": 12
-          }
-        },
-        {
-          "for": [
-            "size=large"
-          ],
-          "props": {
-            "size": "large"
           },
           "fill": [
             "Tokens / Semantic Colors",
@@ -3132,66 +2899,6 @@
         },
         {
           "for": [
-            "size=xxlarge"
-          ],
-          "props": {
-            "size": "xxlarge"
-          },
-          "fill": [
-            "Tokens / Semantic Colors",
-            "background/brand/strong",
-            "#07344a"
-          ],
-          "radius": [
-            "Tokens / Corner Radius",
-            "sides",
-            9999
-          ],
-          "size": [
-            98,
-            [
-              "Figma / Semantic Dimensions",
-              "Control Sizes/2xl",
-              64
-            ]
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "HUG",
-            "FIXED"
-          ],
-          "gap": [
-            "Tokens / Space",
-            "2",
-            8
-          ],
-          "padding": [
-            12,
-            [
-              "Tokens / Space",
-              "6",
-              24
-            ],
-            12,
-            [
-              "Tokens / Space",
-              "6",
-              24
-            ]
-          ],
-          "text": {
-            "layer": "Label",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "text/on-brand/strong",
-              "#7cdcfd"
-            ],
-            "style": null,
-            "size": 20
-          }
-        },
-        {
-          "for": [
             "isFullWidth=true"
           ],
           "props": {
@@ -3208,7 +2915,7 @@
             9999
           ],
           "size": [
-            295.3333,
+            280.7,
             [
               "Figma / Semantic Dimensions",
               "Control Sizes/xl",
@@ -3249,136 +2956,6 @@
             "style": null,
             "size": 16
           }
-        },
-        {
-          "for": [
-            "isDisabled=true"
-          ],
-          "props": {
-            "isDisabled": "true"
-          },
-          "fill": [
-            "Tokens / Semantic Colors",
-            "background/disabled/low",
-            "#f5f6f6"
-          ],
-          "stroke": [
-            "Tokens / Semantic Colors",
-            "background/disabled/low",
-            "#f5f6f6"
-          ],
-          "strokeWeight": [
-            "Tokens / Semantic Colors",
-            "Controls/Stroke/Width",
-            1.5
-          ],
-          "radius": [
-            "Tokens / Corner Radius",
-            "sides",
-            9999
-          ],
-          "size": [
-            88,
-            [
-              "Figma / Semantic Dimensions",
-              "Control Sizes/xl",
-              52
-            ]
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "HUG",
-            "FIXED"
-          ],
-          "gap": [
-            "Tokens / Space",
-            "2",
-            8
-          ],
-          "padding": [
-            12,
-            [
-              "Tokens / Space",
-              "6",
-              24
-            ],
-            12,
-            [
-              "Tokens / Space",
-              "6",
-              24
-            ]
-          ],
-          "text": {
-            "layer": "Label",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "text/disabled",
-              "#b9bbbf"
-            ],
-            "style": null,
-            "size": 16
-          }
-        },
-        {
-          "for": [
-            "isLoading=true"
-          ],
-          "props": {
-            "isLoading": "true"
-          },
-          "fill": [
-            "Tokens / Semantic Colors",
-            "background/disabled/low",
-            "#f5f6f6"
-          ],
-          "stroke": [
-            "Tokens / Semantic Colors",
-            "background/disabled/low",
-            "#f5f6f6"
-          ],
-          "strokeWeight": [
-            "Tokens / Semantic Colors",
-            "Controls/Stroke/Width",
-            1.5
-          ],
-          "radius": [
-            "Tokens / Corner Radius",
-            "sides",
-            9999
-          ],
-          "size": [
-            82,
-            [
-              "Figma / Semantic Dimensions",
-              "Control Sizes/xl",
-              52
-            ]
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "HUG",
-            "FIXED"
-          ],
-          "gap": [
-            "Tokens / Space",
-            "2",
-            8
-          ],
-          "padding": [
-            12,
-            [
-              "Tokens / Space",
-              "6",
-              24
-            ],
-            12,
-            [
-              "Tokens / Space",
-              "6",
-              24
-            ]
-          ]
         },
         {
           "for": [
@@ -3450,7 +3027,7 @@
           "fill": [
             "Tokens / Semantic Colors",
             "background/brand/strong/pressed",
-            "#07344a"
+            "#0b516f"
           ],
           "radius": [
             "Tokens / Corner Radius",
@@ -3495,6 +3072,126 @@
               "Tokens / Semantic Colors",
               "text/on-brand/strong",
               "#7cdcfd"
+            ],
+            "style": null,
+            "size": 16
+          }
+        },
+        {
+          "for": [
+            "isLoading=true"
+          ],
+          "props": {
+            "isLoading": "true"
+          },
+          "fill": [
+            "Tokens / Semantic Colors",
+            "background/brand/strong",
+            "#07344a"
+          ],
+          "radius": [
+            "Tokens / Corner Radius",
+            "sides",
+            9999
+          ],
+          "size": [
+            82,
+            [
+              "Figma / Semantic Dimensions",
+              "Control Sizes/xl",
+              52
+            ]
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "HUG",
+            "FIXED"
+          ],
+          "gap": [
+            "Tokens / Space",
+            "2",
+            8
+          ],
+          "padding": [
+            12,
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            12,
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ]
+        },
+        {
+          "for": [
+            "isDisabled=true"
+          ],
+          "props": {
+            "isDisabled": "true"
+          },
+          "fill": [
+            "Tokens / Semantic Colors",
+            "background/disabled/low",
+            "#f5f6f6"
+          ],
+          "stroke": [
+            "Tokens / Semantic Colors",
+            "border/neutral/medium/disabled",
+            "#dddee1"
+          ],
+          "strokeWeight": [
+            "Tokens / Semantic Colors",
+            "Controls/Stroke/Width",
+            1.5
+          ],
+          "radius": [
+            "Tokens / Corner Radius",
+            "sides",
+            9999
+          ],
+          "size": [
+            88,
+            [
+              "Figma / Semantic Dimensions",
+              "Control Sizes/xl",
+              52
+            ]
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "HUG",
+            "FIXED"
+          ],
+          "gap": [
+            "Tokens / Space",
+            "2",
+            8
+          ],
+          "padding": [
+            12,
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            12,
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
+          "text": {
+            "layer": "Label",
+            "fill": [
+              "Tokens / Semantic Colors",
+              "text/disabled",
+              "#b9bbbf"
             ],
             "style": null,
             "size": 16
@@ -6344,65 +6041,44 @@
       "page": "Icon Button",
       "nodeId": "21119:210039",
       "axes": {
-        "Platform": [
-          "Native & Mobile"
-        ],
         "theme": [
           "primary",
           "secondary",
           "tertiary",
-          "subtle",
+          "link",
           "caution",
-          "alert",
-          "solid",
-          "link"
+          "alert"
         ],
         "size": [
-          "xlarge",
-          "small",
-          "medium",
           "large",
-          "xxlarge",
-          "xsmall"
-        ],
-        "isDisabled": [
-          "false",
-          "true"
-        ],
-        "isLoading": [
-          "false",
-          "true"
+          "small"
         ],
         "State": [
           "default",
           "hover",
-          "pressed"
+          "pressed",
+          "loading",
+          "disabled"
         ]
       },
       "defaults": {
-        "Platform": "Native & Mobile",
         "theme": "primary",
-        "size": "xlarge",
-        "isDisabled": "false",
-        "isLoading": "false",
+        "size": "large",
         "State": "default"
       },
-      "children": 156,
-      "crossProduct": 576,
-      "recorded": 17,
+      "children": 60,
+      "crossProduct": 60,
+      "recorded": 11,
       "reduced": {
-        "children": 156,
-        "recorded": 17,
+        "children": 60,
+        "recorded": 11,
         "cappedAt": null
       },
       "variants": [
         {
           "for": [
-            "Platform=Native & Mobile",
             "theme=primary",
-            "size=xlarge",
-            "isDisabled=false",
-            "isLoading=false",
+            "size=large",
             "State=default"
           ],
           "props": {},
@@ -6455,18 +6131,8 @@
           },
           "fill": [
             "Tokens / Semantic Colors",
-            "background/neutral/default",
-            "#ffffff"
-          ],
-          "stroke": [
-            "Tokens / Semantic Colors",
-            "border/neutral/default",
-            "#dddee1"
-          ],
-          "strokeWeight": [
-            "Figma / Semantic Dimensions",
-            "Border/inputs",
-            1.5
+            "background/neutral/low",
+            "#f5f6f6"
           ],
           "radius": [
             "Tokens / Corner Radius",
@@ -6552,15 +6218,15 @@
         },
         {
           "for": [
-            "theme=subtle"
+            "theme=link"
           ],
           "props": {
-            "theme": "subtle"
+            "theme": "link"
           },
           "fill": [
             "Tokens / Semantic Colors",
-            "background/neutral/low",
-            "#f5f6f6"
+            "background/neutral/default",
+            "#ffffff"
           ],
           "radius": [
             "Tokens / Corner Radius",
@@ -6590,8 +6256,8 @@
             "layer": "Label",
             "fill": [
               "Tokens / Semantic Colors",
-              "heading/neutral/default",
-              "#1f2022"
+              "link/brand/default",
+              "#0175a3"
             ],
             "style": null,
             "size": 16
@@ -6713,208 +6379,10 @@
         },
         {
           "for": [
-            "theme=solid"
-          ],
-          "props": {
-            "theme": "solid"
-          },
-          "fill": [
-            "Tokens / Semantic Colors",
-            "background/neutral/default",
-            "#ffffff"
-          ],
-          "stroke": [
-            "Tokens / Semantic Colors",
-            "border/neutral/strong",
-            "#1f2022"
-          ],
-          "strokeWeight": [
-            "Figma / Semantic Dimensions",
-            "Border/inputs",
-            1.5
-          ],
-          "radius": [
-            "Tokens / Corner Radius",
-            "sides",
-            9999
-          ],
-          "size": [
-            52,
-            [
-              "Figma / Semantic Dimensions",
-              "Control Sizes/xl",
-              52
-            ]
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "FIXED",
-            "FIXED"
-          ],
-          "gap": [
-            "Tokens / Space",
-            "2",
-            8
-          ],
-          "padding": 0,
-          "text": {
-            "layer": "Label",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "heading/neutral/default",
-              "#1f2022"
-            ],
-            "style": null,
-            "size": 16
-          }
-        },
-        {
-          "for": [
-            "theme=link"
-          ],
-          "props": {
-            "theme": "link"
-          },
-          "fill": [
-            "Tokens / Semantic Colors",
-            "background/neutral/default",
-            "#ffffff"
-          ],
-          "radius": [
-            "Tokens / Corner Radius",
-            "sides",
-            9999
-          ],
-          "size": [
-            52,
-            [
-              "Figma / Semantic Dimensions",
-              "Control Sizes/xl",
-              52
-            ]
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "FIXED",
-            "FIXED"
-          ],
-          "gap": [
-            "Tokens / Space",
-            "2",
-            8
-          ],
-          "padding": 0,
-          "text": {
-            "layer": "Label",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "link/brand/default",
-              "#0175a3"
-            ],
-            "style": null,
-            "size": 16
-          }
-        },
-        {
-          "for": [
             "size=small"
           ],
           "props": {
             "size": "small"
-          },
-          "fill": [
-            "Tokens / Semantic Colors",
-            "background/brand/strong",
-            "#07344a"
-          ],
-          "radius": [
-            "Tokens / Corner Radius",
-            "sides",
-            9999
-          ],
-          "size": [
-            28,
-            [
-              "Figma / Semantic Dimensions",
-              "Control Sizes/sm",
-              28
-            ]
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "FIXED",
-            "FIXED"
-          ],
-          "gap": [
-            "Tokens / Space",
-            "2",
-            8
-          ],
-          "padding": 0,
-          "text": {
-            "layer": "Label",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "text/on-brand/strong",
-              "#7cdcfd"
-            ],
-            "style": null,
-            "size": 12
-          }
-        },
-        {
-          "for": [
-            "size=medium"
-          ],
-          "props": {
-            "size": "medium"
-          },
-          "fill": [
-            "Tokens / Semantic Colors",
-            "background/brand/strong",
-            "#07344a"
-          ],
-          "radius": [
-            "Tokens / Corner Radius",
-            "sides",
-            9999
-          ],
-          "size": [
-            32,
-            [
-              "Figma / Semantic Dimensions",
-              "Control Sizes/md",
-              32
-            ]
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "FIXED",
-            "FIXED"
-          ],
-          "gap": [
-            "Tokens / Space",
-            "2",
-            8
-          ],
-          "padding": 0,
-          "text": {
-            "layer": "Label",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "text/on-brand/strong",
-              "#7cdcfd"
-            ],
-            "style": null,
-            "size": 12
-          }
-        },
-        {
-          "for": [
-            "size=large"
-          ],
-          "props": {
-            "size": "large"
           },
           "fill": [
             "Tokens / Semantic Colors",
@@ -6954,210 +6422,6 @@
             ],
             "style": null,
             "size": 14
-          }
-        },
-        {
-          "for": [
-            "size=xxlarge"
-          ],
-          "props": {
-            "size": "xxlarge"
-          },
-          "fill": [
-            "Tokens / Semantic Colors",
-            "background/brand/strong",
-            "#07344a"
-          ],
-          "radius": [
-            "Tokens / Corner Radius",
-            "sides",
-            9999
-          ],
-          "size": [
-            64,
-            [
-              "Figma / Semantic Dimensions",
-              "Control Sizes/2xl",
-              64
-            ]
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "FIXED",
-            "FIXED"
-          ],
-          "gap": [
-            "Tokens / Space",
-            "2",
-            8
-          ],
-          "padding": 0,
-          "text": {
-            "layer": "Label",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "text/on-brand/strong",
-              "#7cdcfd"
-            ],
-            "style": null,
-            "size": 20
-          }
-        },
-        {
-          "for": [
-            "size=xsmall"
-          ],
-          "props": {
-            "size": "xsmall"
-          },
-          "fill": [
-            "Tokens / Semantic Colors",
-            "background/brand/strong",
-            "#07344a"
-          ],
-          "radius": [
-            "Tokens / Corner Radius",
-            "sides",
-            9999
-          ],
-          "size": [
-            20,
-            20
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "FIXED",
-            "FIXED"
-          ],
-          "gap": [
-            "Tokens / Space",
-            "2",
-            8
-          ],
-          "padding": 0,
-          "text": {
-            "layer": "Label",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "text/on-brand/strong",
-              "#7cdcfd"
-            ],
-            "style": null,
-            "size": 12
-          }
-        },
-        {
-          "for": [
-            "isDisabled=true"
-          ],
-          "props": {
-            "isDisabled": "true"
-          },
-          "fill": [
-            "Tokens / Semantic Colors",
-            "background/disabled/low",
-            "#f5f6f6"
-          ],
-          "stroke": [
-            "Tokens / Semantic Colors",
-            "background/disabled/low",
-            "#f5f6f6"
-          ],
-          "strokeWeight": [
-            "Tokens / Semantic Colors",
-            "Controls/Stroke/Width",
-            1.5
-          ],
-          "radius": [
-            "Tokens / Corner Radius",
-            "sides",
-            9999
-          ],
-          "size": [
-            52,
-            [
-              "Figma / Semantic Dimensions",
-              "Control Sizes/xl",
-              52
-            ]
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "FIXED",
-            "FIXED"
-          ],
-          "gap": [
-            "Tokens / Space",
-            "2",
-            8
-          ],
-          "padding": 0,
-          "text": {
-            "layer": "Label",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "text/disabled",
-              "#b9bbbf"
-            ],
-            "style": null,
-            "size": 16
-          }
-        },
-        {
-          "for": [
-            "isLoading=true"
-          ],
-          "props": {
-            "isLoading": "true"
-          },
-          "fill": [
-            "Tokens / Semantic Colors",
-            "background/disabled/low",
-            "#f5f6f6"
-          ],
-          "stroke": [
-            "Tokens / Semantic Colors",
-            "background/disabled/low",
-            "#f5f6f6"
-          ],
-          "strokeWeight": [
-            "Tokens / Semantic Colors",
-            "Controls/Stroke/Width",
-            1.5
-          ],
-          "radius": [
-            "Tokens / Corner Radius",
-            "sides",
-            9999
-          ],
-          "size": [
-            52,
-            [
-              "Figma / Semantic Dimensions",
-              "Control Sizes/xl",
-              52
-            ]
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "FIXED",
-            "FIXED"
-          ],
-          "gap": [
-            "Tokens / Space",
-            "2",
-            8
-          ],
-          "padding": 0,
-          "text": {
-            "layer": "Label",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "text/disabled",
-              "#b9bbbf"
-            ],
-            "style": null,
-            "size": 16
           }
         },
         {
@@ -7217,7 +6481,111 @@
           "fill": [
             "Tokens / Semantic Colors",
             "background/brand/strong/pressed",
+            "#0b516f"
+          ],
+          "radius": [
+            "Tokens / Corner Radius",
+            "sides",
+            9999
+          ],
+          "size": [
+            52,
+            [
+              "Figma / Semantic Dimensions",
+              "Control Sizes/xl",
+              52
+            ]
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "FIXED",
+            "FIXED"
+          ],
+          "gap": [
+            "Tokens / Space",
+            "2",
+            8
+          ],
+          "padding": 0,
+          "text": {
+            "layer": "Label",
+            "fill": [
+              "Tokens / Semantic Colors",
+              "text/on-brand/strong",
+              "#7cdcfd"
+            ],
+            "style": null,
+            "size": 16
+          }
+        },
+        {
+          "for": [
+            "State=loading"
+          ],
+          "props": {
+            "State": "loading"
+          },
+          "fill": [
+            "Tokens / Semantic Colors",
+            "background/brand/strong",
             "#07344a"
+          ],
+          "radius": [
+            "Tokens / Corner Radius",
+            "sides",
+            9999
+          ],
+          "size": [
+            52,
+            [
+              "Figma / Semantic Dimensions",
+              "Control Sizes/xl",
+              52
+            ]
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "FIXED",
+            "FIXED"
+          ],
+          "gap": [
+            "Tokens / Space",
+            "2",
+            8
+          ],
+          "padding": 0,
+          "text": {
+            "layer": "Label",
+            "fill": [
+              "Tokens / Semantic Colors",
+              "text/on-brand/strong",
+              "#7cdcfd"
+            ],
+            "style": null,
+            "size": 16
+          }
+        },
+        {
+          "for": [
+            "State=disabled"
+          ],
+          "props": {
+            "State": "disabled"
+          },
+          "fill": [
+            "Tokens / Semantic Colors",
+            "background/disabled/low",
+            "#f5f6f6"
+          ],
+          "stroke": [
+            "Tokens / Semantic Colors",
+            "border/neutral/medium/disabled",
+            "#dddee1"
+          ],
+          "strokeWeight": [
+            "Tokens / Semantic Colors",
+            "Controls/Stroke/Width",
+            1.5
           ],
           "radius": [
             "Tokens / Corner Radius",

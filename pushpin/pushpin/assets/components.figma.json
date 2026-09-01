@@ -26,7 +26,7 @@
       "\"_Bubble / Text\" reads as internal and is published",
       "\"_Stamps\" reads as internal and is published"
     ],
-    "propertiesCapturedAt": "2026-08-28"
+    "propertiesCapturedAt": "2026-09-01"
   },
   "components": {
     "_Bubble / Text": {
@@ -541,11 +541,6 @@
           "key": "showAvatar#15288:0",
           "default": true
         },
-        "showPointer": {
-          "type": "BOOLEAN",
-          "key": "showPointer#15288:9",
-          "default": true
-        },
         "Theme": {
           "type": "VARIANT",
           "key": "Theme",
@@ -557,7 +552,8 @@
             "Review Received",
             "Review Request",
             "Message with ease",
-            "Review Sent"
+            "Review Sent",
+            "Customer phone card"
           ],
           "default": "Review Request"
         }
@@ -587,16 +583,16 @@
         "👁 Time stamp": {
           "type": "BOOLEAN",
           "key": "👁 Time stamp#7009:0",
-          "default": true
+          "default": false
         },
         "Theme": {
           "type": "VARIANT",
           "key": "Theme",
           "options": [
-            "Received",
-            "Sent"
+            "Recipient",
+            "Sender"
           ],
-          "default": "Received"
+          "default": "Recipient"
         },
         "Length": {
           "type": "VARIANT",
@@ -630,36 +626,28 @@
       "nodeId": "15239:14108",
       "instanceCount": 528,
       "properties": {
-        "👁️ icon (left)": {
+        "👁️ Icon (left)": {
           "type": "BOOLEAN",
-          "key": "👁️ icon (left)#2605:42",
+          "key": "👁️ Icon (left)#34731:2",
           "default": false
+        },
+        "icon": {
+          "type": "INSTANCE_SWAP",
+          "key": "icon#34740:123"
         },
         "👁️ iconRight": {
           "type": "BOOLEAN",
-          "key": "👁️ iconRight#2605:63",
+          "key": "👁️ iconRight#35089:0",
           "default": false
+        },
+        "iconRight": {
+          "type": "INSTANCE_SWAP",
+          "key": "iconRight#35089:121"
         },
         "Label": {
           "type": "TEXT",
-          "key": "Label#13326:0",
+          "key": "Label#35422:0",
           "default": "Label"
-        },
-        "Icon Left": {
-          "type": "INSTANCE_SWAP",
-          "key": "Icon Left#22316:0"
-        },
-        "Icon Right": {
-          "type": "INSTANCE_SWAP",
-          "key": "Icon Right#22316:261"
-        },
-        "Platform": {
-          "type": "VARIANT",
-          "key": "Platform",
-          "options": [
-            "Native & Mobile"
-          ],
-          "default": "Native & Mobile"
         },
         "theme": {
           "type": "VARIANT",
@@ -668,11 +656,9 @@
             "primary",
             "secondary",
             "tertiary",
-            "subtle",
+            "link",
             "caution",
-            "alert",
-            "solid",
-            "link"
+            "alert"
           ],
           "default": "primary"
         },
@@ -680,17 +666,33 @@
           "type": "VARIANT",
           "key": "size",
           "options": [
-            "xlarge",
-            "small",
-            "medium",
             "large",
-            "xxlarge"
+            "small"
           ],
-          "default": "xlarge"
+          "default": "large"
         },
         "isFullWidth": {
           "type": "VARIANT",
           "key": "isFullWidth",
+          "options": [
+            "true",
+            "false"
+          ],
+          "default": "false"
+        },
+        "State": {
+          "type": "VARIANT",
+          "key": "State",
+          "options": [
+            "default",
+            "hover",
+            "pressed"
+          ],
+          "default": "default"
+        },
+        "isLoading": {
+          "type": "VARIANT",
+          "key": "isLoading",
           "options": [
             "false",
             "true"
@@ -705,25 +707,6 @@
             "true"
           ],
           "default": "false"
-        },
-        "isLoading": {
-          "type": "VARIANT",
-          "key": "isLoading",
-          "options": [
-            "false",
-            "true"
-          ],
-          "default": "false"
-        },
-        "State": {
-          "type": "VARIANT",
-          "key": "State",
-          "options": [
-            "default",
-            "hover",
-            "pressed"
-          ],
-          "default": "default"
         }
       },
       "children": [
@@ -1351,14 +1334,6 @@
           "type": "INSTANCE_SWAP",
           "key": "Icon#21132:0"
         },
-        "Platform": {
-          "type": "VARIANT",
-          "key": "Platform",
-          "options": [
-            "Native & Mobile"
-          ],
-          "default": "Native & Mobile"
-        },
         "theme": {
           "type": "VARIANT",
           "key": "theme",
@@ -1366,11 +1341,9 @@
             "primary",
             "secondary",
             "tertiary",
-            "subtle",
+            "link",
             "caution",
-            "alert",
-            "solid",
-            "link"
+            "alert"
           ],
           "default": "primary"
         },
@@ -1378,32 +1351,10 @@
           "type": "VARIANT",
           "key": "size",
           "options": [
-            "xlarge",
-            "small",
-            "medium",
             "large",
-            "xxlarge",
-            "xsmall"
+            "small"
           ],
-          "default": "xlarge"
-        },
-        "isDisabled": {
-          "type": "VARIANT",
-          "key": "isDisabled",
-          "options": [
-            "false",
-            "true"
-          ],
-          "default": "false"
-        },
-        "isLoading": {
-          "type": "VARIANT",
-          "key": "isLoading",
-          "options": [
-            "false",
-            "true"
-          ],
-          "default": "false"
+          "default": "large"
         },
         "State": {
           "type": "VARIANT",
@@ -1411,7 +1362,9 @@
           "options": [
             "default",
             "hover",
-            "pressed"
+            "pressed",
+            "loading",
+            "disabled"
           ],
           "default": "default"
         }
@@ -1678,6 +1631,15 @@
             "true"
           ],
           "default": "false"
+        },
+        "State": {
+          "type": "VARIANT",
+          "key": "State",
+          "options": [
+            "Default",
+            "Hover"
+          ],
+          "default": "Default"
         }
       },
       "children": [
@@ -1724,9 +1686,11 @@
           "type": "VARIANT",
           "key": "State",
           "options": [
+            "Default",
             "Active",
-            "Disabled",
-            "Default"
+            "State4",
+            "State5",
+            "Filled"
           ],
           "default": "Default"
         }
@@ -1984,9 +1948,9 @@
       "nodeId": "13256:41049",
       "instanceCount": 1,
       "properties": {
-        "Content": {
-          "type": "INSTANCE_SWAP",
-          "key": "Content#4276:0"
+        "children": {
+          "type": "SLOT",
+          "key": "children#26172:0"
         }
       }
     },
@@ -2057,14 +2021,18 @@
           "key": "indicator?#3754:27",
           "default": true
         },
-        "Artwork": {
-          "type": "INSTANCE_SWAP",
-          "key": "Artwork#7487:0"
-        },
         "pill?": {
           "type": "BOOLEAN",
           "key": "pill?#7535:0",
           "default": false
+        },
+        "childern": {
+          "type": "SLOT",
+          "key": "childern#26172:1"
+        },
+        "artwork": {
+          "type": "SLOT",
+          "key": "artwork#26172:4"
         },
         "Breakpoint": {
           "type": "VARIANT",
@@ -3635,7 +3603,7 @@
         "innerLeft": {
           "type": "BOOLEAN",
           "key": "innerLeft#13232:5",
-          "default": true
+          "default": false
         },
         "innerRight": {
           "type": "BOOLEAN",

@@ -144,7 +144,8 @@ project through that file too.
    the geometry come from two different reads, so a component whose fill or
    radius moved shows nothing in the `--components` diff. Take
    [check.md §6](../scripts/check.md) for the affected pages, redistil with
-   `node scripts/build-specs.mjs`, and rebuild — those specs are what
+   `node scripts/build-specs.mjs --merge` — without `--merge` the write is total
+   and every page you did not read loses its specs — and rebuild. Those specs are what
    `DESIGN.md`, `lookup --variant` and `check.mjs`'s fidelity findings all read,
    so a stale one is wrong in three places at once.
 
@@ -179,7 +180,8 @@ node scripts/build-design.mjs          # regenerate DESIGN.md and design.json
 node scripts/build-design.mjs --check  # fail if either committed file is stale
 node scripts/build-copy.mjs            # regenerate from copy.source.md and copy-map.json
 node scripts/build-copy.mjs --check    # fail if the committed copy.json is stale
-node scripts/build-specs.mjs <lanes>   # redistil the visual specs from a fresh capture
+node scripts/build-specs.mjs <lanes>   # redistil the visual specs from a whole-kit capture
+node scripts/build-specs.mjs --merge <lanes>  # fold a few recaptured pages into the committed specs
 node scripts/manifest.mjs              # rehash and re-count the captures
 node scripts/manifest.mjs --check      # fail if the manifest is stale
 node scripts/verify.mjs                # resolve every var() chain, verify hashes

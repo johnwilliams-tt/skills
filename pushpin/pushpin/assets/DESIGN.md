@@ -89,7 +89,7 @@ genuinely open, and deferring those to Pushpin is as much a mistake as
 overriding it.
 
 The Figma kit is the source of truth, and this file is a generated projection of
-it — written by the `pushpin` plugin, v0.13.3, from the
+it — written by the `pushpin` plugin, v0.18.0, from the
 2026-08-06 capture. Where any other description of Pushpin disagrees with
 these values, the tokens win and the disagreement is a bug to fix. Editing this
 file by hand does not change the design system; it only makes the checks
@@ -238,46 +238,37 @@ When nothing published fits, say that instead, and say what it extends:
 
 - **Source:** published component set in the Pushpin kit. Instance it; never rebuild it.
 - **Declare in code:** `data-pp-component="Button"`
-- **theme:** primary, secondary, tertiary, subtle, caution, alert, solid, link
-- **size:** xlarge, small, medium, large, xxlarge
-- **isFullWidth:** false, true
-- **isDisabled:** false, true
-- **isLoading:** false, true
+- **theme:** primary, secondary, tertiary, link, caution, alert
+- **size:** large, small
+- **isFullWidth:** true, false
 - **State:** default, hover, pressed
+- **isLoading:** false, true
+- **isDisabled:** false, true
 - **Resting:** fill --pp-background-brand-strong, radius --pp-radius-sides, height 52px, padding 12/24px, gap 8px, label --pp-text-on-brand-strong, type 16px
-- **theme=secondary:** fill --pp-background-neutral-default, border --pp-border-neutral-default 1.5px, label --pp-link-brand-default
+- **theme=secondary:** fill --pp-background-neutral-low, label --pp-text-neutral-default
 - **theme=tertiary:** fill --pp-background-neutral-default, label --pp-heading-neutral-default
-- **theme=subtle:** fill --pp-background-neutral-low, label --pp-heading-neutral-default
+- **theme=link:** fill --pp-background-neutral-default, label --pp-link-brand-default, no height, no padding
 - **theme=caution:** fill --pp-background-neutral-default, border --pp-border-neutral-default 1.5px, label --pp-text-alert-medium
 - **theme=alert:** fill --pp-background-alert-medium, border --pp-border-alert-default 1.5px, label --pp-color-system-white
-- **theme=solid:** fill --pp-background-neutral-default, border --pp-border-neutral-strong 1.5px, label --pp-heading-neutral-default
-- **theme=link:** fill --pp-background-neutral-default, label --pp-link-brand-default, no height, no padding
-- **size=small:** height 28px, padding 6/12px, type 12px
-- **size=medium:** height 32px, padding 6/16px, type 12px
-- **size=large:** height 40px, padding 12/20px, type 14px
-- **size=xxlarge:** height 64px, type 20px
-- **isDisabled=true:** fill --pp-background-disabled-low, border --pp-background-disabled-low 1.5px, label --pp-text-disabled
-- **isLoading=true:** fill --pp-background-disabled-low, border --pp-background-disabled-low 1.5px, no label, no type
+- **size=small:** height 40px, padding 12/20px, type 14px
 - **State=hover:** fill --pp-background-brand-strong-hover
 - **State=pressed:** fill --pp-background-brand-strong-pressed
+- **isLoading=true:** no label, no type
+- **isDisabled=true:** fill --pp-background-disabled-low, border --pp-border-neutral-medium-disabled 1.5px, label --pp-text-disabled
 
 ### Icon Button
 
 - **Source:** published component set in the Pushpin kit. Instance it; never rebuild it.
 - **Declare in code:** `data-pp-component="Icon Button"`
-- **theme:** primary, secondary, tertiary, subtle, caution, alert, solid, link
-- **size:** xlarge, small, medium, large, xxlarge, xsmall
-- **isDisabled:** false, true
-- **isLoading:** false, true
-- **State:** default, hover, pressed
+- **theme:** primary, secondary, tertiary, link, caution, alert
+- **size:** large, small
+- **State:** default, hover, pressed, loading, disabled
 - **Resting:** fill --pp-background-brand-strong, radius --pp-radius-sides, height 52px, gap 8px, label --pp-text-on-brand-strong, type 16px
-- **Same as Button:** theme=secondary, theme=tertiary, theme=subtle, theme=caution, theme=alert, theme=solid, size=xxlarge, isDisabled=true, State=hover, State=pressed — each as Button's line above, against this Resting.
+- **Same as Button:** theme=tertiary, theme=caution, theme=alert, State=hover, State=pressed — each as Button's line above, against this Resting.
+- **theme=secondary:** fill --pp-background-neutral-low, label --pp-link-brand-default
 - **theme=link:** fill --pp-background-neutral-default, label --pp-link-brand-default
-- **size=small:** height 28px, type 12px
-- **size=medium:** height 32px, type 12px
-- **size=large:** height 40px, type 14px
-- **size=xsmall:** height 20px, type 12px
-- **isLoading=true:** fill --pp-background-disabled-low, border --pp-background-disabled-low 1.5px, label --pp-text-disabled
+- **size=small:** height 40px, type 14px
+- **State=disabled:** fill --pp-background-disabled-low, border --pp-border-neutral-medium-disabled 1.5px
 
 ### Link
 
@@ -285,6 +276,7 @@ When nothing published fits, say that instead, and say what it extends:
 - **Declare in code:** `data-pp-component="Link"`
 - **theme:** primary (default), secondary, inverse, alert, longtext, theme6
 - **isDisabled:** false, true
+- **State:** Default, Hover
 - **Resting:** radius 0px, gap 4px, label --pp-link-brand-default, type 16px
 - **theme=secondary:** label --pp-text-neutral-medium
 - **theme=inverse:** label --pp-heading-neutral-inverse

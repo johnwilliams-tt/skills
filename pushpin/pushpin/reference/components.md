@@ -97,7 +97,7 @@ They follow `[Component]_[variant]__[hash]` and can be mapped back:
 
 | Prefix | Component | Variants |
 |---|---|---|
-| `UIAction_` | `<Button>` / `<TextButton>` | `_themedButtonThemePrimary__`→`theme="primary"`, `…Secondary__`→`"secondary"`, `…Tertiary__`→`"tertiary"`, `…Caution__`→`"caution"`, `…Solid__`→`"solid"`, `_themedButtonWidthFull__`→`width="full"`, `_flexWrapperSizeSmall__`→`size="small"`, `_plainTheme*__`→`<TextButton theme="*">` |
+| `UIAction_` | `<Button>` / `<TextButton>` | `_themedButtonThemePrimary__`→`theme="primary"`, `…Secondary__`→`"secondary"`, `…Tertiary__`→`"tertiary"`, `…Caution__`→`"caution"`, `_themedButtonWidthFull__`→`width="full"`, `_flexWrapperSizeSmall__`→`size="small"`, `_plainTheme*__`→`<TextButton theme="*">` |
 | `Alert_` | `<BannerAlert>` / `<InPageAlert>` | `_good__`, `_bad__`, `_warning__`→`theme="…"`; `_banner__`→ use `BannerAlert` |
 | `Avatar_` | `<UserAvatar>` / `<EntityAvatar>` | `_rootXsmall__` … `_rootXlarge__`→`size="…"` |
 | `Pill_` | `<Pill>` | `_pillGreen__`, `_pillRed__`, `_pillIndigo__`, `_pillBlue__`, `_pillYellow__`, `_pillPurple__`→`color="…"` |
@@ -110,6 +110,11 @@ They follow `[Component]_[variant]__[hash]` and can be mapped back:
 | `Fab_` | `<TextFab>` / `<IconFab>` | `_primary__`, `_secondary__`→`theme="…"` |
 | `FormNote_` | `<FormNote>` | `_rootError__`→`hasError` |
 | `Label_` | `<Label>` | `_textUiStateDisabled__`→`isDisabled`, `…Error__`→`hasError` |
+
+`_themedButtonThemeSolid__` and `_themedButtonThemeSubtle__` have no row because
+Pushpin's Button no longer publishes `solid` or `subtle`. A design still carrying
+either is on a pre-2026-09-01 build of the kit; pick the surviving theme the
+hierarchy calls for rather than reintroducing the old one.
 
 ## Elements follow the design, not the interaction
 

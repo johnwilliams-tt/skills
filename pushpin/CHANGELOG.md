@@ -16,6 +16,76 @@ Changes are grouped the way `diff.mjs` classifies them:
 An entry about the plugin rather than the capture adds **Fixed** for a bug in
 the toolchain, which `diff.mjs` has no category for.
 
+## 0.18.0 — 2026-09-01
+
+Button was republished in the Pushpin Thumbprint UI Kit and the capture caught
+up. The republish is not a restyle — it is a smaller, differently-keyed
+component, and every key that moved is a key some caller was already passing.
+Eight other components moved in the same read, because a properties refresh
+covers the catalog rather than the one component that prompted it.
+
+**Breaking**
+
+- **Button lost four of its eight themes and three of its five sizes.**
+  `theme` is now `primary`, `secondary`, `tertiary`, `link`, `caution`, `alert`
+  — `subtle` and `solid` are gone. `size` is now `large` and `small`, and the
+  default moved from `xlarge` to `large`; `xlarge`, `medium` and `xxlarge` no
+  longer resolve. The `Platform` axis, which only ever offered `Native & Mobile`,
+  was dropped. [`reference/components.md`](pushpin/reference/components.md)
+  carried a Thumbprint mapping onto `solid` and no longer does, with the two
+  removed themes named so a translation that needs one fails loudly instead of
+  landing on a variant that no longer exists.
+- **Button's property keys were reissued.** `Label` is `Label#35422:0`, not
+  `Label#13326:0`. The two icon slots are now `icon#34740:123` and
+  `iconRight#35089:121`, replacing `Icon Left#22316:0` and
+  `Icon Right#22316:261`; their visibility toggles are `👁️ Icon (left)#34731:2`
+  and `👁️ iconRight#35089:0`. A `setProperties` call written against the old
+  keys throws rather than silently doing nothing, which is the good case, but it
+  throws at every call site at once.
+- **Icon Button folded `isDisabled` and `isLoading` into `State`.** Those two
+  boolean axes are gone; `State` gained `loading` and `disabled` beside
+  `default`, `hover` and `pressed`. It took the same `theme`, `size` and
+  `Platform` cuts as Button.
+- **`Bubble / Text` renamed both its themes.** `Received` and `Sent` are now
+  `Recipient` and `Sender`, and the default moved with them.
+- **`Messenger Elements / Composer` replaced its `State` axis.** `Disabled` is
+  gone; `State4`, `State5` and `Filled` are new, which reads as work in progress
+  in the kit rather than a settled API — recorded as found.
+- **Two modal slots changed type.** `Modal / Factory / Main` swapped
+  `Content#4276:0` (`INSTANCE_SWAP`) for `children#26172:0` (`SLOT`), and
+  `Modal / Promotion` swapped `Artwork#7487:0` for `childern#26172:1` and
+  `artwork#26172:4`. The misspelling is the kit's and is recorded verbatim; a
+  capture that corrects a name produces a key that does not work.
+
+**Changed**
+
+- Button gained a `State` axis (`default`, `hover`, `pressed`) and an
+  `isLoading` boolean, and `Link` gained `State` (`Default`, `Hover`).
+- `Bubble / Structure` gained a `Customer phone card` theme and dropped its
+  `showPointer` boolean. `Bubble / Text`'s `👁 Time stamp` and `TextInput`'s
+  `innerLeft` now default to off.
+- Visual specs were recaptured for the `Button`, `Icon Button`, `Link` and
+  `Additional components` pages. Only Button and Icon Button actually moved; the
+  rest read back identical, which is the answer worth having.
+  [`reference/generate.md`](pushpin/reference/generate.md) and
+  [`scripts/extract.md`](pushpin/scripts/extract.md) had worked examples built on
+  the old Button keys and themes, and now carry the current ones.
+
+**Added**
+
+- **`build-specs.mjs --merge` folds a few recaptured pages into the committed
+  specs.** The distiller only ever wrote the whole asset, so answering "Button
+  moved" meant re-reading all 45 pages — 118 owners across a file that truncates
+  a page read well before it finishes — or hand-editing a capture, which
+  `verify.mjs` is built to catch. A merge replaces a page it read whole, keeps
+  every page it did not read, and drops a carried entry the catalog no longer
+  holds rather than carrying a `verify.mjs` failure forward. Provenance moves
+  from one `extractedAt` for the file to a `source.pageCaptures` map of page to
+  date, so a page last read six weeks ago cannot pass as fresh on the strength of
+  a page read today. A page read under an `ONLY` list — which `Additional
+  components` and its 41 owners must be — keeps its earlier date and is named in
+  the run output, because it is no fresher than the part nobody re-read.
+
 ## 0.17.0 — 2026-09-01
 
 A services catalog was checkpointed at whole-modal cards and handed over with

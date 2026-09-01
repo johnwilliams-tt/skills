@@ -282,16 +282,16 @@ return { tried: ROWS.length, resolved: Object.keys(ok).length, ok, props, failed
 **`props` is the reason this pass is not optional any more.** The dump reads the
 kit's working file, and the file runs ahead of the library — measured across 115
 entries, 6 disagreed with the library about their own properties. `Button` is one
-of them: the library publishes `Label#13326:0`, `Icon Left#22316:0` and
-`Icon Right#22316:261`, offers `size` as `xlarge small medium large xxlarge`, and
-the dump reports none of those names and offers `size` as `default small`. A run
-that took `size: 'default'` from the dump throws, because the published set has no
-such variant. Since the import is already happening for the name, the definitions
-cost nothing extra.
+of them: the library publishes `Label#35422:0`, `icon#34740:123` and
+`iconRight#35089:121`, and offers `size` as `large small`, where the dump reports
+none of those names. A run that took a `size` the dump offered and the library
+does not throws, because the published set has no such variant. Since the import
+is already happening for the name, the definitions cost nothing extra.
 
 Variant *option* drift is the half that a property-name comparison misses, and it
-is the half that bites: `Bubble / Text` publishes `Theme` as `Received`/`Sent`
-while the file calls the same axis `Recipient`/`Sender`.
+is the half that bites: a `Bubble / Text` capture taken before 2026-09-01 records
+`Theme` as `Received`/`Sent`, and the library now publishes the same axis as
+`Recipient`/`Sender`.
 
 `failed` must come back empty. A key that throws here is a key that would throw
 mid-generation, and the gate above is what is supposed to have removed it.
@@ -887,6 +887,22 @@ node scripts/build-specs.mjs specs-1.json specs-2.json …
 The distiller sorts, merges, and writes the coverage block. It is independent of
 the order the files are given in, deliberately: nothing about which lane
 finished first should be able to change the asset.
+
+Without a flag that write is total: pages you did not read this time lose their
+specs. When a republish touches a handful of pages, read those pages and merge
+them into what is already committed:
+
+```bash
+node scripts/build-specs.mjs --merge specs-1.json specs-2.json …
+```
+
+A merge replaces a page it read whole and keeps every other page. It carries
+forward only entries the catalog still holds, because `verify.mjs` fails on a
+spec with no catalog record and a merge must not carry that failure forward.
+Provenance moves from one `extractedAt` for the file to a `source.pageCaptures`
+map of page to date, so a page read six weeks ago cannot pass as fresh — and a
+page read under an `ONLY` list keeps its earlier date, since it is no fresher
+than the part nobody re-read. The run says which pages those were.
 
 Five things to know about the result:
 

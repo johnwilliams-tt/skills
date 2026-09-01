@@ -318,7 +318,9 @@ the committed catalog.
 `fileKey: VVRGrLgkPRU3vs765d5Q3r`. Run the per-page script from
 [extract.md §9](extract.md) against the 44 pages that hold published components,
 batched in parallel — see [parallel.md](../reference/parallel.md) — and distil
-the batches together with `node scripts/build-specs.mjs`.
+the batches together with `node scripts/build-specs.mjs`. To recapture a few
+pages rather than the kit, read those pages and add `--merge`, which keeps every
+page the run did not read.
 
 Like §4, this capture is its own comparison: the distiller writes the committed
 shape, so the check is to let it overwrite

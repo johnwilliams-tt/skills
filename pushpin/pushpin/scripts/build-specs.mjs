@@ -24,6 +24,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { SPECS_FILE } from './lib/specs.mjs';
 import { loadAsset, real, resolveHex } from './lib/tokens.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -51,6 +52,24 @@ export const CAP = 24;
  * node id. The silent overwrite is the failure this capture exists to stop, and
  * doing it again while capturing the evidence for it would be a poor joke.
  */
+/**
+ * Did this lane leave anything on its page unread?
+ *
+ * Answered from the owner count where the lane reports one, because that is the
+ * reading a truncated or `ONLY`-filtered response cannot fake: `recorded` is
+ * what came back and `expected` is what the page holds. `skipped` is the
+ * fallback and is deliberately tolerant of both a list of names and a bare
+ * count — a lane that shortened it to a number is the same statement, and
+ * reading `.length` off the number would silently report the page as whole.
+ */
+function isPartial(lane) {
+  const recorded = (lane.recorded ?? []).length;
+  if (typeof lane.expected === 'number') return recorded < lane.expected;
+  if (Array.isArray(lane.skipped)) return lane.skipped.length > 0;
+  if (typeof lane.skipped === 'number') return lane.skipped > 0;
+  return false;
+}
+
 export function distillSpecs(files, catalog) {
   const components = {};
   const pages = new Map();
@@ -59,11 +78,18 @@ export function distillSpecs(files, catalog) {
 
   for (const file of files) {
     for (const lane of file.lanes ?? []) {
+      const held = pages.get(lane.pageId ?? lane.figmaPage);
       pages.set(lane.pageId ?? lane.figmaPage, {
         page: lane.figmaPage,
         status: lane.status,
         recorded: (lane.recorded ?? []).length,
         expected: lane.expected ?? null,
+        // A lane run with an `ONLY` list reads part of a page, and `Additional
+        // components` has to be read that way — 41 owners truncate the response.
+        // A merge may only evict a page it saw whole, so a lane that left an
+        // owner unread marks the page partial, and it stays partial until some
+        // lane in the same run covers the whole thing.
+        partial: (held ? held.partial : true) && isPartial(lane),
       });
       if (lane.note) notes.push(`${lane.figmaPage}: ${lane.note}`);
       if (lane.status !== 'ok') notes.push(`${lane.figmaPage}: status ${lane.status}`);
@@ -187,18 +213,93 @@ export function colorModeCheck(components) {
   return { mode, counts, off };
 }
 
+/**
+ * Fold a partial re-capture into the committed asset.
+ *
+ * The full read is 44 pages and roughly 400KB, which is why a component whose
+ * geometry moved used to leave the whole file stale: refreshing one page meant
+ * retaking all of them, because this script writes what the lanes hold and
+ * nothing else. Merging keeps the pages nobody recaptured and states, per page,
+ * when each was last read — so a partial refresh is legible as partial rather
+ * than dated wholesale by the day it was folded in.
+ *
+ * A page is replaced entirely, not patched: every base entry sitting on a
+ * recaptured page is dropped before the fresh ones go in, so a component that
+ * left the page leaves the asset with it. Entries are also evicted by name,
+ * which is what carries a page rename — `📌 Button` became `Button` and the
+ * base entry would otherwise survive beside its own replacement.
+ */
+function mergeWithCommitted(fresh, freshPages, catalogEntries) {
+  const base = loadAsset(SPECS_FILE);
+  const wholePages = new Set(freshPages.filter((p) => !p.partial).map((p) => p.page));
+  const capturedPages = new Set(freshPages.map((p) => p.page));
+  const merged = {};
+  const carried = [];
+
+  for (const [name, entry] of Object.entries(base.components)) {
+    if (name in fresh) continue;
+    if (wholePages.has(entry.page)) continue;
+    // A base entry can outlive its own catalog record — the catalog is refreshed
+    // on a different cadence — and verify.mjs fails on a spec with no catalog
+    // entry. Dropping it here keeps a merge from carrying a failure forward.
+    if (!(name in catalogEntries)) continue;
+    merged[name] = entry;
+    carried.push(name);
+  }
+  Object.assign(merged, fresh);
+
+  const sorted = Object.fromEntries(
+    Object.entries(merged).sort(([a], [b]) => a.localeCompare(b)),
+  );
+  const today = new Date().toISOString().slice(0, 10);
+  const pageCaptures = { ...(base.source.pageCaptures ?? {}) };
+  // A base with no per-page record predates this path; every page it holds was
+  // read on the date it carries, and saying so is what makes the first merge
+  // honest about the 43 pages it did not touch.
+  if (!base.source.pageCaptures) {
+    for (const entry of Object.values(base.components)) {
+      pageCaptures[entry.page] = base.source.extractedAt;
+    }
+  }
+  // Only a page read whole gets today's date. A page read under an `ONLY` list
+  // is no fresher than the part nobody re-read, and dating it today would hide
+  // exactly the staleness this record exists to show.
+  for (const page of wholePages) pageCaptures[page] = today;
+  for (const name of Object.keys(sorted)) pageCaptures[sorted[name].page] ??= today;
+
+  const partial = [...capturedPages].filter((p) => !wholePages.has(p));
+  return { components: sorted, pageCaptures, carried, partial };
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) main();
 
 function main() {
-  const paths = process.argv.slice(2);
+  const argv = process.argv.slice(2);
+  const merge = argv.includes('--merge');
+  const paths = argv.filter((a) => a !== '--merge');
   if (!paths.length) {
-    console.error('usage: node scripts/build-specs.mjs <lane.json> [<lane.json>...]');
+    console.error(
+      'usage: node scripts/build-specs.mjs <lane.json> [<lane.json>...]\n' +
+        '       node scripts/build-specs.mjs --merge <lane.json> [<lane.json>...]',
+    );
     process.exit(1);
   }
 
   const files = paths.map((p) => JSON.parse(readFileSync(p, 'utf8')));
   const catalogEntries = loadAsset('components.figma.json').components;
-  const { components, pages, collisions, notes } = distillSpecs(files, catalogEntries);
+  const distilled = distillSpecs(files, catalogEntries);
+  const { pages, collisions, notes } = distilled;
+  let components = distilled.components;
+  let pageCaptures = null;
+  let carried = [];
+  let partialPages = [];
+  if (merge) {
+    const m = mergeWithCommitted(components, pages, catalogEntries);
+    components = m.components;
+    pageCaptures = m.pageCaptures;
+    carried = m.carried;
+    partialPages = m.partial;
+  }
 
   const entries = Object.values(components);
   const sets = entries.filter((e) => e.type === 'COMPONENT_SET');
@@ -227,7 +328,7 @@ function main() {
       fileKey: 'VVRGrLgkPRU3vs765d5Q3r',
       fileName: 'Pushpin Thumbprint UI Kit',
       extractedAt: new Date().toISOString().slice(0, 10),
-      pagesRead: pages.length,
+      pagesRead: pageCaptures ? Object.keys(pageCaptures).length : pages.length,
       componentsRecorded: entries.length,
       componentSets: sets.length,
       capPerSet: CAP,
@@ -235,6 +336,10 @@ function main() {
       variantsRecorded: variants,
       setsAtCap: capped,
       colorMode: offMode.mode,
+      // `extractedAt` dates the distillation, which on a merged asset says
+      // nothing about the pages the run did not read. This is the per-page
+      // truth, and the oldest date in it is the real age of the capture.
+      ...(pageCaptures ? { pageCaptures } : {}),
     },
     coverage: {
       // Measured against components.figma.json, which is itself keyed by name
@@ -257,9 +362,23 @@ function main() {
 
   writeFileSync(OUT, JSON.stringify(doc, null, 2) + '\n');
   console.log(
-    `Wrote ${OUT} — ${entries.length} components across ${pages.length} pages, ` +
+    `Wrote ${OUT} — ${entries.length} components across ` +
+      `${pageCaptures ? Object.keys(pageCaptures).length : pages.length} pages, ` +
       `${variants} variants recorded of ${children} real children, ${capped} sets at the cap of ${CAP}.`,
   );
+  if (merge) {
+    const oldest = Object.values(pageCaptures).sort()[0];
+    console.log(
+      `  merged ${pages.length} recaptured page(s) into the committed asset; ` +
+        `${carried.length} component(s) carried through, oldest page read ${oldest}.`,
+    );
+    for (const page of partialPages) {
+      console.log(
+        `  "${page}" was read under an ONLY list — only the components it named were ` +
+          `replaced, and the page keeps its earlier capture date.`,
+      );
+    }
+  }
   console.log(
     `  colours read in ${offMode.mode} mode (${offMode.counts.Light} Light, ${offMode.counts.Dark} Dark` +
       `${offMode.off.length ? `, ${offMode.off.length} matching neither` : ''}).`,
