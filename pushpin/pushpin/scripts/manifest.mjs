@@ -87,17 +87,20 @@ const manifest = {
     libraryKey: annotations.source.libraryKey,
     capturedAt: annotations.source.extractedAt,
   },
-  // The third source, and the surprising one: icons are not published from the
-  // Pushpin file at all. They come from the Thumbprint UI Kit by design, one set
-  // of glyphs for both systems — and it is a library many accounts cannot reach,
-  // so this key is what the generation preflight probes before placing anything.
+  // Not a third Figma source. The icons are published from the Pushpin library
+  // alongside everything else, so this carries the same file key as `figma`.
+  // What it does carry that `figma` cannot is a date: the icon page is swept on
+  // its own, so the icon catalog goes stale on its own clock, and freshness.mjs
+  // ages it and kit-state.mjs expires a verdict against it from here. Dating
+  // them by `capturedAt` instead would call a months-old icon capture fresh
+  // because the tokens were pulled today.
   iconLibrary: {
     fileKey: icons.source.fileKey,
     fileName: icons.source.fileName,
     libraryKey: icons.source.libraryKey,
     capturedAt: icons.source.extractedAt,
   },
-  // The fourth source and the only one that is not Figma. The content design
+  // The third source and the only one that is not Figma. The content design
   // rules are a blob in a GitHub repo, so what pins them is a repo, a ref and a
   // sha rather than a library key — and it is the sha freshness.mjs asks GitHub
   // about, the way it asks Figma about the library keys above.

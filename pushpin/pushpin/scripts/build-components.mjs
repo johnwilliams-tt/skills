@@ -6,8 +6,19 @@
  * Membership is decided by `getPublishStatusAsync()`, read per node in the kit
  * and carried in the capture's `publishStatus` map. Everything the library
  * publishes is kept and everything it does not is dropped, whatever the thing
- * is called. The 1074 components in the file distil to 118 published owners
- * under 115 distinct names.
+ * is called. Outside the icons, that distils to 118 published owners under 115
+ * distinct names.
+ *
+ * The icons are the one exception, and they are a large one. The kit publishes
+ * the whole icon set — some 900 components named `<Glyph> Icon · <size>` — and
+ * those belong to assets/icons.figma.json, which keys them by glyph with a key
+ * per size. That is the shape a caller placing an icon needs, and 900 flat
+ * entries sitting beside 115 components is not. Publish status cannot tell an
+ * icon from a button, so the name shape does — `sizeOf` already recognises it —
+ * and what was excluded is counted into `source.iconsOmitted`. Counted rather
+ * than dropped in silence, because `publicKept` against `publishedTotal` is a
+ * subtraction a reader checks, and 900 unaccounted absences read as a capture
+ * that died halfway.
  *
  * The rule this replaced tested the name — `_…` and `.…` meant internal — and
  * was wrong in both directions at once. It kept four components that live in
@@ -76,7 +87,9 @@ const BASE = existsSync(OUT) ? OUT : SHIPPED;
  * disagreed. Recording the disagreements is what makes the next one visible:
  * `Core / Safari (Big Sur) / Toolbar / Toolbar Item` reads as public and sits
  * among 17 `_Browser / …` siblings, and nothing but this comparison would say
- * so. It gates nothing — `publishStatus` does that alone.
+ * so. It gates nothing: `publishStatus` decides whether an entry is published
+ * and `sizeOf` decides which of the two catalogs holds it, and neither of them
+ * reads a prefix.
  */
 const looksInternal = (n) => n.startsWith('_') || n.startsWith('.');
 
@@ -91,7 +104,16 @@ const STATUSES = new Set(['CURRENT', 'CHANGED', 'UNPUBLISHED']);
  */
 const isPublished = (status) => status === 'CURRENT' || status === 'CHANGED';
 
-/** `_Arrow-Left Icon · Medium` → `Medium`. */
+/**
+ * `_Arrow-Left Icon · Medium` → `Medium`, and undefined for anything that is
+ * not a ramp step of the icon set.
+ *
+ * Used twice, and the second use gates membership: an entry with a size is an
+ * icon and belongs to the icon catalog. The anchored suffix is what keeps that
+ * safe. `Icon Button` and `Brand / Logomark` are component sets with `Icon` in
+ * the name and no ` · <size>` after it, so neither matches, and no published
+ * component outside the icon ramp ends in one of these four words.
+ */
 const sizeOf = (name) => /Icon · (Tiny|Small|Medium|Large)$/.exec(name ?? '')?.[1];
 
 /**
@@ -272,13 +294,23 @@ export function distillComponents({
   const byNode = new Map(all.map((c) => [c.nodeId, c]));
   const published = all.filter((c) => isPublished(publishStatus[c.nodeId]));
 
+  // The icon set publishes from this same library and is cataloged by glyph in
+  // assets/icons.figma.json. Split out before the loop below rather than after
+  // it, because the two catalogs disagree about what a duplicate is: `Home` is
+  // published in both Navigation and Meta Category at all four sizes, so
+  // `Home Icon · Tiny` is two published nodes under one name here and two
+  // legitimate entries there. Filtering later would fill `nameCollisions` with
+  // pairs that are not collisions anywhere a reader can act on them.
+  const icons = published.filter((c) => sizeOf(c.name));
+  const owners = published.filter((c) => !sizeOf(c.name));
+
   const components = {};
   // A name is not unique — the kit publishes two `Tabs`, two `iOS / Sheet` and
   // two `view` — and keying by name means one of each is unreachable. Which one
   // survives is worth stating, because "118 published, 115 entries" is
   // otherwise a subtraction nobody can check.
   const nameCollisions = [];
-  for (const c of published) {
+  for (const c of owners) {
     // The dump's own reading first, because it is what resolves an INSTANCE_SWAP
     // default to a name, then the library's reading over the top of it where the
     // capture has one.
@@ -308,6 +340,9 @@ export function distillComponents({
     };
   }
 
+  // Over the whole capture, icons included, unlike everything above it. This
+  // reports on the file's naming rather than on the catalog's contents, and a
+  // published `_…` icon is the same mistake wherever the glyph ends up.
   const nameStatusDisagreement = all
     .filter((c) => looksInternal(c.name) === isPublished(publishStatus[c.nodeId]))
     .map((c) =>
@@ -320,7 +355,7 @@ export function distillComponents({
   // Silence here would mean shipping the file's unpublished property ids and
   // calling them the library's, which is the defect this field exists to make
   // visible rather than plausible.
-  const propertiesFromDump = published
+  const propertiesFromDump = owners
     .filter((c) => Object.keys(c.properties ?? {}).length && !publishedProperties[c.assetKey])
     .map((c) => c.name)
     .sort();
@@ -331,8 +366,13 @@ export function distillComponents({
     ),
     capturedTotal: all.length,
     publishedTotal: published.length,
+    // Icons included on purpose, unlike every other count here. freshness.mjs
+    // holds this against `/component_sets` for the whole file, so narrowing it
+    // to the catalog's own entries would report the icon sets the endpoint
+    // returns as work the kit had gained.
     publishedSets: published.filter((c) => c.type === 'COMPONENT_SET').length,
     unpublishedOmitted: all.length - published.length,
+    iconsOmitted: icons.length,
     nameCollisions: nameCollisions.sort(),
     nameStatusDisagreement,
     propertiesFromDump,
@@ -529,7 +569,7 @@ const sorted = distilled.components;
 
 const doc = {
   $comment:
-    'Every component and component set the Pushpin Thumbprint UI Kit publishes to its library, and nothing else. Membership is decided by getPublishStatusAsync() per node, not by the name, so an entry here is one whose `key` resolves. `key` is the assetKey to pass to figma.importComponentByKeyAsync — importComponentSetByKeyAsync for a COMPONENT_SET. `publishedAs` appears where the library still serves an older name than the file carries. Generated — see scripts/build-components.mjs.',
+    'Every component and component set the Pushpin Thumbprint UI Kit publishes to its library, except the icon set. Membership is decided by getPublishStatusAsync() per node, not by the name, so an entry here is one whose `key` resolves. The kit publishes its icons from the same library, and they are cataloged by glyph in icons.figma.json instead of one entry per size here; `source.iconsOmitted` counts how many were routed there. `key` is the assetKey to pass to figma.importComponentByKeyAsync — importComponentSetByKeyAsync for a COMPONENT_SET. `publishedAs` appears where the library still serves an older name than the file carries. Generated — see scripts/build-components.mjs.',
   source: {
     fileKey: 'VVRGrLgkPRU3vs765d5Q3r',
     fileName: 'Pushpin Thumbprint UI Kit',
@@ -538,6 +578,11 @@ const doc = {
     publishedTotal: distilled.publishedTotal,
     publishedSets: distilled.publishedSets,
     unpublishedOmitted: distilled.unpublishedOmitted,
+    // Published icons, kept out of `components` and cataloged in
+    // icons.figma.json. Stated here rather than only there because this is
+    // where a reader is already checking `publicKept` against
+    // `publishedTotal`, and that subtraction does not close without it.
+    iconsOmitted: distilled.iconsOmitted,
     publicKept: Object.keys(sorted).length,
     ...(distilled.nameCollisions.length ? { nameCollisions: distilled.nameCollisions } : {}),
     // Where the naming convention and the library disagree. Every entry here is
@@ -560,7 +605,8 @@ writeFileSync(OUT, JSON.stringify(doc, null, 2) + '\n');
 console.log(
   `Wrote ${OUT} — ${doc.source.publicKept} published components under distinct names ` +
     `(${doc.source.publishedTotal} published of ${doc.source.capturedTotal} captured; ` +
-    `${doc.source.unpublishedOmitted} unpublished omitted).`,
+    `${doc.source.unpublishedOmitted} unpublished omitted, ` +
+    `${doc.source.iconsOmitted} icons in icons.figma.json).`,
 );
 if (distilled.nameCollisions.length) {
   console.log(`  ${distilled.nameCollisions.length} name(s) published twice; one entry each.`);

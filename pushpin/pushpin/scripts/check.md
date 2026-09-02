@@ -1,6 +1,6 @@
 # Checking the kit for changes
 
-Seven read-only captures across three files. Sections 1–3 and 5 feed
+Seven read-only captures across two files. Sections 1–3 and 5 feed
 `scripts/diff.mjs`; sections 4 and 6 cover the Annotation Kit and the component
 visual specs, neither of which `diff.mjs` reads — each is compared by
 overwriting its own asset and reading `git diff`. Run them, save each result to
@@ -297,18 +297,25 @@ components silently missing from the catalog.
 
 ## 5. Icon capture
 
-`fileKey: jjhhb3Kp6a7JrtBLCjrf6u` — the **Thumbprint UI Kit**, not the Pushpin
-file. Icons are published from there by design rather than pending a move, which
-is why they need their own capture against their own file.
+`fileKey: VVRGrLgkPRU3vs765d5Q3r` — the same file as §3, and still its own
+capture. An icon republish churns a thousand keys and touches nothing a component
+consumer cares about, so folding the two together would date the component
+catalog to the icon set's clock and hide which of them actually moved.
 
 Two reads, because neither alone distils:
 
 - `list_file_components_for_code_connect` with that `fileKey`. Save the raw
   array as `icons-raw.json`. It carries the names and the `assetKey`s and
   nothing about how the page is organised.
-- `get_metadata` with that `fileKey` and `nodeId: 2:1`. Save it as
-  `icons-page.xml`. It carries the ten category frames and which icons sit in
+- `get_metadata` with the same `fileKey` and the icons page's `nodeId`. Save it
+  as `icons-page.xml`. It carries the category frames and which icons sit in
   each, and no keys.
+
+**Read the page id off the dump rather than writing one down.** Every icon entry
+in `icons-raw.json` names the page it sits on; take the one the `… Icon · <Size>`
+entries share and pass that to `get_metadata`. A hardcoded page id is correct
+until the file is reorganised and then captures the wrong frames without saying
+so, which is the failure this whole page exists to catch.
 
 They join on `nodeId`, and `diff.mjs` distils them with the same code that built
 the committed catalog.

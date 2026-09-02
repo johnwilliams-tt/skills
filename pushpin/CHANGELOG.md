@@ -16,6 +16,125 @@ Changes are grouped the way `diff.mjs` classifies them:
 An entry about the plugin rather than the capture adds **Fixed** for a bug in
 the toolchain, which `diff.mjs` has no category for.
 
+## 0.21.0 — 2026-09-02
+
+The icon set is published from the Pushpin Thumbprint UI Kit now, and the
+Thumbprint UI Kit that used to publish it is no longer subscribed by anything
+this plugin reads. That is one file where there were two, which sounds like
+tidying and is not: the republish reissued every key, so all 899 in the shipped
+catalog were dead the moment it happened, and nothing in the repo could have
+told you. `freshness.mjs` validates keys against the file the manifest names,
+and the manifest still named the retired kit — so the one check that talks to
+Figma was holding the old keys against the file they were captured from, which
+is the one file where they were never going to fail.
+
+**Breaking**
+
+- **Every icon key was reissued.** `Caret-Left · Small` is
+  `ab86e00acd06cbe0c3afa8adeca31d556d112564`, not
+  `9f82048ae8b63ce69e24cb84a5d3a514ba20dee7`, and the same is true of the other
+  898. `assets/icons.figma.json` was re-captured from
+  `VVRGrLgkPRU3vs765d5Q3r` on 2026-09-02 and holds the current ones. Nothing
+  else about the set moved: 227 glyphs, the same ten categories, the same size
+  ramp, the same five entries recorded as short of a size, and the same
+  `AI-Writing Icon · Medium` duplicate. Every one of the 899 keys is new and not
+  one is carried over, which is the whole diff — and the keys are the one part
+  nobody types and every `importComponentByKeyAsync` call passes.
+
+  A run against the old keys does not degrade. `importComponentByKeyAsync`
+  throws on a key the library no longer serves, so a generation carrying an
+  icon dies partway through building a screen rather than placing a placeholder
+  and reporting it. Anything that pins or caches a key — a `.figma.tsx` mapping,
+  a plugin's stored swap, a snippet pasted out of `lookup` a week ago — needs
+  re-reading from the catalog rather than patching.
+
+- **An overlay captured before today holds dead keys, and the version bump is
+  what retires it.** A project that ran `refresh` against the old arrangement
+  has an `icons.figma.json` under `.pushpin/assets/` that outranks the plugin's,
+  and every key in it points at a library the file no longer subscribes to.
+  `captureDate` supersedes an overlay the moment the plugin ships a catalog
+  newer than it, so an install of this release retires those overlays and says
+  so on the next `lookup` — but only if the release is received. Claude Code
+  keys its cache on the version string, which is why this is 0.21.0 and not a
+  quiet re-capture on 0.20.0: an unbumped number leaves a consumer reading a
+  stale overlay against a kit that has moved out from under it, with the
+  supersession that exists to catch exactly that never firing.
+
+- **The `icons` reach probe is gone from the generation preflight.** It used to
+  resolve one known icon key alongside Pushpin and the Annotation Kit, on the
+  argument that the icon library was the one an account was least likely to be
+  set up against. With the icons inside the Pushpin library that argument has no
+  subject left: a run that resolves Button resolves `Caret-Left · Small`, and a
+  run that does not resolve Button has already stopped. Anything reading `reach`
+  or `mode` from the shape in [generate.md](pushpin/reference/generate.md) will
+  find two entries where there were three, and no `mode.icons` at all.
+
+**Changed**
+
+- **The icon degraded mode collapsed into the unresolved bucket.**
+  `mode.icons === 'placeholder'` had one trigger and that trigger is now
+  unreachable, and a branch nobody can reach is a branch nobody tests. An icon
+  that will not resolve is still handled, and by the path that was always the
+  more honest of the two: it is an unresolved atom, placed as a
+  `Placeholder / icon · <Size>` and named in the report. The difference is what
+  the report now means. A placeholder used to say "your account cannot see the
+  icon library", which no re-capture fixes and no maintainer can act on; it now
+  says "this key is dead", which is a `refresh` away.
+
+- **`components.figma.json` excludes the published icons and counts them.**
+  Catalog membership is decided by `getPublishStatusAsync()` and nothing else,
+  which was correct while the icons published from somewhere else and became a
+  trap the moment they did not: the next component capture would have swept some
+  900 `<Glyph> Icon · <Size>` entries in beside the 115 real ones, flattening a
+  catalog keyed by component name with a second catalog keyed by glyph and size.
+  `build-components.mjs` routes anything matching the icon ramp to a counted
+  `source.iconsOmitted` instead. Counted rather than dropped in silence, because
+  `publicKept` against `publishedTotal` is a subtraction a reader checks, and 900
+  unexplained absences read as a capture that died halfway.
+
+  The split is made on the name because publish status cannot tell an icon from
+  a button, and the pattern is anchored to the four size words at the end of the
+  string for the same reason it always was — `Icon Button` and
+  `Brand / Logomark` carry `Icon` in the name, end in neither ` · Tiny` nor its
+  three siblings, and are unaffected. The exclusion lands in the catalog the
+  next time somebody runs a full component capture; this release ships the rule,
+  not a re-captured component catalog.
+
+- **Two Figma files where the docs said three.** `manifest.json`'s
+  `iconLibrary` block survives and now carries the Pushpin file key, because the
+  icon page is still swept on its own clock and the icon catalog still goes
+  stale on its own — dating it by the tokens' `capturedAt` would call a
+  months-old icon capture fresh because the variables were pulled this morning.
+  What it no longer claims is a separate source. `freshness.mjs` reports two
+  files, and each capture in its age report gained a `label` distinct from its
+  `fileName`: with the icon page sharing a file name with the tokens, an
+  unlabelled report printed the same name twice under two different dates, and
+  the `--brief` sentence keyed on that name would have handed the icon capture
+  the sentence about a token or component having moved. `fileName` stays on the
+  objects for `--json` consumers.
+
+- **The prose that argued the old arrangement is gone rather than patched.**
+  [figma.md](pushpin/reference/figma.md),
+  [generate.md](pushpin/reference/generate.md),
+  [setup.md](pushpin/reference/setup.md),
+  [extract.md](pushpin/scripts/extract.md),
+  [check.md](pushpin/scripts/check.md) and [SKILL.md](pushpin/SKILL.md) each
+  stated at length that the icons deliberately were not in Pushpin — one set
+  of glyphs serving both systems, a `search_design_system` call scoped to Pushpin
+  returning nothing for `caret`, a shared-library write refusal naming a third
+  file key. Those paragraphs were not wrong in a detail that could be corrected;
+  their whole argument had become false, so they were rewritten rather than
+  find-and-replaced. The reason the icon catalog exists is still worth stating
+  and it is now the real one: an icon is four components with four keys, not one
+  component with a size property, and a search returns prose matches one call at
+  a time with no guarantee the four sizes came back together.
+
+  Untouched on purpose: `usesThumbprint` in `check.mjs`, the `env.thumbprint`
+  detection in `lib/project.mjs` and `init.mjs`, and the comparisons in
+  `impeccable-bridge.mjs`. Those are about the `thumbprint-react` package and the
+  v1 token stylesheet in a consuming project, not the Figma file, and nothing in
+  this migration says they are wrong.
+
 ## 0.20.0 — 2026-09-01
 
 `/pushpin update`: one verb for "the design system moved, bring me current". The

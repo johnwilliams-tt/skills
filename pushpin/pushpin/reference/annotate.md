@@ -526,17 +526,16 @@ bundle.insertChild(0, capstone);
 capstone.layoutAlign = 'STRETCH';
 ```
 
-The Icons page of the Thumbprint UI Kit is the reference for how one is used, and
-every convention it demonstrates now falls out of that stretch rather than being
-measured:
+The icons page is the reference for how one is used, and every convention it
+demonstrates now falls out of that stretch rather than being measured:
 
 - **Left-aligned with the block it heads, spanning its width.** The published
-  sizes are starting widths, not constraints — the Icons page runs a 112-tall
+  sizes are starting widths, not constraints — that page runs a 112-tall
   capstone out to 3472 wide across the whole inventory. Pick the size by height
   and let `STRETCH` supply the width. A capstone heading the design *and* its
   column spans both because the body is what it stretches to, so widening either
   one keeps the heading correct instead of leaving it short.
-- **Above the block with clear air beneath it** — the Icons page leaves about 84
+- **Above the block with clear air beneath it** — it leaves about 84
   points, and 96 is the nearest step, which is `bundle.itemSpacing`. Never
   overlapping what it heads, and never inside it; being a sibling above the body
   in a vertical auto-layout makes both impossible rather than merely discouraged.

@@ -4,11 +4,9 @@ Everything in `assets/` is produced by running these read-only scripts against
 the source files and transcribing the results. They are recorded here so the
 captures are reproducible rather than one-time acts.
 
-Sections 1–6 and 9 read the Pushpin file, `VVRGrLgkPRU3vs765d5Q3r`. Section 7
-reads the Annotation Kit, `Qefv6O2RMPSBtSYBrCGcdI`. Section 8 reads the older
-Thumbprint UI Kit, `jjhhb3Kp6a7JrtBLCjrf6u`, which is where the icon set is
-published. Pass the right `fileKey` on every call; they are three separate files
-and three separate libraries.
+Sections 1–6, 8 and 9 read the Pushpin file, `VVRGrLgkPRU3vs765d5Q3r`. Section 7
+reads the Annotation Kit, `Qefv6O2RMPSBtSYBrCGcdI`. Pass the right `fileKey` on
+every call; they are two separate files and two separate libraries.
 
 To find out **whether** anything changed, use [check.md](check.md) instead — one
 capture per vantage point, fed to `diff.mjs`, which classifies what moved. Come
@@ -214,6 +212,17 @@ published" that a consuming file will agree with. It needs a node, so it needs
 just the ones whose name looks public: `_Bubble / Text` and `_Stamps` are
 published, and four components that read as public were never pushed to the
 library.
+
+**Published icons pass that gate and still do not belong here.** The file
+publishes the whole glyph set, so a catalog built on publish status alone
+swallows a thousand `… Icon · Tiny|Small|Medium|Large` entries beside the
+components and buries the hundred-odd things a lookup is actually for. The
+distiller matches that shape and routes it to a counted `iconsOmitted` in the
+`source` block instead — [§8](#8-icons) is where those entries land, on their own
+capture date. The count is in the catalog so the split is visible rather than
+inferred: a drop to zero means the match stopped matching, not that the kit
+stopped publishing icons. Component sets like `Icon Button` and
+`Brand / Logomark` do not match the shape and are unaffected.
 
 Node ids resolve across pages without `setCurrentPageAsync`, so this is one flat
 loop rather than a per-page fan-out. **300 ids per call** is measured — four
@@ -519,26 +528,33 @@ adding any, so there is nothing here corresponding to sections 2, 3, 4 or 6.
 
 ## 8. Icons
 
-`assets/icons.figma.json` — `fileKey: jjhhb3Kp6a7JrtBLCjrf6u`, page `2:1`.
+`assets/icons.figma.json` — `fileKey: VVRGrLgkPRU3vs765d5Q3r`, the Pushpin file's
+`Icons` page.
 
-**Icons are not published from the Pushpin file.** They never were: the Pushpin
-kit publishes 115 components under distinct names and not one of them is an icon,
-which is why the plugin had no way to place one until this catalog existed. The
-set lives on the Icons page of the Thumbprint UI Kit — deliberately, so one set
-of glyphs serves both systems — and publishes from that file's library. Capturing
-it against `VVRGrLgkPRU3vs765d5Q3r` returns nothing and looks like a kit that
-lost its icons.
+**Icons get their own capture even though they share a file with §5.** The two
+catalogs answer different questions and move on different clocks: a component
+republish churns property suffixes and geometry, an icon republish churns a
+thousand keys and nothing else, and a single capture would date both to whichever
+ran last. So §5's distiller routes every published `… Icon · <Size>` out of the
+component catalog and counts it as omitted, and this section is where those
+entries land instead.
 
 Two reads, neither sufficient alone:
 
 ```
-list_file_components_for_code_connect   fileKey jjhhb3Kp6a7JrtBLCjrf6u
-get_metadata                            fileKey jjhhb3Kp6a7JrtBLCjrf6u, nodeId 2:1
+list_file_components_for_code_connect   fileKey VVRGrLgkPRU3vs765d5Q3r
+get_metadata                            fileKey VVRGrLgkPRU3vs765d5Q3r, nodeId <icons page>
 ```
 
+**Derive the page id from the dump; do not carry one over.** Every icon entry in
+`list_file_components_for_code_connect` names the page it sits on, so read the
+page off the icon entries and pass that id to `get_metadata`. A page id written
+down here is a constant that survives one file reorganisation and then silently
+captures the wrong frames.
+
 The dump gives every published icon's name and `assetKey` and flattens the page
-to a list, losing the grouping entirely. The metadata gives the ten category
-frames and which icons sit inside each, and carries no keys. They join on
+to a list, losing the grouping entirely. The metadata gives the category frames
+and which icons sit inside each, and carries no keys. They join on
 `nodeId`. Save them and run the distiller:
 
 ```bash
@@ -566,9 +582,13 @@ Four things the distiller handles that a hand-merge would get wrong:
 - **Names are exact, including the mistakes.** `Trend Icon Icon · Tiny` and
   `Home-Heart Icon Icon · Small` are really published with the doubled word.
   Copy them through; a corrected spelling is a key that does not resolve.
-- **Five icons live off the Icons page** — older copies parked in a workspace,
-  plus one `_base /` internal. They are omitted and counted, because a stray
-  duplicate resolving under the same base name would shadow the canonical one.
+- **Two published icons live off the Icons page** — `_base / Native / Dictation
+  Icon · Medium`, twice, on the Additional components page. They are omitted and
+  counted under `offPageOmitted`, because a stray duplicate resolving under the
+  same base name would shadow the canonical one. The count is worth reading each
+  time rather than assumed: local working copies accumulate in a file that hosts
+  the whole kit, and each one is a name the catalog would otherwise have two
+  answers for.
 
 `scripts/verify.mjs` checks that `publicKept` matches the entry count, that
 `keyCount` matches the keys actually present, that no size is off the ramp, and

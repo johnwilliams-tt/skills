@@ -314,13 +314,18 @@ of this are in
 
 ## Icons
 
-Icons are the part of the kit most likely to be got wrong, and all three ways of
-getting it wrong come from the same place: **the icon set is not published from
-the Pushpin file.** It is published from the Thumbprint UI Kit
-(`jjhhb3Kp6a7JrtBLCjrf6u`), where it lives deliberately — one set of glyphs
-serving both systems rather than a copy in each — and a `search_design_system`
-call scoped to Pushpin returns nothing for `caret`. That reads as "Pushpin has no
-caret" and it is wrong — there are four, at four sizes each.
+Icons are the part of the kit most likely to be got wrong, and the ways of
+getting it wrong all come from the same place: **an icon is not one component
+with a size property.** It is four components, one per size, each with its own
+key and its own drawing. Nothing about a caret in Figma tells you that — the
+frame shows one glyph, and the instinct is to import it once and resize.
+
+That is also why the catalog exists rather than a search. `search_design_system`
+scoped to Pushpin does return icons, but it returns them as prose matches, one
+call at a time, with no guarantee the four sizes came back together and no way
+to tell `Home [navigation]` from `Home [meta-category]` when both surface.
+`assets/icons.figma.json` was captured for exactly this: every name, every
+category, every size, every key, in one read with no round trip.
 
 The catalog holds 227 icons across ten categories and 899 import keys. Ask it
 for the one you need — `node scripts/lookup.mjs --icon caret` returns every
@@ -328,7 +333,7 @@ match with a key per size — and never type an icon name from memory.
 
 ```js
 const caret = await figma.importComponentByKeyAsync(
-  '9f82048ae8b63ce69e24cb84a5d3a514ba20dee7',   // Caret-Left · Small
+  'ab86e00acd06cbe0c3afa8adeca31d556d112564',   // Caret-Left · Small
 );
 slot.swapComponent(caret);
 ```
@@ -869,8 +874,7 @@ not pass does not take the original's place.
 
 **Shared library files are refused outright.** Never write into the Pushpin
 Thumbprint UI Kit (`VVRGrLgkPRU3vs765d5Q3r`), the Annotation Kit
-(`Qefv6O2RMPSBtSYBrCGcdI`), the Thumbprint UI Kit that publishes the icon set
-(`jjhhb3Kp6a7JrtBLCjrf6u`), or any file that appears as a subscribed library of
+(`Qefv6O2RMPSBtSYBrCGcdI`), or any file that appears as a subscribed library of
 the file being worked in. A bad write there reaches everyone subscribed, and the
 user cannot undo it. Contributing a component to the kit goes through a Figma
 branch and the contribution flow, which this plugin documents in
@@ -923,24 +927,21 @@ account can read the file the component is published from.
 `freshness` cannot answer that. It validates keys against whatever credentials
 happen to be present, usually the maintainer's or none, so it reports clean while
 a teammate's generation dies mid-run inside `importComponentByKeyAsync`. Pushpin
-draws components from three separate libraries and a given account rarely reaches
-all three: most product files are set up against Pushpin alone, and the icon
-library is the least likely of the three to be within reach, because nothing
-about Pushpin announces that its icons are published from Thumbprint.
+draws from two separate libraries and a given account often reaches only one:
+most product files are set up against Pushpin alone, and the Annotation Kit is a
+library a designer subscribes to on purpose rather than one that arrives with the
+kit.
 
-So before creating any node, resolve one known key from each of the three.
+So before creating any node, resolve one known key from each of the two.
 
 ```js
 const probes = [
-  ['pushpin', 'set', 'ebc80753f095633977049c061a28a082816ef9c7'],        // Button
-  ['icons', 'component', '9f82048ae8b63ce69e24cb84a5d3a514ba20dee7'],    // Caret-Left · Small
-  ['annotations', 'set', 'aa6e465a9c85c4067a897cc46408bd116d1e3e69'],    // Annotations
+  ['pushpin', 'ebc80753f095633977049c061a28a082816ef9c7'],        // Button
+  ['annotations', 'aa6e465a9c85c4067a897cc46408bd116d1e3e69'],    // Annotations
 ];
 
 const settled = await Promise.allSettled(
-  probes.map(([, kind, key]) => (kind === 'set'
-    ? figma.importComponentSetByKeyAsync(key)
-    : figma.importComponentByKeyAsync(key))),
+  probes.map(([, key]) => figma.importComponentSetByKeyAsync(key)),
 );
 
 const reach = {};
@@ -953,15 +954,15 @@ probes.forEach(([library], i) => {
 return { reach };
 ```
 
-The three probes are three separate libraries and no one of them tells you
-anything about the next, so they go out together rather than as three awaits in a
-row. `allSettled` rather than `all`: a probe failing is the expected outcome
-here, not an error. `all` rejects on the first failure and throws away the other
-two answers, which are the whole reason the preflight runs.
+The two probes are two separate libraries and neither tells you anything about
+the other, so they go out together rather than as two awaits in a row.
+`allSettled` rather than `all`: a probe failing is the expected outcome here, not
+an error. `all` rejects on the first failure and throws away the other answer,
+which is half the reason the preflight runs.
 
-Every icon is a plain `COMPONENT` rather than a set, which is why the icon probe
-uses `importComponentByKeyAsync`. Use the same call for any catalog entry whose
-`type` is `"COMPONENT"`.
+The probes both name component sets, so they both use
+`importComponentSetByKeyAsync`. Any catalog entry whose `type` is `"COMPONENT"`
+— every icon, among others — takes `importComponentByKeyAsync` instead.
 
 **Silent when it passes**, like the session freshness check; only a negative is
 worth a sentence.
@@ -976,7 +977,7 @@ lacks answers
 `TypeError: node.resetSlot: no such property 'resetSlot' on COMPONENT node`
 rather than the string the comparison was written against. So
 the one outcome the probe existed to record would have taken the whole preflight
-down with it, losing the three library answers that are the reason it runs at
+down with it, losing the library answers that are the reason it runs at
 all — and the promise that a negative gets cross-checked before it is believed
 was unreachable, because there was no way to hold a negative.
 
@@ -993,23 +994,29 @@ A positive still does not promise the call works — for the reason
 [the drift record](#the-drift-record-lives-on-the-node) gives about
 `setPluginData`, a method can answer `'function'` and still throw.
 
-### One library stops the run, and it is not all of them
+### One library stops the run, and it is not both of them
 
-An earlier version of this page stopped on any of the three. That is the wrong
-trade in two of the three cases, and it produced the worst possible outcome for
-the most common setup: a file reaching Pushpin but not the Annotation Kit could
-not generate at all, including a layout with no proposals that would never have
-placed a note.
+An earlier version of this page stopped on either. That is the wrong trade in one
+of the two cases, and it produced the worst possible outcome for the most common
+setup: a file reaching Pushpin but not the Annotation Kit could not generate at
+all, including a layout with no proposals that would never have placed a note.
 
 | Unreachable | Consequence |
 |---|---|
-| **Pushpin** | **Stop.** Nothing can be placed. Every component, variable, and text style this page relies on is published from here, and a screen with none of them is not a degraded screen, it is an empty one. |
-| Icons | Continue. Every icon becomes a `Placeholder / icon · <Size>` by the rule in [Unresolved atoms](#unresolved-atoms-are-placed-never-dropped). |
+| **Pushpin** | **Stop.** Nothing can be placed. Every component, icon, variable, and text style this page relies on is published from here, and a screen with none of them is not a degraded screen, it is an empty one. |
 | Annotation Kit | Continue. Notes are drawn instead of instanced — the fallback is in [annotate-fallback.md](annotate-fallback.md). |
 
-Both degraded modes are recorded and reported, and neither fails the audit. That
+The degraded mode is recorded and reported, and it does not fail the audit. That
 follows the rule the `unresolved` bucket already sets: a stated gap is an outcome
 worth handing over, and what fails is hiding one.
+
+**There is no degraded mode for icons.** They are published from the Pushpin
+library, so any run that gets past the first row of that table can reach them,
+and a mode flag whose false branch is unreachable is a branch nobody tests. An
+icon that will not resolve is a dead key rather than a closed door, and that is
+[an unresolved atom](#unresolved-atoms-are-placed-never-dropped) — placed as a
+`Placeholder / icon · <Size>`, reported, and fixed by a re-capture rather than by
+access.
 
 So the preflight decides how the run proceeds rather than whether it proceeds:
 
@@ -1017,7 +1024,6 @@ So the preflight decides how the run proceeds rather than whether it proceeds:
 if (reach.pushpin !== true) return { stop: `Pushpin unreachable — ${reach.pushpin}` };
 
 const mode = {
-  icons: reach.icons === true ? 'library' : 'placeholder',
   annotations: reach.annotations === true ? 'library' : 'drawn',
 };
 ```
@@ -1034,12 +1040,13 @@ component is published from — not a change to the catalog, and not a re-captur
 Running `freshness` again will keep reporting clean.
 
 Naming the library matters more than naming the key. "You are not reaching the
-Thumbprint UI Kit, which is where Pushpin's icons are published" is something a
-designer can act on; a raw `Component with key "9f8204…" not found` is not.
+Annotation Kit, which is where the notes and pointers are published" is something
+a designer can act on; a raw `Component with key "aa6e46…" not found` is not.
 
-The icon library is the one to be loudest about, because the obvious reading of
-its absence — "Pushpin has no caret icon" — is wrong, and it sends the next
-person to propose a component that already exists.
+Say what the run will do about it in the same breath. A library named without a
+consequence reads as a warning to ignore, and the consequence is the part that
+decides whether the user wants to fix access before the run or accept the
+fallback and move on.
 
 Failing here costs nothing. Failing halfway through leaves a partial screen that
 reads like a generation bug rather than a permissions one.
@@ -1094,7 +1101,7 @@ that uses them.
 ```js
 const wanted = [
   ['Button', figma.importComponentSetByKeyAsync('ebc80753f095633977049c061a28a082816ef9c7')],
-  ['Caret-Left · Small', figma.importComponentByKeyAsync('9f82048ae8b63ce69e24cb84a5d3a514ba20dee7')],
+  ['Caret-Left · Small', figma.importComponentByKeyAsync('ab86e00acd06cbe0c3afa8adeca31d556d112564')],
   ['background/brand/strong', figma.variables.importVariableByKeyAsync('5590797dbf024c26c95f50687c2b1c61c78248b3')],
   ['title-2', figma.importStyleByKeyAsync('c22f9ef014b478e395a0f659ea00c93e01ee4a10')],
 ];
@@ -1111,15 +1118,15 @@ wanted.forEach(([name], i) => {
 
 `allSettled` again, and for the same reason as the preflight: the failure has to
 name the entry that could not be reached. A rejected `Promise.all` hands back
-`Component with key "9f8204…" not found` and nothing else, which is the message
+`Component with key "ab86e0…" not found` and nothing else, which is the message
 [Naming the library that was out of reach](#naming-the-library-that-was-out-of-reach)
 argues a designer cannot act on. `missing` carries the name it was asked for.
 
 Import each distinct key once and reuse the main component for every instance —
 one `Button` import serves eleven buttons. And leave out of the batch what the
-preflight already ruled out: the icon keys when `mode.icons` is `placeholder`,
-the annotation keys when `mode.annotations` is `drawn`, and any key the preflight
-found dead. Importing a key from a library the preflight just failed on throws,
+preflight already ruled out: the annotation keys when `mode.annotations` is
+`drawn`, and any key the preflight found dead. Importing a key from a library the
+preflight just failed on throws,
 and the preflight ran so this step would not have to guess.
 
 Node handles do not survive the end of a `use_figma` call, so this batch
@@ -1322,9 +1329,10 @@ before the first node exists.
    - The catalog, asked for everything at once: `node scripts/lookup.mjs
      Button,Card,Toast`, and `--icon` with the glyphs comma-separated. A screen
      needs a dozen entries and each one asked separately is a wasted round trip.
-     Scope any `search_design_system` call with the right library key from
-     [figma.md](figma.md) — Pushpin for components, the Thumbprint UI Kit for
-     icons. When the source is code that declares its own components, resolve
+     Scope any `search_design_system` call to the Pushpin library key from
+     [figma.md](figma.md), or the subscribed illustration and annotation
+     libraries answer too. When the source is code that declares its own
+     components, resolve
      those declarations here — [above](#when-the-code-already-says-what-it-is).
    - `node scripts/copy.mjs --text` over the strings the source brought with it,
      when that pass was picked. It belongs in this message and not later: a lane

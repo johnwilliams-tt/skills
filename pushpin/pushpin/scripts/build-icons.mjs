@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /**
- * Distills the Thumbprint UI Kit's icon page into assets/icons.figma.json —
- * the catalog used to place a real icon instance at the right size instead of
+ * Distills the Pushpin file's icon page into assets/icons.figma.json — the
+ * catalog used to place a real icon instance at the right size instead of
  * omitting the icon or scaling one from the wrong size ramp.
  *
- * Icons are the one part of Pushpin that is not published from the Pushpin
- * file. They live on page `2:1` of the Thumbprint UI Kit
- * (`jjhhb3Kp6a7JrtBLCjrf6u`) and are published from its library — deliberately,
- * so one set of glyphs serves both systems — which is why they never appeared in
- * components.figma.json and why nothing in the plugin could place one.
+ * Icons publish from the Pushpin library alongside every other component, off
+ * their own page. They stay in a catalog of their own because the page is two
+ * orders of magnitude larger than the rest of the kit and turns over on its
+ * own clock — folding 900 glyphs into components.figma.json would bury the 115
+ * entries a generation run actually reasons about.
  *
  * Two inputs, because neither alone is enough:
  *
@@ -16,8 +16,8 @@
  *                        the assetKey needed by importComponentByKeyAsync, but
  *                        it flattens the page to a list and loses the category
  *                        grouping entirely.
- *   the page metadata    `get_metadata` on node 2:1 — the category frames and
- *                        which icons sit inside each, but no keys.
+ *   the page metadata    `get_metadata` on the icons page — the category
+ *                        frames and which icons sit inside each, but no keys.
  *
  * They join on nodeId. See scripts/extract.md section 8.
  *
@@ -31,10 +31,10 @@ import { fileURLToPath } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url));
 const OUT = join(here, '..', 'assets', 'icons.figma.json');
 
-export const FILE_KEY = 'jjhhb3Kp6a7JrtBLCjrf6u';
-export const FILE_NAME = 'Thumbprint UI Kit';
+export const FILE_KEY = 'VVRGrLgkPRU3vs765d5Q3r';
+export const FILE_NAME = 'Pushpin Thumbprint UI Kit';
 export const LIBRARY_KEY =
-  'lk-6d54e39c09e05fd3a5164fcc5a88cf6a2dbedd3ad29d20c2ce66ee39c57c81234d16c5746301ace3ae6af7d5bcf49b7389800cb4f7b9521f2fb70de1af7c2dd6';
+  'lk-003ce4846b4638268325b33ad167ece0cd390787a2782f1949cee2e38ca2e7719472f0968d45b4c2f0db9b35ec1820babadcf97a9f40fdd6cc84ba22f7b10a80';
 export const PAGE = { name: 'Icons', id: '2:1' };
 
 /**
@@ -112,9 +112,10 @@ export function distillIcons(all, xml) {
     const parsed = parseIconName(c.name);
     if (!parsed) continue;
     capturedTotal++;
-    // A handful of icons are published from other pages — older copies parked
-    // in a workspace. The canonical inventory is the Icons page, and a stray
-    // duplicate resolving under the same base name would shadow it.
+    // A handful of icons are published from other pages — `_`-prefixed local
+    // copies the kit's own components wrap. The canonical inventory is the
+    // Icons page, and a stray duplicate resolving under the same base name
+    // would shadow it.
     if (c.pageId !== PAGE.id) {
       offPageOmitted++;
       continue;
@@ -194,9 +195,10 @@ function main() {
 
   const doc = {
     $comment:
-      'Published icon components of the Thumbprint UI Kit. `keys` holds the assetKey to pass ' +
-      'to figma.importComponentByKeyAsync, one per size. Icons are NOT published from the ' +
-      'Pushpin file — this is a third source library. Generated — see scripts/build-icons.mjs.',
+      'Published icon components of the Pushpin library. `keys` holds the assetKey to pass ' +
+      'to figma.importComponentByKeyAsync, one per size. Kept apart from components.figma.json ' +
+      'because the icons page is far larger than the rest of the kit and captures on its own ' +
+      'clock. Generated — see scripts/build-icons.mjs.',
     source: {
       fileKey: FILE_KEY,
       fileName: FILE_NAME,

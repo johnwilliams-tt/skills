@@ -160,10 +160,10 @@ which of the two this is. This one runs here rather than later because the probe
 is cheap and the remedy is not — it ends in the user installing something, and
 that is a worse thing to discover mid-generation.
 
-**The three libraries.** Do not invent a second check for this.
+**The two libraries.** Do not invent a second check for this.
 [generate.md](generate.md) § The access preflight resolves one known key from
-each of Pushpin, the icon library, and the Annotation Kit in a single
-`use_figma` call, and rules what happens when one is out of reach. That is also
+each of Pushpin and the Annotation Kit in a single `use_figma` call, and rules
+what happens when one is out of reach. That is also
 the call that proves the Figma desktop app is connected, since `use_figma` runs
 inside it.
 

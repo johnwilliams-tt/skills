@@ -1,7 +1,7 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.20.0
+version: 0.21.0
 argument-hint: "[generate|audit|figma · setup|init|update|freshness · refresh] [target]"
 allowed-tools:
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/check.mjs *)
@@ -241,8 +241,7 @@ in place and no destination is guessed.
 
 **A link is required** before anything is pushed. **Shared library files are
 refused** — the Pushpin kit (`VVRGrLgkPRU3vs765d5Q3r`), the Annotation Kit
-(`Qefv6O2RMPSBtSYBrCGcdI`), the Thumbprint UI Kit that publishes the icons
-(`jjhhb3Kp6a7JrtBLCjrf6u`), and any subscribed library.
+(`Qefv6O2RMPSBtSYBrCGcdI`), and any subscribed library.
 
 **One question settles the rest of it, before the first write.** Where the work
 lands — beside the original, a clean review page, or somewhere the user names —

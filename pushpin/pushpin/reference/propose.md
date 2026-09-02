@@ -190,18 +190,18 @@ the point of both, and the two questions — "should we build this component?"
 and "what should this icon be?" — go to the same person. Nothing is written to
 disk.
 
-**Lead with any library the preflight could not reach**, above the proposals and
+**Lead with anything the preflight could not resolve**, above the proposals and
 the unresolved atoms, because it reframes everything under it. A screen full of
 `Placeholder / icon` is a different artifact depending on whether the icon set
-lacks those glyphs or this account simply cannot see the library, and the reader
-cannot tell the two apart from the canvas. Name the library, say what stood in
-for it, and say what would restore it:
+lacks those glyphs or the catalog is quoting keys the library no longer serves,
+and the reader cannot tell the two apart from the canvas. Say which it was, say
+what stood in, and say what would restore it:
 
 ```markdown
-**The Thumbprint UI Kit was out of reach**, so all 6 icons on this screen are
-placeholders rather than missing glyphs — Pushpin's icons are published from
-that file. Notes are drawn rather than Annotation Kit instances for the same
-reason. Both are fixed by access to those files, not by a change to the design.
+**Six icon keys did not resolve**, so those slots are placeholders rather than
+missing glyphs — the catalog is behind the library and needs a re-capture, not a
+design decision. The Annotation Kit was out of reach, so notes are drawn rather
+than instanced; that one is fixed by access to the file.
 ```
 
 The failure mode this prevents is a reviewer concluding the design system is

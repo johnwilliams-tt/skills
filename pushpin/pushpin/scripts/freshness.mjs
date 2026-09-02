@@ -30,20 +30,21 @@
  * at review. That is why key existence is checked directly rather than inferred
  * from counts.
  *
- * Three files are checked, because the plugin depends on three. An unpublished
+ * Two files are checked, because the plugin depends on two. An unpublished
  * Annotation Kit key throws in exactly the same place as an unpublished Pushpin
  * one, and the annotation is placed at the end of a generation run, so the
  * failure lands after the expensive part. The Annotation Kit publishes no text
  * or effect styles and its variables are not used, so it gets a component layer
  * and nothing else.
  *
- * The third file is the Thumbprint UI Kit, which is where the icon set is
- * published — not the Pushpin file, despite icons being part of Pushpin, and by
- * design rather than by omission. Icons are placed early and everywhere, so a
- * dead icon key takes a run down near the start; it also gets a component layer
- * and nothing else.
+ * Icons get a layer of their own despite being published from the Pushpin
+ * library, and so from the same file the components layer already asks about.
+ * They are a separate catalog keyed by glyph and captured on its own clock, so
+ * the keys the components layer checks are not the keys an icon run imports, and
+ * a layer that passed would say nothing about them. Icons are placed early and
+ * everywhere, so a dead icon key takes a run down near the start.
  *
- * The fourth source is not Figma at all. The content design rules are a blob in
+ * The third source is not Figma at all. The content design rules are a blob in
  * a GitHub repo, pinned by sha, so the question there is whether the blob moved
  * rather than whether a key still resolves — and the answer costs a GitHub call
  * on GITHUB_TOKEN, not a Figma one. Without the token it reports the age of its
@@ -149,11 +150,11 @@ if (has('--help') || has('-h')) {
     'usage: node scripts/freshness.mjs [--max-age days] [--offline] [--strict] ' +
       '[--allow-skip a,b] [--json] [--brief] [--session]\n\n' +
       'Reports how far the committed captures may have drifted from Figma.\n' +
-      'Set FIGMA_TOKEN to check the import keys against the three live files: ' +
-      `${real(catalog.components).length} components and ${styleKeyCount} styles in ` +
-      `${manifest.figma.fileName}, ${real(annotationCatalog.components).length} ` +
-      `components in ${manifest.annotationKit.fileName}, and ${iconKeyPairs.length} ` +
-      `icon keys in ${manifest.iconLibrary.fileName}.\n` +
+      'Set FIGMA_TOKEN to check the import keys against the two live files: ' +
+      `${real(catalog.components).length} components, ${styleKeyCount} styles and ` +
+      `${iconKeyPairs.length} icon keys in ${manifest.figma.fileName}, and ` +
+      `${real(annotationCatalog.components).length} components in ` +
+      `${manifest.annotationKit.fileName}.\n` +
       `Set GITHUB_TOKEN to ask whether ${manifest.copySource.repo} still serves the blob the ` +
       'content design rules were parsed from; without it that layer reports the age.\n' +
       '--strict fails when a layer could not be checked, so an unreachable layer stops ' +
@@ -249,11 +250,15 @@ const prettyDate = (iso) => {
   return `${MONTHS[m - 1]} ${d}`;
 };
 
+// Where a layer's keys live, for the sentence a finding hands the user. Four of
+// the five name the same library, which is the truth rather than a table that
+// wants collapsing: only the Annotation Kit is somewhere else, and the layers
+// are split by what they catalog rather than by which library they read.
 const LIBRARY = {
   components: 'the Pushpin kit',
   styles: 'the Pushpin kit',
   annotations: 'the Annotation Kit',
-  icons: 'the icon library',
+  icons: 'the Pushpin kit',
   variables: 'the Pushpin kit',
 };
 
@@ -271,22 +276,30 @@ const ageOf = (date, where) => {
 const phraseFor = (days) =>
   days === 0 ? 'captured today' : days === 1 ? 'captured yesterday' : `${days} days old`;
 
-// The three files are captured independently, so they age independently. The
-// age limit is tested against the oldest of them: a current Annotation Kit says
-// nothing about a Pushpin capture that has been sitting for two months.
+// Three captures over two files — the icon page is swept separately from the
+// rest of the Pushpin file — and each one ages on its own clock. The age limit
+// is tested against the oldest of them: a current Annotation Kit says nothing
+// about a Pushpin capture that has been sitting for two months.
+//
+// `label` is what the reader sees, and it is not `fileName`, because two of
+// these carry the same one. Printing it twice with two dates beside it reads as
+// a bug in the report rather than as two captures of one file.
 const captures = [
   {
     fileName: manifest.figma.fileName,
+    label: manifest.figma.fileName,
     capturedAt: manifest.capturedAt,
     ageDays: ageOf(manifest.capturedAt, 'capturedAt'),
   },
   {
     fileName: manifest.annotationKit.fileName,
+    label: manifest.annotationKit.fileName,
     capturedAt: manifest.annotationKit.capturedAt,
     ageDays: ageOf(manifest.annotationKit.capturedAt, 'annotationKit.capturedAt'),
   },
   {
     fileName: manifest.iconLibrary.fileName,
+    label: `${manifest.iconLibrary.fileName} icon page`,
     capturedAt: manifest.iconLibrary.capturedAt,
     ageDays: ageOf(manifest.iconLibrary.capturedAt, 'iconLibrary.capturedAt'),
   },
@@ -346,20 +359,23 @@ layer(
   'capture age',
   ageStale ? 'fail' : 'pass',
   ageStale
-    ? `${oldest.fileName} ${agePhrase} — past the ${maxAge}-day refresh point`
-    : `${oldest.fileName} last captured ${oldest.capturedAt}, ${agePhrase}`,
+    ? `${oldest.label} ${agePhrase} — past the ${maxAge}-day refresh point`
+    : `${oldest.label} last captured ${oldest.capturedAt}, ${agePhrase}`,
   ageStale ? 'stale' : 'ok',
 );
 if (ageStale) {
   report.findings.push(
-    `The ${oldest.fileName} capture has not been taken in ${ageDays} days. Nothing is known ` +
+    `The ${oldest.label} capture has not been taken in ${ageDays} days. Nothing is known ` +
       `to have changed — only that it has been long enough that nobody has checked, so ` +
       `re-capture it before trusting a value out of it.`,
   );
+  // Keyed on the label rather than the file, because the icon page shares the
+  // kit's file and not its sentence: the tokens are what "a token may have
+  // moved" is about, and the icon capture is a separate sweep.
   report.brief.push(
-    oldest.fileName === manifest.figma.fileName
+    oldest.label === manifest.figma.fileName
       ? `Pushpin's copy of the Figma kit was pulled on ${prettyDate(oldest.capturedAt)}, so a token or component may have moved since — refreshing it is the first thing I'd do.`
-      : `The ${oldest.fileName} was last pulled on ${prettyDate(oldest.capturedAt)}, so a token or component may have moved since — refreshing it is the first thing I'd do.`,
+      : `The ${oldest.label} was last pulled on ${prettyDate(oldest.capturedAt)}, so a token or component may have moved since — refreshing it is the first thing I'd do.`,
   );
 }
 
@@ -457,6 +473,12 @@ if (sweep) report.fix.push(sweep);
 const token = process.env.FIGMA_TOKEN;
 const fileKey = manifest.figma.fileKey;
 const annotationFileKey = manifest.annotationKit.fileKey;
+// The same key as `fileKey` today, and read from the manifest anyway rather
+// than aliased to it. The question this layer asks is whether the icon
+// catalog's own keys still resolve, so the file to ask is the one that catalog
+// records having been captured from, and the manifest is where that is written
+// down. Aliasing would move the icon layer silently the next time either one
+// changes.
 const iconFileKey = manifest.iconLibrary.fileKey;
 
 /** One REST call, with the failure modes we care about kept distinguishable. */
@@ -476,9 +498,9 @@ async function figmaGet(path) {
 
 /**
  * Why a layer could not run, phrased so the reader knows whether to act. The
- * file key is passed in rather than read from the module scope: with two
- * sources, a 404 that names the wrong file sends the reader to the wrong
- * permissions dialog.
+ * file key is passed in rather than read from the module scope: the Annotation
+ * Kit is a second file and is granted separately, so a 404 that names the wrong
+ * one sends the reader to the wrong permissions dialog.
  */
 function unreachable(name, r, where = fileKey) {
   if (r.status === 401) {
@@ -581,9 +603,9 @@ if (offline) {
   for (const name of NETWORK_LAYERS) layer(name, 'skipped', why);
   reportRecordedState();
   report.notes.push(
-    'No Figma layer ran. For the stronger answer — whether our import ' +
-      'keys still exist in the kit, the Annotation Kit, and the icon library — create a ' +
-      'personal access token at figma.com > Settings > Security with the ' +
+    'No Figma layer ran. For the stronger answer — whether our component, style ' +
+      'and icon keys still exist in the kit, and our annotation keys in the Annotation ' +
+      'Kit — create a personal access token at figma.com > Settings > Security with the ' +
       'library_content:read scope, ' +
       'then re-run with FIGMA_TOKEN set.',
   );
@@ -605,11 +627,12 @@ if (offline) {
    * their hundreds of children.
    *
    * `ours` narrows the `updated_at` sweep to keys the catalog actually depends
-   * on. Every file publishes more than its catalog keeps — the icon library
-   * publishes 170 components beyond the icon page, and the kit publishes 118
-   * components the catalog reduces to 115 — so an unnarrowed sweep reports an
-   * edit to something Pushpin does not track and sends the reader re-capturing
-   * for nothing.
+   * on, and the two Pushpin layers make it load-bearing rather than tidy: the
+   * kit publishes its components and its 900 icons from one library, so an
+   * unnarrowed sweep would report every icon edit as component drift and every
+   * component edit as icon drift. It also drops the work neither catalog keeps —
+   * the kit publishes 118 components the component catalog reduces to 115 —
+   * which would otherwise send the reader re-capturing for nothing.
    *
    * `edited` carries the name beside the date for those same entries. The names
    * are already in this payload, and reducing them to a single date is what made
@@ -792,10 +815,13 @@ if (offline) {
     );
   }
 
-  // Icons. Third file, same endpoints. Every icon is a plain COMPONENT rather
-  // than a set, so `/components` alone would do — but publishedComponents also
-  // gives the `updated_at` sweep, and an icon redrawn after the capture is
-  // worth knowing about even when its key survives.
+  // Icons. Same file as the components layer, same endpoints, and a second call
+  // rather than a reuse of the first: `ours` narrowed that one to the component
+  // catalog's keys, which is the whole point of it, so the icon keys were never
+  // in it. Every icon is a plain COMPONENT rather than a set, so `/components`
+  // alone would do — but publishedComponents also gives the `updated_at` sweep,
+  // and an icon redrawn after the capture is worth knowing about even when its
+  // key survives.
   //
   // No count comparison. The icon page is one page of a much larger file, so
   // the file's published total and this catalog's 227 entries are not the same
@@ -807,7 +833,7 @@ if (offline) {
   );
   if (liveIcons) {
     compareKeys('icons', iconKeyPairs, liveIcons.keys, null, liveIcons.componentCount);
-    flagLateEdits('icons', liveIcons.edited, manifest.iconLibrary.capturedAt, 'the icon library');
+    flagLateEdits('icons', liveIcons.edited, manifest.iconLibrary.capturedAt, 'the icon set');
   }
 
   // A token that reaches nothing is worse than no token, because the run still
@@ -955,7 +981,7 @@ if (brief) {
 const namePad = Math.max(...report.layers.map((l) => l.name.length));
 const markPad = Math.max(...report.layers.map((l) => l.mark.length));
 for (const c of captures) {
-  console.log(`${c.fileName} — captured ${c.capturedAt}, ${phraseFor(c.ageDays)}`);
+  console.log(`${c.label} — captured ${c.capturedAt}, ${phraseFor(c.ageDays)}`);
 }
 console.log(
   `${copySource.repo} — captured ${copySource.capturedAt}, ${phraseFor(copyAgeDays)}`,

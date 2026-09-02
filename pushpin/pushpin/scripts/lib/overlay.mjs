@@ -46,7 +46,7 @@ export const OVERLAY_MANIFEST = 'overlay.json';
  *
  * Every one is a Figma catalog that a generation run reads by key and can die
  * on. Nothing generated, nothing hashed into the pin, nothing sourced anywhere
- * but the three Figma files.
+ * but the two Figma files.
  */
 export const OVERLAYABLE = [
   'components.figma.json',

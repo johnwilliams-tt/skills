@@ -4,35 +4,32 @@
 
 | File | Key | What it is |
 |---|---|---|
-| Pushpin Thumbprint UI Kit | `VVRGrLgkPRU3vs765d5Q3r` | **Canonical.** Tokens, components, styles. Source for most of `assets/`. |
-| Thumbprint UI Kit | `jjhhb3Kp6a7JrtBLCjrf6u` | **Canonical for icons.** The icon set is published from here by design. Also where Code Connect points. |
+| Pushpin Thumbprint UI Kit | `VVRGrLgkPRU3vs765d5Q3r` | **Canonical.** Tokens, components, icons, styles. Source for most of `assets/`. |
 | Annotation Kit | `Qefv6O2RMPSBtSYBrCGcdI` | Notes, pointers, capstones. See [annotate.md](annotate.md). |
 
-**Icons come from the second file, not the first, and that is deliberate.** The
-icon set stayed in Thumbprint on purpose rather than being copied forward, so
-there is one set of glyphs for both systems and no second copy to drift. It is
-not a migration Pushpin has yet to finish, and it is not a gap — do not expect it
-to move, and do not propose an icon on the grounds that Pushpin lacks one.
-
-What it does mean is that the Pushpin kit publishes 115 public components and not
-one of them is an icon. Searching the Pushpin library for a caret returns nothing,
-which reads as "no such icon" and is really "wrong library". Ask the catalog
-instead — `node scripts/lookup.mjs --icon caret` — and see
-[generate.md](generate.md) for the placement rules.
+**Icons ship from the same file as everything else, but not from the same
+catalog.** One library key reaches both, so a run that can see Pushpin's
+components can see its glyphs; what differs is how the plugin records them.
+`assets/components.figma.json` deliberately holds no icons — the capture routes
+every published `… Icon · Tiny|Small|Medium|Large` out of the component catalog
+and into `assets/icons.figma.json`, which has its own capture date and its own
+naming rules. Ask the right catalog: `node scripts/lookup.mjs Button` for a
+component, `node scripts/lookup.mjs --icon caret` for a glyph. A component
+lookup that comes back empty for a caret is the wrong catalog, not a missing
+icon. See [generate.md](generate.md) for the placement rules.
 
 Library keys, for scoping `search_design_system` with `includeLibraryKeys`:
 
 ```
 Pushpin       lk-003ce4846b4638268325b33ad167ece0cd390787a2782f1949cee2e38ca2e7719472f0968d45b4c2f0db9b35ec1820babadcf97a9f40fdd6cc84ba22f7b10a80
-Icons         lk-6d54e39c09e05fd3a5164fcc5a88cf6a2dbedd3ad29d20c2ce66ee39c57c81234d16c5746301ace3ae6af7d5bcf49b7389800cb4f7b9521f2fb70de1af7c2dd6
 Annotations   lk-7faccc611b9ec03ccd81012447b2a1a34ffe027b513f5f94a328a5498c10f76052ba27c537a70120b6b9bd592bd8c09c3fc9abc03281c9fab80b1513aa2f03b1
 ```
 
-The Pushpin file subscribes to eight team libraries, including the older
-Thumbprint UI Kit, Thumbprint Global, Thumbprint Native, and an Illustration
-Library. A `search_design_system` call without `includeLibraryKeys` searches all
-of them and will happily return a pre-Pushpin component. Scope the search — to
-Pushpin for components, and to the icon library for icons.
+The Pushpin file subscribes to the Annotation Kit and an Illustration Library
+alongside its own published set. A `search_design_system` call without
+`includeLibraryKeys` searches all of them and will happily return a sticker or a
+spot illustration where a component was wanted. Scope to Pushpin and the
+question stays about the kit.
 
 **Every Figma MCP read needs a `fileKey`.** `search_design_system` and
 `get_variable_defs` both reject calls without one, and `get_variable_defs`
@@ -160,11 +157,17 @@ guessing. It is currently **not wired for Pushpin**.
 What exists today: 24 `.figma.tsx` files in
 `~/Thumbtack/prototyping-playground/lib/packages/thumbprint-react`, with a
 `figma.config.json` whose `projectId` is `thumbprint-ui-kit`. Every mapping in
-them points at the **old** Thumbprint file (`jjhhb3Kp6a7JrtBLCjrf6u`), not the
-Pushpin file. Components covered: Alert, AlertBanner, Avatar, Button, ButtonRow,
-Calendar, Checkbox, Chip, Dropdown, FormNote, HorizontalRule, Image, InputRow,
-Label, Link, LoaderDots, Pill, Popover, Radio, ServiceCard, StarRating, TextArea,
-TextInput, Tooltip.
+them points at a retired Thumbprint file rather than at Pushpin. Components
+covered: Alert, AlertBanner, Avatar, Button, ButtonRow, Calendar, Checkbox,
+Chip, Dropdown, FormNote, HorizontalRule, Image, InputRow, Label, Link,
+LoaderDots, Pill, Popover, Radio, ServiceCard, StarRating, TextArea, TextInput,
+Tooltip.
+
+That is worse than an unwired bridge. An unwired bridge is work nobody has done
+yet; these are mappings that name node IDs in a file no designer opens, so
+repointing them is not a matter of adding Pushpin alongside what is there — the
+existing targets are all dead and every one of the 24 has to be re-derived
+against the Pushpin file before it means anything.
 
 Three consequences:
 
@@ -176,15 +179,16 @@ Three consequences:
 - Those files were **stripped during vendoring** into `tt-website-demo`, so the
   one project doing the most Pushpin work has no bridge at all.
 
-Whether the existing mappings were ever published (`figma connect publish`) is
-unconfirmed — a `get_code_connect_map` probe against the old file returned empty,
-but the call timed out, so the result is not conclusive. Verify before assuming
-the work is missing rather than merely unpublished.
+Whether those mappings were ever published (`figma connect publish`) no longer
+decides anything, so do not spend a call finding out. Published or not, they
+resolve against a file nobody works in, and the Pushpin side is empty either
+way. `get_code_connect_map` against `VVRGrLgkPRU3vs765d5Q3r` is the read that
+answers the question that matters.
 
 ### Do not publish mappings unilaterally
 
-Closing the gap is mechanically simple — repoint the mappings at Pushpin node
-IDs and publish. **Don't.** Not without the design system owner's agreement.
+Closing the gap looks mechanically simple — re-derive the node IDs against
+Pushpin and publish. **Don't.** Not without the design system owner's agreement.
 
 Published Code Connect attaches to the shared library, so it changes what every
 designer and engineer sees in Dev Mode. Unlike everything else in this plugin,

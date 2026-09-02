@@ -88,10 +88,10 @@ what it leaves to you, and how to ask for a single row are in
   omission — and a child that could not be resolved never takes its parent with
   it.
 - **A library out of reach degrades the run rather than ending it.** Only
-  Pushpin itself is load-bearing enough to stop one. Unreachable icons become
-  placeholders and an unreachable Annotation Kit means notes are drawn instead
-  of instanced — both reported, never quietly substituted. Abandoning a screen
-  over a library the design never needed is the worse answer.
+  Pushpin itself is load-bearing enough to stop one, because everything the
+  screen is built from is published there. An unreachable Annotation Kit means
+  notes are drawn instead of instanced — reported, never quietly substituted.
+  Abandoning a screen over a library the design never needed is the worse answer.
 - **A claim that the Plugin API cannot do something is verified before it is
   made or acted on.** Ask the live API first — a probe on a node already in hand
   — then the `figma-use` prose references, then `plugin-api-standalone.d.ts`,
