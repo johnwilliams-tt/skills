@@ -1,0 +1,24 @@
+{
+  "$comment": "What the scheduled Figma check last found about the captures in this directory. Written by scripts/kit-state.mjs from a freshness --json report, read by scripts/freshness.mjs when no token is available. Not a capture: deliberately absent from manifest.json, because a verdict changing must not report every project as holding an older build.",
+  "verdict": "moved",
+  "against": {
+    "tokens": "2026-08-06",
+    "components": "2026-08-27",
+    "properties": "2026-09-01",
+    "specs": "2026-09-01",
+    "annotations": "2026-08-28",
+    "icons": "2026-09-02"
+  },
+  "layers": [
+    "components"
+  ],
+  "findings": [
+    "6 components in the catalog are no longer published. Importing by key throws at runtime:\n    _Bubble / Text\n    _Stamps\n    Accordion / Item\n    Headers / Filtering\n    MultiModalControls\n    view",
+    "91 components in the kit changed after the capture (2026-08-27), most recently on 2026-09-02. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Stripe payment / Card Element Only\n   TextInput\n   Input Row\n   Themed Link\n   Modal / Confirmation\n   Button\n   Modal / Default\n   Button Row\n   Device template / Web\n   iOS / Sheet\n   Device template / Native\n   Disclosure\n   …and 79 more"
+  ],
+  "brief": [
+    "A components in the Pushpin kit is no longer published, so a generation run against it dies partway rather than at review — refreshing is the first thing I'd do.",
+    "Stripe payment / Card Element Only, TextInput, Input Row and 88 more changed in the kit after the capture, so a generation run against them may die partway rather than at review — refreshing is the first thing I'd do."
+  ],
+  "observedAt": "2026-09-03"
+}
