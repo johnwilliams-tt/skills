@@ -113,8 +113,11 @@ jobs:
       #
       # kit-state.mjs rewrites the file only when the verdict or its findings
       # change, so a run that finds what yesterday found leaves the tree clean
-      # and no commit is made. `git diff --quiet` is what turns that into a
-      # skipped push rather than an empty commit.
+      # and no commit is made. Staging first is what turns that into a skipped
+      # push rather than an empty commit. It has to be the staged diff and not
+      # the worktree one: an untracked path is not a diff, so an unstaged check
+      # reports "nothing to commit" for the first write of a file that has never
+      # been committed — which is every write until one lands.
       # Both outcomes, and only those two: a token step that failed leaves no
       # freshness.json behind, and reading it would turn missing configuration
       # into a crash in an unrelated step.
@@ -126,13 +129,13 @@ jobs:
       - name: Commit it
         if: always() && github.ref == 'refs/heads/main' && (steps.check.outcome == 'success' || steps.check.outcome == 'failure')
         run: |
-          if git diff --quiet -- pushpin/pushpin/assets/kit-state.json; then
+          git add pushpin/pushpin/assets/kit-state.json
+          if git diff --cached --quiet -- pushpin/pushpin/assets/kit-state.json; then
             echo "No change to kit-state.json — nothing to commit."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add pushpin/pushpin/assets/kit-state.json
           git commit -m "Record what Figma answered on $(date -u +%Y-%m-%d)"
           git push
 
