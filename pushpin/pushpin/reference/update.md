@@ -38,17 +38,14 @@ narrows the sweep, and the same paths have to be given to `--resolve` as to
 answer as data, and it exits 1 while anything is outstanding.
 
 **Default mode writes nothing**, which is what makes it safe as a session-start
-`fix:` line. Do not announce running it, and do not relay a report that says
-every declared component matches.
+`fix:` line. Do not announce running it. Nothing the report prints is relayed
+— not the file count, not that every declared component matches, not the
+closing line naming `--write`, which is addressed to you.
 
-**`--write` is asked for, in plain words, before it runs.** The report is your
-evidence, not the user's reading: say what the kit changed in the components
-this project uses, how many values would be rewritten in the project's own
-files, and that a class rule repaints every element carrying it; then one
-yes/no through the harness's question tool. The user is never handed the
-command, here or for `--resolve` —
-[start.md](start.md#a-say-that-names-a-command) has the wording. The closing
-line the report prints naming `--write` is addressed to you.
+**`--write` is asked for before it runs**, as the update question in
+[start.md § What the user hears](start.md#what-the-user-hears) words it, and
+with nothing added: the counts fill its brackets, and the rest of the report is
+your evidence. The user is never handed the command, here or for `--resolve`.
 
 ## Mechanical, and judgement
 
@@ -61,7 +58,8 @@ Three write targets, and the report names all three because they are not the
 same edit: an inline `style="…"`, a `style={{…}}` prop, and a class rule in a
 scanned stylesheet. **A class rule says so on its own line**, because the span is
 right and its reach is wider than the finding that named it — it repaints every
-element carrying the class, including any this sweep never saw.
+element carrying the class, including any this sweep never saw. That reach is
+why `--write` is a question and not a `fix:`; it is not explained to the user.
 
 Every value is confirmed against the file before it is replaced. A span that no
 longer reads back is a file that moved between the sweep and the write, so
@@ -124,9 +122,9 @@ so a run meant to bring the pin current cannot drop a second stylesheet at the
 default path or install a hook the project declined. And where the pin says a
 file was **hand-edited**, the init step is withheld and the command printed
 instead, because `--force` replaces those files and a repair that deletes
-somebody's work is not one. That printed command is the init row in
-[start.md](start.md#a-say-that-names-a-command): asked, with the edits named
-as what goes. `--no-init` skips it outright.
+somebody's work is not one. That printed command is the edited-file question in
+[start.md § What the user hears](start.md#what-the-user-hears). `--no-init`
+skips it outright.
 
 ## A project reading its own catalog
 
@@ -148,9 +146,9 @@ lane.
 **Undeclared markup.** A button carrying no `data-pp-component` names no
 component, so no captured variant is attached to it and no sweep can hold it
 against one. The run reports a count and says as much rather than implying
-coverage; `check.mjs` lists them under `undeclared-lookalike`, and declaring
-hand-rolled markup is a hard rule for exactly this reason —
-[rules.md](rules.md).
+coverage; the count is for you and is not relayed. `check.mjs` lists them under
+`undeclared-lookalike`, and declaring hand-rolled markup is a hard rule for
+exactly this reason — [rules.md](rules.md).
 
 **A drift with no range.** Where the file does not read the same across a value
 — a comment or a `url()` sitting inside the span — the finding keeps its value

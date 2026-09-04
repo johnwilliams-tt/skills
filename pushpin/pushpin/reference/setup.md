@@ -44,6 +44,10 @@ maintainer reading the script, not for the person being set up.
 Script stdout is collapsed in both harnesses, so a quiet script is not a quiet
 setup. The agent is what stands between the two, and the wall of text a designer
 actually reads is prose written up from output nobody asked to see.
+[../SKILL.md § What the user reads](../SKILL.md#what-the-user-reads) holds for
+every message here: the version line, the questions, one outcome row, and no
+prose between them. This page explains the mechanism so you run it right; none
+of it is repeated to the person being set up.
 
 Setup opens on the version that actually loaded, taken from this session's
 [SKILL.md](../SKILL.md) frontmatter — its `version:` line, kept in sync with both
@@ -82,8 +86,9 @@ permission-mode `say:`. Setup already asked.
 **Cursor:** no Auto question. First user-visible line is still
 `Pushpin v<version> loaded.`
 
-Setup then says each fault as one line carrying its fix, in the order the steps
-raised them — except the three the list below rules out — and then the
+Setup then spends each `say:` as its row in
+[start.md § What the user hears](start.md#what-the-user-hears), in the order the
+steps raised them — except the three the list below rules out — and then the
 impeccable question when `PRODUCT.md` is missing, then the interview. A project
 that already has `PRODUCT.md` goes from the version (and Auto, on Claude) to
 the interview. Never a "three things worth knowing" list.
@@ -145,6 +150,9 @@ scope its own install and announces nowhere that it has, so a folder can sit
 two releases behind while every check inside it reports health. Claude Code
 only: Cursor keys its cache by commit sha and records no version to compare, so
 the row skips there rather than reading as a fault.
+
+A row that skips, and why it skips, is never mentioned — not as a note, not as
+"by design". The user hears a `say:` line or nothing.
 
 Its lines carry the same two prefixes `freshness.mjs` uses — `fix:` is run
 without discussion, `say:` is one sentence held and spent on the user. That
@@ -263,10 +271,9 @@ Impeccable provides advanced design tools that extend what the AI model can do.
 If they say yes, read [impeccable.md](impeccable.md) and actually run it. Three
 of the questions that interview asks are already answered by this being a
 Pushpin project, and answering them from scratch is how a two-day prototype
-acquires a framework and a build step. If they skip, one sentence that the
-generated files are still correct, then the handoff. `--ready`'s
-missing-impeccable `say:` is this question; do not print it mid-setup as a
-bulletin.
+acquires a framework and a build step. If they skip, nothing is said about it;
+the handoff follows. `--ready`'s missing-impeccable `say:` is this question; do
+not print it mid-setup as a bulletin.
 
 A project that already has `PRODUCT.md` skips this and goes to the interview.
 
@@ -274,12 +281,14 @@ A project that already has `PRODUCT.md` skips this and goes to the interview.
 
 `--verify` prints the faults, then the remedies for the ones that have them,
 exits non-zero if anything is missing, and says one line when there is nothing
-to fix. Relay the faults and the remedies; say nothing about what passed. Three
-rows carry no remedy — a missing stylesheet, a pin that is behind, an
-`AGENTS.md` with no Design system section — and re-running `init` settles all
-three, with `--force` where the file it has to replace is still there. A row
-confirming that a file is where setup just put it is not news to the person who
-just ran setup.
+to fix. A remedy is a command: run it and say nothing about having done so —
+except one that replaces a file, which is the init question in
+[start.md § What the user hears](start.md#what-the-user-hears). Say nothing
+about what passed, and nothing about what ran. Three rows carry no remedy — a
+missing stylesheet, a pin that is behind, an `AGENTS.md` with no Design system
+section — and re-running `init` settles all three, with `--force` where the
+file it has to replace is still there. A row confirming that a file is where
+setup just put it is not news to the person who just ran setup.
 
 **One pin finding is not init's to settle.** Where the pin is behind on the
 component catalogs, `init --force` rewrites the recorded dates and compares
@@ -297,9 +306,10 @@ that records a hash prints on its own, and the exit code stays 0 on that
 account. `generated-stale` is a `missing` row and does fail the exit code, but
 the project reads no worse from the inside — the generated files are intact and
 enforcing an older capture, so every check downstream passes against the wrong
-system. Each is one sentence and the command that fixes it. Telling someone
-their files are guarded when they are not is the specific failure this command
-was built after, and it survives the quieting as a line rather than a paragraph.
+system. Each prints the command that settles it; the command is run, and the
+distinction is yours to hold, not the user's to hear. Telling someone their
+files are guarded when they are not is the specific failure this command was
+built after, and the cure is running the fix, not describing the gap.
 
 The preview is asked of the port rather than read out of the config, so what it
 reports is what a browser would actually find there. A preview that is simply
@@ -352,8 +362,8 @@ it finds one installed. The undeclared lookalike and the off-guideline line are
 reported either way, because nothing else in the project reports them. What the
 impeccable hook would add is its non-token rules and a block in place of a
 report, at the cost of Pushpin writing a hook into a path another skill owns.
-Say the detector is not installed, say Pushpin's check covers the tokens as well
-as the components and the words, and move on.
+Asked about it, say only: "Pushpin already checks every edit here, so nothing is
+missing." Unasked, nothing.
 
 ## The rule that survives setup
 

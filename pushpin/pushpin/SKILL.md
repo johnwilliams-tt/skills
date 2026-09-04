@@ -1,7 +1,7 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.22.0
+version: 0.22.1
 argument-hint: "[generate|audit|figma · setup|init|update|freshness · refresh] [target]"
 allowed-tools:
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/check.mjs *)
@@ -24,6 +24,32 @@ with these tokens — a doc, an exported bundle, a hardcoded hex in an existing
 repo — the tokens win, and the disagreement is a bug to fix rather than a
 variant to preserve. Copy has a source of its own, captured under the same
 discipline. See [reference/provenance.md](reference/provenance.md).
+
+## What the user reads
+
+This governs every Pushpin housekeeping task — the session check, `setup`,
+`init`, `update`, updating the plugin, `freshness`, `refresh` — and every
+message in it, not only the last one.
+
+- **The whole reply is at most two short sentences saying what happened, in
+  plain words, or one plain yes/no question through the harness's question
+  tool** (`AskQuestion` on Cursor, `AskUserQuestion` on Claude Code). The
+  sentences are the templates in
+  [reference/start.md § What the user hears](reference/start.md#what-the-user-hears);
+  pick the row, fill the brackets, stop.
+- **Nothing is said while working.** No "Let me…", "Running…", "Checking…",
+  no partial findings, no message between the question and the outcome.
+- **Words the user never reads:** version numbers, file and script names,
+  dates, directories, flags, `token`, `toolchain`, `release`, `pin`, `shim`,
+  `sweep`, `capture`, `catalog`, `kit-state`, `hook`, `hash`, `overlay`,
+  `re-capture`, `--ready`, `FIGMA_TOKEN`, any environment variable.
+- **Reference prose is for you.** It explains mechanism so you act correctly;
+  none of it is paraphrased to the user. Internals are never explained, a
+  check's skipped rows are never mentioned, and nothing is ever described as
+  "by design", "expected", or "correct". The changelog is not read for a
+  housekeeping answer.
+- **No headings, lists, or sections.** Findings outside Pushpin's scope are not
+  mentioned.
 
 ## Start here
 
@@ -55,17 +81,13 @@ Otherwise every line it prints carries a prefix saying what to do with it:
   and takes no longer than the check did. Do not announce it, before or after.
   One of them is a report rather than a repair — `update.mjs` — and acting on
   the report is a write, which is the next bullet's business.
-- `say: <sentence>` — something only the user can decide. Hold it and spend it
-  once, where it bears on the answer being given, never as an opening line.
-  **The user never sees a command.** Where the sentence names one — init with
-  `--write --force`, `update`, `refresh.mjs --clear`, the harness's update
-  surface — it is spent as a question, not quoted: say in plain words what
-  happened and what running it changes, ask yes or no through the harness's
-  question tool (`AskQuestion` on Cursor, `AskUserQuestion` on Claude Code, a
-  plain yes/no in chat where there is neither), run it on yes, and report the
-  result in the same plain words. The wording for each is in
-  [reference/start.md](reference/start.md#a-say-that-names-a-command); the
-  command itself belongs in the tool call and nowhere the user reads.
+- `say: <sentence>` — something only the user can decide, or one thing they
+  need to know. The sentence is for you: it tells you which row of
+  [reference/start.md § What the user hears](reference/start.md#what-the-user-hears)
+  this is. Spend that row once, where it bears on the answer being given, never
+  as an opening line. Where the row is a question, ask it through the
+  harness's question tool, run the command on yes, and reply with the outcome
+  row. The command belongs in the tool call and nowhere the user reads.
 
 If `node` is missing the check does not happen, and that is not worth a
 sentence either. Say so only when it blocks what was actually asked — `lookup`
@@ -73,8 +95,9 @@ and `audit` both need it — and then once, in the user's voice: for a designer
 that is the `.pkg` from nodejs.org, not a terminal session.
 
 That is the whole obligation, and it is stated once. Nothing further down
-repeats it. Asking for `/pushpin freshness` still prints the full layer table —
-see [reference/maintaining.md](reference/maintaining.md).
+repeats it. Asking for `/pushpin freshness` runs the full layer table for you —
+see [reference/maintaining.md](reference/maintaining.md) — and the user still
+hears one row.
 
 ## Precedence
 
@@ -144,7 +167,8 @@ covers the same ground from plain speech. Load one doc, not the table.
 | "check the copy", "review these labels", "is this placeholder right" — a code file, copy alone | run [the report](#a-copy-check-is-one-command); [audit.md](reference/audit.md#a-copy-check) for the rest |
 | **`figma`** — a figma.com link where code is the goal, "build this screen" | [figma.md](reference/figma.md) |
 | **`setup`** — "set this repo up", "start a project", no `pushpin.config.json`. Once per project | [setup.md](reference/setup.md) |
-| **`init`** — re-run, repair, or update a project already set up | [init.md](reference/init.md) |
+| **"update Pushpin"**, "update the plugin", "get the latest", "am I on the latest" | no doc — the sequence [below](#update-pushpin-is-one-message), then one row of [start.md § What the user hears](reference/start.md#what-the-user-hears) |
+| **`init`** — re-run or repair a project already set up | [init.md](reference/init.md) |
 | **`update`** — "Pushpin moved, bring this project current", a component that was restyled or lost a variant this project declares, a catalog finding at session start | [update.md](reference/update.md) |
 | **`freshness`** — "can I trust this", "when was this captured" | [maintaining.md](reference/maintaining.md) |
 | **`refresh`** — "this component is wrong", `setProperties` threw, a variant option the kit no longer offers. One project, blocked today | [refresh.md](reference/refresh.md) |
@@ -166,6 +190,15 @@ covers the same ground from plain speech. Load one doc, not the table.
 
 - **A clear signal** — take it and load the doc in its row. Ask once when two
   rows genuinely fit; when one is plainly stronger, pick it instead of asking.
+- <a id="update-pushpin-is-one-message"></a>**"Update Pushpin" is one
+  message.** You cannot update the plugin; the harness does. So: run the
+  session check if it has not run. A `say:` naming a release is the
+  newer-plugin row — reply with it and stop. Otherwise the plugin is current:
+  a `say:` naming init is the init question, asked before anything is
+  replaced; on yes, run it. Then run `update.mjs` — a report listing anything
+  under Mechanical or Judgement is the update question, then its rows. Then
+  one outcome row from start.md, and nothing else: the request is not consent
+  to replace files, and the work in between is silent.
 - **`refresh` has two lanes and the project settles which.** In a project that
   consumes Pushpin, a stale component is repaired for that project from its own
   Figma access, and nothing is released — [refresh.md](reference/refresh.md). In

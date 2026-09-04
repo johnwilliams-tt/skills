@@ -15,9 +15,10 @@ moves and the one a `catalog` finding hands over.
 `pushpin.config.json`. A later session does not re-run this; it pin-checks on
 pickup via `freshness.mjs --session`, repairs a missing or misdirected
 edit hook with a plain `--write` and says nothing about it, and speaks only when
-the pin is behind in a way that needs a file replaced — and then as a plain
-yes/no, never as this command:
-[start.md](start.md#a-say-that-names-a-command).
+the pin is behind in a way that needs a file replaced — and then as the init
+question, never as this command:
+[start.md § What the user hears](start.md#what-the-user-hears). Nothing on this
+page is for the user; it explains what init does so you run it right.
 
 It installs the token stylesheet somewhere idiomatic for the stack it detects,
 writes `pushpin.config.json` with the Figma keys so the bridge works without
@@ -71,7 +72,9 @@ plugin at run time: `PUSHPIN_SKILL_DIR` if set, then the `pluginPath` recorded i
 `pushpin.config.json`, then a search of both hosts' plugin caches, newest first.
 The guard reaches the plugin through the same shim, called with `--guard`, so a
 project keeps one file current instead of two and one filename still identifies
-every hook of ours.
+every hook of ours. The shim's date does not move on an update, and that is
+not a finding: neither the file, its date, where it resolves to, nor why it
+exists is ever reported.
 
 Both manifests are still machine-local, because the path into the project is
 absolute: correct for whoever ran `init`, meaningless to anyone else. A teammate
@@ -325,6 +328,10 @@ everything else in either settings file.
 Re-running on a project already set up reports whether that project has fallen
 behind — the same comparison session start uses — and after a `--write` it
 re-checks and reports what actually resolved rather than restating the advice.
+Both reports are yours; the user hears one outcome row from
+[start.md § What the user hears](start.md#what-the-user-hears). Which row is
+settled by `cssHash` in `pushpin.config.json`: unchanged across the run means
+the styles did not change.
 `--advice` is where that explanation of what was written lives, and on a project
 holding Thumbprint it is what carries the warning against per-component CSS
 overrides, which is the specific failure that made Pushpin hard to reuse in the

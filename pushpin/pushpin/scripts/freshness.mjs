@@ -257,63 +257,40 @@ const PLUGIN = JSON.parse(
   readFileSync(join(here, '..', '..', '.claude-plugin', 'plugin.json'), 'utf8'),
 );
 
-const MONTHS = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];
-const prettyDate = (iso) => {
-  const [, m, d] = iso.split('-').map(Number);
-  return `${MONTHS[m - 1]} ${d}`;
-};
-
-// Where a layer's keys live, for the sentence a finding hands the user. Four of
-// the five name the same library, which is the truth rather than a table that
-// wants collapsing: only the Annotation Kit is somewhere else, and the layers
-// are split by what they catalog rather than by which library they read.
-const LIBRARY = {
-  components: 'the Pushpin kit',
-  styles: 'the Pushpin kit',
-  annotations: 'the Annotation Kit',
-  icons: 'the Pushpin kit',
-  variables: 'the Pushpin kit',
-};
-
 /**
- * How a live finding ends when it is relayed to a consumer.
+ * The sentence a kit finding hands a consumer, and the only one it hands over.
  *
  * These sentences travel: `kit-state.mjs` persists them and every install reads
- * them back at session start, so the reader is a designer in a project, not the
- * maintainer whose token produced them. "Refreshing" meant something to the
- * maintainer and nothing to that reader, who cannot refresh the shipped capture
- * and should not try. What they can do is update the plugin, which is where the
- * re-capture lands, and — for the catalogs alone, when no release has landed
- * yet — take the project-local re-capture reference/refresh.md describes.
- * Tokens are not overlayable, so the variables sentence ends without that
- * second half.
+ * them back at session start, where the agent says them word for word to a
+ * designer in a project. So they are written for that reader and nobody else —
+ * no names, keys, dates, tokens or commands, and no consequence a maintainer
+ * would recognise ("dies partway", "refreshing"). The detail is in `findings`
+ * and `moved`, which never reach a consumer. A consumer cannot re-capture the
+ * shipped catalog; the plugin update is what carries it, and that is the whole
+ * remedy the sentence names.
  */
-const BEHIND_REMEDY =
-  "Pushpin's shipped capture is behind the kit, so updating the Pushpin plugin is the " +
-  "first thing I'd do; if no update has landed yet, /pushpin refresh re-captures for " +
-  'this project alone.';
-const BEHIND_REMEDY_TOKENS =
-  "Pushpin's shipped capture is behind the kit, so updating the Pushpin plugin is the " +
-  "first thing I'd do.";
-// The age and copy-source sentences end differently because nothing is known
-// to have moved there, so no re-capture is owed yet; they name what would carry
-// one rather than asking for it. The same reader: a consumer cannot re-pull.
-const AGE_REMEDY =
-  'nothing is known to have, and a Pushpin plugin update is what carries a newer ' +
-  'capture when one lands';
+const kitMoved = (what) =>
+  `The Pushpin team has changed some ${what} since this version of Pushpin; the next ` +
+  'plugin update will carry those.';
+// Nothing is known to have moved here, only that nobody has looked. Days rather
+// than a date: the reader is told how long, not when.
+const notRefreshed = (what, days) =>
+  `Pushpin's copy of ${what} is ${days} days old and may be behind; the next plugin ` +
+  'update will carry a fresh one.';
+
+/** What each layer's entries are called to the reader of the sentence above. */
+const MOVED_WHAT = {
+  components: 'components',
+  styles: 'text styles',
+  variables: 'colors or spacing values',
+  annotations: 'annotation components',
+  icons: 'icons',
+};
+
+/** The same sentence is never said twice in one run. */
+const relay = (sentence) => {
+  if (!report.brief.includes(sentence)) report.brief.push(sentence);
+};
 
 // ---------------------------------------------------------------- capture age
 
@@ -433,13 +410,16 @@ if (ageStale) {
       `re-capture it before trusting a value out of it.`,
   );
   // Keyed on the label rather than the file, because the icon page shares the
-  // kit's file and not its sentence: the tokens are what "a token may have
-  // moved" is about, and the icon capture is a separate sweep. Only the other
-  // two are overlayable, so only they offer the project-local re-capture.
-  report.brief.push(
-    oldest.label === manifest.figma.fileName
-      ? `Pushpin's copy of the Figma kit was pulled on ${prettyDate(oldest.capturedAt)}, so a token or component may have moved since — ${AGE_REMEDY}.`
-      : `The ${oldest.label} was last pulled on ${prettyDate(oldest.capturedAt)}, so a component may have moved since — ${AGE_REMEDY}; /pushpin refresh re-captures it for this project alone.`,
+  // kit's file and is a separate capture on its own clock.
+  relay(
+    notRefreshed(
+      oldest.label === manifest.figma.fileName
+        ? 'the Pushpin kit'
+        : oldest.label === manifest.annotationKit.fileName
+          ? 'the Annotation Kit'
+          : 'the icon set',
+      ageDays,
+    ),
   );
 }
 
@@ -693,11 +673,7 @@ function compareKeys(name, committed, liveKeys, expectedTotal, liveTotal, counte
           .join('\n') +
         (missing.length > 10 ? `\n    ...and ${missing.length - 10} more` : ''),
     );
-    report.brief.push(
-      `${one ? `A ${noun}` : `${missing.length} ${noun}`} in ${LIBRARY[name] ?? 'the kit'} ` +
-        `${one ? 'is' : 'are'} no longer published, so a generation run against ` +
-        `${one ? 'it' : 'them'} dies partway rather than at review. ${BEHIND_REMEDY}`,
-    );
+    relay(kitMoved(MOVED_WHAT[name] ?? name));
     if (report.moved[name]) {
       report.moved[name].unpublished = missing.map(([n, key, page]) => ({
         name: n,
@@ -950,11 +926,7 @@ if (offline || session) {
         shown.map((n) => `   ${n}`).join('\n') +
         (rest ? `\n   …and ${rest} more` : ''),
     );
-    report.brief.push(
-      `${shown.slice(0, 3).join(', ')}${names.length > 3 ? ` and ${names.length - 3} more` : ''} ` +
-        `changed in ${what} after Pushpin's capture, so a generation run against ` +
-        `${names.length === 1 ? 'it' : 'them'} may die partway rather than at review. ${BEHIND_REMEDY}`,
-    );
+    relay(kitMoved(MOVED_WHAT[forLayer] ?? forLayer));
     if (report.moved[forLayer]) {
       report.moved[forLayer].changed = changed.map((c) => ({
         name: index.get(c.key)?.name ?? c.name,
@@ -1041,10 +1013,7 @@ if (offline || session) {
           `${capturedAt}:\n` +
           moved.map((c) => `    ${c.name} — ${c.updatedAt.slice(0, 10)}`).join('\n'),
       );
-      report.brief.push(
-        `A token in the Pushpin kit has moved since Pushpin's capture, so a value quoted ` +
-          `from it may be wrong. ${BEHIND_REMEDY_TOKENS}`,
-      );
+      relay(kitMoved(MOVED_WHAT.variables));
     } else {
       layer('variables', 'pass', `nothing published since ${capturedAt}`);
     }
@@ -1178,8 +1147,9 @@ if (blob.ok && blob.sha !== copySource.sha) {
       `    upstream   ${blob.sha}\n` +
       `    Re-run: node scripts/pull-copy.mjs && node scripts/build-copy.mjs`,
   );
-  report.brief.push(
-    `The content design rules moved upstream after Pushpin's copy of them was pulled on ${prettyDate(copySource.capturedAt)}, so a copy rule I apply may be out of date — a Pushpin plugin update is what carries the re-pull when one lands.`,
+  relay(
+    "Thumbtack's content rules have changed since this version of Pushpin; the next plugin " +
+      'update will carry those.',
   );
 } else if (blob.ok) {
   layer('copy source', 'pass', `blob ${blob.sha.slice(0, 12)} unchanged upstream`);
@@ -1199,9 +1169,7 @@ if (blob.ok && blob.sha !== copySource.sha) {
         `known to have changed — only that nobody has asked GitHub — so re-pull them ` +
         `before trusting a rule quoted out of them.`,
     );
-    report.brief.push(
-      `Pushpin's copy of the content design rules was pulled on ${prettyDate(copySource.capturedAt)}, so a rule may have changed since — ${AGE_REMEDY}.`,
-    );
+    relay(notRefreshed("Thumbtack's content rules", copyAgeDays));
   }
 }
 

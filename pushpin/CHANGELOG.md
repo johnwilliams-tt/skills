@@ -17,6 +17,49 @@ Changes are grouped the way `diff.mjs` classifies them:
 An entry about the plugin rather than the capture adds **Fixed** for a bug in
 the toolchain, which `diff.mjs` has no category for.
 
+## 0.22.1 — 2026-09-04
+
+A designer asked to "update Pushpin to the latest" and read nine paragraphs of
+progress narration, version numbers, file names, and mechanism — and the
+project's generated files were replaced without the yes/no the rule required.
+The docs described what each script does and why, in the maintainer's voice,
+and the agent mirrored that voice back. Nothing stated who the reference prose
+was for or how long a housekeeping reply may be.
+
+**Fixed**
+
+- **Housekeeping output is two sentences or one question; internals never
+  reach the user.** [SKILL.md](pushpin/SKILL.md) opens with an output contract
+  for the session check, `setup`, `init`, `update`, plugin updates, `freshness`
+  and `refresh`: at most two plain sentences of outcome or one yes/no through
+  the harness's question tool, nothing said while working, a list of words the
+  user never reads, and reference prose that is for the agent and never
+  paraphrased. It applies to every message, not only the last.
+- **"Update Pushpin" is routed and is one message.** The Routing table has a
+  row for it and names the sequence — the session check, the newer-plugin row
+  or the init question, `update.mjs` and its question, one outcome row — and
+  states that the request is not consent to replace files.
+- **Every outcome has a fixed template.** [start.md § What the user
+  hears](pushpin/reference/start.md#what-the-user-hears) replaces the remedy
+  table with two: the questions, each two sentences or fewer, and the outcomes,
+  covering plugin current and project brought current with styles unchanged or
+  changed, a newer plugin available, nothing to do, values written, the kit
+  having moved since the plugin's snapshot, and findings outside Pushpin's
+  scope, which are not mentioned.
+- **The `say:` sentences `freshness.mjs` prints for a moved kit are written for
+  the designer.** "A generation run against it dies partway rather than at
+  review — refreshing is the first thing I'd do" becomes "The Pushpin team has
+  changed some components since this version of Pushpin; the next plugin update
+  will carry those", with no names, dates, tokens or commands; the age and
+  content-rule sentences follow. `findings` and `moved` keep the detail. The
+  committed `kit-state.json` still carries the old wording until the next
+  scheduled run rewrites it, and the template row recognises both. `--json`
+  shape is unchanged.
+- **The licences to explain are gone.** `update.md`, `init.md` and `setup.md`
+  no longer tell the agent to say how many values moved, which files were
+  replaced, why the edit-check shim keeps its date, or that a skipped `--ready`
+  row is by design; each now points at a template or at silence.
+
 ## 0.22.0 — 2026-09-02
 
 Two failure classes reached users this week and neither had a check behind it. A
