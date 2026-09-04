@@ -18,7 +18,7 @@ running. Setup asks, acts, and then checks what is actually true.
 ## The order
 
 ```bash
-node scripts/freshness.mjs --offline --session   # 1. the session check, never narrated
+node scripts/freshness.mjs --session             # 1. the session check, never narrated
 node scripts/setup.mjs <project-dir> --ready     # 2. the environment; silent when it is fine
 node scripts/setup.mjs <project-dir>             # 3. read the project
 node scripts/setup.mjs <project-dir> --backup    # 4. only if the answer calls for it
@@ -119,12 +119,32 @@ Never appears:
 
 `--ready` reports the environment rather than the project: whether `impeccable`
 is installed, whether the marketplace updates itself, whether Claude Code is
-going to prompt on every edit, whether the Figma desktop app is running, and
-whether the Node it is itself running under is new enough for the rest of the
-scripts. A missing `node` is not on that list and cannot be: this is a Node
-script, so nothing would have run, and `lookup` and `audit` failing is the only
-report there is. Everything it prints is a fault with a remedy, so a working
-environment prints nothing and there is nothing to relay.
+going to prompt on every edit, whether the Figma desktop app is running,
+whether anything configures a Figma MCP server for this harness, whether this
+project is about to run an older copy of Pushpin than the one installed beside
+it, and whether the Node it is itself running under is new enough for the rest
+of the scripts. A missing `node` is not on that list and cannot be: this is a
+Node script, so nothing would have run, and `lookup` and `audit` failing is the
+only report there is. Everything it prints is a fault with a remedy, so a
+working environment prints nothing and there is nothing to relay.
+
+**`figma mcp`** says whether anything on this machine puts a Figma server in
+front of the session. On both harnesses that is normally the Figma plugin,
+which carries its own `.mcp.json` into the plugin cache; a server written into
+`~/.claude.json` or `~/.cursor/mcp.json` by hand counts the same, which is why
+the row reports a connection rather than a plugin. It answers presence and not
+connection; nothing on disk records whether
+the session can actually reach Figma, which is what the preflight below is for.
+A configuration it could not read is not a fault and the row skips, because
+telling somebody to install a plugin they already have costs more than saying
+nothing.
+
+**`plugin version`** says whether this project is pinned to an older copy of
+Pushpin than the one installed at the user level. Claude Code lets a project
+scope its own install and announces nowhere that it has, so a folder can sit
+two releases behind while every check inside it reports health. Claude Code
+only: Cursor keys its cache by commit sha and records no version to compare, so
+the row skips there rather than reading as a fault.
 
 Its lines carry the same two prefixes `freshness.mjs` uses — `fix:` is run
 without discussion, `say:` is one sentence held and spent on the user. That
@@ -148,15 +168,21 @@ Run it and add nothing to it — the prompt is the whole of what the user sees,
 and narrating a repair they have already approved is the noise this page exists
 to remove.
 
-Two more checks matter more than any of those, and no script can perform either.
+Two more checks matter more than any of those, and a script gets only part way
+into either.
 
-**Figma MCP.** The tools being absent from the catalog is the first answer and
-it costs no call. Otherwise one `whoami`. **Silent when it passes** — the rule
-[generate.md](generate.md) § The access preflight already sets, because a
-working connection is not news. When it fails, the remedy is harness-specific
-and naming the wrong one wastes the turn: on Cursor it is the Figma plugin, on
-Claude Code the Figma MCP server or connector. `--ready` has already settled
-which of the two this is. This one runs here rather than later because the probe
+**Figma MCP.** `--ready` has settled whether the server is configured. Whether
+this session can reach it is the half left, and it lives in the harness client
+where no file records it. The tools being absent from the catalog is the first
+answer and it costs no call. Otherwise one `whoami`. **Silent when it passes** —
+the rule [generate.md](generate.md) § The access preflight already sets, because
+a working connection is not news. When it fails, the remedy is harness-specific
+and naming the wrong one wastes the turn: on Claude Code it is `/plugin` and
+`/mcp`, on Cursor it is Customize in the sidebar for both halves. Do not compose
+either sentence here — [generate.md](generate.md) § The access preflight quotes
+the four `lib/environment.mjs` exports verbatim, and `scripts/verify.mjs` fails
+if they drift. Harness detection has already settled which of the two this is.
+This one runs here rather than later because the probe
 is cheap and the remedy is not — it ends in the user installing something, and
 that is a worse thing to discover mid-generation.
 
@@ -165,7 +191,8 @@ that is a worse thing to discover mid-generation.
 each of Pushpin and the Annotation Kit in a single `use_figma` call, and rules
 what happens when one is out of reach. That is also
 the call that proves the Figma desktop app is connected, since `use_figma` runs
-inside it.
+inside it. The channel check above proves only that the tools are there; a
+configured server with no desktop app behind it still fails at the write.
 
 It runs only once a link exists, which means on the from-scratch path it does
 not run during setup at all. Setup's job is to know it is still owed: the link

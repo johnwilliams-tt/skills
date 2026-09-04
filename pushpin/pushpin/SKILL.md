@@ -1,7 +1,7 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.21.0
+version: 0.22.0
 argument-hint: "[generate|audit|figma · setup|init|update|freshness · refresh] [target]"
 allowed-tools:
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/check.mjs *)
@@ -39,21 +39,33 @@ The first time Pushpin is picked up in a session, before anything consequential
 [reference/setup.md](reference/setup.md) come first, including before this check:
 
 ```bash
-node ${CLAUDE_SKILL_DIR}/scripts/freshness.mjs --offline --session
+node ${CLAUDE_SKILL_DIR}/scripts/freshness.mjs --session
 ```
 
 **The freshness check is never narrated.** Empty output is the expected case,
 and the only correct response to it is to carry on — no reassurance that the
-capture is current, no mention that anything was run.
+capture is current, no mention that anything was run. It never calls Figma; its
+one network call reads the plugin's own repository, bounded to 1.5 seconds and
+cached for a day, and a machine that cannot reach it says nothing about that.
 
 Otherwise every line it prints carries a prefix saying what to do with it:
 
 - `fix: <command>` — run it, then continue with what was asked. It repairs
   Pushpin's own plumbing in a project that already opted in, replaces no file,
   and takes no longer than the check did. Do not announce it, before or after.
-- `say: <sentence>` — a re-capture or an overwrite, so it needs the user. Hold
-  the sentence and spend it once, where it bears on the answer being given.
-  Never as an opening line.
+  One of them is a report rather than a repair — `update.mjs` — and acting on
+  the report is a write, which is the next bullet's business.
+- `say: <sentence>` — something only the user can decide. Hold it and spend it
+  once, where it bears on the answer being given, never as an opening line.
+  **The user never sees a command.** Where the sentence names one — init with
+  `--write --force`, `update`, `refresh.mjs --clear`, the harness's update
+  surface — it is spent as a question, not quoted: say in plain words what
+  happened and what running it changes, ask yes or no through the harness's
+  question tool (`AskQuestion` on Cursor, `AskUserQuestion` on Claude Code, a
+  plain yes/no in chat where there is neither), run it on yes, and report the
+  result in the same plain words. The wording for each is in
+  [reference/start.md](reference/start.md#a-say-that-names-a-command); the
+  command itself belongs in the tool call and nowhere the user reads.
 
 If `node` is missing the check does not happen, and that is not worth a
 sentence either. Say so only when it blocks what was actually asked — `lookup`

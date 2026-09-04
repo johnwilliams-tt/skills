@@ -770,8 +770,11 @@ if (WRITE && plan.length) {
 
   // Only inside a repository. The advice names files that only a repository can
   // ignore, and printing it into a folder that has none is an instruction to
-  // create something for nothing.
+  // create something for nothing. `.pushpin/remote/` is unconditional: the
+  // session check writes it in every project that holds a config, on its first
+  // run after this one.
   const ignore = [
+    '.pushpin/remote/',
     ...(preview && preview.autostart ? ['.pushpin/preview.log', '.pushpin/preview.pid'] : []),
     ...(plan.some((p) => p.rel === SETTINGS_REL) ? [SETTINGS_REL] : []),
   ];

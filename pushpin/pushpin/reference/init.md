@@ -13,9 +13,11 @@ moves and the one a `catalog` finding hands over.
 
 `init` is once per project, not once per agent. The marker is
 `pushpin.config.json`. A later session does not re-run this; it pin-checks on
-pickup via `freshness.mjs --offline --session`, repairs a missing or misdirected
+pickup via `freshness.mjs --session`, repairs a missing or misdirected
 edit hook with a plain `--write` and says nothing about it, and speaks only when
-the pin is behind in a way that needs a file replaced.
+the pin is behind in a way that needs a file replaced — and then as a plain
+yes/no, never as this command:
+[start.md](start.md#a-say-that-names-a-command).
 
 It installs the token stylesheet somewhere idiomatic for the stack it detects,
 writes `pushpin.config.json` with the Figma keys so the bridge works without
@@ -145,8 +147,10 @@ not this project's preview — another tool, or a preview of a different directo
 — is reported with the remedy (`--preview-port`) and left alone. Killing a
 process the plugin did not start is not a recovery anyone asked for.
 
-Add `.pushpin/preview.log` and `.pushpin/preview.pid` to `.gitignore`; they are
-this machine's. To bring the preview up without editing anything:
+Add `.pushpin/preview.log`, `.pushpin/preview.pid` and `.pushpin/remote/` to
+`.gitignore`; they are this machine's — the last is the session check's cached
+copy of the plugin repository's `plugin.json` and `kit-state.json`. To bring the
+preview up without editing anything:
 
 ```bash
 node .pushpin/pushpin-check.mjs --preview

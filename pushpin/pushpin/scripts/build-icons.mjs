@@ -18,18 +18,30 @@
  *                        grouping entirely.
  *   the page metadata    `get_metadata` on the icons page — the category
  *                        frames and which icons sit inside each, but no keys.
+ *                        pull-icons.mjs supplies the same tree as JSON, the
+ *                        page's node from the REST API, under a `.json` name.
  *
  * They join on nodeId. See scripts/extract.md section 8.
  *
- * Usage: node scripts/build-icons.mjs <raw-dump.json> <page-metadata.xml>
+ * Usage: node scripts/build-icons.mjs <raw-dump.json> <page-metadata.xml|json> [--out <path>]
  */
 
 import { readFileSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const OUT = join(here, '..', 'assets', 'icons.figma.json');
+
+/** See build-components.mjs — the same reason, for the same consumer path. */
+const outFlag = process.argv.indexOf('--out');
+const OUT =
+  outFlag === -1
+    ? join(here, '..', 'assets', 'icons.figma.json')
+    : resolve(process.argv[outFlag + 1]);
+const ARGS =
+  outFlag === -1
+    ? process.argv.slice(2)
+    : [...process.argv.slice(2, outFlag), ...process.argv.slice(outFlag + 2)];
 
 export const FILE_KEY = 'VVRGrLgkPRU3vs765d5Q3r';
 export const FILE_NAME = 'Pushpin Thumbprint UI Kit';
@@ -91,8 +103,32 @@ export function categoriesFromMetadata(xml) {
 }
 
 /**
+ * The same map from the page's node tree as the REST API returns it — the
+ * `document` of `GET /files/:key/nodes?ids=<icons page>`. A COMPONENT is what
+ * the metadata drew as `<symbol>`; every other node is a container and its
+ * name joins the stack the category is read from. The same rule applies: the
+ * outermost `… Icons` ancestor names the category.
+ */
+export function categoriesFromTree(root) {
+  const byNodeId = new Map();
+  const walk = (node, stack) => {
+    if (node.type === 'COMPONENT') {
+      const category = stack.find((f) => / Icons$/.test(f));
+      if (node.id && category) byNodeId.set(node.id, toCategory(category));
+      return;
+    }
+    const next = [...stack, node.name ?? ''];
+    for (const child of node.children ?? []) walk(child, next);
+  };
+  for (const child of root.children ?? []) walk(child, []);
+  return byNodeId;
+}
+
+/**
  * Reduce a raw dump plus page metadata to the committed catalog. Exported so
  * diff.mjs can distill a fresh capture the same way and compare like with like.
+ *
+ * `page` is the metadata XML as a string, or the page's node tree as an object.
  *
  * Grouping is by name *and* category, not name alone. `Home` is published in
  * both Navigation and Meta Category at all four sizes — two real components
@@ -100,8 +136,8 @@ export function categoriesFromMetadata(xml) {
  * two `A11y / Annotation / Spec` entries. Collapsing on name would drop one of
  * them silently and make `publicKept` disagree with the key count.
  */
-export function distillIcons(all, xml) {
-  const categories = categoriesFromMetadata(xml);
+export function distillIcons(all, page) {
+  const categories = typeof page === 'string' ? categoriesFromMetadata(page) : categoriesFromTree(page);
   const groups = new Map();
   const duplicates = {};
   let capturedTotal = 0;
@@ -168,17 +204,20 @@ export function distillIcons(all, xml) {
 if (process.argv[1] === fileURLToPath(import.meta.url)) main();
 
 function main() {
-  const [rawPath, metaPath] = process.argv.slice(2);
+  const [rawPath, metaPath] = ARGS;
   if (!rawPath || !metaPath) {
-    console.error('usage: node scripts/build-icons.mjs <raw-dump.json> <page-metadata.xml>');
+    console.error(
+      'usage: node scripts/build-icons.mjs <raw-dump.json> <page-metadata.xml|json> [--out <path>]',
+    );
     process.exit(1);
   }
 
   const all = JSON.parse(readFileSync(rawPath, 'utf8'));
-  const xml = readFileSync(metaPath, 'utf8');
+  const meta = readFileSync(metaPath, 'utf8');
+  const page = metaPath.endsWith('.json') ? JSON.parse(meta) : meta;
   const { icons, duplicates, capturedTotal, offPageOmitted, uncategorised } = distillIcons(
     all,
-    xml,
+    page,
   );
 
   // A size missing from an icon is a real fact about the kit, not a capture

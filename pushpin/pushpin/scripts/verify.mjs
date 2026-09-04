@@ -16,6 +16,11 @@ import { fileURLToPath } from 'node:url';
 
 import { hashAsset } from './canonical.mjs';
 import { CORE_COMPONENTS } from './impeccable-bridge.mjs';
+import {
+  FIGMA_MCP_ABSENT,
+  FIGMA_MCP_DISCONNECTED,
+  HARNESSES,
+} from './lib/environment.mjs';
 import { TOKEN_GROUPS, resolveHex, seg as segment } from './lib/tokens.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -191,6 +196,31 @@ for (const [, key, name] of radiusQuoted) {
       `reference/generate.md: corner-radius/${name} quotes ${key}, ` +
         `variable-keys.figma.json has ${expected ?? 'no such token'}`,
     );
+  }
+}
+
+// The four Figma-channel remedies are quoted in generate.md's access preflight
+// because the agent reads them there and says them to the user, and exported
+// from lib/environment.mjs because --ready and the session line print them.
+// Nothing about markdown can import, so the doc holds a hand-copied second
+// copy of a sentence a designer acts on — and the way that copy goes wrong is
+// by staying plausible, naming a settings pane or a slash command that moved.
+// This is also what gives FIGMA_MCP_DISCONNECTED a consumer in code: no script
+// can detect a dropped connection, so the export exists to be quoted, and an
+// export that exists to be quoted needs the quotation checked.
+const flatGenerate = generate.replace(/\s+/g, ' ');
+for (const [name, remedy] of [
+  ['FIGMA_MCP_ABSENT', FIGMA_MCP_ABSENT],
+  ['FIGMA_MCP_DISCONNECTED', FIGMA_MCP_DISCONNECTED],
+]) {
+  for (const harness of HARNESSES) {
+    checked++;
+    if (!flatGenerate.includes(`"${remedy[harness]}"`)) {
+      problems.push(
+        `reference/generate.md does not quote ${name}.${harness} verbatim: ` +
+          `"${remedy[harness]}"`,
+      );
+    }
   }
 }
 

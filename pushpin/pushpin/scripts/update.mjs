@@ -50,7 +50,7 @@ import {
   projectRoot,
 } from './lib/overlay.mjs';
 import { loadAsset } from './lib/tokens.mjs';
-import { catalogPins, inspectPin } from './pin.mjs';
+import { catalogPins, cssPathArgs, inspectPin } from './pin.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const ASSETS = join(here, '..', 'assets');
@@ -838,9 +838,11 @@ const authored = (pin?.reasons ?? []).filter((r) => AUTHORED.includes(r));
  * `--no-share` because the one file init writes that a team commits is
  * `.claude/settings.json`, and a repair nobody asked for has no business
  * editing it. The rest replay what this project already chose: a `--force`
- * rewrite computes the hook and the preview from the stack it detects, so a
- * project that declined either would have it installed by the run that was
- * only meant to bring its pin current.
+ * rewrite computes the stylesheet path, the hook and the preview from the
+ * stack it detects, so a project that put the stylesheet elsewhere would get a
+ * second one at the default path, and one that declined the hook or the
+ * preview would have it installed, by the run that was only meant to bring its
+ * pin current.
  */
 const initArgs = [
   join(here, 'init.mjs'),
@@ -848,6 +850,7 @@ const initArgs = [
   '--write',
   '--force',
   '--no-share',
+  ...cssPathArgs(config),
   ...(config.checkHook === false ? ['--no-hook'] : []),
   ...(config.preview === false ? ['--no-preview'] : []),
   ...(config.preview?.autostart && config.preview.port

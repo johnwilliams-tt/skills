@@ -50,6 +50,29 @@ export function catalogPins() {
   };
 }
 
+/**
+ * The `--css-path` a re-run of init has to carry for this project.
+ *
+ * init derives the stylesheet's destination from the stack it detects, so a
+ * re-run on a project that put it elsewhere writes a second copy at the default
+ * path — and under `--force` re-points the pin at it. Every command that replays
+ * init, or prints one for a reader to run, takes its fragment from here so
+ * none of them can drop the path. `css` is recorded with the `./` init prefixes
+ * on write, which init would prefix again.
+ *
+ * @param {object|null} config parsed `pushpin.config.json`
+ * @param {string} [defaultRel] where init would put the stylesheet unasked.
+ *   Given, the flag is omitted where the recorded path is that one, so a
+ *   command shown to a reader carries only what changes its meaning.
+ * @returns {string[]} argv fragment, empty when there is nothing to carry
+ */
+export function cssPathArgs(config, defaultRel) {
+  if (typeof config?.css !== 'string') return [];
+  const rel = config.css.replace(/^\.\//, '');
+  if (!rel || (defaultRel && rel === defaultRel.split('\\').join('/'))) return [];
+  return ['--css-path', rel];
+}
+
 /** What each recorded catalog date is called in a finding. */
 const CATALOG_LABEL = {
   componentsCapturedAt: 'component catalog',
@@ -289,6 +312,9 @@ export function inspectPin(dir, { manifest, pluginVersion }) {
       status: 'stale',
       details,
       brief,
+      // Which reason the brief speaks for, so the session-start check can tell
+      // a sentence its `fix:` line already answers from one it does not.
+      briefReason: matched ? matched[0] : null,
       reasons,
       repairable: reasons.every((r) => REPAIRABLE.has(r)),
       pluginVersion: prev.pluginVersion,

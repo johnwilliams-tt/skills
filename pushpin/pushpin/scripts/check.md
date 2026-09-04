@@ -34,6 +34,68 @@ Note that `freshness.mjs` reads the published state over REST. It cannot see
 unpublished editor state, which is the whole reason the kit capture below
 exists.
 
+## Capturing over REST
+
+Five of the captures below can also be taken without the desktop app, by the
+`scripts/pull-*.mjs` scripts, which read the Figma REST API with `FIGMA_TOKEN`
+(`file_content:read` and `library_content:read` scopes) and write the same
+input shape the corresponding distiller already accepts. Each takes `--out
+<path>` and `--check`; `--check` writes nothing and exits 1 when the pull
+disagrees with the committed asset, which is what CI runs. File keys come from
+`assets/manifest.json`. The REST client (`scripts/lib/figma-rest.mjs`) backs
+off on 429 by `Retry-After`, batches `ids` for `/nodes`, and serves canned
+responses from `FIGMA_REST_FIXTURE_DIR` when that is set, which is how the
+scripts are exercised without a token. What REST cannot do at all: the
+variables endpoint is Enterprise-only, so `tokens.figma.json` and
+`variable-keys.figma.json` have no REST pull and sections 1 and 2 remain the
+plugin's. Nor can REST answer the "consuming file" column of the table below —
+every entry it lists is published, so `publishStatus` is `CURRENT` for all of
+them and the unpublished-work-in-progress signal `diff.mjs` derives from the
+two vantage points is not available from a REST capture.
+
+`pull-components.mjs` (section 3) lists `/files/:key/components` and
+`/component_sets` for membership — REST lists only published entries, so
+nothing it reads can be `UNPUBLISHED` or `CHANGED` — then reads
+`componentPropertyDefinitions` off the owner nodes in the file. That is editor
+state, not the published definition a consumer would import, so the catalog it
+builds carries `source.properties: "rest-editor-state"`; the plugin capture's
+import step is still the only proof that a key resolves. `instanceCount` and
+`children` come from the Code Connect dump and have no REST equivalent, so they
+are carried from the committed catalog by key and `source.carried` names them.
+`build-components.mjs` still routes icons to `iconsOmitted`.
+
+`pull-specs.mjs` (section 6) reads whole pages with `/nodes` and translates the
+REST node JSON into the lane shape `build-specs.mjs --merge` takes; the
+translation table is the header of the script. Pages are named
+(`--pages "Button,Text Input"`, matched with or without the 📌 prefix) or
+`--all`. Bound variables come back as ids, and naming them needs
+`/variables/local`, which is Enterprise-only: on other plans the names come from
+`assets/variable-ids.figma.json`, the `ids` map section 1 captures, read by
+default whenever it exists; `--variables <file>` points at another copy, and
+`--allow-unresolved` records the literals alone and notes the loss on the lane.
+Library-bound ids embed the variable key and resolve through
+`variable-keys.figma.json` without any of those.
+
+`pull-icons.mjs` (section 5) writes the raw dump array and the icon page's node
+tree; `build-icons.mjs` accepts the tree as JSON alongside the XML the
+`get_metadata` path produces. REST lists only published icons, so the
+`offPageOmitted` count covers published-but-moved icons rather than everything
+the editor holds.
+
+`pull-styles.mjs` (section 1, the `textStyles` and `effectStyles` half) reads
+`/files/:key/styles` and the text styles' nodes and writes
+`assets/styles.figma.json` directly, `letterSpacing` and `lineHeight` as
+`{value, unit}`. REST reports letter spacing in pixels with no unit, so a style
+the committed asset records in percent is converted back from the font size and
+a style new to the kit is written in pixels with a warning to confirm the unit
+in the editor. It is not an import verification — `source.verifiedBy` says so —
+and the check in section 1 that applies each style in a consuming file still
+stands.
+
+`pull-annotations.mjs` (section 4) is `pull-components.mjs` against the
+Annotation Kit, writing `assets/annotations.figma.json` directly since that
+asset has no distiller. The same editor-state caveat applies to its properties.
+
 ## Why two vantage points
 
 `use_figma` inside the kit reads **editor state**, which includes edits that
@@ -80,14 +142,20 @@ const cols = await figma.variables.getLocalVariableCollectionsAsync();
 const collections = {};
 const hidden = {};
 const keys = {};
+const ids = {};
 
 for (const c of cols) {
-  if (!c.name.startsWith('Tokens / ')) continue;
+  // `ids` covers every collection, not only Tokens /: a component spec can
+  // bind to a variable outside them, and pull-specs.mjs has to name that too.
+  const tokens = c.name.startsWith('Tokens / ');
   const modes = c.modes.map((m) => ({ id: m.modeId, name: m.name }));
   const vars = {};
+  const byId = (ids[c.name] = {});
   for (const id of c.variableIds) {
     const v = await figma.variables.getVariableByIdAsync(id);
     if (!v) continue;
+    byId[v.id] = v.name;
+    if (!tokens) continue;
     const entry = {};
     for (const m of modes) {
       const val = v.valuesByMode[m.id];
@@ -106,6 +174,7 @@ for (const c of cols) {
     (keys[c.name] = keys[c.name] || {})[v.name] = v.key;
     if (v.hiddenFromPublishing) (hidden[c.name] = hidden[c.name] || []).push(v.name);
   }
+  if (!tokens) continue;
   collections[c.name] = { modes: modes.map((m) => m.name), vars };
 }
 
@@ -140,10 +209,21 @@ return {
   collections,
   hidden,
   keys,
+  ids,
   textStyles,
   effectStyles,
 };
 ```
+
+`ids` is `{ "<collection>": { "<VariableID>": "<name>" } }` and is the one part
+of this capture that outlives it. Save it once as
+`assets/variable-ids.figma.json`: variable ids are stable across publishes, so
+`pull-specs.mjs` reads the file whenever it exists and names the bound variables
+`/variables/local` cannot on this plan — which is what lets the release workflow
+re-read a changed spec page without a human. Until it is committed the workflow
+leaves `component-specs.figma.json` as committed and says so in the
+`pushpin-tokens` issue. A new variable is a new id, so re-save it whenever
+sections 1 and 2 are re-taken.
 
 ## 2. Published capture
 

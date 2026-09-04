@@ -46,7 +46,9 @@ import { hashAsset } from './canonical.mjs';
 import {
   acceptsEdits,
   detectHarness,
+  FIGMA_MCP_ABSENT,
   figmaDesktop,
+  figmaMcp,
   findImpeccable,
   globalAutoUpdate,
   HARNESSES,
@@ -54,13 +56,15 @@ import {
   MARKETPLACE,
   MIN_NODE,
   permissionMode,
+  pluginInstalls,
+  stalePluginRemedy,
 } from './lib/environment.mjs';
 import { GENERATED, generatedState } from './lib/generated.mjs';
 import { inspectHooks } from './lib/hooks.mjs';
 import { ALLOWED_SCRIPTS, missingAllowRules, SETTINGS_REL } from './lib/permissions.mjs';
 import { DEFAULT_PORT, previewUrl, probe, readPreview, servesRoot } from './lib/preview.mjs';
 import { describeStack, detectStack } from './lib/project.mjs';
-import { inspectPin } from './pin.mjs';
+import { cssPathArgs, inspectPin } from './pin.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const ASSETS = join(here, '..', 'assets');
@@ -259,6 +263,39 @@ function ready() {
       `it — opening it before we push anything there saves a failed run.`,
   );
 
+  // Configured, which is not the same as connected. Nothing on disk records
+  // whether the session can reach Figma, so this answers the half that has a
+  // remedy someone can act on before a run starts, and the access preflight in
+  // reference/generate.md answers the other half by making a real call.
+  const mcp = figmaMcp(HARNESS, target);
+  check(
+    'figma mcp',
+    mcp === 'configured' ? 'ok' : mcp === 'absent' ? 'say' : 'skipped',
+    {
+      configured: 'configured',
+      absent: 'nothing here configures a Figma server',
+      unknown: 'the MCP configuration could not be read',
+    }[mcp],
+    FIGMA_MCP_ABSENT[HARNESS],
+  );
+
+  // A project-scoped install wins over the user-level one and says nothing
+  // about having done so, so this is the only place a folder running two
+  // releases behind announces itself.
+  const installs = pluginInstalls(target, HARNESS);
+  check(
+    'plugin version',
+    installs.state === 'behind' ? 'say' : installs.state === 'ok' ? 'ok' : 'skipped',
+    {
+      behind: `${installs.running} here, ${installs.newest} at the user level`,
+      ok: `${installs.running}, and the newest installed`,
+      unknown: claude
+        ? 'no install record names this copy, so there is nothing to compare it against'
+        : 'Claude Code only',
+    }[installs.state],
+    installs.state === 'behind' ? stalePluginRemedy(installs) : '',
+  );
+
   return {
     mode: 'ready',
     target,
@@ -439,6 +476,13 @@ async function verify() {
 
   const pin = inspectPin(target, { manifest: MANIFEST, pluginVersion: PLUGIN.version });
 
+  // Appended to every init the advice below names: the stylesheet path this
+  // project chose, where it differs from the one init would derive. Without it
+  // the reader's re-run drops a second stylesheet at the default path.
+  const cssFlag = cssPathArgs(config, cssRel)
+    .map((a) => ` ${a}`)
+    .join('');
+
   // Tokens and the pin. inspectPin already owns this comparison; repeating its
   // logic here is how the two would come to disagree.
   const cssRelActual = config.css?.replace(/^\.\//, '') ?? cssRel;
@@ -485,16 +529,16 @@ async function verify() {
       detail,
     );
     if (state === 'replaced' || state === 'edited' || state === 'absent') {
-      advice.push(`\`node scripts/init.mjs ${target} --write --force\` restores ${g.label}. Never \`/impeccable document\`.`);
+      advice.push(`\`node scripts/init.mjs ${target} --write --force${cssFlag}\` restores ${g.label}. Never \`/impeccable document\`.`);
     }
     if (stale) {
       advice.push(
-        `\`node scripts/init.mjs ${target} --write --force\` brings ${g.label} up to the capture this plugin carries.`,
+        `\`node scripts/init.mjs ${target} --write --force${cssFlag}\` brings ${g.label} up to the capture this plugin carries.`,
       );
     }
     if (state === 'unrecorded') {
       advice.push(
-        `\`node scripts/init.mjs ${target} --write --force\` records a hash for ${g.label}, which is what lets an overwrite be noticed.`,
+        `\`node scripts/init.mjs ${target} --write --force${cssFlag}\` records a hash for ${g.label}, which is what lets an overwrite be noticed.`,
       );
     }
   }
@@ -524,12 +568,12 @@ async function verify() {
         : 'not installed — Cursor only, and the edit check reports an overwrite either way',
     );
     if (!checks.length) {
-      advice.push(`\`node scripts/init.mjs ${target} --write\` installs the edit check.`);
+      advice.push(`\`node scripts/init.mjs ${target} --write${cssFlag}\` installs the edit check.`);
     }
   }
   for (const h of broken) {
     row(MISSING, 'hook target', `${h.rel} names something that is not there — ${h.target}`);
-    advice.push(`\`node scripts/init.mjs ${target} --write\` repairs the hook in ${h.rel}.`);
+    advice.push(`\`node scripts/init.mjs ${target} --write${cssFlag}\` repairs the hook in ${h.rel}.`);
   }
 
   // The allow rules name this plugin by full path, so a plugin update leaves
@@ -546,7 +590,7 @@ async function verify() {
   );
   if (missingRules.length) {
     advice.push(
-      `\`node scripts/init.mjs ${target} --write\` pre-approves Pushpin's project scripts, so a catalog lookup stops asking.`,
+      `\`node scripts/init.mjs ${target} --write${cssFlag}\` pre-approves Pushpin's project scripts, so a catalog lookup stops asking.`,
     );
   }
 
@@ -559,7 +603,7 @@ async function verify() {
   } else if (!pv) {
     row(NOTE, 'preview', 'not recorded, so nothing keeps the prototype server up');
     advice.push(
-      `\`node scripts/init.mjs ${target} --write --force\` records the preview, which is what restarts the prototype server after it stops.`,
+      `\`node scripts/init.mjs ${target} --write --force${cssFlag}\` records the preview, which is what restarts the prototype server after it stops.`,
     );
   } else if (!pv.port) {
     row(NOTE, 'preview', `served by \`${pv.command}\` on a port Pushpin cannot guess, so it says nothing about it`);
@@ -590,7 +634,7 @@ async function verify() {
           : `port ${pv.port} is held by something that is not the Pushpin preview`,
       );
       advice.push(
-        `\`node scripts/init.mjs ${target} --write --force --preview-port <n>\` moves the preview to a free port. Nothing holding the current one is killed.`,
+        `\`node scripts/init.mjs ${target} --write --force --preview-port <n>${cssFlag}\` moves the preview to a free port. Nothing holding the current one is killed.`,
       );
     }
   }

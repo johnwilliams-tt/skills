@@ -932,6 +932,55 @@ most product files are set up against Pushpin alone, and the Annotation Kit is a
 library a designer subscribes to on purpose rather than one that arrives with the
 kit.
 
+**The channel comes before the libraries.** Both probes run inside Figma, so
+before either of them can mean anything, `use_figma` has to be in the tool list
+at all. Confirm it is there first, and confirm it by looking rather than by
+calling — no script can answer this one, because MCP connection state lives in
+the harness client rather than on the filesystem, which is why it is a rule the
+agent follows instead of a line in `freshness`.
+
+**An absent namespace and a failing call are different findings.** When the
+Figma namespace goes, the whole of it goes — every tool including `use_figma`,
+leaving the read-only tools and Code Connect — and there is no canvas-write
+channel left to fail, so nothing was attempted and nothing can be. When
+`use_figma` is present and the call comes back `Tool call failed: 404`, the tool
+was reached and the JavaScript never ran inside it. The remedies have nothing in
+common, and conflating the two sends the user to the wrong one.
+
+They fail in different places, which is what makes both reachable in one
+session. On Claude Code the Figma server is remote HTTP —
+`https://mcp.figma.com/mcp`, per the plugin's own `.mcp.json` — so a dropped
+OAuth session takes the entire namespace with it. But `use_figma` executes
+inside the Figma desktop app, which is why a server that is answering can still
+404 on one particular file: not open in the desktop app, the desktop app not
+running, or an account that genuinely cannot reach it.
+
+**Name the remedy for the harness in hand.** These are the sentences
+`setup.mjs --ready` and the session check emit, exported from
+`lib/environment.mjs` so the three cannot drift apart, and `scripts/verify.mjs`
+fails if the four below stop matching what that file exports. Say them as
+written rather than paraphrasing:
+
+- Channel absent, Claude Code — "The Figma plugin is not installed, and it is
+  what lets me read and write your Figma files. Run /plugin, install Figma, then
+  ask me again."
+- Channel absent, Cursor — "There is no Figma connection set up here, and it is
+  what lets me read and write your Figma files. Open Customize in the sidebar,
+  install the Figma plugin, then ask me again."
+- Configured but not answering, Claude Code — "Claude Code has lost its
+  connection to Figma, so nothing can be written to your file. Type /mcp,
+  reconnect Figma, then ask me again."
+- Configured but not answering, Cursor — "Cursor has lost its connection to
+  Figma, so nothing can be written to your file. Open Customize in the sidebar,
+  click Figma where it says Needs authentication, then ask me again."
+
+**Retry once at most, and only a 429 earns the wait.** A rate limit is the only
+one of these that time alone clears. An absent namespace, a lost connection, a
+file that is not open, and an account without access are all persistent, so a
+second attempt spends the user's time to arrive at the same answer and hands it
+back later than the run that answered once. "It may have recovered" is not a
+reason; a 429 is.
+
 So before creating any node, resolve one known key from each of the two.
 
 ```js
@@ -994,31 +1043,41 @@ A positive still does not promise the call works — for the reason
 [the drift record](#the-drift-record-lives-on-the-node) gives about
 `setPluginData`, a method can answer `'function'` and still throw.
 
-### One library stops the run, and it is not both of them
+### Every row stops the run except the Annotation Kit
 
-An earlier version of this page stopped on either. That is the wrong trade in one
-of the two cases, and it produced the worst possible outcome for the most common
-setup: a file reaching Pushpin but not the Annotation Kit could not generate at
-all, including a layout with no proposals that would never have placed a note.
+An earlier version of this page stopped on either library. That is the wrong
+trade in one of the two cases, and it produced the worst possible outcome for
+the most common setup: a file reaching Pushpin but not the Annotation Kit could
+not generate at all, including a layout with no proposals that would never have
+placed a note.
 
 | Unreachable | Consequence |
 |---|---|
+| **The channel** | **Stop.** `use_figma` is not in the tool list, so there is no way to place anything and no probe to run. Nothing was attempted, and the remedy is an install or a configuration rather than anything about this file. |
+| **The call itself** | **Stop.** A transport error or `Tool call failed: 404` means the JavaScript never ran, so there is no answer about either library yet. The remedy is a reconnection, the desktop app, or access to the file — and it is one retry at most. |
 | **Pushpin** | **Stop.** Nothing can be placed. Every component, icon, variable, and text style this page relies on is published from here, and a screen with none of them is not a degraded screen, it is an empty one. |
 | Annotation Kit | Continue. Notes are drawn instead of instanced — the fallback is in [annotate-fallback.md](annotate-fallback.md). |
+
+The first two rows stop the run for the same reason the Pushpin row does:
+nothing can be placed. They stay separate rows because the remedies are
+unrelated — one is an install or a configuration, the other a reconnection or a
+file that needs opening — and a single row would force the agent to guess which.
 
 The degraded mode is recorded and reported, and it does not fail the audit. That
 follows the rule the `unresolved` bucket already sets: a stated gap is an outcome
 worth handing over, and what fails is hiding one.
 
 **There is no degraded mode for icons.** They are published from the Pushpin
-library, so any run that gets past the first row of that table can reach them,
+library, so any run that gets past the Pushpin row of that table can reach them,
 and a mode flag whose false branch is unreachable is a branch nobody tests. An
 icon that will not resolve is a dead key rather than a closed door, and that is
 [an unresolved atom](#unresolved-atoms-are-placed-never-dropped) — placed as a
 `Placeholder / icon · <Size>`, reported, and fixed by a re-capture rather than by
 access.
 
-So the preflight decides how the run proceeds rather than whether it proceeds:
+So the preflight decides whether the run proceeds before it decides how, and the
+degraded path is the exception rather than the rule — three of the four rows end
+the run where they stand, and only the Annotation Kit hands anything forward:
 
 ```js
 if (reach.pushpin !== true) return { stop: `Pushpin unreachable — ${reach.pushpin}` };
@@ -1043,8 +1102,9 @@ Naming the library matters more than naming the key. "You are not reaching the
 Annotation Kit, which is where the notes and pointers are published" is something
 a designer can act on; a raw `Component with key "aa6e46…" not found` is not.
 
-Say what the run will do about it in the same breath. A library named without a
-consequence reads as a warning to ignore, and the consequence is the part that
+Say what the run will do about it in the same breath. A library or a channel
+named without a consequence reads as a warning to ignore, and the consequence is
+the part that
 decides whether the user wants to fix access before the run or accept the
 fallback and move on.
 

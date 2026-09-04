@@ -564,7 +564,8 @@ if (!capturePath) {
   process.exit(1);
 }
 
-const distilled = distillComponents(loadCapture(capturePath));
+const capture = loadCapture(capturePath);
+const distilled = distillComponents(capture);
 const sorted = distilled.components;
 
 const doc = {
@@ -597,6 +598,12 @@ const doc = {
     ...(distilled.propertiesFromDump.length
       ? { propertiesFromDump: distilled.propertiesFromDump }
       : {}),
+    // Where the capture read from, when it was not the plugin path this file
+    // documents. pull-components.mjs writes `properties: "rest-editor-state"`
+    // because REST reads the file rather than the published definition, and
+    // `carried` for the fields REST has no source for. A plugin capture has no
+    // provenance block and the catalog it builds is unchanged.
+    ...(capture.provenance ?? {}),
   },
   components: sorted,
 };

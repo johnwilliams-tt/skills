@@ -1,9 +1,10 @@
 # Changelog
 
 Most entries record a capture of the Pushpin Thumbprint UI Kit and what moved
-since the last one. Those are produced by `/pushpin refresh`; see
-[pushpin/scripts/check.md](pushpin/scripts/check.md). The rest record the plugin
-itself changing.
+since the last one. Those are written by `scripts/release.mjs` from `diff.mjs`
+output, whether the release workflow or a maintainer cut the release; see
+[pushpin/reference/maintaining.md](pushpin/reference/maintaining.md). The rest
+record the plugin itself changing.
 
 Changes are grouped the way `diff.mjs` classifies them:
 
@@ -15,6 +16,96 @@ Changes are grouped the way `diff.mjs` classifies them:
 
 An entry about the plugin rather than the capture adds **Fixed** for a bug in
 the toolchain, which `diff.mjs` has no category for.
+
+## 0.22.0 — 2026-09-02
+
+Two failure classes reached users this week and neither had a check behind it. A
+`use_figma` 404 turned into the loss of the whole Figma MCP namespace, and with
+no rule covering that, the agent invented a retry loop and spent it on a fault
+that was never going to clear. Separately, a project ran Pushpin 0.12.0 while
+0.21.0 sat at the user level, and every check inside that project reported
+health, because each of them was the old code answering about itself. Both read
+to the person in front of them as "Pushpin is broken", and neither is.
+
+One constraint shapes all of it: no script can tell whether an MCP server is
+connected, because that state lives in the harness client and is written down
+nowhere. So the question splits three ways and each part goes where it can
+actually be answered. Config presence is a fact about the filesystem, so
+`--ready` and session start own it. Whether the tools are in the catalog is
+visible only to the agent, so a doc rule owns it. Live reachability is only ever
+proved by a real call, which the access preflight already is. Asking
+`https://mcp.figma.com/mcp` instead is deliberately not part of this: it answers
+whether Figma's service is up rather than whether this session is authenticated
+to it, and a green that means the wrong thing is worse than no check.
+
+**Added**
+
+- **`--ready` has a `figma mcp` row.** `figmaMcp()` in
+  [lib/environment.mjs](pushpin/scripts/lib/environment.mjs) answers
+  `configured`, `absent` or `unknown` by reading every `.mcp.json` in the
+  harness's plugin cache alongside `~/.claude.json`, `~/.cursor/mcp.json` and
+  the project's own file. Three states rather than two for the reason
+  `figmaDesktop()` has three: Cursor writes `mcp.json` with comments in it,
+  which is legal there and fatal to `JSON.parse`, and rounding a file it could
+  not read down to `absent` would tell somebody to install a plugin they
+  already have. `unknown` skips the row and says nothing.
+
+- **`--ready` has a `plugin version` row.** `pluginInstalls()` reads
+  `~/.claude/plugins/installed_plugins.json`, matches the entry whose
+  `installPath` contains the running script, and reports the version off that
+  tree's own manifest rather than off the install record — the record says what
+  was installed, the manifest says what loaded. It fires only when the running
+  copy is behind the newest *user-level* install, because that is the copy
+  `/plugin` updates and so the only one a remedy can name. This is the row that
+  would have caught the 0.12.0 project. Claude Code only: Cursor keys its cache
+  by commit sha and keeps no equivalent record, so the answer there is `unknown`
+  rather than a fault invented out of an absence.
+
+- **Session start says both.** They go through `report.findings` in
+  [freshness.mjs](pushpin/scripts/freshness.mjs) rather than becoming layers in
+  its table, which is what that field is already reserved for: the table asks
+  whether the committed captures still match what Figma serves, and neither of
+  these is about a capture. Only under `--session`, because every other form of
+  the command has an exit code builds read, and a machine with no Figma plugin
+  has nothing wrong with its captures. Both readers are filesystem-only, so
+  `--offline` still holds, and silent-on-success is unchanged.
+
+- **The access preflight reasons about the channel before the libraries.**
+  [generate.md](pushpin/reference/generate.md) § The access preflight gained a
+  step ahead of the library probes — confirm `use_figma` is in the tool list at
+  all — and two more stop rows beside Pushpin's. An absent namespace and a
+  failing call are separate findings with nothing in common as remedies: when
+  the namespace goes, nothing was attempted and nothing can be, and when
+  `use_figma` is present and returns `Tool call failed: 404`, the tool was
+  reached and the JavaScript never ran inside it. The retry rule is now stated
+  rather than left to judgement — at most once, and only a 429 earns the wait,
+  because a rate limit is the only one of these that time alone clears.
+
+- **`verify.mjs` checks that generate.md still quotes the remedies verbatim.**
+  The four harness-keyed sentences are exported from `lib/environment.mjs` so
+  `--ready`, the session line and the preflight cannot drift, but markdown
+  cannot import, so the doc holds a hand-copied second copy of a sentence a
+  designer acts on. That copy goes wrong by staying plausible — naming a
+  settings pane or a slash command that has moved — which is exactly the class
+  of error the spacing-key check beside it already exists for.
+
+**Changed**
+
+- **The Cursor remedies name Customize rather than a settings pane.** Figma
+  arrives on Cursor the same way it does on Claude Code, as a plugin carrying
+  its own `.mcp.json` at `https://mcp.figma.com/mcp`, and Customize in the
+  sidebar is the one surface that both installs it and re-authenticates it when
+  the OAuth session drops. The absent sentence says "there is no Figma
+  connection set up here" rather than naming the plugin, because `figmaMcp()`
+  counts a hand-written `mcp.json` too and a user who wrote one should not be
+  told their machine is missing something it never had.
+
+- **[setup.md](pushpin/reference/setup.md) § 1** lists both new rows, and no
+  longer implies the harness check and the library preflight answer the same
+  question. The preflight is still what proves the Figma desktop app is
+  connected, since `use_figma` runs inside it; the channel check proves only
+  that the tools are there, and a configured server with no desktop app behind
+  it still fails at the write.
 
 ## 0.21.0 — 2026-09-02
 

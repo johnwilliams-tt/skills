@@ -261,10 +261,13 @@ the catalog rather than into it, and the count is what makes the fallout
 visible instead of silent.
 
 **The published names and properties** come from importing each surviving key,
-which doubles as proof that every key in the catalog resolves. Run it against the
-scratch file `8Uv6dYO4uKdGCyGSfpz9k0` or any file that subscribes to the kit —
-*not* the kit itself, where a component is not a library entry. Importing places
-nothing on the canvas. **29 keys per call** is measured — four calls covered all
+which doubles as proof that every key in the catalog resolves. Run it in the
+scratch file `8Uv6dYO4uKdGCyGSfpz9k0`, or any file other than the kit:
+`importComponentByKeyAsync` resolves from the key alone and needs no library
+subscription (check.md § 2 draws the contrast with the variable capture, which
+does), so the scratch file is simply the one this has been run in. *Not* the kit
+itself, where a component is not a library entry. Importing places nothing on
+the canvas. **29 keys per call** is measured — four calls covered all
 115 with nothing failing. These are network round trips rather than local reads,
 so they do not batch as wide as the status sweep above.
 

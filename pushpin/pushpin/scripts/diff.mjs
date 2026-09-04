@@ -15,7 +15,13 @@
  * Usage:
  *   node scripts/diff.mjs --kit kit.json [--published published.json]
  *                         [--components components.json]
- *                         [--icons icons-raw.json --icons-page icons-page.xml]
+ *                         [--icons icons-raw.json --icons-page icons-page.xml|json]
+ *                         [--json]
+ *
+ * `--json` prints `{ breaking, changed, added, notes }` — the same four lists
+ * the report prints, one string per item — and nothing else on stdout. Exit
+ * codes are unchanged, so a caller can both read the lists and keep the
+ * breaking gate. release.mjs reads this to write the changelog entry.
  */
 
 import { readFileSync } from 'node:fs';
@@ -32,6 +38,7 @@ const load = (p) => JSON.parse(readFileSync(p, 'utf8'));
 
 const argv = process.argv.slice(2);
 const opt = (n) => (argv.includes(n) ? argv[argv.indexOf(n) + 1] : null);
+const asJson = argv.includes('--json');
 
 const kitPath = opt('--kit');
 const publishedPath = opt('--published');
@@ -447,7 +454,11 @@ if (componentsPath) {
 // -------------------------------------------------------------- icon capture
 
 if (iconsPath) {
-  const { icons: fresh } = distillIcons(load(iconsPath), readFileSync(iconsPagePath, 'utf8'));
+  // The page arrives as `get_metadata` XML from the plugin path or as the node
+  // tree pull-icons.mjs writes; build-icons.mjs tells them apart the same way.
+  const pageText = readFileSync(iconsPagePath, 'utf8');
+  const page = iconsPagePath.endsWith('.json') ? JSON.parse(pageText) : pageText;
+  const { icons: fresh } = distillIcons(load(iconsPath), page);
   const before = iconCatalog.icons;
 
   for (const name of Object.keys(fresh)) {
@@ -489,6 +500,11 @@ const section = (title, items) => {
 };
 
 const total = breaking.length + changed.length + added.length;
+
+if (asJson) {
+  console.log(JSON.stringify({ breaking, changed, added, notes }, null, 2));
+  process.exit(breaking.length ? 1 : 0);
+}
 
 if (!total) {
   console.log('No changes. The committed capture matches the kit.');

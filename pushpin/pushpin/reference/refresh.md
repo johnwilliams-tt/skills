@@ -52,9 +52,11 @@ Load the `figma-use` skill first; it is a required prerequisite for `use_figma`.
 ### A component's properties changed
 
 This is the common case and the cheap one. Take the import pass from
-[../scripts/extract.md §5](../scripts/extract.md) against a file that subscribes
-to the kit — **not the kit itself**, where a component is not a library entry —
-and save the merged result under `.pushpin/` as a properties capture. Then:
+[../scripts/extract.md §5](../scripts/extract.md) in any file other than the kit
+— `importComponentByKeyAsync` resolves from the key alone and needs no library
+subscription; the scratch file `8Uv6dYO4uKdGCyGSfpz9k0` is the one it has been
+run in. **Not the kit itself**, where a component is not a library entry. Save
+the merged result under `.pushpin/` as a properties capture. Then:
 
 ```bash
 node ${CLAUDE_SKILL_DIR}/scripts/refresh.mjs --components <capture.json>
@@ -96,8 +98,8 @@ quietly:
 
 **Commit it.** It is a fact about the kit, not about your machine, and everyone
 on the project should be reading the same catalog. The rest of `.pushpin/` is
-machine-local — `preview.pid`, `preview.log`, `backups/`, `update.json` — so
-gitignore those rather than the directory.
+machine-local — `preview.pid`, `preview.log`, `backups/`, `update.json`,
+`remote/` — so gitignore those rather than the directory.
 
 **Then hold the project against it.** A re-capture repairs what this project
 reads and changes nothing it has already built, so the markup that was written
@@ -118,6 +120,11 @@ An overlay outranks the plugin, which is right the day it is taken and wrong
 once the plugin catches up. So it expires: when the plugin ships a catalog
 captured later than yours, `freshness` fails its overlay layer, `refresh.mjs`
 marks the file `STALE`, and session start asks for it to be cleared.
+
+Until then it also answers the scheduled check's verdict for the catalogs it
+covers: a `kit state` finding about components dated on or before your
+`components.figma.json` capture is a state this project has already left, and
+session start does not repeat it.
 
 ```bash
 node ${CLAUDE_SKILL_DIR}/scripts/refresh.mjs --clear

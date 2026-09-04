@@ -12,7 +12,7 @@
  *   node scripts/manifest.mjs --check   # exit 1 if it is stale
  */
 
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -31,9 +31,14 @@ const MANIFEST = join(ASSETS, 'manifest.json');
 // are generated, committed, and copied verbatim into every project, so the hash
 // is what `init` writes into the pin and what tells an existing project it is on
 // an older build.
+// variable-ids.figma.json is a capture like variable-keys.figma.json and is
+// hashed for the same reason, but it lands only when a maintainer takes the
+// one-time capture check.md § 1 describes, so it is tracked from the day it
+// exists rather than required.
 const TRACKED = [
   'tokens.figma.json',
   'variable-keys.figma.json',
+  ...(existsSync(join(ASSETS, 'variable-ids.figma.json')) ? ['variable-ids.figma.json'] : []),
   'components.figma.json',
   'component-specs.figma.json',
   'annotations.figma.json',

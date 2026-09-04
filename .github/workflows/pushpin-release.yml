@@ -1,0 +1,730 @@
+# Keeps the committed captures current with the Figma kit, and releases the
+# plugin when they move.
+#
+# Every local check compares the repo against itself and passes happily on a
+# capture that went stale months ago. Only this one goes out to Figma, and it
+# needs a token to do it — which is why it had never run. Four catalog entries
+# pointed at components that no longer existed and nothing noticed until a
+# generation run tried to place one and threw halfway through building a screen.
+#
+# The token lives here as a repo secret rather than on anyone's machine.
+# Consumers of the plugin never need one: session start is `--session`, which
+# never calls Figma and answers the question that matters day to day from the
+# committed verdict below.
+#
+# Hourly, because the kit publishes often and the plugin is only useful while
+# it describes what the kit serves. A run that finds nothing moved costs five
+# REST calls and stops at the first step; 24 of those a day is well inside both
+# Figma's limits and Actions' free minutes, and nothing after the detector runs
+# unless something did move.
+#
+# `--strict` is the point of the detector. Without it an unreachable layer
+# skips and the run still reports success, which is the exact shape of the
+# failure this is meant to catch: five of seven layers silently skipping while
+# the summary said "nothing moved".
+#
+# `--allow-skip variables` is not a softening of that. The variables layer needs
+# `file_variables:read`, which Figma grants only to full members of Enterprise
+# orgs, so on this Organization plan it is unreachable by plan rather than by
+# neglect — and a check that fails every run on a gap nobody can close is a check
+# that gets muted. Every other layer still has to answer, so an expired token, a
+# revoked file grant, or a rate limit all still fail the run. Drop the flag if
+# the org ever moves to Enterprise.
+#
+# The same plan gate shapes what this file can capture on its own. Components,
+# specs, icons, styles and the Annotation Kit are read over REST by the
+# scripts/pull-*.mjs scripts and distilled by the same build-*.mjs a maintainer
+# runs; tokens and variable keys cannot be, so a styles publish (which usually
+# accompanies a token release) or a tokens capture past `--max-age` opens one
+# issue for a human capture instead. Bound variables inside a component spec
+# are ids that only the Enterprise endpoint can name; pull-specs names them
+# from the committed assets/variable-ids.figma.json (check.md section 1) when
+# that file exists, and until it does the specs are left as committed and the
+# same issue says which pages need the plugin read.
+#
+# A diff that carries a Breaking item does not release. reference/maintaining.md
+# step 4 rules that a removed component, a deleted variant or a retired token is
+# a decision with the design system owner, and release.mjs refuses such an entry
+# without `--allow-breaking`. The distilled assets go to a branch and a PR
+# instead, so the decision is made on a diff rather than reconstructed later.
+
+name: Pushpin release
+
+on:
+  schedule:
+    # Off the top of the hour, when every other cron in the world fires and
+    # GitHub's scheduler runs late.
+    - cron: '17 * * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Do everything except commit, push, open a PR or an issue; upload the scratch files instead'
+        type: boolean
+        default: false
+      force:
+        description: 'Run the pull path even when nothing moved, re-reading every capture'
+        type: boolean
+        default: false
+
+# `contents` for the kit-state and release commits and the recapture branch,
+# `pull-requests` for the breaking PR, `issues` for the tokens issue and for
+# the two labels that let the next run find both again.
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+# Two runs at once would both cut 0.22.1 and the second push would fail — or,
+# worse, both would open a PR. The hourly run is never worth cancelling for the
+# next one; it either finishes or fails fast.
+concurrency:
+  group: pushpin-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Detect, capture, release
+    runs-on: ubuntu-latest
+
+    env:
+      # A dispatch from a branch other than main behaves as a dry run: nothing is
+      # pushed anywhere, the release is `--dry-run`, and the scratch files are the
+      # artifact. `inputs` is empty on a schedule, so both default to false there.
+      WRITE: ${{ inputs.dry_run != true && github.ref == 'refs/heads/main' }}
+      FORCE: ${{ inputs.force == true }}
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # Every scratch file lives here, outside the checkout. release.mjs refuses a
+      # tree with changes outside pushpin/, and a stray capture in the repo root
+      # would be exactly that. Set from the shell because `runner` is not a
+      # context a job-level `env` may read.
+      - name: Make the scratch directory
+        run: |
+          echo "WORK=${RUNNER_TEMP}/pushpin" >> "$GITHUB_ENV"
+          mkdir -p "${RUNNER_TEMP}/pushpin"
+
+      # Without this the run fails on "5 of 7 layers could not be checked",
+      # which is true but reads as drift rather than as missing configuration.
+      - name: Require the Figma token
+        env:
+          FIGMA_TOKEN: ${{ secrets.FIGMA_TOKEN }}
+        run: |
+          if [ -z "${FIGMA_TOKEN:-}" ]; then
+            echo "::error::FIGMA_TOKEN is not set. Create a personal access token at" \
+                 "figma.com > Settings > Security with the library_content:read scope," \
+                 "then add it as a repository secret named FIGMA_TOKEN." >&2
+            exit 1
+          fi
+
+      # One pass, not two: the icon layer alone checks 899 keys, so running once
+      # for humans and again for machines would double every call. JSON is the
+      # artifact; the readable summary below is rendered from it.
+      #
+      # The exit code freshness returns is not the one this step returns. It
+      # exits 1 for movement as well as for a layer it could not reach, and
+      # movement is the normal case here rather than a failure — it is what the
+      # rest of the job is for. So the step fails only when a layer nobody
+      # excused could not be checked, and the outputs carry what moved.
+      - name: Ask Figma what moved
+        id: detect
+        working-directory: pushpin/pushpin
+        env:
+          FIGMA_TOKEN: ${{ secrets.FIGMA_TOKEN }}
+        run: |
+          set +e
+          node scripts/freshness.mjs --strict --allow-skip variables --json \
+            > "$WORK/freshness.json"
+          status=$?
+          set -e
+          if [ "$status" -gt 1 ]; then
+            echo "::error::freshness.mjs exited $status" >&2
+            exit "$status"
+          fi
+
+          node - <<'EOF'
+          const { appendFileSync } = require("node:fs");
+          const r = require(process.env.WORK + "/freshness.json");
+          const excused = new Set(r.excused ?? []);
+          const pad = (s, n) => String(s).padEnd(n);
+          for (const l of r.layers ?? []) {
+            const mark = excused.has(l.name) ? "excused" : l.status;
+            console.log(`${pad(mark, 8)} ${pad(l.name, 14)} ${l.detail ?? ""}`);
+          }
+          // Excused layers are deliberately not counted here. Counting them
+          // would print "1 of 7 did not pass" on a green run, which trains
+          // people to ignore the line.
+          const bad = (r.layers ?? []).filter(
+            (l) => l.status !== "pass" && !excused.has(l.name),
+          );
+          console.log("");
+          console.log(
+            bad.length
+              ? `${bad.length} layer${bad.length === 1 ? "" : "s"} need attention: ` +
+                  bad.map((l) => l.name).join(", ")
+              : "Every layer that could be checked is current.",
+          );
+
+          const layer = (name) => (r.layers ?? []).find((l) => l.name === name);
+          const m = r.moved ?? {};
+          const movedIn = (name) =>
+            (m[name]?.unpublished?.length ?? 0) + (m[name]?.changed?.length ?? 0) > 0;
+          // Pages of removed components are re-read too: a spec whose component
+          // left the catalog fails verify.mjs, and only re-reading its page drops it.
+          const pages = [
+            ...new Set(
+              [...(m.components?.changed ?? []), ...(m.components?.unpublished ?? [])]
+                .map((c) => c.page)
+                .filter(Boolean),
+            ),
+          ];
+          const skipped = bad.filter((l) => l.status === "skipped");
+          // The tokens capture is the one dated by manifest.capturedAt, which the
+          // report lists under the kit's file name; the icon page shares the
+          // file and has its own entry.
+          const tokens = (r.captures ?? []).find((c) => c.label === r.figma?.fileName);
+          const tokensStale = !!tokens && tokens.ageDays > r.maxAge;
+          const force = process.env.FORCE === "true";
+
+          const out = {
+            components: force || movedIn("components"),
+            icons: force || movedIn("icons"),
+            annotations: force || movedIn("annotations"),
+            pages: pages.join(","),
+            styles_moved: layer("styles")?.status === "fail",
+            variables_moved: layer("variables")?.status === "fail",
+            tokens_stale: tokensStale,
+          };
+          // Only the layers the steps below can act on. A copy source or an old
+          // icon capture that has not moved is reported in the table above and
+          // is nothing for this job to do.
+          out.proceed =
+            out.components || out.icons || out.annotations ||
+            out.styles_moved || out.variables_moved || out.tokens_stale;
+          const { proceed } = out;
+          for (const [k, v] of Object.entries(out)) {
+            appendFileSync(process.env.GITHUB_OUTPUT, `${k}=${v}\n`);
+          }
+          console.log("");
+          if (skipped.length) {
+            console.error(
+              `--strict: ${skipped.length} layer(s) could not be checked: ` +
+                skipped.map((l) => `${l.name} (${l.detail})`).join("; "),
+            );
+            process.exit(1);
+          }
+          if (!proceed) console.log("Nothing moved.");
+          else console.log(`Continuing: ${JSON.stringify(out)}`);
+          EOF
+
+      # The verdict, committed so it travels to every install.
+      #
+      # `always()` because the interesting case is the one where the step above
+      # exited non-zero — a verdict written only on green would record nothing
+      # but "nothing moved", which is the half nobody needs.
+      #
+      # kit-state.mjs rewrites the file only when the verdict or its findings
+      # change, so a run that finds what the last one found leaves the tree clean
+      # and no commit is made. Staging first is what turns that into a skipped
+      # push rather than an empty commit. It has to be the staged diff and not
+      # the worktree one: an untracked path is not a diff, so an unstaged check
+      # reports "nothing to commit" for the first write of a file that has never
+      # been committed — which is every write until one lands.
+      # Both outcomes, and only those two: a token step that failed leaves no
+      # freshness.json behind, and reading it would turn missing configuration
+      # into a crash in an unrelated step.
+      #
+      # This commit lands before any pull, so the tree is clean when release.mjs
+      # asks — and so a breaking PR that stays open for a week still has the
+      # verdict on main, where consumers read it.
+      - name: Record the verdict
+        if: always() && (steps.detect.outcome == 'success' || steps.detect.outcome == 'failure')
+        working-directory: pushpin/pushpin
+        run: |
+          node scripts/kit-state.mjs --from "$WORK/freshness.json"
+          cp assets/kit-state.json "$WORK/kit-state.json"
+
+      - name: Commit it
+        if: always() && env.WRITE == 'true' && (steps.detect.outcome == 'success' || steps.detect.outcome == 'failure')
+        run: |
+          git add pushpin/pushpin/assets/kit-state.json
+          if git diff --cached --quiet -- pushpin/pushpin/assets/kit-state.json; then
+            echo "No change to kit-state.json — nothing to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Record what Figma answered on $(date -u +%Y-%m-%d)"
+          git push
+
+      # Under a dry run kit-state.json stays dirty in the tree. release.mjs
+      # tolerates that — it is inside pushpin/ and not a file it owns — but it
+      # would ride into the PR branch below, so it is put back before the pulls.
+      - name: Leave kit-state.json as committed
+        if: steps.detect.outputs.proceed == 'true' && env.WRITE != 'true'
+        run: git checkout -- pushpin/pushpin/assets/kit-state.json
+
+      # Only what moved is re-read. The components layer names the components
+      # and the pages they sit on, which is exactly the argument the spec pull
+      # takes; icons and the Annotation Kit are whole-file reads. Styles are
+      # read on every pass because two calls is nothing and a moved style is
+      # the closest REST gets to noticing a token release.
+      #
+      # pull-specs is run strictly and allowed to fail. Without the Enterprise
+      # variables endpoint or the committed id map a binding inside a spec is an
+      # id nobody can name, and `--allow-unresolved` would commit literals where
+      # the catalog held token names — a quieter defect than a stale page. The
+      # pages are named in the issue below instead.
+      - name: Pull what moved over REST
+        id: pull
+        if: steps.detect.outputs.proceed == 'true'
+        working-directory: pushpin/pushpin
+        env:
+          FIGMA_TOKEN: ${{ secrets.FIGMA_TOKEN }}
+          COMPONENTS: ${{ steps.detect.outputs.components }}
+          ICONS: ${{ steps.detect.outputs.icons }}
+          ANNOTATIONS: ${{ steps.detect.outputs.annotations }}
+          PAGES: ${{ steps.detect.outputs.pages }}
+        run: |
+          specs=false
+          specs_skipped=""
+          if [ "$COMPONENTS" = "true" ]; then
+            node scripts/pull-components.mjs --out "$WORK/components.json"
+            if [ -n "$PAGES" ]; then
+              scope=(--pages "$PAGES")
+            elif [ "$FORCE" = "true" ]; then
+              scope=(--all)
+            else
+              scope=()
+            fi
+            if [ "${#scope[@]}" -gt 0 ]; then
+              set +e
+              node scripts/pull-specs.mjs "${scope[@]}" --out "$WORK/specs"
+              status=$?
+              set -e
+              if [ "$status" -eq 0 ]; then
+                specs=true
+              else
+                specs_skipped="${PAGES:-every page}"
+                echo "::warning::pull-specs exited $status; component-specs.figma.json is left as committed" >&2
+              fi
+            fi
+          fi
+          if [ "$ICONS" = "true" ]; then
+            node scripts/pull-icons.mjs --out "$WORK/icons"
+          fi
+          if [ "$ANNOTATIONS" = "true" ]; then
+            node scripts/pull-annotations.mjs --out "$WORK/annotations.figma.json"
+          fi
+          node scripts/pull-styles.mjs --out "$WORK/styles.figma.json"
+
+          # The pull writes the asset whole, capture date included, so the
+          # file differs on every run; only the styles themselves decide whether
+          # it replaces the committed one.
+          node - <<'EOF'
+          const { appendFileSync } = require("node:fs");
+          const pulled = require(process.env.WORK + "/styles.figma.json");
+          const committed = require(process.cwd() + "/assets/styles.figma.json");
+          const body = (j) => JSON.stringify({ text: j.textStyles, effect: j.effectStyles });
+          const changed = body(pulled) !== body(committed);
+          console.log(changed ? "styles.figma.json: styles moved" : "styles.figma.json: unchanged");
+          appendFileSync(process.env.GITHUB_OUTPUT, `styles_changed=${changed}\n`);
+          EOF
+
+          {
+            echo "specs=$specs"
+            echo "specs_skipped=$specs_skipped"
+          } >> "$GITHUB_OUTPUT"
+
+      # Taken before the distillers run, because diff.mjs compares a capture
+      # against the assets on disk and the distillers overwrite them.
+      #
+      # Only the components and icon captures have a diff.mjs reading; the two
+      # assets written whole — annotations and styles — are compared by name
+      # here so a removed entry is Breaking through the same gate. Without the
+      # plugin's kit.json and published.json there is no token half to the
+      # diff; that is the human capture the issue below asks for.
+      - name: Diff the captures against the committed assets
+        id: diff
+        if: steps.detect.outputs.proceed == 'true'
+        working-directory: pushpin/pushpin
+        env:
+          COMPONENTS: ${{ steps.detect.outputs.components }}
+          ICONS: ${{ steps.detect.outputs.icons }}
+          ANNOTATIONS: ${{ steps.detect.outputs.annotations }}
+          STYLES_CHANGED: ${{ steps.pull.outputs.styles_changed }}
+        run: |
+          args=()
+          if [ "$COMPONENTS" = "true" ]; then
+            args+=(--components "$WORK/components.json")
+          fi
+          if [ "$ICONS" = "true" ]; then
+            args+=(--icons "$WORK/icons/icons-raw.json" --icons-page "$WORK/icons/icons-page.json")
+          fi
+          if [ "${#args[@]}" -gt 0 ]; then
+            set +e
+            node scripts/diff.mjs "${args[@]}" --json > "$WORK/diff.json"
+            status=$?
+            set -e
+            if [ "$status" -gt 1 ]; then
+              echo "::error::diff.mjs exited $status" >&2
+              exit "$status"
+            fi
+          else
+            echo '{ "breaking": [], "changed": [], "added": [], "notes": [] }' > "$WORK/diff.json"
+          fi
+
+          node - <<'EOF'
+          const { appendFileSync, readFileSync, writeFileSync } = require("node:fs");
+          const WORK = process.env.WORK;
+          const diff = JSON.parse(readFileSync(`${WORK}/diff.json`, "utf8"));
+          const committed = (f) => JSON.parse(readFileSync(`${process.cwd()}/assets/${f}`, "utf8"));
+          const names = (o) => Object.keys(o ?? {}).filter((k) => !k.startsWith("$"));
+          const compare = (label, before, after) => {
+            for (const n of names(before)) {
+              if (!(n in after)) diff.breaking.push(`${label}: "${n}" is no longer published`);
+            }
+            for (const n of names(after)) {
+              if (!(n in before)) diff.added.push(`${label}: new entry "${n}"`);
+            }
+          };
+          if (process.env.ANNOTATIONS === "true") {
+            compare("annotations", committed("annotations.figma.json").components,
+              JSON.parse(readFileSync(`${WORK}/annotations.figma.json`, "utf8")).components);
+          }
+          if (process.env.STYLES_CHANGED === "true") {
+            const was = committed("styles.figma.json");
+            const now = JSON.parse(readFileSync(`${WORK}/styles.figma.json`, "utf8"));
+            compare("textStyles", was.textStyles, now.textStyles);
+            compare("effectStyles", was.effectStyles, now.effectStyles);
+          }
+          writeFileSync(`${WORK}/diff.json`, JSON.stringify(diff, null, 2) + "\n");
+
+          const section = (title, items) => {
+            if (!items.length) return;
+            console.log(`\n${title} (${items.length})`);
+            for (const i of items) console.log(`  ${i}`);
+          };
+          section("BREAKING", diff.breaking);
+          section("CHANGED", diff.changed);
+          section("ADDED", diff.added);
+          for (const n of diff.notes ?? []) console.log(`\nnote: ${n}`);
+          if (!diff.breaking.length && !diff.changed.length && !diff.added.length) {
+            console.log("No changes. The committed capture matches the kit.");
+          }
+          appendFileSync(process.env.GITHUB_OUTPUT, `breaking=${diff.breaking.length > 0}\n`);
+          EOF
+
+      # The same distillers a maintainer runs, writing into assets/. The two
+      # assets with no distiller are copied in as pulled. The rebuilds a release
+      # implies — CSS, DESIGN.md, the manifest — are release.mjs's to run, so a
+      # breaking branch carries only the captures and the reviewer sees the
+      # capture change on its own.
+      - name: Distil into the assets
+        if: steps.detect.outputs.proceed == 'true'
+        working-directory: pushpin/pushpin
+        env:
+          COMPONENTS: ${{ steps.detect.outputs.components }}
+          ICONS: ${{ steps.detect.outputs.icons }}
+          ANNOTATIONS: ${{ steps.detect.outputs.annotations }}
+          SPECS: ${{ steps.pull.outputs.specs }}
+          STYLES_CHANGED: ${{ steps.pull.outputs.styles_changed }}
+        run: |
+          if [ "$COMPONENTS" = "true" ]; then
+            node scripts/build-components.mjs "$WORK/components.json"
+          fi
+          if [ "$SPECS" = "true" ]; then
+            node scripts/build-specs.mjs --merge "$WORK"/specs/*.json
+          fi
+          if [ "$ICONS" = "true" ]; then
+            node scripts/build-icons.mjs "$WORK/icons/icons-raw.json" "$WORK/icons/icons-page.json"
+          fi
+          if [ "$ANNOTATIONS" = "true" ]; then
+            cp "$WORK/annotations.figma.json" assets/annotations.figma.json
+          fi
+          if [ "$STYLES_CHANGED" = "true" ]; then
+            cp "$WORK/styles.figma.json" assets/styles.figma.json
+          fi
+          git -C "$GITHUB_WORKSPACE" status --short -- pushpin/pushpin/assets
+
+      # What a reviewer or a maintainer reads: the diff in the form diff.mjs
+      # prints, then everything the detector named. Written once and used by
+      # the PR and by the dry-run log.
+      - name: Write the report
+        if: steps.detect.outputs.proceed == 'true'
+        run: |
+          node - <<'EOF'
+          const { readFileSync, writeFileSync } = require("node:fs");
+          const WORK = process.env.WORK;
+          const diff = JSON.parse(readFileSync(`${WORK}/diff.json`, "utf8"));
+          const r = JSON.parse(readFileSync(`${WORK}/freshness.json`, "utf8"));
+          const out = [];
+          const section = (title, items) => {
+            if (!items?.length) return;
+            out.push(`### ${title} (${items.length})`, "");
+            for (const i of items) out.push(`- ${i}`);
+            out.push("");
+          };
+          section("Breaking — consumers will fail, do not just regenerate", diff.breaking);
+          section("Changed — values moved, regenerate the CSS", diff.changed);
+          section("Added — new, safe to adopt", diff.added);
+          if (diff.notes?.length) {
+            out.push("### Notes", "");
+            for (const n of diff.notes) out.push(`- ${n}`);
+            out.push("");
+          }
+          out.push("### What the detector found", "");
+          for (const l of r.layers ?? []) out.push(`- \`${l.name}\`: ${l.status} — ${l.detail ?? ""}`);
+          out.push("");
+          for (const [layer, m] of Object.entries(r.moved ?? {})) {
+            const where = (c) => (c.page ? ` (${c.page})` : "");
+            if (m.unpublished?.length) {
+              out.push(`**${layer}: no longer published (${m.unpublished.length})**`, "");
+              for (const c of m.unpublished) out.push(`- ${c.name}${where(c)} — \`${c.key}\``);
+              out.push("");
+            }
+            if (m.changed?.length) {
+              out.push(`**${layer}: changed since the capture (${m.changed.length})**`, "");
+              for (const c of m.changed) {
+                out.push(`- ${c.name}${where(c)} — ${String(c.updatedAt ?? "").slice(0, 10)}`);
+              }
+              out.push("");
+            }
+          }
+          writeFileSync(`${WORK}/report.md`, out.join("\n"));
+          console.log(out.join("\n"));
+          EOF
+
+      # Breaking: a branch and a PR, never a release. The assets on the branch
+      # are the distilled captures alone; the reviewer decides (maintaining.md
+      # step 4) and then cuts the release on the branch with
+      # `release.mjs patch --allow-breaking`, so the changelog entry and the
+      # version bump are made by the person who made the call. Merging the
+      # branch without that step would put the captures on main with no release
+      # behind them, and the next hourly run would find nothing moved — so the
+      # body says so.
+      #
+      # One PR at a time: an open one with the label is pushed to and commented
+      # on rather than joined by a second. The captures are re-dated on each
+      # pull, so a still-open PR gains one commit a day while the kit stays
+      # where it is; a run whose distil produced no change makes no commit.
+      - name: Open or update the breaking PR
+        if: steps.detect.outputs.proceed == 'true' && steps.diff.outputs.breaking == 'true' && env.WRITE == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          gh label create pushpin-breaking --force \
+            --description "A kit change the diff calls breaking; needs a decision before release" \
+            --color B60205
+
+          today=$(date -u +%Y-%m-%d)
+          existing=$(gh pr list --label pushpin-breaking --state open --base main \
+            --json number,headRefName --jq '.[0] // empty | "\(.number) \(.headRefName)"')
+          if [ -n "$existing" ]; then
+            number=${existing%% *}
+            branch=${existing#* }
+          else
+            number=""
+            branch="pushpin/recapture-$today"
+          fi
+
+          # The distilled assets are moved aside so the branch can be checked
+          # out clean, then put back on top of it.
+          mkdir -p "$WORK/distilled"
+          cp -R pushpin/pushpin/assets/. "$WORK/distilled/"
+          git checkout -- pushpin/pushpin/assets
+          if [ -n "$number" ]; then
+            git fetch origin "$branch"
+            git checkout -B "$branch" FETCH_HEAD
+          else
+            git checkout -B "$branch"
+          fi
+          cp -R "$WORK/distilled/." pushpin/pushpin/assets/
+          git add pushpin/pushpin/assets
+          if git diff --cached --quiet; then
+            echo "The branch already holds these captures — nothing to push."
+            exit 0
+          fi
+          git commit -m "Re-capture from the kit on $today (breaking; not released)"
+          if [ -n "$number" ]; then
+            git push origin "$branch"
+            gh pr comment "$number" --body-file "$WORK/report.md"
+            echo "Updated PR #$number on $branch."
+            exit 0
+          fi
+          # A branch left behind by a closed PR of the same day is a bot
+          # branch nothing refers to any more; it is replaced, not merged into.
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+            git push --force origin "$branch"
+          else
+            git push -u origin "$branch"
+          fi
+          {
+            echo "The hourly check found the kit had moved and the diff carries a breaking item,"
+            echo "so this is a branch rather than a release (reference/maintaining.md step 4)."
+            echo ""
+            echo "The commit holds the re-captured assets only. To release once the decision is made:"
+            echo ""
+            echo '```bash'
+            echo "git checkout $branch"
+            echo "cd pushpin/pushpin"
+            echo 'node scripts/release.mjs patch --allow-breaking --changelog-note "..."'
+            echo "git push"
+            echo '```'
+            echo ""
+            echo "then merge. Merging without that step puts the captures on main with no release"
+            echo "behind them, and the next hourly run will find nothing moved."
+            echo ""
+            cat "$WORK/report.md"
+          } > "$WORK/pr-body.md"
+          gh pr create --base main --head "$branch" --label pushpin-breaking \
+            --title "Kit re-capture $today needs a decision" \
+            --body-file "$WORK/pr-body.md"
+
+      - name: Report the breaking diff (dry run)
+        if: steps.detect.outputs.proceed == 'true' && steps.diff.outputs.breaking == 'true' && env.WRITE != 'true'
+        run: |
+          echo "Breaking. A live run would open a PR labelled pushpin-breaking with this body:"
+          echo ""
+          cat "$WORK/report.md"
+
+      # Clean: release.mjs does the builds, the checks, the changelog entry, the
+      # bump and the one commit; this step pushes it. Exit 2 is "nothing to
+      # release" — the kit moved dates and nothing else, and the distillers
+      # produced the assets already committed — which is a successful hour, not
+      # a failed one.
+      - name: Release
+        id: release
+        if: steps.detect.outputs.proceed == 'true' && steps.diff.outputs.breaking != 'true'
+        working-directory: pushpin/pushpin
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          dry=()
+          if [ "$WRITE" != "true" ]; then
+            dry=(--dry-run)
+          fi
+          set +e
+          node scripts/release.mjs patch "${dry[@]}" --diff "$WORK/diff.json" \
+            --changelog-note "Automated re-capture after the kit published."
+          status=$?
+          set -e
+          if [ "$status" -eq 2 ]; then
+            echo "Nothing to release: the captures distil to what is already committed."
+            exit 0
+          fi
+          if [ "$status" -ne 0 ]; then
+            exit "$status"
+          fi
+          if [ "$WRITE" = "true" ]; then
+            git push
+          else
+            echo "Dry run: not pushed."
+          fi
+
+      # The half REST cannot capture. A moved style key, a variables layer
+      # that fired (Enterprise only), a tokens capture past --max-age, or a
+      # spec page whose bindings could not be named all end in the same
+      # sentence: someone opens Figma and takes the captures in scripts/check.md.
+      # One issue, found again by its label and rewritten rather than commented
+      # on, because the hourly run would otherwise say the same thing 24 times
+      # a day until somebody did it.
+      #
+      # `!cancelled()` rather than the default: a style the tokens do not cover
+      # makes build-css fail inside release.mjs, and that red run is exactly the
+      # one this issue has to come out of.
+      - name: Open or update the tokens issue
+        if: >-
+          !cancelled() && steps.detect.outputs.proceed == 'true' && env.WRITE == 'true' &&
+          (steps.detect.outputs.styles_moved == 'true' ||
+           steps.detect.outputs.variables_moved == 'true' ||
+           steps.detect.outputs.tokens_stale == 'true' ||
+           steps.pull.outputs.styles_changed == 'true' ||
+           steps.pull.outputs.specs_skipped != '')
+        env:
+          SPECS_SKIPPED: ${{ steps.pull.outputs.specs_skipped }}
+          STYLES_CHANGED: ${{ steps.pull.outputs.styles_changed }}
+        run: |
+          gh label create pushpin-tokens --force \
+            --description "The kit moved where REST cannot follow; a human capture is needed" \
+            --color FBCA04
+
+          node - <<'EOF'
+          const { readFileSync, writeFileSync } = require("node:fs");
+          const r = JSON.parse(readFileSync(`${process.env.WORK}/freshness.json`, "utf8"));
+          const layer = (n) => (r.layers ?? []).find((l) => l.name === n);
+          const out = [
+            "The hourly check found movement that the REST pulls cannot follow. Open Figma and",
+            "take the captures in `pushpin/pushpin/scripts/check.md`, then release per",
+            "`pushpin/pushpin/reference/maintaining.md` (Refreshing the capture).",
+            "",
+          ];
+          const why = [];
+          for (const name of ["styles", "variables", "capture age"]) {
+            const l = layer(name);
+            if (l && l.status === "fail") why.push(`- \`${name}\`: ${l.detail}`);
+          }
+          if (process.env.STYLES_CHANGED === "true") {
+            why.push("- `styles.figma.json` was re-read over REST and its styles differ from the committed copy; " +
+              "a style publish usually accompanies a token release, and the tokens (check.md sections 1 and 2) " +
+              "have no REST pull.");
+          }
+          if (process.env.SPECS_SKIPPED) {
+            why.push(`- component specs could not be re-read over REST for: ${process.env.SPECS_SKIPPED}. ` +
+              "Their bound variables are ids only the Enterprise variables endpoint can name, so " +
+              "component-specs.figma.json was left as committed; take check.md section 6 for those pages. " +
+              "Committing the `ids` block of check.md section 1 as `assets/variable-ids.figma.json` " +
+              "makes this re-read automatic from then on.");
+          }
+          out.push("### Why", "", ...why, "");
+          out.push(`Tokens last captured ${r.capturedAt}; \`--max-age\` is ${r.maxAge} days.`);
+          out.push("", `_Rewritten by the Pushpin release workflow on ${new Date().toISOString().slice(0, 10)}._`);
+          writeFileSync(`${process.env.WORK}/issue-body.md`, out.join("\n") + "\n");
+          console.log(out.join("\n"));
+          EOF
+
+          number=$(gh issue list --label pushpin-tokens --state open --json number --jq '.[0].number')
+          if [ -n "$number" ]; then
+            gh issue edit "$number" --body-file "$WORK/issue-body.md"
+            echo "Updated issue #$number."
+          else
+            gh issue create --label pushpin-tokens \
+              --title "Tokens need a human capture" \
+              --body-file "$WORK/issue-body.md"
+          fi
+
+      - name: Save the distilled assets (dry run)
+        if: always() && env.WRITE != 'true' && steps.detect.outputs.proceed == 'true'
+        run: |
+          mkdir -p "$WORK/distilled"
+          cp -R pushpin/pushpin/assets/. "$WORK/distilled/"
+          git diff --stat -- pushpin/pushpin/assets
+
+      # Uploaded on failure too, which is when it is worth having: the finding is
+      # in here without spending another round of API calls to reproduce it. A
+      # dry run uploads everything it pulled and distilled, since that is the
+      # only place its work goes.
+      - name: Upload the reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pushpin-release-reports
+          path: |
+            ${{ runner.temp }}/pushpin/freshness.json
+            ${{ runner.temp }}/pushpin/diff.json
+            ${{ runner.temp }}/pushpin/report.md
+          if-no-files-found: warn
+
+      - name: Upload the scratch files (dry run)
+        if: always() && env.WRITE != 'true' && steps.detect.outputs.proceed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pushpin-release-scratch
+          path: ${{ runner.temp }}/pushpin
+          if-no-files-found: warn

@@ -63,7 +63,8 @@
  *   node scripts/freshness.mjs --strict --allow-skip variables   # …except by plan
  *   node scripts/freshness.mjs --json               # machine-readable
  *   node scripts/freshness.mjs --brief              # silent on success; one sentence when not
- *   node scripts/freshness.mjs --offline --session  # session start: age + project pin, no network
+ *   node scripts/freshness.mjs --session            # session start: age, project pin, environment
+ *   node scripts/freshness.mjs --offline --session  # the same with no network at all
  *
  * `--brief` prints nothing when nothing would change what gets built, and
  * otherwise only the sentence to relay — no dates, layer names, or skip counts.
@@ -73,6 +74,14 @@
  * itself without replacing anything, `say: <sentence>` for one it cannot. It
  * exits 0 either way, because a session start that reads as a failed command is
  * the noise this form exists to remove. `--json` still prints JSON under both.
+ *
+ * `--session` never calls Figma or GitHub's API: the token layers and the copy
+ * source skip exactly as they do under `--offline`, whatever tokens the
+ * environment holds. Its one network call is lib/remote-state.mjs reading the
+ * repository's `plugin.json` and `kit-state.json` off raw.githubusercontent.com,
+ * bounded to 1.5s and cached for a day under the project's `.pushpin/remote/`,
+ * which is what lets a session hear that a release landed before the plugin has
+ * been updated. `--offline --session` reads that cache and fetches nothing.
  *
  * If the current working directory holds a `pushpin.config.json`, a project-pin
  * layer compares that pin to this plugin. No config is not a finding; init is
@@ -87,6 +96,15 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
+  compareVersions,
+  detectHarness,
+  FIGMA_MCP_ABSENT,
+  figmaMcp,
+  pluginInstalls,
+  pluginUpdateRemedy,
+  stalePluginRemedy,
+} from './lib/environment.mjs';
+import {
   OVERLAY_MANIFEST,
   OVERLAY_REL,
   captureDate,
@@ -94,8 +112,9 @@ import {
   overlayPath,
   supersededBy,
 } from './lib/overlay.mjs';
-import { readKitState } from './kit-state.mjs';
-import { inspectPin } from './pin.mjs';
+import { remoteState } from './lib/remote-state.mjs';
+import { MOVED_LAYERS, readKitState } from './kit-state.mjs';
+import { cssPathArgs, inspectPin } from './pin.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const ASSETS = join(here, '..', 'assets');
@@ -129,11 +148,16 @@ const styleCatalog = load('styles.figma.json');
 
 /**
  * Icons are one catalog entry with up to four import keys, so the unit that can
- * fail is the key rather than the entry. Flattened to `<name> · <size>` pairs
- * so a finding names the exact variant that stopped resolving.
+ * fail is the key rather than the entry. Flattened to `<name> · <size>` rows
+ * so a finding names the exact variant that stopped resolving. The page is the
+ * catalog's one page, recorded on the file rather than per entry.
  */
 const iconKeyPairs = Object.entries(iconCatalog.icons ?? {}).flatMap(([name, e]) =>
-  Object.entries(e.keys).map(([size, key]) => [`${name} · ${size}`, key]),
+  Object.entries(e.keys).map(([size, key]) => [
+    `${name} · ${size}`,
+    key,
+    iconCatalog.source?.page ?? null,
+  ]),
 );
 
 /** Catalog objects carry `$comment`-style metadata alongside real entries. */
@@ -164,8 +188,10 @@ if (has('--help') || has('-h')) {
       'fails on an expired token or a lost file grant without failing on the plan.\n' +
       '--brief prints nothing when the capture is current and the project pin matches; ' +
       'otherwise one sentence to relay. --session says the same thing as a line the agent ' +
-      'acts on: a fix: command to run, or a say: sentence for the user. Session start is ' +
-      '--offline --session.',
+      'acts on: a fix: command to run, or a say: sentence for the user. It is the session ' +
+      'start form: it never calls Figma, and its one network call reads the plugin ' +
+      "repository's plugin.json and kit-state.json off GitHub, cached for a day under the " +
+      "project's .pushpin/remote/. --offline --session reads that cache and fetches nothing.",
   );
   process.exit(0);
 }
@@ -262,6 +288,33 @@ const LIBRARY = {
   variables: 'the Pushpin kit',
 };
 
+/**
+ * How a live finding ends when it is relayed to a consumer.
+ *
+ * These sentences travel: `kit-state.mjs` persists them and every install reads
+ * them back at session start, so the reader is a designer in a project, not the
+ * maintainer whose token produced them. "Refreshing" meant something to the
+ * maintainer and nothing to that reader, who cannot refresh the shipped capture
+ * and should not try. What they can do is update the plugin, which is where the
+ * re-capture lands, and — for the catalogs alone, when no release has landed
+ * yet — take the project-local re-capture reference/refresh.md describes.
+ * Tokens are not overlayable, so the variables sentence ends without that
+ * second half.
+ */
+const BEHIND_REMEDY =
+  "Pushpin's shipped capture is behind the kit, so updating the Pushpin plugin is the " +
+  "first thing I'd do; if no update has landed yet, /pushpin refresh re-captures for " +
+  'this project alone.';
+const BEHIND_REMEDY_TOKENS =
+  "Pushpin's shipped capture is behind the kit, so updating the Pushpin plugin is the " +
+  "first thing I'd do.";
+// The age and copy-source sentences end differently because nothing is known
+// to have moved there, so no re-capture is owed yet; they name what would carry
+// one rather than asking for it. The same reader: a consumer cannot re-pull.
+const AGE_REMEDY =
+  'nothing is known to have, and a Pushpin plugin update is what carries a newer ' +
+  'capture when one lands';
+
 // ---------------------------------------------------------------- capture age
 
 const ageOf = (date, where) => {
@@ -340,6 +393,16 @@ const report = {
   brief: [],
   fix: [],
   project: null,
+  /**
+   * What the live layers found, by name, key and page, for the run that has to
+   * act on it rather than read it. A finding names the first ten; this carries
+   * every one, with the page each sits on, because a scoped re-capture is per
+   * page and per component and the pipeline that takes one should not have to
+   * ask Figma the same question twice. Only the layers whose re-capture is per
+   * named entry: a style or variable finding is a whole-file capture, and there
+   * is nothing to carry forward but the fact of it.
+   */
+  moved: Object.fromEntries(MOVED_LAYERS.map((n) => [n, { unpublished: [], changed: [] }])),
 };
 
 /**
@@ -371,11 +434,12 @@ if (ageStale) {
   );
   // Keyed on the label rather than the file, because the icon page shares the
   // kit's file and not its sentence: the tokens are what "a token may have
-  // moved" is about, and the icon capture is a separate sweep.
+  // moved" is about, and the icon capture is a separate sweep. Only the other
+  // two are overlayable, so only they offer the project-local re-capture.
   report.brief.push(
     oldest.label === manifest.figma.fileName
-      ? `Pushpin's copy of the Figma kit was pulled on ${prettyDate(oldest.capturedAt)}, so a token or component may have moved since — refreshing it is the first thing I'd do.`
-      : `The ${oldest.label} was last pulled on ${prettyDate(oldest.capturedAt)}, so a token or component may have moved since — refreshing it is the first thing I'd do.`,
+      ? `Pushpin's copy of the Figma kit was pulled on ${prettyDate(oldest.capturedAt)}, so a token or component may have moved since — ${AGE_REMEDY}.`
+      : `The ${oldest.label} was last pulled on ${prettyDate(oldest.capturedAt)}, so a component may have moved since — ${AGE_REMEDY}; /pushpin refresh re-captures it for this project alone.`,
   );
 }
 
@@ -414,8 +478,8 @@ if (overlay?.broken) {
       `so it is being ignored and the plugin's catalogs are being read instead.`,
   );
   report.brief.push(
-    `This project's own Pushpin catalog capture cannot be read, so it is being ignored — ` +
-      `re-running the refresh, or clearing it, is the first thing I'd do.`,
+    `This project's own Pushpin catalog capture cannot be read, so the plugin's is being read ` +
+      `instead — /pushpin refresh re-captures it, or refresh.mjs --clear removes it.`,
   );
 } else if (overlay?.files.length) {
   const superseded = overlay.files.filter((f) => {
@@ -444,11 +508,25 @@ if (overlay?.broken) {
  * The command that settles a repairable pin finding, so `--session` can hand
  * over the repair rather than the sentence describing it. `--no-share` because
  * the one file init writes that a team commits is `.claude/settings.json`, and
- * a repair nobody asked for has no business editing it.
+ * a repair nobody asked for has no business editing it. `--css-path` because a
+ * plain `--write` still plans the stylesheet, at the path init derives, and
+ * writes it there when that path is empty.
  */
-const repair = pin?.repairable
-  ? `node "${join(here, 'init.mjs')}" "${process.cwd()}" --write --no-share`
-  : null;
+function repairCommand() {
+  let config = null;
+  try {
+    config = JSON.parse(readFileSync(join(process.cwd(), 'pushpin.config.json'), 'utf8'));
+  } catch {
+    // A repairable pin was read from this file a moment ago; a read that fails
+    // now leaves the command as it was, and init reports on its own.
+  }
+  const args = ['--write', '--no-share', ...cssPathArgs(config)].map((a) =>
+    a.includes(' ') ? `"${a}"` : a,
+  );
+  return `node "${join(here, 'init.mjs')}" "${process.cwd()}" ${args.join(' ')}`;
+}
+
+const repair = pin?.repairable ? repairCommand() : null;
 if (repair) report.fix.push(repair);
 
 /**
@@ -467,6 +545,77 @@ const sweep = pin?.reasons?.includes('catalog')
   ? `node "${join(here, 'update.mjs')}"`
   : null;
 if (sweep) report.fix.push(sweep);
+
+// --------------------------------------------------------------- the environment
+
+/**
+ * Two signals that are not capture drift, said here because session start is
+ * the only moment either one is free.
+ *
+ * They are findings rather than layers on purpose. The table answers whether
+ * the committed captures still match what Figma serves, and neither of these
+ * is about a capture — a missing Figma channel means nothing can be read out
+ * of Figma at all, and a project pinned to an old copy of the plugin is running
+ * different code, not an older capture. `report.findings` is already where a
+ * signal that fits no single layer belongs.
+ *
+ * Only under `--session`, because every other form of this command reports
+ * capture drift and its exit code is read by builds: a machine with no Figma
+ * plugin installed has nothing wrong with its captures and should not start
+ * failing.
+ *
+ * The version question is asked of the repository first and of the local
+ * install records second, and only one of them is spoken. The repository's
+ * `plugin.json` is what a release bumps, so a version ahead of `PLUGIN.version`
+ * there is a release this session has not picked up, on either harness and
+ * whatever the install layout. `pluginInstalls()` compares copies already on
+ * this machine, answers on Claude Code only, and cannot see a release nobody
+ * has installed yet — so it speaks only when the repository could not be
+ * reached, where it is still the best answer available. A newer copy already
+ * installed at the user level is also a newer release upstream, so the two
+ * never disagree about whether to speak; they differ only in what the remedy
+ * can name.
+ *
+ * `remote` is also what the kit-state layer below reads first, and it is null
+ * inside the plugin's own tree and in any directory with no `pushpin.config.json`
+ * above it: a checkout is not a consumer, and a folder that never opted in has
+ * nowhere to cache.
+ */
+let remote = null;
+if (session) {
+  const harness = detectHarness();
+
+  if (figmaMcp(harness, process.cwd()) === 'absent') {
+    report.findings.push(FIGMA_MCP_ABSENT[harness]);
+    report.brief.push(FIGMA_MCP_ABSENT[harness]);
+  }
+
+  remote = await remoteState({ from: process.cwd(), network: !offline });
+  report.remote = remote
+    ? {
+        source: remote.source,
+        fetchedAt: remote.fetchedAt,
+        pluginVersion: remote.plugin?.version ?? null,
+        kitState: remote.kitState
+          ? { verdict: remote.kitState.verdict, observedAt: remote.kitState.observedAt }
+          : null,
+      }
+    : null;
+  const released = remote?.plugin?.version;
+  if (released) {
+    if (compareVersions(released, PLUGIN.version) > 0) {
+      const line = pluginUpdateRemedy[harness]({ running: PLUGIN.version, newest: released });
+      report.findings.push(line);
+      report.brief.push(line);
+    }
+  } else {
+    const installs = pluginInstalls(process.cwd(), harness);
+    if (installs.state === 'behind') {
+      report.findings.push(stalePluginRemedy(installs));
+      report.brief.push(stalePluginRemedy(installs));
+    }
+  }
+}
 
 // -------------------------------------------------------------- live evidence
 
@@ -525,14 +674,18 @@ function unreachable(name, r, where = fileKey) {
  * layer: the component layer's totals are component sets, because that is the
  * only component figure the REST API and the capture both mean the same thing
  * by.
+ *
+ * `committed` rows are `[name, key, page]`, the page optional. It rides along
+ * only to be written into `report.moved`; the comparison is on the key.
  */
 function compareKeys(name, committed, liveKeys, expectedTotal, liveTotal, counted = name) {
   const missing = committed.filter(([, key]) => !liveKeys.has(key));
   if (missing.length) {
     layer(name, 'fail', `${missing.length} of ${committed.length} keys no longer published`);
-    const noun = missing.length === 1 ? name.replace(/s$/, '') : name;
+    const one = missing.length === 1;
+    const noun = one ? name.replace(/s$/, '') : name;
     report.findings.push(
-      `${missing.length} ${noun} in the catalog ${missing.length === 1 ? 'is' : 'are'} no ` +
+      `${missing.length} ${noun} in the catalog ${one ? 'is' : 'are'} no ` +
         `longer published. Importing by key throws at runtime:\n` +
         missing
           .slice(0, 10)
@@ -541,8 +694,17 @@ function compareKeys(name, committed, liveKeys, expectedTotal, liveTotal, counte
         (missing.length > 10 ? `\n    ...and ${missing.length - 10} more` : ''),
     );
     report.brief.push(
-      `A ${noun} in ${LIBRARY[name] ?? 'the kit'} is no longer published, so a generation run against it dies partway rather than at review — refreshing is the first thing I'd do.`,
+      `${one ? `A ${noun}` : `${missing.length} ${noun}`} in ${LIBRARY[name] ?? 'the kit'} ` +
+        `${one ? 'is' : 'are'} no longer published, so a generation run against ` +
+        `${one ? 'it' : 'them'} dies partway rather than at review. ${BEHIND_REMEDY}`,
     );
+    if (report.moved[name]) {
+      report.moved[name].unpublished = missing.map(([n, key, page]) => ({
+        name: n,
+        key,
+        page: page ?? null,
+      }));
+    }
     return;
   }
   layer(name, 'pass', `all ${committed.length} keys still published`);
@@ -572,6 +734,38 @@ function escalate(name, detail) {
 const NETWORK_LAYERS = ['components', 'styles', 'variables', 'annotations', 'icons'];
 
 /**
+ * The overlay file that answers each kit-state layer, for the project that has
+ * already re-captured what the verdict is about.
+ *
+ * Only the layers an overlay can hold. `capture age`, `styles`, `variables` and
+ * `copy source` are not overlayable and stay whatever the verdict says.
+ */
+const OVERLAY_FOR_LAYER = {
+  components: 'components.figma.json',
+  icons: 'icons.figma.json',
+  annotations: 'annotations.figma.json',
+};
+
+/**
+ * Whether this project's own capture of a layer is at least as new as the
+ * verdict about it. A verdict observed on Tuesday about a catalog this project
+ * re-captured on Tuesday or later is describing a state the project has already
+ * left, and repeating it every session is the nag reference/refresh.md exists
+ * to end.
+ */
+function coveredByOverlay(layerName, observedAt) {
+  const file = OVERLAY_FOR_LAYER[layerName];
+  const own = file && overlayPath(overlay, file);
+  if (!own || !observedAt) return false;
+  try {
+    const date = captureDate(JSON.parse(readFileSync(own, 'utf8')));
+    return Boolean(date) && date >= observedAt;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * What the scheduled check last found, for the run that cannot ask Figma
  * itself.
  *
@@ -581,23 +775,65 @@ const NETWORK_LAYERS = ['components', 'styles', 'variables', 'annotations', 'ico
  *
  * `readKitState` returns null once any capture date has moved past the one the
  * verdict was formed against, which is what stops a refresh being nagged about
- * until the next scheduled run.
+ * until the next scheduled run. The repository's copy is offered first, since
+ * it is the later observation, and the shipped copy is the fallback; each is
+ * held to the same expiry, so a repository verdict formed about a release this
+ * install has not picked up is ignored rather than misapplied. Where both
+ * apply, the later observation wins.
+ *
+ * The verdict's sentences are pushed only where this run has not already said
+ * them. The scheduled run computes the capture age from the same manifest, so
+ * a stale-age sentence it recorded is word for word the one the age layer above
+ * has just produced, and a session that said it twice would be quoting itself.
+ *
+ * The layers this project has since re-captured for itself drop out, and when
+ * none remain the layer passes. The sentences are not split the same way — the
+ * verdict records them flat — so a verdict about two layers of which the
+ * project has overlaid one keeps its sentences and names the remainder in the
+ * detail. That case has not arisen; the one-layer verdict is the one that
+ * nagged.
  */
-function reportRecordedState() {
-  const state = readKitState();
+function reportRecordedState(candidate) {
+  const applicable = [candidate ? readKitState(candidate) : null, readKitState()]
+    .filter(Boolean)
+    .sort((a, b) => String(b.observedAt ?? '').localeCompare(String(a.observedAt ?? '')));
+  const state = applicable[0];
   if (!state) return;
   if (state.verdict !== 'moved') {
     layer('kit state', 'pass', `checked against Figma ${state.observedAt}, nothing had moved`);
     return;
   }
-  layer('kit state', 'fail', `${state.layers.join(', ')} — as of ${state.observedAt}`, 'moved');
-  report.findings.push(...state.findings);
-  report.brief.push(...state.brief);
+  const covered = (state.layers ?? []).filter((l) => coveredByOverlay(l, state.observedAt));
+  const remaining = (state.layers ?? []).filter((l) => !covered.includes(l));
+  if (!remaining.length) {
+    layer(
+      'kit state',
+      'pass',
+      `${covered.join(', ')} moved as of ${state.observedAt}; this project's own capture is ` +
+        `at least as new`,
+    );
+    return;
+  }
+  layer(
+    'kit state',
+    'fail',
+    `${remaining.join(', ')} — as of ${state.observedAt}` +
+      (covered.length ? ` (${covered.join(', ')} covered by this project's own capture)` : ''),
+    'moved',
+  );
+  for (const f of state.findings ?? []) if (!report.findings.includes(f)) report.findings.push(f);
+  for (const b of state.brief ?? []) if (!report.brief.includes(b)) report.brief.push(b);
 }
 
-if (offline) {
-  for (const name of NETWORK_LAYERS) layer(name, 'skipped', '--offline');
-  reportRecordedState();
+// `--session` skips the token layers whether or not a token is in the
+// environment. Session start runs before anything the user asked for, in every
+// project, and five Figma calls there would be paid on every prompt by whoever
+// happens to hold a token in their shell — the cost the scheduled check exists
+// to take once for everyone.
+if (offline || session) {
+  const why = offline ? '--offline' : '--session';
+  for (const name of NETWORK_LAYERS) layer(name, 'skipped', why);
+  reportRecordedState(remote?.kitState);
 } else if (!token) {
   const why = 'FIGMA_TOKEN is not set';
   for (const name of NETWORK_LAYERS) layer(name, 'skipped', why);
@@ -634,10 +870,11 @@ if (offline) {
    * the kit publishes 118 components the component catalog reduces to 115 —
    * which would otherwise send the reader re-capturing for nothing.
    *
-   * `edited` carries the name beside the date for those same entries. The names
-   * are already in this payload, and reducing them to a single date is what made
-   * a run say "a component changed" and leave the reader to find out which —
-   * the answer a re-capture has to start from.
+   * `edited` carries the name and key beside the date for those same entries.
+   * The names are already in this payload, and reducing them to a single date
+   * is what made a run say "a component changed" and leave the reader to find
+   * out which — the answer a re-capture has to start from. The key is what
+   * joins each one back to its catalog entry, and so to its page.
    */
   async function publishedComponents(key, forLayer, ours) {
     const [compRes, setRes] = await Promise.all([
@@ -667,9 +904,18 @@ if (offline) {
     return {
       keys: new Set(both.map((c) => c.key)),
       setCount: liveSets.length,
-      edited: mine.map((c) => ({ name: c.name, updatedAt: c.updated_at })),
+      edited: mine.map((c) => ({ name: c.name, key: c.key, updatedAt: c.updated_at })),
     };
   }
+
+  /**
+   * A catalog's entries by import key, for joining a live payload back to the
+   * name the catalog uses and the page it was captured from. `page` is passed
+   * for a catalog that records one page for the whole file rather than one per
+   * entry, which is what the icon catalog does.
+   */
+  const indexByKey = (entries, page) =>
+    new Map(entries.map(([name, e]) => [e.key, { name, page: page ?? e.page ?? null }]));
 
   /**
    * A component that changed after the capture is a real risk even when its key
@@ -679,10 +925,12 @@ if (offline) {
    * The names are the point. A re-capture is per page and per component, so
    * "something changed" leaves the reader to rediscover what this call already
    * knew — and the pages those names sit on are exactly the argument the spec
-   * capture takes.
+   * capture takes. `report.moved` gets every one, under the catalog's name for
+   * it rather than the kit's current one, because the catalog's name is the one
+   * a consumer's markup declares and the spec catalog is keyed by.
    */
   const NAME_CAP = 12;
-  function flagLateEdits(forLayer, edited, since, what) {
+  function flagLateEdits(forLayer, edited, since, what, index = new Map()) {
     const changed = (edited ?? [])
       .filter((c) => c.updatedAt.slice(0, 10) > since)
       .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
@@ -704,8 +952,17 @@ if (offline) {
     );
     report.brief.push(
       `${shown.slice(0, 3).join(', ')}${names.length > 3 ? ` and ${names.length - 3} more` : ''} ` +
-        `changed in ${what} after the capture, so a generation run against ${names.length === 1 ? 'it' : 'them'} may die partway rather than at review — refreshing is the first thing I'd do.`,
+        `changed in ${what} after Pushpin's capture, so a generation run against ` +
+        `${names.length === 1 ? 'it' : 'them'} may die partway rather than at review. ${BEHIND_REMEDY}`,
     );
+    if (report.moved[forLayer]) {
+      report.moved[forLayer].changed = changed.map((c) => ({
+        name: index.get(c.key)?.name ?? c.name,
+        key: c.key,
+        page: index.get(c.key)?.page ?? null,
+        updatedAt: c.updatedAt,
+      }));
+    }
   }
 
   // Components. Any plan, library_content:read scope. The catalog holds one entry per
@@ -719,7 +976,7 @@ if (offline) {
   if (live) {
     compareKeys(
       'components',
-      real(catalog.components).map(([n, c]) => [n, c.key]),
+      real(catalog.components).map(([n, c]) => [n, c.key, c.page ?? null]),
       live.keys,
       catalog.source?.publishedSets,
       live.setCount,
@@ -729,7 +986,13 @@ if (offline) {
     // `manifest.capturedAt` is the tokens' date. Dating this layer by it reports
     // every component edit made between the two captures as drift the catalog
     // does not have.
-    flagLateEdits('components', live.edited, catalog.source?.extractedAt ?? capturedAt, 'the kit');
+    flagLateEdits(
+      'components',
+      live.edited,
+      catalog.source?.extractedAt ?? capturedAt,
+      'the kit',
+      indexByKey(real(catalog.components)),
+    );
   }
 
   // Styles. Same plan requirements. These keys are the only way to apply
@@ -779,7 +1042,8 @@ if (offline) {
           moved.map((c) => `    ${c.name} — ${c.updatedAt.slice(0, 10)}`).join('\n'),
       );
       report.brief.push(
-        `A token in the Pushpin kit has moved since the capture, so a value quoted from it may be wrong — refreshing is the first thing I'd do.`,
+        `A token in the Pushpin kit has moved since Pushpin's capture, so a value quoted ` +
+          `from it may be wrong. ${BEHIND_REMEDY_TOKENS}`,
       );
     } else {
       layer('variables', 'pass', `nothing published since ${capturedAt}`);
@@ -802,7 +1066,7 @@ if (offline) {
   if (liveAnnotations) {
     compareKeys(
       'annotations',
-      real(annotationCatalog.components).map(([n, c]) => [n, c.key]),
+      real(annotationCatalog.components).map(([n, c]) => [n, c.key, c.page ?? null]),
       liveAnnotations.keys,
       null,
       liveAnnotations.componentCount,
@@ -812,6 +1076,7 @@ if (offline) {
       liveAnnotations.edited,
       manifest.annotationKit.capturedAt,
       'the Annotation Kit',
+      indexByKey(real(annotationCatalog.components)),
     );
   }
 
@@ -833,7 +1098,13 @@ if (offline) {
   );
   if (liveIcons) {
     compareKeys('icons', iconKeyPairs, liveIcons.keys, null, liveIcons.componentCount);
-    flagLateEdits('icons', liveIcons.edited, manifest.iconLibrary.capturedAt, 'the icon set');
+    flagLateEdits(
+      'icons',
+      liveIcons.edited,
+      manifest.iconLibrary.capturedAt,
+      'the icon set',
+      new Map(iconKeyPairs.map(([name, key, page]) => [key, { name, page }])),
+    );
   }
 
   // A token that reaches nothing is worse than no token, because the run still
@@ -882,11 +1153,15 @@ async function upstreamBlob() {
   }
 }
 
+// Under `--session` the network budget is the one cached fetch remote-state
+// made, so this GitHub call is skipped alongside the Figma ones.
 const blob = offline
   ? { ok: false, why: '--offline' }
-  : !githubToken
-    ? { ok: false, why: 'GITHUB_TOKEN is not set' }
-    : await upstreamBlob();
+  : session
+    ? { ok: false, why: '--session' }
+    : !githubToken
+      ? { ok: false, why: 'GITHUB_TOKEN is not set' }
+      : await upstreamBlob();
 
 // A matching sha is strictly stronger than the age it replaces: an untouched
 // blob is an untouched blob whatever month it was captured in.
@@ -904,7 +1179,7 @@ if (blob.ok && blob.sha !== copySource.sha) {
       `    Re-run: node scripts/pull-copy.mjs && node scripts/build-copy.mjs`,
   );
   report.brief.push(
-    `The content design rules moved upstream after Pushpin's copy of them was pulled on ${prettyDate(copySource.capturedAt)}, so a copy rule I apply may be out of date — re-pulling them is the first thing I'd do.`,
+    `The content design rules moved upstream after Pushpin's copy of them was pulled on ${prettyDate(copySource.capturedAt)}, so a copy rule I apply may be out of date — a Pushpin plugin update is what carries the re-pull when one lands.`,
   );
 } else if (blob.ok) {
   layer('copy source', 'pass', `blob ${blob.sha.slice(0, 12)} unchanged upstream`);
@@ -925,7 +1200,7 @@ if (blob.ok && blob.sha !== copySource.sha) {
         `before trusting a rule quoted out of them.`,
     );
     report.brief.push(
-      `Pushpin's copy of the content design rules was pulled on ${prettyDate(copySource.capturedAt)}, so a rule may have changed since — re-pulling them is the first thing I'd do.`,
+      `Pushpin's copy of the content design rules was pulled on ${prettyDate(copySource.capturedAt)}, so a rule may have changed since — ${AGE_REMEDY}.`,
     );
   }
 }
@@ -963,10 +1238,13 @@ if (session) {
   // where the right number is none.
   //
   // `repair` settles the pin's whole sentence by construction, since every
-  // reason behind it is repairable. `sweep` only answers the catalog reason, so
-  // a pin carrying anything else keeps its sentence — the brief it spoke is
-  // about the finding update does not touch.
-  const settled = repair || (sweep && pin.reasons.every((r) => r === 'catalog'));
+  // reason behind it is repairable. `sweep` settles it only when the sentence
+  // is the catalog one — which it is whenever `catalog` outranks the other
+  // reasons present, the version bump beside every release included, and the
+  // sentence would otherwise tell the user to run the command the fix: line is
+  // already running. A pin whose sentence speaks for a higher-ranked reason
+  // keeps it: that finding is one update does not touch.
+  const settled = repair || (sweep && pin.briefReason === 'catalog');
   const say = settled ? report.brief.filter((b) => b !== pin.brief) : report.brief;
   for (const f of report.fix) console.log(`fix: ${f}`);
   for (const s of say) console.log(`say: ${s}`);
