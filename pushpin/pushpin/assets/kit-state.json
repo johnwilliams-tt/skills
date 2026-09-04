@@ -1,6 +1,7 @@
 {
   "$comment": "What the scheduled Figma check last found about the captures in this directory. Written by scripts/kit-state.mjs from a freshness --json report, read by scripts/freshness.mjs when no token is available. Not a capture: deliberately absent from manifest.json, because a verdict changing must not report every project as holding an older build.",
   "verdict": "moved",
+  "pluginVersion": "0.22.1",
   "against": {
     "tokens": "2026-08-06",
     "components": "2026-08-27",
@@ -10,15 +11,778 @@
     "icons": "2026-09-02"
   },
   "layers": [
-    "components"
+    "components",
+    "icons"
   ],
+  "moved": {
+    "components": {
+      "unpublished": [
+        {
+          "name": "_Bubble / Text",
+          "key": "1f03fd762ff653f6feb24d0d162bb9109cee3b46",
+          "page": "Additional components"
+        },
+        {
+          "name": "_Stamps",
+          "key": "69f3d95493ad74cf242cc79b798c6e61899d694b",
+          "page": "Additional components"
+        },
+        {
+          "name": "Accordion / Item",
+          "key": "0d9d0ce4075d6a847a9fa752c387ff395e15b4cd",
+          "page": "Accordion"
+        },
+        {
+          "name": "Headers / Filtering",
+          "key": "0c40aa2f5ae2995fb16dd60e385b3f84cacf682b",
+          "page": "Additional components"
+        },
+        {
+          "name": "MultiModalControls",
+          "key": "a6ea2b58235fa5f42cd2fd675c375f9e4d94dd3d",
+          "page": "Additional components"
+        },
+        {
+          "name": "view",
+          "key": "79d6fbe93995d68979d64c046502e3717b0e95c3",
+          "page": "Playground"
+        }
+      ],
+      "changed": [
+        {
+          "name": "Chip",
+          "key": "2a57896aa43e02ed4afceefa5ce5c956b306e3e7",
+          "page": "Chip",
+          "updatedAt": "2026-09-04T18:26:13.985Z"
+        },
+        {
+          "name": "Stripe payment / Card Element Only",
+          "key": "ef237a236eb70439e1323ad23043fc9b047332c9",
+          "page": "Additional components",
+          "updatedAt": "2026-09-02T19:43:02.078Z"
+        },
+        {
+          "name": "TextInput",
+          "key": "522dbc457c6160fe2d2673326448ee3c16245519",
+          "page": "📌 Text Input",
+          "updatedAt": "2026-09-02T19:43:02.072Z"
+        },
+        {
+          "name": "Input Row",
+          "key": "506a18c60761d0371cd1752f2a797a05272ef189",
+          "page": "Input Row",
+          "updatedAt": "2026-09-02T19:43:02.062Z"
+        },
+        {
+          "name": "Themed Link",
+          "key": "379ced8ba1b39a1897e02593105eb1cc3001394a",
+          "page": "Link",
+          "updatedAt": "2026-09-02T01:05:55.663Z"
+        },
+        {
+          "name": "Modal / Confirmation",
+          "key": "f78874ffe7d01874c5e339f93343daff8e51a484",
+          "page": "Modal",
+          "updatedAt": "2026-09-02T01:05:50.962Z"
+        },
+        {
+          "name": "Button",
+          "key": "ebc80753f095633977049c061a28a082816ef9c7",
+          "page": "📌 Button",
+          "updatedAt": "2026-09-02T01:05:50.957Z"
+        },
+        {
+          "name": "Modal / Default",
+          "key": "d351078b671aff5fc049ebbaca592d99f6059da9",
+          "page": "Modal",
+          "updatedAt": "2026-09-02T01:05:50.952Z"
+        },
+        {
+          "name": "Button Row",
+          "key": "ac39db4bceb59767f18e209979b5fdf7067ca94f",
+          "page": "Button Row",
+          "updatedAt": "2026-09-02T01:05:50.947Z"
+        },
+        {
+          "name": "Device template / Web",
+          "key": "a2afd87ef9a0c3fb39fd4ca027aeeea4e31b8060",
+          "page": "Layouts",
+          "updatedAt": "2026-09-02T01:05:50.942Z"
+        },
+        {
+          "name": "iOS / Sheet",
+          "key": "972cc358b317396273e7e170662c4d27972d546d",
+          "page": "Layouts",
+          "updatedAt": "2026-09-02T01:05:50.938Z"
+        },
+        {
+          "name": "Device template / Native",
+          "key": "9517010b8ef0ebd6a0a1fd9a48399233abda5785",
+          "page": "Layouts",
+          "updatedAt": "2026-09-02T01:05:50.934Z"
+        },
+        {
+          "name": "Disclosure",
+          "key": "5fd3e226989c531e0ee601b2251cf2e2c176f653",
+          "page": "Disclosure",
+          "updatedAt": "2026-09-02T01:05:50.929Z"
+        },
+        {
+          "name": "Modal / Factory / Footer",
+          "key": "564c5653745f5a1c069e48f49d66b7ca57a11f04",
+          "page": "Modal",
+          "updatedAt": "2026-09-02T01:05:50.925Z"
+        },
+        {
+          "name": "Web Browers / Headers",
+          "key": "52860889d2d0c724f5ac57632b7b2714d99839af",
+          "page": "Layouts",
+          "updatedAt": "2026-09-02T01:05:50.921Z"
+        },
+        {
+          "name": "Link",
+          "key": "45ed6a8a6d0282159b28d39c28656998caf035f2",
+          "page": "Link",
+          "updatedAt": "2026-09-02T01:05:50.913Z"
+        },
+        {
+          "name": "Navigation / Customer",
+          "key": "30af9ad9ab2d9de1e4dcf166b27a63ebfc73b269",
+          "page": "Additional components",
+          "updatedAt": "2026-09-02T01:05:50.909Z"
+        },
+        {
+          "name": "Modal / Promotion",
+          "key": "2333a8ce880a7c536463a24850a4096422e59eeb",
+          "page": "Modal",
+          "updatedAt": "2026-09-02T01:05:50.901Z"
+        },
+        {
+          "name": "Bubble / Structure",
+          "key": "7c26792bdf3e00981a775f352feb5c2ba6fe3a48",
+          "page": "Additional components",
+          "updatedAt": "2026-09-01T15:40:10.325Z"
+        },
+        {
+          "name": "Coursel",
+          "key": "68271ee1dde47698f5a4f161dcb464aa7181e5d5",
+          "page": "Carousel",
+          "updatedAt": "2026-09-01T15:40:10.319Z"
+        },
+        {
+          "name": "Accordion / Group",
+          "key": "452a8f5a6829044c6c9bedb2338d649643d07c78",
+          "page": "Accordion",
+          "updatedAt": "2026-09-01T14:53:09.790Z"
+        },
+        {
+          "name": "Navigation / Badge",
+          "key": "f82914e62804bfd07271e157eb493ee1c20eee90",
+          "page": "Additional components",
+          "updatedAt": "2026-09-01T14:52:30.407Z"
+        },
+        {
+          "name": "Stepper",
+          "key": "881c6ca001e8ce7dde06c15bfd4c6639250d298f",
+          "page": "Counter",
+          "updatedAt": "2026-09-01T14:52:30.402Z"
+        },
+        {
+          "name": "Callout",
+          "key": "bc12566bdaebefb317f949326ff269b329cfa23c",
+          "page": "Callout",
+          "updatedAt": "2026-09-01T14:50:23.216Z"
+        },
+        {
+          "name": "Action Sheet",
+          "key": "ac6c54e89daf08a8753737e739e8258ace3c42ac",
+          "page": "Action Sheet",
+          "updatedAt": "2026-09-01T14:50:23.209Z"
+        },
+        {
+          "name": "Disclosure copy",
+          "key": "9cb5ae5148856c50598abd6542e1fc1c75e18212",
+          "page": "Additional components",
+          "updatedAt": "2026-09-01T14:50:23.114Z"
+        },
+        {
+          "name": "iOS / Sheet / Header",
+          "key": "9c0f97077606385d96025b83bee605d002c0262f",
+          "page": "Layouts",
+          "updatedAt": "2026-09-01T14:50:23.108Z"
+        },
+        {
+          "name": "Status",
+          "key": "8e7e466b53de21077582e0b07548d8590b44fc89",
+          "page": "Avatar",
+          "updatedAt": "2026-09-01T14:50:23.096Z"
+        },
+        {
+          "name": "iOS / Sheet / Backdrop",
+          "key": "8a6b5c24c1c14e1c7a23713250e3a255f6977210",
+          "page": "Layouts",
+          "updatedAt": "2026-09-01T14:50:23.091Z"
+        },
+        {
+          "name": "Settings / Navigation",
+          "key": "89d92172c1d3386374dbf315c362e70bc7514cc6",
+          "page": "Additional components",
+          "updatedAt": "2026-09-01T14:50:23.088Z"
+        },
+        {
+          "name": "Modal / Factory / Main",
+          "key": "46c0665bc738c5668b5b2f2b5cd0d748e83e5497",
+          "page": "Modal",
+          "updatedAt": "2026-09-01T14:50:23.069Z"
+        },
+        {
+          "name": "Progress",
+          "key": "44ad4404090223b122f7e55f7b6fccadea2bc2d7",
+          "page": "Additional components",
+          "updatedAt": "2026-09-01T14:50:23.061Z"
+        },
+        {
+          "name": "Slider",
+          "key": "0ef2afae43d1aa23dc68539f171e21eac5041617",
+          "page": "Slider",
+          "updatedAt": "2026-09-01T14:50:22.933Z"
+        },
+        {
+          "name": "Star",
+          "key": "cac82382054b17de9634d6d674f046889b9513e8",
+          "page": "Star Rating",
+          "updatedAt": "2026-09-01T14:50:21.401Z"
+        },
+        {
+          "name": "Image",
+          "key": "af5e4fddc9cf5465b29b757d9fd6d15150761039",
+          "page": "Image",
+          "updatedAt": "2026-09-01T14:50:21.397Z"
+        },
+        {
+          "name": "Label",
+          "key": "3d42d12b04042867a74ad11abd1fb41009797cee",
+          "page": "Label",
+          "updatedAt": "2026-09-01T14:50:21.394Z"
+        },
+        {
+          "name": "Horizontal Rule",
+          "key": "30d38d322705af1c5a21787f9854ebc56124a288",
+          "page": "Horizontal Rule",
+          "updatedAt": "2026-09-01T14:50:21.390Z"
+        },
+        {
+          "name": "Star Rating / ReviewScoreSummary",
+          "key": "ffcab530279d1ac112077e913697bf646f7378c6",
+          "page": "Additional components",
+          "updatedAt": "2026-09-01T14:49:41.720Z"
+        },
+        {
+          "name": "Radio",
+          "key": "fe9ebc8ea4d71092a0eb50e5d8dad2e2257bbb60",
+          "page": "Radio",
+          "updatedAt": "2026-09-01T14:49:41.713Z"
+        },
+        {
+          "name": "Radio / List",
+          "key": "f6e748bf76b525a9a5509693d8662912f545fe11",
+          "page": "Radio",
+          "updatedAt": "2026-09-01T14:49:41.704Z"
+        },
+        {
+          "name": "Alert",
+          "key": "de49bf36b6d0b8c71a038c26d7075b9dfea79d0e",
+          "page": "Alert",
+          "updatedAt": "2026-09-01T14:49:41.699Z"
+        },
+        {
+          "name": "Button Row / Steps",
+          "key": "c283be5a07e9276a1c7c83ab764782e401c22b47",
+          "page": "Button Row",
+          "updatedAt": "2026-09-01T14:49:41.689Z"
+        },
+        {
+          "name": "Calendar",
+          "key": "bc9bfeac82335cc487164a1ef6036692bee6d89a",
+          "page": "Calendar",
+          "updatedAt": "2026-09-01T14:49:41.681Z"
+        },
+        {
+          "name": "Toast",
+          "key": "709e37510c3bea56b902e8206136d4ff4a265a65",
+          "page": "Toast",
+          "updatedAt": "2026-09-01T14:49:41.665Z"
+        },
+        {
+          "name": "Web Browers ",
+          "key": "5f54748d344aa1d937542e650098daf23ae18771",
+          "page": "Additional components",
+          "updatedAt": "2026-09-01T14:49:41.660Z"
+        },
+        {
+          "name": "Checkbox / List",
+          "key": "5cdf904a22223333be6d10d77bf2b5b455b7e0ec",
+          "page": "Checkbox",
+          "updatedAt": "2026-09-01T14:49:41.649Z"
+        },
+        {
+          "name": "Popovers",
+          "key": "14cb5072dcc07ea9dbaf137060572146d03b4fda",
+          "page": "Popover",
+          "updatedAt": "2026-09-01T14:49:41.604Z"
+        },
+        {
+          "name": "Checkbox",
+          "key": "12e02268b8300f841113d41deec659d679760b61",
+          "page": "Checkbox",
+          "updatedAt": "2026-09-01T14:49:41.432Z"
+        },
+        {
+          "name": "Avatar",
+          "key": "0df3248a5ccec613267d9ba33f3f7f8444b91a9c",
+          "page": "Avatar",
+          "updatedAt": "2026-09-01T14:49:41.427Z"
+        },
+        {
+          "name": "Native / Indicator",
+          "key": "05182f823c3a00232c41d7724d17491dc61efd40",
+          "page": "Additional components",
+          "updatedAt": "2026-09-01T14:49:41.422Z"
+        },
+        {
+          "name": "Dropdown",
+          "key": "fb605fd2eb1327afb7bbb59c280d491691532bab",
+          "page": "📌 Dropdown",
+          "updatedAt": "2026-09-01T14:49:25.490Z"
+        },
+        {
+          "name": "Navigation / Customer / Tabs [Logged in]",
+          "key": "c658fa791323284df25162ff1c8e5a015dd658cc",
+          "page": "Additional components",
+          "updatedAt": "2026-09-01T14:49:25.487Z"
+        },
+        {
+          "name": "Star Rating",
+          "key": "aca4a68f64d7fead2f296fbbde7d298ee2a068c3",
+          "page": "Star Rating",
+          "updatedAt": "2026-09-01T14:49:25.484Z"
+        },
+        {
+          "name": "Modal / Grabber handle",
+          "key": "aa1a4a933d60c4afa25ceb4c99941859f15e736f",
+          "page": "Modal",
+          "updatedAt": "2026-09-01T14:49:25.481Z"
+        },
+        {
+          "name": "Form Note",
+          "key": "9d3fe08c63953f3a7526ded26e111e96cda6319c",
+          "page": "Form Note",
+          "updatedAt": "2026-09-01T14:49:25.477Z"
+        },
+        {
+          "name": "Progress Meter",
+          "key": "9617e6e8ece41453fa24e36d8a59c39d95e2cc58",
+          "page": "Progress Meter",
+          "updatedAt": "2026-09-01T14:49:25.474Z"
+        },
+        {
+          "name": "Navigation / Pro / Tabs",
+          "key": "939320af4fadc2432b1e9a7a26446dcee1f6f3e6",
+          "page": "Additional components",
+          "updatedAt": "2026-09-01T14:49:25.471Z"
+        },
+        {
+          "name": "Settings / Navigation / Option",
+          "key": "90e19f84ae4b563432355161f05ef44bb1642e5c",
+          "page": "Additional components",
+          "updatedAt": "2026-09-01T14:49:25.467Z"
+        },
+        {
+          "name": "Modal / Factory / Modal",
+          "key": "87feca4dd75e21168f559c335ac75a870c547504",
+          "page": "Modal",
+          "updatedAt": "2026-09-01T14:49:25.462Z"
+        },
+        {
+          "name": "Messenger Elements / Composer",
+          "key": "83e7413015b6501e917d8aa7d460129cdc01abfd",
+          "page": "Additional components",
+          "updatedAt": "2026-09-01T14:49:25.459Z"
+        },
+        {
+          "name": "Tab",
+          "key": "720f182bdd15a8805e64be0f88f9c7dbf71a9e6f",
+          "page": "Tabs",
+          "updatedAt": "2026-09-01T14:49:25.455Z"
+        },
+        {
+          "name": "Navigation / Customer / Tabs",
+          "key": "6f20cfe9be8dbf491a205f9392f0f9b726cd8a6d",
+          "page": "Additional components",
+          "updatedAt": "2026-09-01T14:49:25.451Z"
+        },
+        {
+          "name": "Text Fab",
+          "key": "5af8bc698c5306b4dc9d66ffc27aa6fcc417d6c0",
+          "page": "Fab",
+          "updatedAt": "2026-09-01T14:49:25.447Z"
+        },
+        {
+          "name": "Tooltip",
+          "key": "3b8a2ee447d1e1cbebb3193781eef426821486f6",
+          "page": "Tooltip",
+          "updatedAt": "2026-09-01T14:49:25.218Z"
+        },
+        {
+          "name": "Icon Fab",
+          "key": "3577a5ca4c9b3a2a765897a0fecf396f0ee41460",
+          "page": "Fab",
+          "updatedAt": "2026-09-01T14:49:24.941Z"
+        },
+        {
+          "name": "Modal / Factory / Header",
+          "key": "2debf8bebc248e5c9121884a6b8a73344da511ce",
+          "page": "Modal",
+          "updatedAt": "2026-09-01T14:49:24.852Z"
+        },
+        {
+          "name": "Pill",
+          "key": "16f6afc13c439e980e7d2394f8a360d5109e18e4",
+          "page": "Pill",
+          "updatedAt": "2026-09-01T14:49:24.848Z"
+        },
+        {
+          "name": "Tabs",
+          "key": "15314a533334d9410e275a416ae210ccab747ef6",
+          "page": "Additional components",
+          "updatedAt": "2026-09-01T14:49:24.843Z"
+        },
+        {
+          "name": "Navigation / Pro",
+          "key": "f7adf5ef55df8d2266ecb2e180c4b74302d7ed54",
+          "page": "Additional components",
+          "updatedAt": "2026-09-01T14:49:08.259Z"
+        },
+        {
+          "name": "Modal / Factory / Close action",
+          "key": "ebb5feb70630504d6cf4f965ae6248a0a07a68b1",
+          "page": "Modal",
+          "updatedAt": "2026-09-01T14:49:08.245Z"
+        },
+        {
+          "name": "ServiceCard",
+          "key": "a674487167b8b2f16e5eb55112cc4237068874ab",
+          "page": "Service Card",
+          "updatedAt": "2026-09-01T14:49:08.236Z"
+        },
+        {
+          "name": "Modal / Factory / Illustration",
+          "key": "54b70b06ac6b3f675015243afac54c55f2eb4115",
+          "page": "Modal",
+          "updatedAt": "2026-09-01T14:49:08.219Z"
+        },
+        {
+          "name": "Device template / Footer",
+          "key": "0ef1a750f73cf8f4f43a2b20aa6a895dae58ce7c",
+          "page": "Layouts",
+          "updatedAt": "2026-09-01T14:49:08.199Z"
+        },
+        {
+          "name": "Icon Button",
+          "key": "f78f3a616236692e3c921a2003c2ea2e54a787e8",
+          "page": "Icon Button",
+          "updatedAt": "2026-09-01T14:48:51.166Z"
+        },
+        {
+          "name": "Native / iOS / Push Notification",
+          "key": "e37db50dbb8b179840ec92856fe4b0dfef9dc815",
+          "page": "Additional components",
+          "updatedAt": "2026-09-01T14:48:51.157Z"
+        },
+        {
+          "name": "Segmented Control",
+          "key": "e286d081844ac5e7368e6a52a7df1af2cf2dbb45",
+          "page": "Segemented Control",
+          "updatedAt": "2026-09-01T14:48:51.151Z"
+        },
+        {
+          "name": "Bubble / Text",
+          "key": "e04ecd46a7c840007f58a33bed0e682bd3f9d4b9",
+          "page": "Additional components",
+          "updatedAt": "2026-09-01T14:48:51.146Z"
+        },
+        {
+          "name": "Native / Status Bar",
+          "key": "cf8854ca95fea414f6532a7ea321b39190dd46d9",
+          "page": "Additional components",
+          "updatedAt": "2026-09-01T14:48:51.143Z"
+        },
+        {
+          "name": "Settings / Option",
+          "key": "cf79c977180c50030723a7d699e0df119bcb8575",
+          "page": "Additional components",
+          "updatedAt": "2026-09-01T14:48:51.137Z"
+        },
+        {
+          "name": "Bottom Navigation",
+          "key": "b939620cca9cc9892c0e34ff2e2337c0045cd24d",
+          "page": "Additional components",
+          "updatedAt": "2026-09-01T14:48:51.134Z"
+        },
+        {
+          "name": "Tip",
+          "key": "b6f0e083a187a826129131250ebc152d57156c83",
+          "page": "Tip",
+          "updatedAt": "2026-09-01T14:48:51.130Z"
+        },
+        {
+          "name": "iOS / Smart App Banner",
+          "key": "4fe0fa4ca81b39b7d6a28fd444b3ddff8f2b7595",
+          "page": "Additional components",
+          "updatedAt": "2026-09-01T14:48:51.118Z"
+        },
+        {
+          "name": "Settings / Navigation / Options",
+          "key": "4dbd6fb1e35ab9808d95c356c630d1d6da3850cc",
+          "page": "Additional components",
+          "updatedAt": "2026-09-01T14:48:51.115Z"
+        },
+        {
+          "name": "Text Area",
+          "key": "42f39fd842e0ad4566870f9387dc86a93259adde",
+          "page": "📌 Text Area",
+          "updatedAt": "2026-09-01T14:48:51.111Z"
+        },
+        {
+          "name": "Native / Browser Navigation",
+          "key": "3b0cd1a159f3955d7c3a061d94773d4a5192a744",
+          "page": "Additional components",
+          "updatedAt": "2026-09-01T14:48:51.107Z"
+        },
+        {
+          "name": "Navigation / Customer / Category Search",
+          "key": "2fcdf3450388e453c728eea921f7427e21609104",
+          "page": "Additional components",
+          "updatedAt": "2026-09-01T14:48:51.099Z"
+        },
+        {
+          "name": "Navigation / Tab",
+          "key": "2c784f3ab43bbb96de6f34aedbdf9aab41e3cebd",
+          "page": "Additional components",
+          "updatedAt": "2026-09-01T14:48:51.096Z"
+        },
+        {
+          "name": "Headers / Tab",
+          "key": "0346ecfd1edf4cd2ded732657ce4b4f32305fddd",
+          "page": "Additional components",
+          "updatedAt": "2026-09-01T14:48:51.091Z"
+        },
+        {
+          "name": "Switch",
+          "key": "7aa16466bf9551e2e3637e78cbfe70bde1dbec93",
+          "page": "Switch",
+          "updatedAt": "2026-09-01T14:48:32.188Z"
+        },
+        {
+          "name": "Loader Dots",
+          "key": "28ccade893aa5ce0521c0aab68681a529a79a77f",
+          "page": "Loader Dots",
+          "updatedAt": "2026-09-01T14:48:32.175Z"
+        },
+        {
+          "name": "Badge",
+          "key": "18cc824af2c9a69129e1ef000cd46878dd9332c8",
+          "page": "Badge",
+          "updatedAt": "2026-09-01T14:48:32.167Z"
+        }
+      ]
+    },
+    "icons": {
+      "unpublished": [],
+      "changed": [
+        {
+          "name": "Pinterest · Medium",
+          "key": "e9078324c5c9c0f1bd99d822afc5f528fb4566c2",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.282Z"
+        },
+        {
+          "name": "Facebook · Large",
+          "key": "e689f7729c35dc46d82666487d18edfa6969a0df",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.280Z"
+        },
+        {
+          "name": "Instagram · Tiny",
+          "key": "e290f51d00c89fc774fccc552fd6ef90910691f4",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.276Z"
+        },
+        {
+          "name": "Mute · Small",
+          "key": "d90143fc0e350166ab49c3bd7250450c5d2bf80f",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.273Z"
+        },
+        {
+          "name": "Webhooks · Small",
+          "key": "d8dbc1ebf1a24f608d561a00c64686689794b360",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.270Z"
+        },
+        {
+          "name": "Pinterest · Small",
+          "key": "d630f50ad6f9ed7c1c44dbaf6a939d6119785950",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.267Z"
+        },
+        {
+          "name": "Facebook · Tiny",
+          "key": "d58c35d676fefa35967f4d5a4a931ad01de4aa04",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.264Z"
+        },
+        {
+          "name": "Webhooks · Large",
+          "key": "cffd7743f7322943e4715dbc52835562d721920d",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.261Z"
+        },
+        {
+          "name": "Messenger · Medium",
+          "key": "cda488f7f4fc600910ca90e5d2b2348a227d4940",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.258Z"
+        },
+        {
+          "name": "Mute-Filled · Tiny",
+          "key": "cb722a399c11d2660019e57aadf440a9cb28f98e",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.253Z"
+        },
+        {
+          "name": "Webhooks · Medium",
+          "key": "cac6feb1691cbba66872c0c961c7ddd84e2d9211",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.249Z"
+        },
+        {
+          "name": "Mute · Large",
+          "key": "c6384884e808e4097ea9b5a1ff1741f14a9c9ccd",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.245Z"
+        },
+        {
+          "name": "Facebook · Medium",
+          "key": "b428cf4e708bb0840700c88f61235d9e3dd348a4",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.237Z"
+        },
+        {
+          "name": "Webhooks · Tiny",
+          "key": "98adf27ee17ea842f604c1e299cfb4e078d013ba",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.225Z"
+        },
+        {
+          "name": "Mute-Filled · Large",
+          "key": "96ba89369e9e8648ec4b4d98690ec50860733d79",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.220Z"
+        },
+        {
+          "name": "Messenger · Small",
+          "key": "969773b0cf0d00c6394bbfeef0f91fdbb796945e",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.216Z"
+        },
+        {
+          "name": "Facebook · Small",
+          "key": "92c1a8cce9776ef09ec71ea080c05905afa8524c",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.212Z"
+        },
+        {
+          "name": "Instagram · Large",
+          "key": "8d5b2912410a3fe8695a8a4bedcddad3552a4a99",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.204Z"
+        },
+        {
+          "name": "Messenger · Large",
+          "key": "721ab5fc3cd52da669fbfb2e5dcddf84e5972d02",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.194Z"
+        },
+        {
+          "name": "Messenger · Tiny",
+          "key": "65990fc7a3092c907a527c8e9f684a7367533025",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.184Z"
+        },
+        {
+          "name": "Mute-Filled · Small",
+          "key": "5bc4809d75e287d587b4625a2f42f357ea556c76",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.171Z"
+        },
+        {
+          "name": "Pinterest · Tiny",
+          "key": "461b9e011f2cb4a0d96e08b83dac2fba3ea47bb2",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.164Z"
+        },
+        {
+          "name": "Instagram · Medium",
+          "key": "355968c8129af031e974bcacbc78757e97fc2a34",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.155Z"
+        },
+        {
+          "name": "Mute · Tiny",
+          "key": "20a5f723903972f40a627a1e065b18a42630fd73",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.145Z"
+        },
+        {
+          "name": "Mute-Filled · Medium",
+          "key": "0fc148f2b358873cf55b62fb5c5c0e0ddc4e4421",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.141Z"
+        },
+        {
+          "name": "Mute · Medium",
+          "key": "0f5fb59217fd6979e40da0a529c9c727662e6b38",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.136Z"
+        },
+        {
+          "name": "Pinterest · Large",
+          "key": "0949756db586aa1963d5515fa3ff5ce68092c77f",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.133Z"
+        },
+        {
+          "name": "Instagram · Small",
+          "key": "0481c02d4a1ac619b51bc129606df50c6d3652a4",
+          "page": "Icons",
+          "updatedAt": "2026-09-04T18:26:14.128Z"
+        }
+      ]
+    },
+    "annotations": {
+      "unpublished": [],
+      "changed": []
+    }
+  },
   "findings": [
     "6 components in the catalog are no longer published. Importing by key throws at runtime:\n    _Bubble / Text\n    _Stamps\n    Accordion / Item\n    Headers / Filtering\n    MultiModalControls\n    view",
-    "91 components in the kit changed after the capture (2026-08-27), most recently on 2026-09-02. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Stripe payment / Card Element Only\n   TextInput\n   Input Row\n   Themed Link\n   Modal / Confirmation\n   Button\n   Modal / Default\n   Button Row\n   Device template / Web\n   iOS / Sheet\n   Device template / Native\n   Disclosure\n   …and 79 more"
+    "91 components in the kit changed after the capture (2026-08-27), most recently on 2026-09-04. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Chip\n   Stripe payment / Card Element Only\n   TextInput\n   Input Row\n   Themed Link\n   Modal / Confirmation\n   Button\n   Modal / Default\n   Button Row\n   Device template / Web\n   iOS / Sheet\n   Device template / Native\n   …and 79 more",
+    "28 components in the icon set changed after the capture (2026-09-02), most recently on 2026-09-04. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Pinterest Icon · Medium\n   Facebook Icon · Large\n   Instagram Icon · Tiny\n   Mute Icon · Small\n   Webhooks Icon · Small\n   Pinterest Icon · Small\n   Facebook Icon · Tiny\n   Webhooks Icon · Large\n   Messenger Icon · Medium\n   Mute-Filled Icon · Tiny\n   Webhooks Icon · Medium\n   Mute Icon · Large\n   …and 16 more"
   ],
   "brief": [
-    "A components in the Pushpin kit is no longer published, so a generation run against it dies partway rather than at review — refreshing is the first thing I'd do.",
-    "Stripe payment / Card Element Only, TextInput, Input Row and 88 more changed in the kit after the capture, so a generation run against them may die partway rather than at review — refreshing is the first thing I'd do."
+    "The Pushpin team has changed some components since this version of Pushpin; the next plugin update will carry those.",
+    "The Pushpin team has changed some icons since this version of Pushpin; the next plugin update will carry those."
   ],
-  "observedAt": "2026-09-03"
+  "observedAt": "2026-09-04"
 }
