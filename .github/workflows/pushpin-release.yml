@@ -95,9 +95,9 @@ jobs:
       GH_TOKEN: ${{ github.token }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -583,9 +583,19 @@ jobs:
             echo ""
             cat "$WORK/report.md"
           } > "$WORK/pr-body.md"
-          gh pr create --base main --head "$branch" --label pushpin-breaking \
+          # The branch is already pushed, so a refusal here loses nothing but
+          # the PR. The one cause seen so far is a repository setting, and
+          # the error GitHub returns does not name where to change it.
+          if ! gh pr create --base main --head "$branch" --label pushpin-breaking \
             --title "Kit re-capture $today needs a decision" \
-            --body-file "$WORK/pr-body.md"
+            --body-file "$WORK/pr-body.md"; then
+            echo "::error::Could not open the PR for $branch. If the message says Actions is not" \
+              "permitted to create pull requests, turn on Settings > Actions > General >" \
+              "'Allow GitHub Actions to create and approve pull requests', then re-run this" \
+              "workflow. Until then the branch is at" \
+              "${{ github.server_url }}/${{ github.repository }}/compare/main...$branch"
+            exit 1
+          fi
 
       - name: Report the breaking diff (dry run)
         if: steps.detect.outputs.proceed == 'true' && steps.diff.outputs.breaking == 'true' && env.WRITE != 'true'
@@ -712,7 +722,7 @@ jobs:
       # only place its work goes.
       - name: Upload the reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pushpin-release-reports
           path: |
@@ -723,7 +733,7 @@ jobs:
 
       - name: Upload the scratch files (dry run)
         if: always() && env.WRITE != 'true' && steps.detect.outputs.proceed == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pushpin-release-scratch
           path: ${{ runner.temp }}/pushpin
