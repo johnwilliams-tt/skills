@@ -2,36 +2,387 @@
   "$comment": "Published text and effect styles of the Pushpin Thumbprint UI Kit. These are the intended API for type and elevation in Figma, because the font-size and shadow variables are hidden from publishing. Pass a key to figma.importStyleByKeyAsync(), then node.setTextStyleIdAsync(style.id) or node.setEffectStyleIdAsync(style.id). Re-extract with scripts/extract.md §4 — do not hand-edit.",
   "source": {
     "fileKey": "VVRGrLgkPRU3vs765d5Q3r",
-    "extractedAt": "2026-08-21",
-    "verifiedBy": "Imported and applied in file rXFecV4AAtgjaES8935fbh on 2026-08-06. Metrics re-read from the kit on 2026-08-21; every key, size and font is unchanged from that capture."
+    "extractedAt": "2026-09-04",
+    "verifiedBy": "Keys and metrics read over the Figma REST API on 2026-09-04, from /files/:key/styles and the text styles’ nodes. Not import-verified; scripts/check.md section 1 is the pass that applies them in a consuming file."
   },
-
   "$note": "`letterSpacing` and `lineHeight` are recorded as Figma reports them, `{ value, unit }`, with only IEEE-754 float noise rounded away — 104.99999523162842 is 105. The unit is load-bearing rather than decorative: both are PERCENT, and build-css.mjs reads it instead of assuming pixels. The nine Title/* line heights resolve to the pixel line heights in tokens.figma.json (105% of 48 is 50.4), but the four Text/* ones do not — Text/1 is 140% of 16, or 22.4, where the Font variable collection says 24, and Text/4 is 14 against 18. The kit disagrees with itself there, and that is worth raising with the kit's owners; it is not open here. build-css.mjs emits the style's resolution, because the style is what renders on a node, and verify.mjs fails when an emitted line height stops matching its style's percentage of the size in force at either breakpoint. The Font collection's pixel line heights stay in tokens.figma.json as captured, where diff.mjs still compares them against the kit and no generator reads them. Note also that the style weights use named font styles (Medium, Bold, Regular) while the token layer expresses weight numerically (563, 590, 660) — the styles are what actually renders.",
-
   "textStyles": {
-    "Title/Hero": { "key": "c44cccee3c0ed0d1d902abf109c5b489a1d9b542", "font": "Thumbtack Rise Medium", "size": 48, "letterSpacing": { "value": -2, "unit": "PERCENT" }, "lineHeight": { "value": 105, "unit": "PERCENT" } },
-    "Title/1":    { "key": "6977650b2c3b6492fac62cae2d44dab53f3a1a0f", "font": "Thumbtack Rise Medium", "size": 36, "letterSpacing": { "value": -2, "unit": "PERCENT" }, "lineHeight": { "value": 105, "unit": "PERCENT" } },
-    "Title/2":    { "key": "c22f9ef014b478e395a0f659ea00c93e01ee4a10", "font": "Thumbtack Rise Medium", "size": 28, "letterSpacing": { "value": -2, "unit": "PERCENT" }, "lineHeight": { "value": 110, "unit": "PERCENT" } },
-    "Title/3":    { "key": "71112a7e6ec11131f14335e12383d749bdcde4fd", "font": "Thumbtack Rise Bold",   "size": 22, "letterSpacing": { "value": -1, "unit": "PERCENT" }, "lineHeight": { "value": 110, "unit": "PERCENT" } },
-    "Title/4":    { "key": "69872383b0cacae5fa01b60b6ca5704e2abe0c18", "font": "Thumbtack Rise Bold",   "size": 20, "letterSpacing": { "value": 0, "unit": "PERCENT" },  "lineHeight": { "value": 120, "unit": "PERCENT" } },
-    "Title/5":    { "key": "caa0d7d415f999b4fe1b55ec8a11846e86e0f9cd", "font": "Thumbtack Rise Bold",   "size": 18, "letterSpacing": { "value": 0, "unit": "PERCENT" },  "lineHeight": { "value": 120, "unit": "PERCENT" } },
-    "Title/6":    { "key": "ffcbe84dbab5abbae82506eae0f876fdd8ef193a", "font": "Thumbtack Rise Bold",   "size": 16, "letterSpacing": { "value": 0, "unit": "PERCENT" },  "lineHeight": { "value": 120, "unit": "PERCENT" } },
-    "Title/7":    { "key": "8adc7780bc4b9591763ba2a6f6a9be47231d5cb1", "font": "Thumbtack Rise Bold",   "size": 14, "letterSpacing": { "value": 0, "unit": "PERCENT" },  "lineHeight": { "value": 120, "unit": "PERCENT" } },
-    "Title/8":    { "key": "01b0fdc10a70b658b5ac4e36c68700fcd3c3135a", "font": "Thumbtack Rise Bold",   "size": 12, "letterSpacing": { "value": 0, "unit": "PERCENT" },  "lineHeight": { "value": 120, "unit": "PERCENT" } },
-    "Text/1":     { "key": "93956b63bf0ab21e135489b888a450e3a172f36b", "font": "Thumbtack Rise Regular", "size": 16, "letterSpacing": { "value": 0, "unit": "PERCENT" },  "lineHeight": { "value": 140, "unit": "PERCENT" } },
-    "Text/2":     { "key": "69d15232a937cfae8ff994baf8a04aca83c4febf", "font": "Thumbtack Rise Regular", "size": 14, "letterSpacing": { "value": 0, "unit": "PERCENT" },  "lineHeight": { "value": 140, "unit": "PERCENT" } },
-    "Text/3":     { "key": "6e067fed0793d75b574d5cb65bc1456eb21c4ad2", "font": "Thumbtack Rise Regular", "size": 12, "letterSpacing": { "value": 0, "unit": "PERCENT" },  "lineHeight": { "value": 140, "unit": "PERCENT" } },
-    "Text/4":     { "key": "d5af6009434cbfcb4d98eb5b5072eca8b4796ef2", "font": "Thumbtack Rise Regular", "size": 10, "letterSpacing": { "value": 0, "unit": "PERCENT" },  "lineHeight": { "value": 140, "unit": "PERCENT" } }
+    "Title/1": {
+      "key": "6977650b2c3b6492fac62cae2d44dab53f3a1a0f",
+      "font": "Thumbtack Rise Medium",
+      "size": 36,
+      "letterSpacing": {
+        "value": -2,
+        "unit": "PERCENT"
+      },
+      "lineHeight": {
+        "value": 105,
+        "unit": "PERCENT"
+      }
+    },
+    "Text/2": {
+      "key": "69d15232a937cfae8ff994baf8a04aca83c4febf",
+      "font": "Thumbtack Rise Regular",
+      "size": 14,
+      "letterSpacing": {
+        "value": 0,
+        "unit": "PERCENT"
+      },
+      "lineHeight": {
+        "value": 140,
+        "unit": "PERCENT"
+      }
+    },
+    "Text/3": {
+      "key": "6e067fed0793d75b574d5cb65bc1456eb21c4ad2",
+      "font": "Thumbtack Rise Regular",
+      "size": 12,
+      "letterSpacing": {
+        "value": 0,
+        "unit": "PERCENT"
+      },
+      "lineHeight": {
+        "value": 140,
+        "unit": "PERCENT"
+      }
+    },
+    "Title/3": {
+      "key": "71112a7e6ec11131f14335e12383d749bdcde4fd",
+      "font": "Thumbtack Rise Bold",
+      "size": 22,
+      "letterSpacing": {
+        "value": -1,
+        "unit": "PERCENT"
+      },
+      "lineHeight": {
+        "value": 110,
+        "unit": "PERCENT"
+      }
+    },
+    "Title/2": {
+      "key": "c22f9ef014b478e395a0f659ea00c93e01ee4a10",
+      "font": "Thumbtack Rise Medium",
+      "size": 28,
+      "letterSpacing": {
+        "value": -2,
+        "unit": "PERCENT"
+      },
+      "lineHeight": {
+        "value": 110,
+        "unit": "PERCENT"
+      }
+    },
+    "Title/Hero": {
+      "key": "c44cccee3c0ed0d1d902abf109c5b489a1d9b542",
+      "font": "Thumbtack Rise Medium",
+      "size": 48,
+      "letterSpacing": {
+        "value": -2,
+        "unit": "PERCENT"
+      },
+      "lineHeight": {
+        "value": 105,
+        "unit": "PERCENT"
+      }
+    },
+    "Text/4": {
+      "key": "d5af6009434cbfcb4d98eb5b5072eca8b4796ef2",
+      "font": "Thumbtack Rise Regular",
+      "size": 10,
+      "letterSpacing": {
+        "value": 0,
+        "unit": "PERCENT"
+      },
+      "lineHeight": {
+        "value": 140,
+        "unit": "PERCENT"
+      }
+    },
+    "Title/7": {
+      "key": "8adc7780bc4b9591763ba2a6f6a9be47231d5cb1",
+      "font": "Thumbtack Rise Bold",
+      "size": 14,
+      "letterSpacing": {
+        "value": 0,
+        "unit": "PERCENT"
+      },
+      "lineHeight": {
+        "value": 120,
+        "unit": "PERCENT"
+      }
+    },
+    "Title/8": {
+      "key": "01b0fdc10a70b658b5ac4e36c68700fcd3c3135a",
+      "font": "Thumbtack Rise Bold",
+      "size": 12,
+      "letterSpacing": {
+        "value": 0,
+        "unit": "PERCENT"
+      },
+      "lineHeight": {
+        "value": 120,
+        "unit": "PERCENT"
+      }
+    },
+    "Title/4": {
+      "key": "69872383b0cacae5fa01b60b6ca5704e2abe0c18",
+      "font": "Thumbtack Rise Bold",
+      "size": 20,
+      "letterSpacing": {
+        "value": 0,
+        "unit": "PERCENT"
+      },
+      "lineHeight": {
+        "value": 120,
+        "unit": "PERCENT"
+      }
+    },
+    "Title/5": {
+      "key": "caa0d7d415f999b4fe1b55ec8a11846e86e0f9cd",
+      "font": "Thumbtack Rise Bold",
+      "size": 18,
+      "letterSpacing": {
+        "value": 0,
+        "unit": "PERCENT"
+      },
+      "lineHeight": {
+        "value": 120,
+        "unit": "PERCENT"
+      }
+    },
+    "Title/6": {
+      "key": "ffcbe84dbab5abbae82506eae0f876fdd8ef193a",
+      "font": "Thumbtack Rise Bold",
+      "size": 16,
+      "letterSpacing": {
+        "value": 0,
+        "unit": "PERCENT"
+      },
+      "lineHeight": {
+        "value": 120,
+        "unit": "PERCENT"
+      }
+    },
+    "Text/1": {
+      "key": "93956b63bf0ab21e135489b888a450e3a172f36b",
+      "font": "Thumbtack Rise Regular",
+      "size": 16,
+      "letterSpacing": {
+        "value": 0,
+        "unit": "PERCENT"
+      },
+      "lineHeight": {
+        "value": 140,
+        "unit": "PERCENT"
+      }
+    },
+    "Headings/Native/Title 7": {
+      "key": "33517497cdefa79e62e239af81f29b4ab6aee8cf",
+      "font": "Thumbtack Rise Medium",
+      "size": 14,
+      "letterSpacing": {
+        "value": 0,
+        "unit": "PIXELS"
+      },
+      "lineHeight": {
+        "value": 120,
+        "unit": "PERCENT"
+      }
+    },
+    "Body/Text 1": {
+      "key": "cd12281ec1979b319c9931d9463edbaed959b8c5",
+      "font": "Thumbtack Rise Regular",
+      "size": 16,
+      "letterSpacing": {
+        "value": 0,
+        "unit": "PIXELS"
+      },
+      "lineHeight": {
+        "value": 140,
+        "unit": "PERCENT"
+      }
+    },
+    "Headings/Native/Title 5": {
+      "key": "2ad89f164e89ccdd72aaa12e1246e153c0f77df6",
+      "font": "Thumbtack Rise Medium",
+      "size": 18,
+      "letterSpacing": {
+        "value": 0,
+        "unit": "PIXELS"
+      },
+      "lineHeight": {
+        "value": 120,
+        "unit": "PERCENT"
+      }
+    },
+    "Headings/Desktop/Title 2": {
+      "key": "e60c2f7aa7f7c156e17e5a1e7d0625f425159698",
+      "font": "Thumbtack Rise Medium",
+      "size": 36,
+      "letterSpacing": {
+        "value": -0.72,
+        "unit": "PIXELS"
+      },
+      "lineHeight": {
+        "value": 110,
+        "unit": "PERCENT"
+      }
+    },
+    "Body/Text 2": {
+      "key": "bb79fd2ee3a2473a004dd15836bec3aa54c2bfa1",
+      "font": "Thumbtack Rise Regular",
+      "size": 14,
+      "letterSpacing": {
+        "value": 0,
+        "unit": "PIXELS"
+      },
+      "lineHeight": {
+        "value": 140,
+        "unit": "PERCENT"
+      }
+    },
+    "Body/Text 3": {
+      "key": "6402faf290014c189317da735240aa3ab356f3e1",
+      "font": "Thumbtack Rise Regular",
+      "size": 12,
+      "letterSpacing": {
+        "value": 0,
+        "unit": "PIXELS"
+      },
+      "lineHeight": {
+        "value": 140,
+        "unit": "PERCENT"
+      }
+    },
+    "Headings/Native/Title 6": {
+      "key": "c7b6c5dee2401b4936938e6a32e57e1410700c2e",
+      "font": "Thumbtack Rise Medium",
+      "size": 16,
+      "letterSpacing": {
+        "value": 0,
+        "unit": "PIXELS"
+      },
+      "lineHeight": {
+        "value": 120,
+        "unit": "PERCENT"
+      }
+    },
+    "Headings/Desktop/Title 3": {
+      "key": "d7f1320818de92b294a9d7aa98b844df1d11adf6",
+      "font": "Thumbtack Rise Medium",
+      "size": 24,
+      "letterSpacing": {
+        "value": -0.24,
+        "unit": "PIXELS"
+      },
+      "lineHeight": {
+        "value": 110,
+        "unit": "PERCENT"
+      }
+    },
+    "Headings/Native/Title 8": {
+      "key": "f32a099665249516780cde4463b58936f99977a8",
+      "font": "Thumbtack Rise Medium",
+      "size": 12,
+      "letterSpacing": {
+        "value": 0,
+        "unit": "PIXELS"
+      },
+      "lineHeight": {
+        "value": 120,
+        "unit": "PERCENT"
+      }
+    },
+    "Headings/Native/Title 3": {
+      "key": "db56a7900fca312e8d29bb2f2a0bb20027698e73",
+      "font": "Thumbtack Rise Medium",
+      "size": 22,
+      "letterSpacing": {
+        "value": -0.22,
+        "unit": "PIXELS"
+      },
+      "lineHeight": {
+        "value": 110,
+        "unit": "PERCENT"
+      }
+    },
+    "Headings/Native/Title 1": {
+      "key": "ebeb074aaa180b4bd728e5ebe349cb37fa71d624",
+      "font": "Thumbtack Rise Medium",
+      "size": 36,
+      "letterSpacing": {
+        "value": -0.72,
+        "unit": "PIXELS"
+      },
+      "lineHeight": {
+        "value": 105,
+        "unit": "PERCENT"
+      }
+    },
+    "Headings/Native/Title 2": {
+      "key": "0320c89ed73dfd11fb01e836e5f9624003ad1010",
+      "font": "Thumbtack Rise Medium",
+      "size": 28,
+      "letterSpacing": {
+        "value": -0.56,
+        "unit": "PIXELS"
+      },
+      "lineHeight": {
+        "value": 110,
+        "unit": "PERCENT"
+      }
+    },
+    "Headings/Native/Title 4": {
+      "key": "e6cc0a22d0a3b02d3266508df688acfa8e3972b4",
+      "font": "Thumbtack Rise Medium",
+      "size": 20,
+      "letterSpacing": {
+        "value": 0,
+        "unit": "PIXELS"
+      },
+      "lineHeight": {
+        "value": 120,
+        "unit": "PERCENT"
+      }
+    },
+    "Headings/Desktop/Title 1": {
+      "key": "73d8500fcab505504e4c2fe6034db51f2c9a0492",
+      "font": "Thumbtack Rise Medium",
+      "size": 48,
+      "letterSpacing": {
+        "value": -0.96,
+        "unit": "PIXELS"
+      },
+      "lineHeight": {
+        "value": 105,
+        "unit": "PERCENT"
+      }
+    }
   },
-
   "effectStyles": {
-    "100 · Shadow": { "key": "fc2b651ca823646ee3517a41d7ba95a5c1433cbd" },
-    "200 · Shadow": { "key": "110e8ce03217f0a7f8e1ee59676b21992f07c61c" },
-    "300 · Shadow": { "key": "7284b113e1d1d842ab57320f4172afb854113b40" },
-    "400 · Shadow": { "key": "519fccc7caf5df0a136a11c29cda268a726c9bdd" },
-    "Image overlay bluar/Default": { "key": "e98e82fe80b6bee5733040a84a1219c0b090c731" },
-    "Image overlay bluar/Hero": { "key": "6385c8a08418882197e0d1a25b583d258853ecfa" }
-  },
-
-  "$excluded": "The file also defines 21 'EightShapes Spec/*' text styles in Inter. Those belong to the design system's own documentation tooling and must never be used in product design."
+    "400 · Shadow": {
+      "key": "519fccc7caf5df0a136a11c29cda268a726c9bdd"
+    },
+    "100 · Shadow": {
+      "key": "fc2b651ca823646ee3517a41d7ba95a5c1433cbd"
+    },
+    "200 · Shadow": {
+      "key": "110e8ce03217f0a7f8e1ee59676b21992f07c61c"
+    },
+    "300 · Shadow": {
+      "key": "7284b113e1d1d842ab57320f4172afb854113b40"
+    },
+    "Image overlay bluar/Default": {
+      "key": "e98e82fe80b6bee5733040a84a1219c0b090c731"
+    },
+    "Image overlay bluar/Hero": {
+      "key": "6385c8a08418882197e0d1a25b583d258853ecfa"
+    },
+    "B Footer · Shadow": {
+      "key": "37092d062a5f6d98e46eeac20667ac6382e0eeb1"
+    },
+    "A Header · Shadow": {
+      "key": "85830753dba7e176c088679ff834adce9869aad8"
+    }
+  }
 }

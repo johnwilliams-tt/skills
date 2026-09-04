@@ -1,106 +1,85 @@
 {
-  "$comment": "Every component and component set the Pushpin Thumbprint UI Kit publishes to its library, and nothing else. Membership is decided by getPublishStatusAsync() per node, not by the name, so an entry here is one whose `key` resolves. `key` is the assetKey to pass to figma.importComponentByKeyAsync — importComponentSetByKeyAsync for a COMPONENT_SET. `publishedAs` appears where the library still serves an older name than the file carries. Generated — see scripts/build-components.mjs.",
+  "$comment": "Every component and component set the Pushpin Thumbprint UI Kit publishes to its library, except the icon set. Membership is decided by getPublishStatusAsync() per node, not by the name, so an entry here is one whose `key` resolves. The kit publishes its icons from the same library, and they are cataloged by glyph in icons.figma.json instead of one entry per size here; `source.iconsOmitted` counts how many were routed there. `key` is the assetKey to pass to figma.importComponentByKeyAsync — importComponentSetByKeyAsync for a COMPONENT_SET. `publishedAs` appears where the library still serves an older name than the file carries. Generated — see scripts/build-components.mjs.",
   "source": {
     "fileKey": "VVRGrLgkPRU3vs765d5Q3r",
     "fileName": "Pushpin Thumbprint UI Kit",
-    "extractedAt": "2026-08-27",
-    "capturedTotal": 1074,
-    "publishedTotal": 118,
-    "publishedSets": 98,
-    "unpublishedOmitted": 956,
-    "publicKept": 115,
+    "extractedAt": "2026-09-04",
+    "capturedTotal": 1029,
+    "publishedTotal": 1028,
+    "publishedSets": 100,
+    "unpublishedOmitted": 1,
+    "iconsOmitted": 900,
+    "publicKept": 124,
     "nameCollisions": [
-      "\"Tabs\" is published twice — kept 13333:125819 on \"Additional components\", dropped 20968:83266 on \"Tabs\"",
-      "\"iOS / Sheet\" is published twice — kept 13333:131648 on \"Layouts\", dropped 13333:131632 on \"Layouts\"",
-      "\"view\" is published twice — kept 25247:3665 on \"Playground\", dropped 25246:2695 on \"Guidelines\""
+      "\"Headers / Tab\" is published twice — kept 13333:125848 on \"Additional components\", dropped 35574:59932 on \"Additional components\"",
+      "\"Tabs\" is published twice — kept 13333:125819 on \"Additional components\", dropped 35574:59851 on \"Additional components\"",
+      "\"Tabs\" is published twice — kept 35574:59851 on \"Additional components\", dropped 20968:83266 on \"Tabs\"",
+      "\"iOS / Sheet\" is published twice — kept 13333:131648 on \"Layouts\", dropped 13333:131632 on \"Layouts\""
     ],
     "nameStatusDisagreement": [
-      "\"Availability Chip\" reads as public and is not published",
-      "\"Bubble / Media\" reads as public and is not published",
-      "\"Core / Safari (Big Sur) / Toolbar / Toolbar Item\" reads as public and is not published",
-      "\"Link Section\" reads as public and is not published",
-      "\"Messager / Media modal\" reads as public and is not published",
-      "\"Messager Elements / Composer / Image\" reads as public and is not published",
-      "\"Platform Section\" reads as public and is not published",
-      "\"Platform availability\" reads as public and is not published",
-      "\"_Bubble / Text\" reads as internal and is published",
-      "\"_Stamps\" reads as internal and is published"
+      "\"Conversation\" reads as public and is not published"
     ],
-    "propertiesCapturedAt": "2026-09-01"
+    "properties": "rest-editor-state",
+    "carried": [
+      "instanceCount",
+      "children"
+    ]
   },
   "components": {
-    "_Bubble / Text": {
-      "key": "1f03fd762ff653f6feb24d0d162bb9109cee3b46",
+    "❌ Headers": {
+      "key": "8f322739b21f9129cc7c22d3974077956a27855b",
       "type": "COMPONENT_SET",
       "page": "Additional components",
-      "nodeId": "15267:72862",
-      "publishedAs": "ChatBubble",
-      "instanceCount": 0,
+      "nodeId": "35574:59747",
       "properties": {
-        "tailPosition": {
-          "type": "VARIANT",
-          "key": "tailPosition",
-          "options": [
-            "BottomLeft",
-            "BottomRight",
-            "TopLeft",
-            "TopRight"
-          ],
-          "default": "TopLeft"
+        "👁️ Divider": {
+          "type": "BOOLEAN",
+          "key": "👁️ Divider#9670:0",
+          "default": false
         },
-        "orientation": {
-          "type": "VARIANT",
-          "key": "orientation",
-          "options": [
-            "Vertical",
-            "Horizontal"
-          ],
-          "default": "Vertical"
+        "Title": {
+          "type": "TEXT",
+          "key": "Title#13725:63",
+          "default": "Title"
         },
-        "theme": {
+        "OS": {
           "type": "VARIANT",
-          "key": "theme",
+          "key": "OS",
           "options": [
-            "bg color",
-            "receieved",
-            "sent"
+            "iOS",
+            "Android"
           ],
-          "default": "sent"
-        }
-      }
-    },
-    "_Stamps": {
-      "key": "69f3d95493ad74cf242cc79b798c6e61899d694b",
-      "type": "COMPONENT_SET",
-      "page": "Additional components",
-      "nodeId": "13333:115494",
-      "publishedAs": "Messenger Elements / Stamps",
-      "instanceCount": 6,
-      "children": [
-        "Viewed Icon · Tiny",
-        "Warning Icon · Small"
-      ],
-      "properties": {
-        "Theme": {
-          "type": "VARIANT",
-          "key": "Theme",
-          "options": [
-            "Date",
-            "Status Update",
-            "Timestamp",
-            "Only visible to you"
-          ],
-          "default": "Status Update"
+          "default": "iOS"
         },
-        "Position": {
+        "Type": {
           "type": "VARIANT",
-          "key": "Position",
+          "key": "Type",
           "options": [
-            "Left",
-            "Right",
-            "Center"
+            "Navbar",
+            "Scope",
+            "Big Title (iOS Only)",
+            "Search (Explore)",
+            "Search"
           ],
-          "default": "Center"
+          "default": "Navbar"
+        },
+        "Icon Left": {
+          "type": "VARIANT",
+          "key": "Icon Left",
+          "options": [
+            "False",
+            "True"
+          ],
+          "default": "True"
+        },
+        "Icon Right": {
+          "type": "VARIANT",
+          "key": "Icon Right",
+          "options": [
+            "False",
+            "True"
+          ],
+          "default": "True"
         }
       }
     },
@@ -112,28 +91,6 @@
       "instanceCount": 10,
       "children": [
         "Accordion / Item"
-      ]
-    },
-    "Accordion / Item": {
-      "key": "0d9d0ce4075d6a847a9fa752c387ff395e15b4cd",
-      "type": "COMPONENT_SET",
-      "page": "Accordion",
-      "nodeId": "15247:1965",
-      "instanceCount": 20,
-      "properties": {
-        "State": {
-          "type": "VARIANT",
-          "key": "State",
-          "options": [
-            "closed",
-            "open"
-          ],
-          "default": "closed"
-        }
-      },
-      "children": [
-        "_Caret-Down Icon · Tiny",
-        "_Caret-Up Icon · Tiny"
       ]
     },
     "Action Sheet": {
@@ -209,6 +166,27 @@
         "Logomark - Black",
         "Logomark - Blue"
       ]
+    },
+    "Availability Chip": {
+      "key": "5866be8e734c9497e434de119a7535a209a02947",
+      "type": "COMPONENT_SET",
+      "page": "💠 Local components",
+      "nodeId": "34627:8912",
+      "properties": {
+        "Property 1": {
+          "type": "VARIANT",
+          "key": "Property 1",
+          "options": [
+            "Available",
+            "Native",
+            "Not built",
+            "Not applicable",
+            "In progress",
+            "Partial"
+          ],
+          "default": "Available"
+        }
+      }
     },
     "Avatar": {
       "key": "0df3248a5ccec613267d9ba33f3f7f8444b91a9c",
@@ -523,12 +501,38 @@
         "Logomark Building Block [Rise]"
       ]
     },
+    "Bubble / Media": {
+      "key": "90886b403d572593a255ee99a401a9e67bb496f7",
+      "type": "COMPONENT_SET",
+      "page": "Additional components",
+      "nodeId": "31675:40060",
+      "properties": {
+        "Theme": {
+          "type": "VARIANT",
+          "key": "Theme",
+          "options": [
+            "Recipient",
+            "Sender"
+          ],
+          "default": "Recipient"
+        },
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "Media",
+            "File",
+            "File & Media"
+          ],
+          "default": "Media"
+        }
+      }
+    },
     "Bubble / Structure": {
       "key": "7c26792bdf3e00981a775f352feb5c2ba6fe3a48",
       "type": "COMPONENT_SET",
       "page": "Additional components",
       "nodeId": "13333:115477",
-      "publishedAs": "Messenger Elements / Structured Bubble",
       "instanceCount": 18,
       "properties": {
         "👁️ Visibility message": {
@@ -577,7 +581,6 @@
       "type": "COMPONENT_SET",
       "page": "Additional components",
       "nodeId": "13333:115503",
-      "publishedAs": "Messenger Elements / Bubbles",
       "instanceCount": 4,
       "properties": {
         "👁 Time stamp": {
@@ -622,7 +625,7 @@
     "Button": {
       "key": "ebc80753f095633977049c061a28a082816ef9c7",
       "type": "COMPONENT_SET",
-      "page": "📌 Button",
+      "page": "Button",
       "nodeId": "15239:14108",
       "instanceCount": 528,
       "properties": {
@@ -633,7 +636,9 @@
         },
         "icon": {
           "type": "INSTANCE_SWAP",
-          "key": "icon#34740:123"
+          "key": "icon#34740:123",
+          "default": "Arrow-Left Icon · Small",
+          "defaultSize": "Small"
         },
         "👁️ iconRight": {
           "type": "BOOLEAN",
@@ -642,7 +647,9 @@
         },
         "iconRight": {
           "type": "INSTANCE_SWAP",
-          "key": "iconRight#35089:121"
+          "key": "iconRight#35089:121",
+          "default": "Arrow-Right Icon · Small",
+          "defaultSize": "Small"
         },
         "Label": {
           "type": "TEXT",
@@ -840,6 +847,29 @@
         "_Sparkle Icon · Small"
       ]
     },
+    "Carousel": {
+      "key": "68271ee1dde47698f5a4f161dcb464aa7181e5d5",
+      "type": "COMPONENT_SET",
+      "page": "Carousel",
+      "nodeId": "13326:25697",
+      "instanceCount": 10,
+      "properties": {
+        "visibleCount": {
+          "type": "VARIANT",
+          "key": "visibleCount",
+          "options": [
+            "1",
+            "2",
+            "3",
+            "4"
+          ],
+          "default": "1"
+        }
+      },
+      "children": [
+        "_ServiceCard"
+      ]
+    },
     "Checkbox": {
       "key": "12e02268b8300f841113d41deec659d679760b61",
       "type": "COMPONENT_SET",
@@ -960,13 +990,13 @@
         "iconRight": {
           "type": "INSTANCE_SWAP",
           "key": "iconRight#20713:0",
-          "default": "_Close Icon · Tiny",
+          "default": "Close Icon · Tiny",
           "defaultSize": "Tiny"
         },
         "icon": {
           "type": "INSTANCE_SWAP",
           "key": "icon#20713:8",
-          "default": "_Check Icon · Tiny",
+          "default": "Check Icon · Tiny",
           "defaultSize": "Tiny"
         },
         "state": {
@@ -1002,29 +1032,6 @@
       "children": [
         "Icon / Left",
         "Icon / Right"
-      ]
-    },
-    "Coursel": {
-      "key": "68271ee1dde47698f5a4f161dcb464aa7181e5d5",
-      "type": "COMPONENT_SET",
-      "page": "Carousel",
-      "nodeId": "13326:25697",
-      "instanceCount": 10,
-      "properties": {
-        "visibleCount": {
-          "type": "VARIANT",
-          "key": "visibleCount",
-          "options": [
-            "1",
-            "2",
-            "3",
-            "4"
-          ],
-          "default": "1"
-        }
-      },
-      "children": [
-        "_ServiceCard"
       ]
     },
     "Device template / Footer": {
@@ -1156,7 +1163,7 @@
     "Dropdown": {
       "key": "fb605fd2eb1327afb7bbb59c280d491691532bab",
       "type": "COMPONENT_SET",
-      "page": "📌 Dropdown",
+      "page": "Dropdown",
       "nodeId": "11235:8445",
       "instanceCount": 153,
       "properties": {
@@ -1253,15 +1260,100 @@
         }
       }
     },
-    "Headers / Filtering": {
-      "key": "0c40aa2f5ae2995fb16dd60e385b3f84cacf682b",
+    "Google-Plus Icon - Large": {
+      "key": "9a2151f760163b9e3e37f229bcfd5048c88704f3",
+      "type": "COMPONENT",
+      "page": "Icons",
+      "nodeId": "34877:6909"
+    },
+    "Google-Plus Icon - Medium": {
+      "key": "84719ef3a1b484fd2307f2a76ffd29aeb4f5370c",
+      "type": "COMPONENT",
+      "page": "Icons",
+      "nodeId": "34877:6938"
+    },
+    "Google-Plus Icon - Small": {
+      "key": "25addef304165248dc1132bf5667851644f995e2",
+      "type": "COMPONENT",
+      "page": "Icons",
+      "nodeId": "34877:6950"
+    },
+    "Google-Plus Icon - Tiny": {
+      "key": "6f89aa836ed20aec002057ecfb5e5a3a851b64d8",
+      "type": "COMPONENT",
+      "page": "Icons",
+      "nodeId": "34877:6978"
+    },
+    "Headers": {
+      "key": "3cfc372ee1f47596e532602fa7c0e269ed723aa0",
+      "type": "COMPONENT_SET",
+      "page": "Additional components",
+      "nodeId": "35574:60014",
+      "properties": {
+        "👁️ Right": {
+          "type": "BOOLEAN",
+          "key": "👁️ Right#13725:95",
+          "default": true
+        },
+        "👁️ Left": {
+          "type": "BOOLEAN",
+          "key": "👁️ Left#13725:103",
+          "default": true
+        },
+        "Title": {
+          "type": "TEXT",
+          "key": "Title#13725:111",
+          "default": "Title"
+        },
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "Big Title",
+            "Navbar",
+            "Scope",
+            "Search"
+          ],
+          "default": "Navbar"
+        },
+        "Platform": {
+          "type": "VARIANT",
+          "key": "Platform",
+          "options": [
+            "Android",
+            "iOS"
+          ],
+          "default": "iOS"
+        }
+      }
+    },
+    "Headers / Navbar / iOS": {
+      "key": "79bee57b9ed65cab65ae394690cd5006fb02b03f",
       "type": "COMPONENT",
       "page": "Additional components",
-      "nodeId": "13333:125719",
-      "instanceCount": 0,
-      "children": [
-        "_Chip [with dark active state]"
-      ]
+      "nodeId": "35574:59957",
+      "properties": {
+        "👁️ Icon Left": {
+          "type": "BOOLEAN",
+          "key": "👁️ Icon Left#13725:84",
+          "default": true
+        },
+        "👁️ Icon Right": {
+          "type": "BOOLEAN",
+          "key": "👁️ Icon Right#13725:85",
+          "default": true
+        },
+        "Title": {
+          "type": "TEXT",
+          "key": "Title#13725:86",
+          "default": "Title"
+        },
+        "👁️ Divider": {
+          "type": "BOOLEAN",
+          "key": "👁️ Divider#13725:93",
+          "default": false
+        }
+      }
     },
     "Headers / Tab": {
       "key": "0346ecfd1edf4cd2ded732657ce4b4f32305fddd",
@@ -1332,7 +1424,9 @@
         },
         "Icon": {
           "type": "INSTANCE_SWAP",
-          "key": "Icon#21132:0"
+          "key": "Icon#21132:0",
+          "default": "Plus Icon · Large",
+          "defaultSize": "Large"
         },
         "theme": {
           "type": "VARIANT",
@@ -1601,13 +1695,13 @@
         "iconLeft": {
           "type": "INSTANCE_SWAP",
           "key": "iconLeft#13534:17",
-          "default": "_Arrow-Left Icon · Tiny",
+          "default": "Arrow-Left Icon · Tiny",
           "defaultSize": "Tiny"
         },
         "iconRight": {
           "type": "INSTANCE_SWAP",
           "key": "iconRight#13534:21",
-          "default": "_Arrow-Right Icon · Tiny",
+          "default": "Arrow-Right Icon · Tiny",
           "defaultSize": "Tiny"
         },
         "theme": {
@@ -1619,7 +1713,7 @@
             "inverse",
             "alert",
             "longtext",
-            "theme6"
+            "disabled"
           ],
           "default": "primary (default)"
         },
@@ -1647,6 +1741,12 @@
         "_Arrow-Right Icon · Tiny"
       ]
     },
+    "Link Section": {
+      "key": "21db9953a55c63fc3bbeaf5354350befd6a30338",
+      "type": "COMPONENT",
+      "page": "💠 Local components",
+      "nodeId": "35184:30059"
+    },
     "Loader Dots": {
       "key": "28ccade893aa5ce0521c0aab68681a529a79a77f",
       "type": "COMPONENT_SET",
@@ -1672,6 +1772,37 @@
             "muted"
           ],
           "default": "brand"
+        }
+      }
+    },
+    "Messager / Media modal": {
+      "key": "99ccc1ff94409ce8de706af3dd67994a142c18e8",
+      "type": "COMPONENT",
+      "page": "Additional components",
+      "nodeId": "20501:48138",
+      "properties": {
+        "isProUser": {
+          "type": "BOOLEAN",
+          "key": "isProUser#20602:0",
+          "default": true
+        }
+      }
+    },
+    "Messager Elements / Composer / Image": {
+      "key": "8f949c6b838afda6fb34d3e259e7d9dd9348851b",
+      "type": "COMPONENT",
+      "page": "Additional components",
+      "nodeId": "20602:10238",
+      "properties": {
+        "showClose": {
+          "type": "BOOLEAN",
+          "key": "showClose#20602:3",
+          "default": true
+        },
+        "isVideo": {
+          "type": "BOOLEAN",
+          "key": "isVideo#31658:16",
+          "default": false
         }
       }
     },
@@ -1924,7 +2055,8 @@
       "properties": {
         "Artwork": {
           "type": "INSTANCE_SWAP",
-          "key": "Artwork#3662:1"
+          "key": "Artwork#3662:1",
+          "default": "Conversation"
         },
         "Size": {
           "type": "VARIANT",
@@ -1950,7 +2082,13 @@
       "properties": {
         "children": {
           "type": "SLOT",
-          "key": "children#26172:0"
+          "key": "children#26172:0",
+          "default": {
+            "guid": {
+              "sessionID": -1,
+              "localID": -1
+            }
+          }
         }
       }
     },
@@ -2028,11 +2166,23 @@
         },
         "childern": {
           "type": "SLOT",
-          "key": "childern#26172:1"
+          "key": "childern#26172:1",
+          "default": {
+            "guid": {
+              "sessionID": -1,
+              "localID": -1
+            }
+          }
         },
         "artwork": {
           "type": "SLOT",
-          "key": "artwork#26172:4"
+          "key": "artwork#26172:4",
+          "default": {
+            "guid": {
+              "sessionID": -1,
+              "localID": -1
+            }
+          }
         },
         "Breakpoint": {
           "type": "VARIANT",
@@ -2060,27 +2210,6 @@
       "page": "Modal",
       "nodeId": "13256:41078",
       "instanceCount": 2
-    },
-    "MultiModalControls": {
-      "key": "a6ea2b58235fa5f42cd2fd675c375f9e4d94dd3d",
-      "type": "COMPONENT_SET",
-      "page": "Additional components",
-      "nodeId": "15280:97570",
-      "instanceCount": 0,
-      "properties": {
-        "State": {
-          "type": "VARIANT",
-          "key": "State",
-          "options": [
-            "Default",
-            "Recording"
-          ],
-          "default": "Default"
-        }
-      },
-      "children": [
-        "Button"
-      ]
     },
     "Native / Alphabetic Keyboard": {
       "key": "3d9055e82a656fe808cb418d926a0afcec71e1f5",
@@ -2749,7 +2878,7 @@
         "icon": {
           "type": "INSTANCE_SWAP",
           "key": "icon#33865:25",
-          "default": "_Video Icon · Tiny",
+          "default": "Video Icon · Tiny",
           "defaultSize": "Tiny"
         },
         "Label": {
@@ -2778,6 +2907,25 @@
         "Icon",
         "IconRight"
       ]
+    },
+    "Platform availability": {
+      "key": "647d51abef12dc8e4afd1da7ce58d258a7b334b9",
+      "type": "COMPONENT",
+      "page": "💠 Local components",
+      "nodeId": "34627:8902"
+    },
+    "Platform Section": {
+      "key": "17673a78249d41fbe61665290da899d7855232c6",
+      "type": "COMPONENT",
+      "page": "💠 Local components",
+      "nodeId": "35184:30157",
+      "properties": {
+        "Notes": {
+          "type": "BOOLEAN",
+          "key": "Notes#35184:242",
+          "default": false
+        }
+      }
     },
     "Popovers": {
       "key": "14cb5072dcc07ea9dbaf137060572146d03b4fda",
@@ -3490,7 +3638,7 @@
     "Text Area": {
       "key": "42f39fd842e0ad4566870f9387dc86a93259adde",
       "type": "COMPONENT_SET",
-      "page": "📌 Text Area",
+      "page": "Text Area",
       "nodeId": "13268:34178",
       "instanceCount": 46,
       "properties": {
@@ -3591,7 +3739,7 @@
     "TextInput": {
       "key": "522dbc457c6160fe2d2673326448ee3c16245519",
       "type": "COMPONENT_SET",
-      "page": "📌 Text Input",
+      "page": "Text Input",
       "nodeId": "13232:23754",
       "instanceCount": 115,
       "properties": {
@@ -3612,12 +3760,14 @@
         },
         "TextInputIcon / Large": {
           "type": "INSTANCE_SWAP",
-          "key": "TextInputIcon / Large#13232:15"
+          "key": "TextInputIcon / Large#13232:15",
+          "default": "Search Icon · Medium",
+          "defaultSize": "Medium"
         },
         "TextInputIcon / Small": {
           "type": "INSTANCE_SWAP",
           "key": "TextInputIcon / Small#13232:20",
-          "default": "_Search Icon · Small",
+          "default": "Search Icon · Small",
           "defaultSize": "Small"
         },
         "👁️ Label": {
@@ -3632,7 +3782,9 @@
         },
         "TextInputClearButton": {
           "type": "INSTANCE_SWAP",
-          "key": "TextInputClearButton#13326:233"
+          "key": "TextInputClearButton#13326:233",
+          "default": "Close Icon · Small",
+          "defaultSize": "Small"
         },
         "size": {
           "type": "VARIANT",
@@ -3835,16 +3987,22 @@
       ]
     },
     "view": {
-      "key": "79d6fbe93995d68979d64c046502e3717b0e95c3",
+      "key": "872028cf3cf9807db992c1402fa69c9d9c269188",
       "type": "COMPONENT",
-      "page": "Playground",
-      "nodeId": "25247:3665",
-      "instanceCount": 0,
-      "children": [
-        "header",
-        "_section",
-        "footer"
-      ]
+      "page": "Guidelines",
+      "nodeId": "25246:2695",
+      "properties": {
+        "main": {
+          "type": "SLOT",
+          "key": "main#25254:10",
+          "default": {
+            "guid": {
+              "sessionID": -1,
+              "localID": -1
+            }
+          }
+        }
+      }
     },
     "Web Browers ": {
       "key": "5f54748d344aa1d937542e650098daf23ae18771",
