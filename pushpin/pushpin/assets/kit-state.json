@@ -777,15 +777,15 @@
     }
   },
   "findings": [
-    "The Pushpin Thumbprint UI Kit capture has not been taken in 31 days. Nothing is known to have changed — only that it has been long enough that nobody has checked, so re-capture it before trusting a value out of it.",
+    "The Pushpin Thumbprint UI Kit capture has not been taken in 32 days. Nothing is known to have changed — only that it has been long enough that nobody has checked, so re-capture it before trusting a value out of it.",
     "6 components in the catalog are no longer published. Importing by key throws at runtime:\n    _Bubble / Text\n    _Stamps\n    Accordion / Item\n    Headers / Filtering\n    MultiModalControls\n    view",
     "91 components in the kit changed after the capture (2026-08-27), most recently on 2026-09-04. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Chip\n   Stripe payment / Card Element Only\n   TextInput\n   Input Row\n   Themed Link\n   Modal / Confirmation\n   Button\n   Modal / Default\n   Button Row\n   Device template / Web\n   iOS / Sheet\n   Device template / Native\n   …and 79 more",
     "28 components in the icon set changed after the capture (2026-09-02), most recently on 2026-09-04. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Pinterest Icon · Medium\n   Facebook Icon · Large\n   Instagram Icon · Tiny\n   Mute Icon · Small\n   Webhooks Icon · Small\n   Pinterest Icon · Small\n   Facebook Icon · Tiny\n   Webhooks Icon · Large\n   Messenger Icon · Medium\n   Mute-Filled Icon · Tiny\n   Webhooks Icon · Medium\n   Mute Icon · Large\n   …and 16 more"
   ],
   "brief": [
-    "Pushpin's copy of the Pushpin kit is 31 days old and may be behind; the next plugin update will carry a fresh one.",
+    "Pushpin's copy of the Pushpin kit is 32 days old and may be behind; the next plugin update will carry a fresh one.",
     "The Pushpin team has changed some components since this version of Pushpin; the next plugin update will carry those.",
     "The Pushpin team has changed some icons since this version of Pushpin; the next plugin update will carry those."
   ],
-  "observedAt": "2026-09-06"
+  "observedAt": "2026-09-07"
 }
