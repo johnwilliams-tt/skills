@@ -13,7 +13,7 @@
  *
  *   capture age    always, no token, no network — how old the captures are
  *   project pin    if cwd has pushpin.config.json — is this project behind
- *   components     FIGMA_TOKEN, any plan       — do our 115 import keys still exist
+ *   components     FIGMA_TOKEN, any plan       — do our component import keys still exist
  *   styles         FIGMA_TOKEN, any plan       — do our text and effect style keys
  *   variables      FIGMA_TOKEN, Enterprise     — has the kit published since
  *   annotations    FIGMA_TOKEN, any plan       — do our 91 Annotation Kit keys still exist

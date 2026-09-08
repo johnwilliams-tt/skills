@@ -763,7 +763,7 @@ run reported `library: 21` on a frame where 12 of the 21 came from the older
 library: the check confirmed the instance resolved and never asked to what.
 
 The keys are where the two differ, and the keys Pushpin publishes are already
-here — 115 components in `assets/components.figma.json`, 899 icon keys in
+here — 124 components in `assets/components.figma.json`, 899 icon keys in
 `icons.figma.json`, 91 Annotation Kit entries in `annotations.figma.json`. Those
 are files, so this bucket splits the way copy does and for the reason argued
 below: pasting a thousand keys into the script is the restatement

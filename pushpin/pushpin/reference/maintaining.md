@@ -189,7 +189,7 @@ the tokens, or when `freshness` exits non-zero.
    belongs in `CORE_COMPONENTS`.** That list in
    [`../scripts/impeccable-bridge.mjs`](../scripts/impeccable-bridge.mjs) is what
    `DESIGN.md` describes to every project, and it is curated rather than derived
-   — the kit publishes 115 entries and most are device mocks, brand marks, and
+   — the kit publishes 124 entries and most are device mocks, brand marks, and
    page furniture nobody hand-rolls. Nothing connects the diff's report to the
    list, so a newly published component that a project *would* hand-roll never
    reaches `DESIGN.md` on its own. The judgement stays here with a person; the

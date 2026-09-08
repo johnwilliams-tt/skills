@@ -1,7 +1,7 @@
 # Proposing a component
 
 Load this only once the gate below has actually opened. Most generation runs
-never reach it: the kit publishes 115 components, and the correct answer to
+never reach it: the kit publishes 124 components, and the correct answer to
 "nothing quite fits" is usually that something does.
 
 **Never draw a component.** The exception this page describes is a way to

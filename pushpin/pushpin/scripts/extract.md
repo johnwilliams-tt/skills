@@ -612,31 +612,29 @@ and it needs `use_figma` because the geometry only exists on the nodes.
 
 **One call per page, issued in parallel** — same constraint as §7: `use_figma`
 allows one `setCurrentPageAsync` per call and a page's children are not loaded
-until it is current. 44 pages hold public components, so send them in batches in
+until it is current. 46 pages hold public components, so send them in batches in
 one message each and merge, per [parallel.md](../reference/parallel.md).
 
 **Enumerate the pages; do not derive them from component names.** Page names
-carry emoji prefixes — the Button page is `📌 Button`, and `❌`, `🚧`, `🎨` and
-`✋` also appear — and the kit has 91 pages, most of them decorative separators.
-A lookup by bare name finds nothing. Read `figma.root.children` for the current
-list and match on the suffix. The 44 as of the last capture, with the component
-counts the old name rule produced — the gate below drops four of them, and
-`Guidelines` has since published one, so re-derive the counts rather than
-trusting this column:
+can carry emoji prefixes — `❌`, `🚧`, `✋` and `💠` appear, and the core pages
+carried `📌` until the 2026-09 republish dropped it — and the kit has 80-odd
+pages, most of them decorative separators. A lookup by bare name is brittle.
+Read `figma.root.children` for the current list and match on the suffix, or
+derive the list from `components.figma.json`'s `page` field, which is how the
+table below was produced. The 46 as of the 2026-09-04 capture, with the
+component count the catalog holds for each — re-derive rather than trusting
+this column:
 
 | Page | Node id | Components |
 |---|---|---|
-| `📌 Button` | `11231:729` | 1 |
-| `📌 Dropdown` | `11231:720` | 1 |
-| `📌 Text Area` | `13232:23917` | 1 |
-| `📌 Text Input` | `11231:727` | 1 |
-| Accordion | `15247:1915` | 2 |
+| Accordion | `15247:1915` | 1 |
 | Action Sheet | `13232:23947` | 1 |
 | Additional components | `11403:48135` | 44 |
 | Alert | `11231:184` | 1 |
 | Avatar | `11231:717` | 2 |
 | Badge | `19165:17169` | 1 |
 | Brand Assets | `3:455` | 6 |
+| Button | `11231:729` | 1 |
 | Button Row | `11231:730` | 2 |
 | Calendar | `11231:731` | 1 |
 | Callout | `15271:94064` | 1 |
@@ -645,10 +643,13 @@ trusting this column:
 | Chip | `11231:718` | 1 |
 | Counter | `19165:17203` | 1 |
 | Disclosure | `19165:17202` | 1 |
+| Dropdown | `11231:720` | 1 |
 | Fab | `11231:724` | 2 |
 | Form Note | `11231:721` | 1 |
+| Guidelines | `21452:23906` | 1 |
 | Horizontal Rule | `11231:725` | 1 |
 | Icon Button | `13232:26394` | 1 |
+| Icons | `2:1` | 4 |
 | Image | `11231:722` | 1 |
 | Input Row | `11231:734` | 1 |
 | Label | `13232:26395` | 1 |
@@ -657,7 +658,6 @@ trusting this column:
 | Loader Dots | `13232:26396` | 1 |
 | Modal | `11231:736` | 11 |
 | Pill | `11231:723` | 1 |
-| Playground | `8080:11511` | 1 |
 | Popover | `11231:738` | 1 |
 | Progress Meter | `18463:12004` | 1 |
 | Radio | `13232:25231` | 2 |
@@ -667,11 +667,20 @@ trusting this column:
 | Star Rating | `11231:726` | 2 |
 | Switch | `13232:26401` | 1 |
 | Tabs | `18544:18218` | 1 |
+| Text Area | `13232:23917` | 1 |
+| Text Input | `11231:727` | 1 |
 | Tip | `21085:202582` | 1 |
 | Toast | `11231:728` | 1 |
 | Tooltip | `11231:737` | 1 |
+| `💠 Local components` | `11231:518` | 4 |
 
-`Additional components` holds 42 of the 115 on its own, so split it across
+`Playground` published `view` until 2026-09; it now lives on `Guidelines`.
+`Icons` publishes 900-odd icon components, which `icons.figma.json` covers; the
+catalog holds only its four Google-Plus entries. Read that page with `ONLY` set
+to those four names — a whole-page read passes the gate for all 904 and
+truncates — and expect the lane to be marked partial.
+
+`Additional components` holds 44 of the 124 on its own, so split it across
 several calls with an `ONLY` list rather than asking for it whole — the response
 truncates well before it finishes.
 
