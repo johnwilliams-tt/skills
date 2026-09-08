@@ -1,7 +1,7 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.22.1
+version: 0.23.0
 argument-hint: "[generate|audit|figma · setup|init|update|freshness · refresh] [target]"
 allowed-tools:
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/check.mjs *)
@@ -32,9 +32,11 @@ This governs every Pushpin housekeeping task — the session check, `setup`,
 message in it, not only the last one.
 
 - **The whole reply is at most two short sentences saying what happened, in
-  plain words, or one plain yes/no question through the harness's question
-  tool** (`AskQuestion` on Cursor, `AskUserQuestion` on Claude Code). The
-  sentences are the templates in
+  plain words, or one question through the harness's question tool**
+  (`AskQuestion` on Cursor, `AskUserQuestion` on Claude Code) — a plain yes/no
+  for housekeeping, or for `setup` the interview
+  [reference/setup.md § The handoff interview](reference/setup.md#the-handoff-interview)
+  specifies, in one call. The sentences are the templates in
   [reference/start.md § What the user hears](reference/start.md#what-the-user-hears);
   pick the row, fill the brackets, stop.
 - **Nothing is said while working.** No "Let me…", "Running…", "Checking…",
@@ -232,15 +234,19 @@ covers the same ground from plain speech. Load one doc, not the table.
 
 ## Using it in a project
 
-Link the generated stylesheet, then build with the custom properties:
+Link the generated stylesheet and the theme script beside it, then build with
+the custom properties:
 
 ```html
 <link rel="stylesheet" href="pushpin.css">
+<script src="theme-toggle.js" data-pp-default="light" data-pp-modes="both"></script>
 ```
 
 `assets/pushpin.css` defines 300 custom properties across colors (light and
 dark), spacing, radius, the type ramp, elevation, motion, and breakpoints, plus
-`.pp-*` type utilities. No dependencies and no build step.
+`.pp-*` type utilities. No dependencies and no build step. The script pins
+`data-pp-theme` on `<html>` to the project's recorded color mode before first
+paint, and renders a floating toggle only when that mode is `both`.
 
 **A project that has been set up serves itself.** `init` records a preview port,
 and the edit hook restarts the server whenever an edit finds it stopped —

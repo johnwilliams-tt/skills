@@ -9,7 +9,9 @@ scratch is how a two-day prototype acquires a framework, a build step, and a
 deploy target nobody wanted.
 
 The answers live here, on Pushpin's side, rather than as a patch to that skill's
-own reference. An update to it cannot undo what it never held.
+own reference. An update to it cannot undo what it never held. Which of them are
+pre-answered turns on one recorded fact, `fidelity` in `pushpin.config.json`,
+and [§ Handoff or ships](#handoff-or-ships) says how.
 
 ## Installing it
 
@@ -23,6 +25,9 @@ On a project with no framework or scaffold yet, which is most of them here, init
 asks this one in as many words: whether the user wants plain static HTML/CSS, a
 specific framework, or a recommendation, plus any deploy target that constrains
 the answer. It records the outcome under `## Stack`.
+
+This section is the `handoff` answer. On `fidelity: ships` the question is
+impeccable's to ask; § Handoff or ships has the split.
 
 **Answer it before it is asked, with `static HTML/CSS`.** `assets/pushpin.css`
 is 300 custom properties with no dependencies and no build step, Pushpin's
@@ -38,27 +43,78 @@ halfway through a flow.
 
 ## The platform is `web`
 
-Recorded as a bare value under `## Platform`, and it is `web` unless the user
-says otherwise. Mobile web is still `web`: a phone-shaped frame is a breakpoint,
-not a platform. `ios`, `android`, and `adaptive` each load a native reference
-that changes what every later command builds against, so that is a thing to be
-wrong about deliberately rather than by inference from a narrow layout.
+Recorded as a bare value under `## Platform`, and it is `web` on every Pushpin
+project, whatever form factor setup recorded. Mobile web is still `web`: a
+phone-shaped frame is a breakpoint, not a platform.
 
-## Not a production surface
+**The words collide.** Setup records `formFactor: native` in
+`pushpin.config.json` when the design is built at phone width. That `native`
+is Pushpin's: it names the `Tokens / Font` variable mode Figma calls `native`,
+the 390-wide frame, and the type ramp that goes with it. Impeccable's `native`
+means an iOS or Android app. The two share a word and nothing else, and
+`formFactor: native` is never recorded as `ios`, `android`, or `adaptive` under
+`## Platform` — the Pushpin key and the impeccable key are different facts, and
+the one does not inform the other.
 
-That phrase is not a string anywhere in impeccable. It is a framing the agent
-invents at interview time, which is why what is written here is a ban on the
-framing rather than an edit to a list of options.
+Why the collision matters: each of those three values loads a HIG or Material
+reference into every later impeccable command. Audit, polish, adapt, and
+animate route to their native variants, the browser tooling and the detector
+switch off, and the build is judged as a native app against a platform it does
+not run on. That pulls the design off Pushpin, whose tokens and components are
+web. Getting `## Platform` wrong is a thing to do deliberately, when the user
+says the product is a native app — never by inference from a narrow layout, and
+never from Pushpin's own word for one.
 
-It is wrong in both directions at once. Designers working through Pushpin are
-not shipping the final code, so calling the artifact production sets a bar it was
-never built to clear and invites a stack chosen to clear it. It is not a sketch
-either — it becomes a Figma frame an engineer builds from, and that is the whole
-reason the token discipline is not negotiable in a file nobody will ever deploy.
+## Handoff or ships
+
+Setup's interview records `fidelity` in `pushpin.config.json`: `handoff` or
+`ships`. `handoff` is the default, and an absent key — a project set up before
+the key existed — means the same thing.
+
+**`handoff`.** The code ends at a Figma frame. Everything above holds as
+written: `## Stack` is pre-answered `static HTML/CSS`, `## Platform` is `web`,
+and the stack question is not asked. Live-mode config is not set up — skip
+init's live step and leave `.impeccable/live/config.json` unwritten. `harden`
+and `optimize` are out of scope unless the user asks for one by name; they
+harden and optimize a thing that ships, and this does not.
+
+**`ships`.** The code is the product. Impeccable asks its own stack and
+deploy-target question, and the literal answer is recorded under `## Stack` — a
+framework, a target, `static HTML/CSS` if that is what they said, never
+`delegated`. `## Platform` still stays `web`; shipping does not change what the
+thing runs in. Every Pushpin rule still binds: the tokens, the component
+catalog, the copy rules, the edit check. Live mode, `harden`, and `optimize`
+are on the table.
+
+Rigour does not drop on a handoff prototype, and "not a production surface" is
+not how to describe one. That phrase is not a string anywhere in impeccable; it
+is a framing the agent invents at interview time, and it is wrong in both
+directions at once. Calling the artifact production sets a bar it was never
+built to clear and invites a stack chosen to clear it. Calling it a sketch
+forgets that it becomes a Figma frame an engineer builds from, and that is the
+whole reason the token discipline is not negotiable in a file nobody will ever
+deploy.
 
 **Say what it is: a design prototype bound for a Figma frame that is ready for
 engineering handoff.** Every question about scope, rigour, and what "done" means
 answers itself from that sentence.
+
+## The form factor is a fact for `## Operating Context`
+
+The recorded `formFactor` is a confirmed answer, not an inference from the
+repository, so it belongs under `## Operating Context` in `PRODUCT.md` as one
+sentence: "Customers use this on a phone" for `native`, "Customers use this at
+a desk" for `desktop`, both for `both`. It is not a `## Platform` value, and it
+is not a reason to reopen the platform question.
+
+Impeccable's build inspects "desktop and mobile together" in one batched
+screenshot round, and its finish reviewer expects a `desktop.png` and a
+`mobile.png`. On a Pushpin project that round covers the recorded form factor
+only: `native` is 390 alone, `desktop` is 1440 alone, `both` is both. A width
+nobody designed for is not a viewport to inspect, and a phone capture of a
+desktop-only flow produces findings against a layout that does not exist. The
+user's actual viewport, when the harness reports one, still joins the set as
+impeccable already says.
 
 ## The three product-truth questions are still asked
 
@@ -79,8 +135,8 @@ above made the interview look shorter than it is.
 Init closes by summarizing what it captured and recommending a next action.
 Neither gets relayed. The summary reads product truth back at the person who
 supplied it two turns ago, and the recommendation is not the step setup is on —
-the next step is the handoff interview in [setup.md](setup.md). Carry on from
-there.
+the next step is the route the handoff interview already chose, in
+[setup.md](setup.md) § The handoff interview. Carry on from there.
 
 One suggestion is refused outright rather than declined politely. `/impeccable
 document` never runs on a Pushpin project, however it is arrived at — as a

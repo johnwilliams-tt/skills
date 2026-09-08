@@ -263,8 +263,55 @@ export function mask(src) {
     .replace(/url\([^)]*\)/g, (m) => ' '.repeat(m.length));
 }
 
-/** The same, plus HTML comments, for a walk that should not read a commented tag. */
+/**
+ * The marker on an element that is tooling rather than design: the theme
+ * toggle `pushpin init` copies in, or anything else standing in the page for
+ * the person working on it. Its words are not the prototype's copy, its styling
+ * is not the prototype's design, and a Figma push does not carry it.
+ */
+export const DEVTOOL_ATTR = 'data-pp-devtool';
+const DEVTOOL = new RegExp(`(?:^|[\\s{])${DEVTOOL_ATTR}(?=[\\s=/]|$)`);
+
+/**
+ * Every subtree rooted at a `data-pp-devtool` element blanked, positions kept.
+ *
+ * Blanked rather than skipped in the walk, so the same source serves every
+ * check: a hex in the toggle's inline style, a tag it rendered, and a string it
+ * shows all disappear together, and nothing reports on a region that is not
+ * the design. Nesting is matched by tag name, the same loose pairing `strings`
+ * relies on; an unclosed root takes the rest of the file with it, which errs on
+ * the side of silence about a region this did not parse.
+ */
+export function maskDevtool(src) {
+  const spans = [];
+  let root = null;
+  let from = 0;
+  let depth = 0;
+  for (const m of src.matchAll(MARKUP)) {
+    const [whole, closing, tag, attrs = ''] = m;
+    const leaf = /\/\s*$/.test(attrs) || VOID.has(tag.toLowerCase());
+    if (root === null) {
+      if (closing || !DEVTOOL.test(attrs)) continue;
+      if (leaf) spans.push([m.index, m.index + whole.length]);
+      else [root, from, depth] = [tag, m.index, 0];
+    } else if (tag === root) {
+      if (!closing && !leaf) depth++;
+      else if (closing && depth > 0) depth--;
+      else if (closing) {
+        spans.push([from, m.index + whole.length]);
+        root = null;
+      }
+    }
+  }
+  if (root !== null) spans.push([from, src.length]);
+  return spans.reduce(
+    (out, [a, b]) => out.slice(0, a) + out.slice(a, b).replace(/[^\n]/g, ' ') + out.slice(b),
+    src,
+  );
+}
+
+/** The same, plus HTML comments and devtool subtrees, for a walk over markup. */
 export const maskMarkup = (src) =>
-  mask(src).replace(/<!--[\s\S]*?-->/g, (m) => m.replace(/[^\n]/g, ' '));
+  maskDevtool(mask(src).replace(/<!--[\s\S]*?-->/g, (m) => m.replace(/[^\n]/g, ' ')));
 
 export const lineOf = (src, index) => src.slice(0, index).split('\n').length;

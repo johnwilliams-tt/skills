@@ -83,6 +83,24 @@ All 109 semantic colors define both modes. `pushpin.css` emits dark twice: under
 `prefers-color-scheme` for projects that follow the OS. Setting
 `data-pp-theme="light"` opts out of the OS query.
 
+A project set up by `init` has that attribute set before first paint by the
+script `init` copies beside the stylesheet, linked right after it and from the
+same path — `styles/theme-toggle.js` for a stylesheet at `styles/pushpin.css`;
+the project's `AGENTS.md` note carries the exact tag:
+
+```html
+<script src="theme-toggle.js" data-pp-default="light" data-pp-modes="both"></script>
+```
+
+It writes `data-pp-theme` on `<html>` so a dark-OS machine previews the mode
+the project chose rather than the OS's. `data-pp-modes` is the recorded
+`colorMode`: `both` reads the last choice from `localStorage`, falls back to
+`data-pp-default`, and renders a floating pill that flips the attribute and
+persists the choice; `light` or `dark` pins the attribute to that mode,
+outranking anything stored, and renders nothing. Its root carries
+`data-pp-devtool`, which is what keeps it out of the edit check, the copy
+report, and the Figma push.
+
 Dark is not a mechanical inversion. `background/brand/strong` moves from
 `blue-950` to `blue-400`, so the primary button becomes a *bright* blue on dark
 rather than staying navy. Anything hardcoded to `#07344a` breaks here — which is

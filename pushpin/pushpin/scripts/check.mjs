@@ -43,6 +43,7 @@ import {
   attrValue,
   lineOf,
   mask,
+  maskDevtool,
   maskMarkup,
   strings,
 } from './lib/copy-strings.mjs';
@@ -205,14 +206,20 @@ const isCritical = (f) => f.severity === 'critical';
 /** Criticals are the only tier named, and named where the message is read. */
 const say = (f) => (isCritical(f) ? `critical: ${f.message}` : f.message);
 
-/** The generated stylesheet is the token definitions; every hex in it is the point. */
+/**
+ * The generated stylesheet is the token definitions; every hex in it is the
+ * point. The theme toggle init copies beside it is tooling, not the prototype,
+ * and is named the same way.
+ */
 const isGenerated = (file, src) =>
-  basename(file) === 'pushpin.css' || src.startsWith('/*\n * Pushpin Design System');
+  basename(file) === 'pushpin.css' ||
+  basename(file) === 'theme-toggle.js' ||
+  src.startsWith('/*\n * Pushpin Design System');
 
 const CONTROL = /\b(button|btn|input|textarea|select|chip|pill|tag|search|combobox|switch|toggle)\b/i;
 
 function checkTokens(file, src) {
-  const s = mask(src);
+  const s = maskDevtool(mask(src));
 
   // Raw colour. A hex is flagged whether or not it matches a ramp: matching one
   // means the token exists and was bypassed, which is the more interesting bug.
@@ -306,7 +313,7 @@ const nearest = (name) => {
 const TAGS = /<([a-zA-Z][\w.-]*)((?:\s+[^<>]*?)?)\/?>/g;
 
 function checkIdentity(file, src) {
-  const s = mask(src);
+  const s = maskDevtool(mask(src));
 
   for (const m of s.matchAll(TAGS)) {
     const [whole, tag, attrs = ''] = m;

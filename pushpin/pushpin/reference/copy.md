@@ -130,6 +130,12 @@ reaches back inside one:
 `app`, `thumbtack`, `pushpin` and `ours` name the app layer. Any other value —
 `pro`, `customer` — names somebody whose words are their own.
 
+A subtree rooted at `data-pp-devtool` — the theme toggle `init` links beside the
+stylesheet — is blanked before the walk, so its strings never become rows, never
+count against the score, and never reach `--apply`; unlike a pro marker, nothing
+is counted for it, because tooling for the person working on the page has no
+copy to exempt.
+
 For a string a script assigns, where there is no tag to carry an attribute, the
 marker is a comment covering its own line and the next:
 

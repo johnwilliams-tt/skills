@@ -38,7 +38,7 @@ not what a file is called.
 
 | The line | Ask | On yes |
 |---|---|---|
-| `…re-running init with --write --force is the first thing I'd do`, where the sentence says the files were *written by* an older version, are *an older build*, or were *pinned to an older kit* | This project's Pushpin files were made with an older version of Pushpin. Bringing them up to date replaces only the files Pushpin generated, nothing you wrote — go ahead? | `init.mjs <root> --write --force --no-share`, replaying what `pushpin.config.json` records — `--css-path` from `css`, `--no-hook` for `checkHook: false`, `--no-preview` for `preview: false`, `--preview-port` where the preview autostarts. Then the outcome row. |
+| `…re-running init with --write --force is the first thing I'd do`, where the sentence says the files were *written by* an older version, are *an older build*, or were *pinned to an older kit* | This project's Pushpin files were made with an older version of Pushpin. Bringing them up to date replaces only the files Pushpin generated, nothing you wrote — go ahead? | `init.mjs <root> --write --force --no-share`, replaying what `pushpin.config.json` records — `--css-path` from `css`, `--no-hook` for `checkHook: false`, `--no-preview` for `preview: false`, `--preview-port` where the preview autostarts, and `--fidelity`, `--form-factor`, `--color-mode` from `fidelity`, `formFactor`, `colorMode` where each is recorded. Then the outcome row. |
 | The same line, where the sentence says a file was *edited*, *replaced*, or is *gone* | [Your Pushpin stylesheet / Your project's design brief] has been changed since Pushpin wrote it, so Pushpin's checks no longer match the design system. Restoring it replaces those changes — go ahead, or should I copy the changed file aside first? | Copy aside: `setup.mjs <root> --backup`, then init as above. Go ahead: init as above. Then the outcome row. |
 | `…pushpin.config.json could not be parsed …` | This project's Pushpin settings can't be read. Rewriting them touches nothing you wrote — go ahead? | init as above. Then the outcome row. |
 | `fix: … update.mjs` ran and its report listed anything under Mechanical or Judgement | Pushpin's components have changed since this project was last updated, and [N] values in [M] of your files need to follow. Update them? | `update.mjs --write`, on the same paths as the report; then one question per numbered row — [update.md](update.md#the-questionnaire) — and `--resolve` once with every answer, yourself. Then the outcome row. |
@@ -139,7 +139,7 @@ one a line on what to do and a line on why it is worth doing now.
 | What is present | Lead with |
 |---|---|
 | A Figma link in the conversation | `generate` if the link is where new work should land; `audit` if the frame already exists and the question is whether it is on-system; `figma` if the design is settled and the goal is reading it out into code |
-| A code project with no `pushpin.config.json` | `setup` on its own — the surface it leads to is what setup's own closing question settles |
+| A code project with no `pushpin.config.json` | `setup` on its own — the surface it leads to is what setup's own interview settles, before it writes anything |
 | The plugin's own source tree — `assets/` and the skill itself are in it | never `setup` or `init`, since the plugin is not a project that consumes itself; `refresh` if the capture is aging, otherwise ask what to design |
 | A code project already set up | `audit` over the files being worked on, or answer the token question directly |
 | Words rather than code — text pasted in, a draft file, or a copy deck | `audit`, pointed at it; it reports and changes nothing |
@@ -175,7 +175,9 @@ These are the same three surfaces as
 answer from the tokens — worded the same way, so a user who lands here and a
 user who lands there are answering one question rather than two.
 [setup.md](setup.md#the-handoff-interview) § The handoff interview asks it a
-third time by another name, at the end of setup, and it asks last.
+third time by another name — start point and surface — in the one call setup
+makes after it has read the project and before it writes anything, beside the
+questions only setup owns.
 
 **So a pick of `setup` names setup and stops there.** Setup opens on the version
 and its own questions, which makes a surface named alongside that pick a surface

@@ -73,6 +73,40 @@ export function cssPathArgs(config, defaultRel) {
   return ['--css-path', rel];
 }
 
+/**
+ * The setup interview's answers: the init flag each arrives on, the config key
+ * it is recorded under, and the values it may take.
+ *
+ * One table because three scripts have to agree about it: `init.mjs` validates
+ * and writes from it, `choiceArgs` replays from it, and `setup.mjs --verify`
+ * names what is missing from it. A key absent from a config means the project
+ * was set up before the question was asked, which every reader treats as the
+ * pre-interview behaviour rather than as a fault.
+ */
+export const CHOICES = [
+  { flag: '--fidelity', key: 'fidelity', values: ['handoff', 'ships'] },
+  { flag: '--form-factor', key: 'formFactor', values: ['native', 'desktop', 'both'] },
+  { flag: '--color-mode', key: 'colorMode', values: ['light', 'dark', 'both'] },
+];
+
+/**
+ * The interview flags a re-run of init has to carry for this project.
+ *
+ * init writes no key for a flag it was not given, so a replay that dropped these
+ * would turn a project that chose dark into one that never answered — and the
+ * preview, the Figma push and impeccable would all quietly fall back to the
+ * defaults. Only the keys actually recorded are emitted, so a project set up
+ * before the interview replays exactly as it was.
+ *
+ * @param {object|null} config parsed `pushpin.config.json`
+ * @returns {string[]} argv fragment, empty when nothing was recorded
+ */
+export function choiceArgs(config) {
+  return CHOICES.flatMap(({ flag, key }) =>
+    typeof config?.[key] === 'string' ? [flag, config[key]] : [],
+  );
+}
+
 /** What each recorded catalog date is called in a finding. */
 const CATALOG_LABEL = {
   componentsCapturedAt: 'component catalog',

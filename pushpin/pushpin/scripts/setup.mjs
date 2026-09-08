@@ -64,7 +64,7 @@ import { inspectHooks } from './lib/hooks.mjs';
 import { ALLOWED_SCRIPTS, missingAllowRules, SETTINGS_REL } from './lib/permissions.mjs';
 import { DEFAULT_PORT, previewUrl, probe, readPreview, servesRoot } from './lib/preview.mjs';
 import { describeStack, detectStack } from './lib/project.mjs';
-import { cssPathArgs, inspectPin } from './pin.mjs';
+import { CHOICES, choiceArgs, cssPathArgs, inspectPin } from './pin.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const ASSETS = join(here, '..', 'assets');
@@ -477,9 +477,10 @@ async function verify() {
   const pin = inspectPin(target, { manifest: MANIFEST, pluginVersion: PLUGIN.version });
 
   // Appended to every init the advice below names: the stylesheet path this
-  // project chose, where it differs from the one init would derive. Without it
-  // the reader's re-run drops a second stylesheet at the default path.
-  const cssFlag = cssPathArgs(config, cssRel)
+  // project chose, where it differs from the one init would derive, and the
+  // interview answers it recorded. Without them the reader's re-run drops a
+  // second stylesheet at the default path and a config with no choices in it.
+  const replay = [...cssPathArgs(config, cssRel), ...choiceArgs(config)]
     .map((a) => ` ${a}`)
     .join('');
 
@@ -529,16 +530,16 @@ async function verify() {
       detail,
     );
     if (state === 'replaced' || state === 'edited' || state === 'absent') {
-      advice.push(`\`node scripts/init.mjs ${target} --write --force${cssFlag}\` restores ${g.label}. Never \`/impeccable document\`.`);
+      advice.push(`\`node scripts/init.mjs ${target} --write --force${replay}\` restores ${g.label}. Never \`/impeccable document\`.`);
     }
     if (stale) {
       advice.push(
-        `\`node scripts/init.mjs ${target} --write --force${cssFlag}\` brings ${g.label} up to the capture this plugin carries.`,
+        `\`node scripts/init.mjs ${target} --write --force${replay}\` brings ${g.label} up to the capture this plugin carries.`,
       );
     }
     if (state === 'unrecorded') {
       advice.push(
-        `\`node scripts/init.mjs ${target} --write --force${cssFlag}\` records a hash for ${g.label}, which is what lets an overwrite be noticed.`,
+        `\`node scripts/init.mjs ${target} --write --force${replay}\` records a hash for ${g.label}, which is what lets an overwrite be noticed.`,
       );
     }
   }
@@ -568,12 +569,12 @@ async function verify() {
         : 'not installed — Cursor only, and the edit check reports an overwrite either way',
     );
     if (!checks.length) {
-      advice.push(`\`node scripts/init.mjs ${target} --write${cssFlag}\` installs the edit check.`);
+      advice.push(`\`node scripts/init.mjs ${target} --write${replay}\` installs the edit check.`);
     }
   }
   for (const h of broken) {
     row(MISSING, 'hook target', `${h.rel} names something that is not there — ${h.target}`);
-    advice.push(`\`node scripts/init.mjs ${target} --write${cssFlag}\` repairs the hook in ${h.rel}.`);
+    advice.push(`\`node scripts/init.mjs ${target} --write${replay}\` repairs the hook in ${h.rel}.`);
   }
 
   // The allow rules name this plugin by full path, so a plugin update leaves
@@ -590,7 +591,7 @@ async function verify() {
   );
   if (missingRules.length) {
     advice.push(
-      `\`node scripts/init.mjs ${target} --write${cssFlag}\` pre-approves Pushpin's project scripts, so a catalog lookup stops asking.`,
+      `\`node scripts/init.mjs ${target} --write${replay}\` pre-approves Pushpin's project scripts, so a catalog lookup stops asking.`,
     );
   }
 
@@ -603,7 +604,7 @@ async function verify() {
   } else if (!pv) {
     row(NOTE, 'preview', 'not recorded, so nothing keeps the prototype server up');
     advice.push(
-      `\`node scripts/init.mjs ${target} --write --force${cssFlag}\` records the preview, which is what restarts the prototype server after it stops.`,
+      `\`node scripts/init.mjs ${target} --write --force${replay}\` records the preview, which is what restarts the prototype server after it stops.`,
     );
   } else if (!pv.port) {
     row(NOTE, 'preview', `served by \`${pv.command}\` on a port Pushpin cannot guess, so it says nothing about it`);
@@ -634,9 +635,26 @@ async function verify() {
           : `port ${pv.port} is held by something that is not the Pushpin preview`,
       );
       advice.push(
-        `\`node scripts/init.mjs ${target} --write --force --preview-port <n>${cssFlag}\` moves the preview to a free port. Nothing holding the current one is killed.`,
+        `\`node scripts/init.mjs ${target} --write --force --preview-port <n>${replay}\` moves the preview to a free port. Nothing holding the current one is killed.`,
       );
     }
+  }
+
+  // The interview answers. Absent means the project was set up before they were
+  // asked, and everything that reads them falls back to mobile-first and light
+  // — a default rather than a fault, so a note. The remedy names only the flags
+  // that are missing, since `replay` already carries any that were recorded.
+  const unasked = CHOICES.filter(({ key }) => typeof config[key] !== 'string');
+  if (unasked.length) {
+    row(
+      NOTE,
+      'choices',
+      `interview choices not recorded — ${unasked.map((c) => c.key).join(', ')}`,
+    );
+    const flags = unasked.map((c) => ` ${c.flag} <${c.values.join('|')}>`).join('');
+    advice.push(
+      `\`node scripts/init.mjs ${target} --write --force${replay}${flags}\` records the fidelity, form factor and color mode, which is what sizes the Figma frame and pins the preview's mode.`,
+    );
   }
 
   const agents = join(target, 'AGENTS.md');

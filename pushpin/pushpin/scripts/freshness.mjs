@@ -114,7 +114,7 @@ import {
 } from './lib/overlay.mjs';
 import { remoteState } from './lib/remote-state.mjs';
 import { MOVED_LAYERS, readKitState } from './kit-state.mjs';
-import { cssPathArgs, inspectPin } from './pin.mjs';
+import { choiceArgs, cssPathArgs, inspectPin } from './pin.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const ASSETS = join(here, '..', 'assets');
@@ -490,7 +490,9 @@ if (overlay?.broken) {
  * the one file init writes that a team commits is `.claude/settings.json`, and
  * a repair nobody asked for has no business editing it. `--css-path` because a
  * plain `--write` still plans the stylesheet, at the path init derives, and
- * writes it there when that path is empty.
+ * writes it there when that path is empty. The interview flags because a plain
+ * `--write` on a project whose config is left alone still has to say what the
+ * project chose, or a later `--force` replay of this same command drops it.
  */
 function repairCommand() {
   let config = null;
@@ -500,7 +502,7 @@ function repairCommand() {
     // A repairable pin was read from this file a moment ago; a read that fails
     // now leaves the command as it was, and init reports on its own.
   }
-  const args = ['--write', '--no-share', ...cssPathArgs(config)].map((a) =>
+  const args = ['--write', '--no-share', ...cssPathArgs(config), ...choiceArgs(config)].map((a) =>
     a.includes(' ') ? `"${a}"` : a,
   );
   return `node "${join(here, 'init.mjs')}" "${process.cwd()}" ${args.join(' ')}`;

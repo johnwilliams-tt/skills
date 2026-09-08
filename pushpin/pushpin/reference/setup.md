@@ -20,18 +20,24 @@ running. Setup asks, acts, and then checks what is actually true.
 ```bash
 node scripts/freshness.mjs --session             # 1. the session check, never narrated
 node scripts/setup.mjs <project-dir> --ready     # 2. the environment; silent when it is fine
-node scripts/setup.mjs <project-dir>             # 3. read the project
+node scripts/setup.mjs <project-dir>             # 3. read the project, then the one AskQuestion
 node scripts/setup.mjs <project-dir> --backup    # 4. only if the answer calls for it
-node scripts/init.mjs  <project-dir> --write     # 5. write, with the flags it implies
+node scripts/init.mjs  <project-dir> --write \
+  --fidelity handoff --form-factor native --color-mode light   # 5. write what the answers said
 node scripts/setup.mjs <project-dir> --verify    # 6. what is still broken
 ```
 
 The version line, and on Claude Code the Auto question, go before step 1 —
 including before `freshness` and `--ready`. They are not a script, and they are
 the first thing the designer sees. The two readiness checks no script can
-perform go beside step 2. After the writes, if `PRODUCT.md` is missing, the
-impeccable question is next; the handoff interview follows that, or follows
-step 6 when the file is already there. Do not run
+perform go beside step 2. The handoff interview is the second half of step 3:
+`--assess` reads the project, and one `AskQuestion` carries whatever it raised
+together with the five questions in § The handoff interview, so step 5 has its
+flags before it runs — the values above are one possible set of answers, not
+defaults to type. After step 6, if `PRODUCT.md` is missing, the impeccable
+question is next, and `/impeccable init` runs with the fidelity already
+recorded; then the route the interview chose loads. A project that already has
+`PRODUCT.md` goes from step 6 to the route. Do not run
 `init --write --force --preview-port` during first setup. Every step that only
 reads prints faults and nothing else, so most of them print nothing at all. The
 two that write report what they wrote, and what becomes of that is the next
@@ -88,10 +94,12 @@ permission-mode `say:`. Setup already asked.
 
 Setup then spends each `say:` as its row in
 [start.md § What the user hears](start.md#what-the-user-hears), in the order the
-steps raised them — except the three the list below rules out — and then the
-impeccable question when `PRODUCT.md` is missing, then the interview. A project
-that already has `PRODUCT.md` goes from the version (and Auto, on Claude) to
-the interview. Never a "three things worth knowing" list.
+steps raised them — except the three the list below rules out. The interview is
+the one `AskQuestion` after `--assess`; the `say:` lines the writes and
+`--verify` raise come after it, then the impeccable question when `PRODUCT.md`
+is missing, then the route. A project that already has `PRODUCT.md` goes from
+the version (and Auto, on Claude) to the interview, and from the writes to the
+route. Never a "three things worth knowing" list.
 
 Never appears:
 
@@ -108,15 +116,23 @@ Never appears:
 - `PRODUCT.md` as a status line, a missing-file bulletin, or a recap bullet.
   When the file is absent, that is the AskQuestion after the writes, not a
   finding to read out.
+- An explanation of the theme toggle — what the floating pill does, where it
+  sits, that it remembers the choice. The option label already said there is
+  one; the person who picked it will see it.
+- A readback of the form factor, color mode, or fidelity they chose, or of
+  what was set up to match. An answer that was given is not news to the person
+  who gave it.
+- The flags the answers became, or the file they were recorded in. Answers are
+  recorded and acted on; how is [init.md](init.md), read when somebody asks.
 - The capture date, its age, or any confirmation that something passed.
 - `.gitignore` advice in a folder that holds no git repository.
 - A restatement of a `fix:` line that was already run. Announcing a silent
   repair is how it stops being silent.
 - A note that there was nothing to ask, nothing to fix, or nothing to
   overwrite. Process narration is not a finding.
-- A closing offer of optional next steps. The interview question is the next
-  step, after the impeccable step when that one runs.
-- `/impeccable init`'s own wrap-up. The interview happens; its summary is not
+- A closing offer of optional next steps. The route the interview chose is the
+  next step, after the impeccable step when that one runs.
+- `/impeccable init`'s own wrap-up. The route loads; the summary is not
   relayed, because it reads product truth back at the person who just supplied
   it.
 
@@ -204,8 +220,8 @@ configured server with no desktop app behind it still fails at the write.
 
 It runs only once a link exists, which means on the from-scratch path it does
 not run during setup at all. Setup's job is to know it is still owed: the link
-comes out of the handoff interview, and the preflight is the first thing after
-it.
+comes out of the handoff interview in § 3, and the preflight is the first thing
+that happens once the route loads.
 
 ## 2. Read the project first
 
@@ -216,10 +232,15 @@ directory holding no Pushpin files is nothing.
 
 **Ask exactly what it raises, and nothing else.** A question with one real
 answer is not a question, and asking it is how a short setup starts feeling like
-a form. When it raises nothing, go straight to the writes without saying that
-there was nothing to ask.
+a form. When it raises nothing, the interview below is the whole of the
+AskQuestion, without saying that there was nothing else to ask.
 
-## 3. The one question before the writes
+## 3. The one AskQuestion before the writes
+
+One call. It carries the handoff interview — the five questions in
+[§ The handoff interview](#the-handoff-interview), in that order — and, when
+`--assess` raised it, the overwrite question rides in the same call rather than
+earning one of its own:
 
 - **`overwrite` — Pushpin files are already here.** Offer, in this order: back
   them up and replace, replace without a backup, or leave them and write only
@@ -229,7 +250,9 @@ there was nothing to ask.
   unrecoverable overwrite lands.
 
 Replace adds `--force` to the `init` call, preceded by `setup.mjs --backup` when
-they asked for one. Nothing else in setup turns on an answer.
+they asked for one. The fidelity, form factor, and color mode answers become
+`--fidelity`, `--form-factor`, and `--color-mode` on the same call. Nothing else
+in setup turns on an answer.
 
 Every project gets the `.claude/settings.json` entry, a scratch folder included.
 It is what offers the plugin to a teammate who never opens a terminal, and it
@@ -255,8 +278,11 @@ truth. Pushpin knows the tokens and nothing about who the product is for, and a
 plausible invented answer there is worse than an empty file, because everything
 downstream treats it as given. The interview exists to get it right.
 
-**After the writes, before the handoff** — if `PRODUCT.md` is missing. The why
-lives in the AskQuestion prompt, not in surrounding chat the designer can skip.
+**After the writes, before the route loads** — if `PRODUCT.md` is missing. The
+fidelity is already recorded by then, which is why the impeccable step sits
+here and not before the interview: `/impeccable init` runs knowing whether this
+code ends at a Figma frame or ships. The why lives in the AskQuestion prompt,
+not in surrounding chat the designer can skip.
 One line, then the options. Do not mention `/impeccable document`, and do not
 imply it replaces Pushpin:
 
@@ -268,14 +294,17 @@ Impeccable provides advanced design tools that extend what the AI model can do.
   `npx impeccable install`, then `/impeccable init`) / **Skip for now**
 - Installed: **Run `/impeccable init`** / **Skip for now**
 
-If they say yes, read [impeccable.md](impeccable.md) and actually run it. Three
-of the questions that interview asks are already answered by this being a
-Pushpin project, and answering them from scratch is how a two-day prototype
-acquires a framework and a build step. If they skip, nothing is said about it;
-the handoff follows. `--ready`'s missing-impeccable `say:` is this question; do
-not print it mid-setup as a bulletin.
+If they say yes, read [impeccable.md](impeccable.md) and actually run it. The
+platform question that interview asks is already answered by this being a
+Pushpin project, and the stack question is answered by the fidelity the
+interview just recorded: on `handoff` it is pre-answered and not asked, because
+answering it from scratch is how a two-day prototype acquires a framework and a
+build step; on `ships` impeccable asks its own stack and deploy-target question,
+and that is allowed. If they skip, nothing is said about it; the route loads.
+`--ready`'s missing-impeccable `say:` is this question; do not print it
+mid-setup as a bulletin.
 
-A project that already has `PRODUCT.md` skips this and goes to the interview.
+A project that already has `PRODUCT.md` skips this and goes to the route.
 
 ## 5. Verify, do not advise
 
@@ -321,29 +350,67 @@ See [init.md](init.md) § The preview.
 
 ## The handoff interview
 
-Setup closes by starting the work, in at most two turns. It is the one place
-setup asks anything the project could not answer for itself, aside from the
-overwrite and the two questions above. The interview is still the close, but
-only after the impeccable step when that one ran.
+It is the one place setup asks anything the project could not answer for
+itself, aside from the overwrite, and it is asked in § 3 — after `--assess`,
+before a file is written — because three of its answers are flags on the `init`
+call and a fourth is what `/impeccable init` needs settled before it runs.
 
-One `AskQuestion` call carrying two questions. Whether the work starts from a
-Figma design or from scratch, and whether to prototype in the browser first or
-go straight to Figma. The browser option carries its reason in the option label
-rather than in a paragraph underneath it: faster, better for ironing out the
-flow, and it pushes into Figma afterwards.
+One `AskQuestion` call carrying five questions, in this order. Every reason
+lives in an option label, not in a paragraph under the question, and the first
+option is the default where one is named:
+
+1. **Fidelity.** "A prototype for Figma handoff — the usual case" / "This code
+   ships". It goes first because it supersedes the rest: it decides whether
+   impeccable asks its stack question at all, and what later commands are for.
+2. **Start point.** From a Figma design, or from scratch.
+3. **Surface.** Prototype in the browser first, or go straight to Figma. The
+   browser option carries its reason: faster, better for ironing out the flow,
+   and it pushes into Figma afterwards.
+4. **Form factor.** "Native — phone, 390 wide" / "Desktop — 1440 wide" /
+   "Both".
+5. **Color mode.** "Light" / "Dark" / "Both, with a floating toggle in the
+   prototype".
+
+Where the harness caps the questions one call may carry below what is owed,
+split at the fewest calls it allows, fidelity first; do not drop a question to
+fit. Where the surface was settled before setup ran — a Figma link in the
+conversation, a pick off the [start.md](start.md) menu — the interview inherits
+it and asks only what is still open, as
+[SKILL.md § Which surface](../SKILL.md#which-surface) rules.
+
+**What the answers drive.** Fidelity, form factor, and color mode ride the
+`init --write` call in step 5 as `--fidelity`, `--form-factor`, and
+`--color-mode`. Init records them in `pushpin.config.json` as `fidelity`,
+`formFactor`, and `colorMode`, adds them to the note it writes into
+`AGENTS.md`, and copies `theme-toggle.js` beside the stylesheet; the first page
+links it right after the `<link>`, at the stylesheet's own path —
+`<script src="styles/theme-toggle.js" data-pp-default="light"
+data-pp-modes="both"></script>` for a stylesheet at `styles/pushpin.css`, and
+the `AGENTS.md` note carries the exact tag with the values from the record. The
+toggle renders a floating pill only when the mode is `both`; otherwise it pins
+`data-pp-theme` to the one mode and shows nothing, which is what keeps a
+dark-OS browser from silently previewing a light design dark. Fidelity is what
+[impeccable.md](impeccable.md) § Handoff or ships reads when `/impeccable init`
+runs in § 4. Form factor sets the frame width and the `Tokens / Font` mode on
+the Figma push, and which widths the checks look at; color mode sets the color
+collection's mode on the same push — [generate.md](generate.md) and
+[rules.md](rules.md) carry those. Start point and surface choose the route.
 
 **If Figma is the starting point, ask for the frame link and wait.** Nothing is
 searched for — "Figma with no link stops and waits" in
 [SKILL.md](../SKILL.md#which-surface) already governs this. The destination is
 something the user has and you do not, so a hunt spends minutes arriving at a
-guess where a question spends one click arriving at a fact.
+guess where a question spends one click arriving at a fact. The link is held
+through the writes; nothing is done with it until the route loads.
 
-Then load the route and nothing besides it: [generate.md](generate.md) for a
-Figma-first build, where the access preflight is the first thing that happens;
-the project and its preview for a browser-first one; [figma.md](figma.md) when a
-settled design is being read out into code.
+Then, once the writes, `--verify`, and the impeccable step when it ran are
+behind you, load the route and nothing besides it: [generate.md](generate.md)
+for a Figma-first build, where the access preflight is the first thing that
+happens; the project and its preview for a browser-first one;
+[figma.md](figma.md) when a settled design is being read out into code.
 
-This is the same question as [Which surface](../SKILL.md#which-surface) and
+Start point and surface are the same question as
+[Which surface](../SKILL.md#which-surface) and
 [start.md](start.md#the-question) § The question, and a user who answers it here
 is not asked it again on the way into the route.
 

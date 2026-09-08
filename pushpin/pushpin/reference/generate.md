@@ -103,6 +103,13 @@ by whoever is furthest from it. An incomplete one is a signal that something was
 hand-built, not a licence to skip the gate: [the two checks](#the-gate-two-checks-in-order)
 still run, and a proposal still has to be derived rather than drawn.
 
+**Nothing under `[data-pp-devtool]` is pushed.** The theme toggle `init` links
+beside the stylesheet renders under that attribute, and so does anything else a
+project marks as furniture for the browser rather than part of the design.
+`check.mjs` and the copy report skip the same subtree. A frame with a floating
+pill in its corner is a claim that the product ships one, and the audit cannot
+tell that claim from a real control.
+
 ## Placing a component
 
 Every catalog entry carries the `key` needed to import it, and its `type`
@@ -1193,6 +1200,97 @@ Node handles do not survive the end of a `use_figma` call, so this batch
 re-imports what the preflight already resolved. That is the price of learning
 about a dead key before the skeleton exists rather than halfway through it.
 
+## The frame takes the project's form factor and colour mode
+
+A project set up through `setup` records two of its answers in
+`pushpin.config.json`: `formFactor` — `native`, `desktop`, or `both` — and
+`colorMode` — `light`, `dark`, or `both`. The skeleton reads both when it claims
+the top frame, because the width is what every section sizes to and the modes
+are what every bound fill and text style resolve through. Set later they re-lay
+the screen; never set, a desktop project pushes at 390 and a dark prototype
+lands light.
+
+| `formFactor` | Width of a frame this run creates | `Tokens / Font` mode |
+|---|---|---|
+| `native` | 390 | `native` |
+| `desktop` | 1440 | `desktop` |
+| `both` | two frames per screen, one at each width | one per frame, following its width |
+| absent | read off the linked frame — [context.md](context.md#reading-the-page-off-names-and-boxes) | follows the width: 390 is `native`, 1440 is `desktop` |
+
+| `colorMode` | `Tokens / Semantic Colors` mode |
+|---|---|
+| `light` | `Light` |
+| `dark` | `Dark` |
+| `both` | each frame twice, one per mode |
+| absent | `Light` |
+
+Absent keys mean a project set up before the choices existed, or a push with no
+project behind it at all — a bare Figma link. Both behave as every run did
+before there was anything to record: the width comes off the frame the link
+resolved to and the modes are the kit's defaults. Nothing is asked. The answer
+is a fact about the project and not one of
+[the checkpoint's](#the-checkpoint-is-one-call-with-two-questions) questions, and
+the checkpoint's preamble does not narrate it.
+
+**A duplicated frame keeps its original's width.** The record decides the width
+only where this run creates one; a clone is already the size the file drew it
+at, and the font mode follows that width rather than the record. Colour mode
+follows the record either way, since nothing in a frame's geometry says which
+theme it was drawn in.
+
+**`both` is more frames, not a wider one.** `formFactor: both` is a frame at 390
+and a frame at 1440 for every screen, side by side on the page, the width in the
+name — `Booking — Pushpin [Sep 8] · 390`. `colorMode: both` doubles that again
+with the mode in the name. A frame holds one explicit mode per collection, which
+is why this is a count rather than a property. The skeleton claims all of them in
+its one call, the same way [a batch](parallel.md#a-batch-of-artifacts) claims
+every artifact's frame, and each gets its own fill lanes.
+
+### Setting a mode on a library collection
+
+A mode is set per frame and per collection, and the collection has to be in
+hand as an object. Both collections are the kit's, published from a library, so
+neither appears in `getLocalVariableCollectionsAsync` and neither has a key to
+import by. The way in is through a variable already in the file:
+
+```js
+async function collectionOf(variableId) {
+  const variable = await figma.variables.getVariableByIdAsync(variableId);
+  if (!variable) return null;
+  return figma.variables.getVariableCollectionByIdAsync(variable.variableCollectionId);
+}
+// Mode ids are per file and per collection; the name is the only stable handle.
+const modeNamed = (collection, name) =>
+  collection.modes.find((m) => m.name === name)?.modeId;
+
+// Every imported semantic colour is in Tokens / Semantic Colors.
+const colors = await collectionOf(imported['background/neutral/default'].id);
+frame.setExplicitVariableModeForCollection(colors, modeNamed(colors, 'Dark'));
+
+// Tokens / Font publishes nothing importable; a text style carries the id.
+const fontSizeId = imported['title-2'].boundVariables?.fontSize?.id;
+const font = fontSizeId ? await collectionOf(fontSizeId) : null;
+if (font) frame.setExplicitVariableModeForCollection(font, modeNamed(font, 'desktop'));
+```
+
+The two collections differ in where that variable comes from. Any semantic
+colour [the import batch](#the-imports-go-in-one-batch) already holds opens
+`Tokens / Semantic Colors`. `Tokens / Font` is the other case: all 39 of its
+variables are [hidden from publishing](#what-you-can-and-cannot-bind), so
+`importVariableByKeyAsync` cannot reach one, and the published text styles are
+the only thing in a consuming file that binds to them. Read the id off an
+imported style's `boundVariables.fontSize`, or failing that off a `TEXT` node
+inside a placed instance — `text.boundVariables?.fontSize?.[0]?.id`, an array on
+a node where it is a single alias on a style. The capture records neither
+binding, so this is [a live probe](rules.md#degrading-rather-than-failing) rather
+than a recorded fact: a style with no binding means nothing on the frame answers
+to the font mode, the width carries the form factor on its own, and the summary
+says so. A raw font size is not the fallback.
+
+The mode names are exact and `find` is case-sensitive: `Light` and `Dark`
+capitalised, `native` and `desktop` not — the kit's spelling, as
+`assets/tokens.figma.json` records it.
+
 ## Filling the sections in parallel
 
 The skeleton call claims its region of canvas once, up front — the duplicated
@@ -1404,7 +1502,12 @@ before the first node exists.
      into the page the user named — and builds the skeleton inside the copy with
      `figma.createAutoLayout()` containers and `placeholder = true` on each
      section, and returns `{ frameId, pageId, sections: [{ id, name }] }`. The
-     original stays untouched from here on. The skeleton is containers rather
+     original stays untouched from here on. A frame this call creates takes
+     its width and its explicit variable modes from the project's recorded
+     `formFactor` and `colorMode` —
+     [above](#the-frame-takes-the-projects-form-factor-and-colour-mode) — with
+     one frame per width and per mode where either is `both`. The skeleton is
+     containers rather
      than components, so it needs nothing the lookup or the copy pass is
      fetching — which is why they fit in one message — it stops at the
      containers and creates nothing

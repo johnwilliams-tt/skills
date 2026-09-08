@@ -33,8 +33,11 @@ express is still yours to hold.
 
 - **Sentence case** for headings, buttons, labels, and badges. Nine confirmed
   brand names are the only exception.
-- **Mobile is the primary surface.** The type ramp ships mobile-first and scales
-  up at 700px; design the small screen first.
+- **The recorded form factor is the surface.** `formFactor` in
+  `pushpin.config.json` names it: `native` is checked at 390 and nowhere else,
+  `desktop` at 1440 and nowhere else, `both` at each. Where nothing is recorded,
+  mobile is the primary surface — the type ramp ships mobile-first and scales up
+  at 700px, so design the small screen first.
 - **No display size above `hero`, and no all-caps overline.** A comp that
   appears to need one is off-system — raise it rather than inventing a token.
 - **A call to action names its action** — four words, verb plus object; a link

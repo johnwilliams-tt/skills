@@ -21,14 +21,15 @@ question, never as this command:
 page is for the user; it explains what init does so you run it right.
 
 It installs the token stylesheet somewhere idiomatic for the stack it detects,
-writes `pushpin.config.json` with the Figma keys so the bridge works without
-re-deriving them, installs the edit hook that runs `check.mjs`, records where
-the browser preview lives, pre-approves the scripts that only read so they stop
-asking, adds a short `AGENTS.md` section so an agent opening the repo later
-knows the system is in use and outranks its own defaults, and declares this
-marketplace in `.claude/settings.json`, with auto-update on, so the next person
-to open the repo is offered the plugin and nobody ends up pinned to a capture
-that has stopped matching the kit.
+with the theme script beside it, writes `pushpin.config.json` with the Figma
+keys so the bridge works without re-deriving them and with the three answers
+the setup interview settled, installs the edit hook that runs `check.mjs`,
+records where the browser preview lives, pre-approves the scripts that only read
+so they stop asking, adds a short `AGENTS.md` section so an agent opening the
+repo later knows the system is in use and outranks its own defaults, and
+declares this marketplace in `.claude/settings.json`, with auto-update on, so
+the next person to open the repo is offered the plugin and nobody ends up pinned
+to a capture that has stopped matching the kit.
 
 ```bash
 node scripts/init.mjs <project-dir>                    # print a plan, change nothing
@@ -39,6 +40,9 @@ node scripts/init.mjs <project-dir> --no-share         # skip .claude/settings.j
 node scripts/init.mjs <project-dir> --no-hook          # skip the edit hook
 node scripts/init.mjs <project-dir> --no-preview       # skip the browser preview
 node scripts/init.mjs <project-dir> --preview-port 8200  # serve the static preview on this port
+node scripts/init.mjs <project-dir> --fidelity handoff|ships          # what the code is for
+node scripts/init.mjs <project-dir> --form-factor native|desktop|both  # 390, 1440, or both
+node scripts/init.mjs <project-dir> --color-mode light|dark|both       # the theme the preview pins
 node scripts/init.mjs <project-dir> --advice           # explain what was written
 ```
 
@@ -161,6 +165,60 @@ node .pushpin/pushpin-check.mjs --preview
 
 That is the project shim again, with a third role beside the check and the
 guard, so a project still keeps one file current rather than three.
+
+## The three choices
+
+The setup interview settles three things `init` cannot detect, and they arrive
+as flags: `--fidelity`, `--form-factor`, and `--color-mode`. Each is recorded in
+`pushpin.config.json` under its own key, and only when it was given, so an
+absent key keeps meaning "never asked".
+
+| Flag | Key | Values | What reads it |
+|---|---|---|---|
+| `--fidelity` | `fidelity` | `handoff` (the usual case) · `ships` | [impeccable.md](impeccable.md): `ships` unlocks impeccable's stack and deploy questions; `handoff` pre-answers them |
+| `--form-factor` | `formFactor` | `native` · `desktop` · `both` | the width a Figma push creates its frames at and the `Tokens / Font` mode it sets — [generate.md](generate.md#the-frame-takes-the-projects-form-factor-and-colour-mode); which widths [rules.md](rules.md#type-and-copy) checks at |
+| `--color-mode` | `colorMode` | `light` · `dark` · `both` | the theme script below, and the `Tokens / Semantic Colors` mode a Figma push sets |
+
+**The theme script is copied beside the stylesheet** as `theme-toggle.js`, from
+`scripts/theme-toggle.js` in this plugin, and linked right after the `<link>`
+from the same path the stylesheet has — `styles/theme-toggle.js` where
+`--css-path` or the detected stack put it at `styles/pushpin.css`. The
+`AGENTS.md` note prints the tag with the real path and the recorded values:
+
+```html
+<script src="theme-toggle.js" data-pp-default="light" data-pp-modes="both"></script>
+```
+
+It sets `data-pp-theme` on `<html>` before first paint, so a dark-OS machine
+previews the mode the project chose rather than the one the stylesheet's
+`prefers-color-scheme` block would pick. `data-pp-modes` is the recorded
+`colorMode`: `both` takes the last choice from `localStorage`, else
+`data-pp-default`, and renders a floating pill that flips the attribute and
+persists the choice; a single mode pins the attribute to that mode, outranking
+anything stored, and renders nothing. The note writes `data-pp-default="dark"`
+for a recorded `dark` and `"light"` otherwise. The pill's root carries
+`data-pp-devtool`, which `check.mjs`, the copy report, and the Figma push all
+skip, so a tool for looking at the prototype never becomes a finding about it
+or a control in a frame. It is hand-authored rather than built into `assets/`,
+so it carries no manifest hash and is replaced under `--force` the way the
+stylesheet is.
+
+**A replay carries the flags from the record.** `pin.mjs` exports
+`choiceArgs(config)`, which emits the three flags from whatever
+`pushpin.config.json` holds, and every re-run of `init` — `update.mjs` after a
+sweep, the remedy `setup.mjs --verify` prints, the init question in
+[start.md](start.md#what-the-user-hears), and the silent hook repair
+`freshness.mjs --session` runs — spreads it in. A replay
+that dropped them would turn a project that chose dark into one that never
+answered, and the preview, the push, and impeccable would all fall back to the
+defaults without a word.
+
+**A project set up before the choices existed keeps working.** Absent keys
+behave as every project did before there was anything to record: mobile-first,
+light, handoff. `setup.mjs --verify` reports the absence as a NOTE row with the
+init remedy, the same way it reports a missing `preview` key, and the project
+gains the choices on the next `init --write --force` that carries the flags. The
+interview in [setup.md](setup.md) is where they are asked; nothing here asks.
 
 ## The permission prompts
 

@@ -237,7 +237,9 @@ Thumbtack's voice and a pro's headline is not written in it. The count of what a
 marker exempted is printed, so a marker on the wrong element does not quietly
 empty a report. [copy.md](copy.md#the-app-layer-and-a-pros-words) has the marker,
 the values that hand a region back, and the comment form for a string a script
-assigns.
+assigns. A `data-pp-devtool` subtree — the theme toggle — is masked from the
+check, the score and `--apply` the same way, and silently: it is tooling on the
+page rather than copy, so there is no exemption to count.
 
 **Asked to fix a pro's copy anyway, say what the check does and does not cover.**
 The words are theirs and the rubric was not written for them; grammar and spelling

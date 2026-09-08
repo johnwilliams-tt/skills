@@ -17,6 +17,97 @@ Changes are grouped the way `diff.mjs` classifies them:
 An entry about the plugin rather than the capture adds **Fixed** for a bug in
 the toolchain, which `diff.mjs` has no category for.
 
+## 0.23.0 — 2026-09-08
+
+Three things about a project were never asked and so never recorded: whether the
+code is a prototype bound for Figma or something that ships, whether the surface
+is a phone or a desktop, and whether it is light, dark, or both. Each had a
+default standing in for an answer. `impeccable.md` assumed every project was a
+handoff prototype; nothing set `data-pp-theme` in the browser, so a dark-OS
+machine previewed a light-only prototype in dark; and a Figma push never set a
+frame's width or a variable mode from anything the project knew, so a desktop
+project pushed at 390 and a dark prototype landed light. The setup interview
+now asks all three in the one `AskQuestion` it already makes, before the writes,
+and the answers reach every place a default was standing in.
+
+**Added**
+
+- **`init.mjs` takes `--fidelity handoff|ships`, `--form-factor
+  native|desktop|both` and `--color-mode light|dark|both`**, recorded in
+  `pushpin.config.json` as `fidelity`, `formFactor` and `colorMode`. Only the
+  answers given are written, so an absent key keeps meaning "set up before this
+  existed" and the project behaves as before: mobile-first, light, handoff.
+  `setup.mjs --verify` reports the absence as a NOTE row with the init remedy,
+  as it does for a missing `preview` key. [init.md](pushpin/reference/init.md)
+  § The three choices.
+- **A theme script beside the stylesheet.** `init` copies
+  `scripts/theme-toggle.js` next to `pushpin.css`, so its `src` carries the
+  stylesheet's path — `<script src="styles/theme-toggle.js" data-pp-default="…"
+  data-pp-modes="…">` for a flat prototype with `styles/pushpin.css`, and the
+  note `init` writes into `AGENTS.md` prints the exact tag. It
+  sets `data-pp-theme` on `<html>` before first paint, from `localStorage` else
+  the default, and renders a floating pill toggle only when the recorded mode is
+  `both`; a single mode pins the attribute and renders nothing. Built from
+  `--pp-*` tokens, its root carries `data-pp-devtool`, and `check.mjs`, the
+  copy report and the Figma push skip that subtree.
+- **Replays carry the flags.** `pin.mjs` exports `choiceArgs(config)`, and
+  `update.mjs`, `setup.mjs` and `freshness.mjs`'s `repairCommand()` spread it
+  into every `init --write --force` they run or print, so no replay can turn a
+  project that chose dark into one that never answered. The init row in [start.md § What the user
+  hears](pushpin/reference/start.md#what-the-user-hears) lists the three flags
+  beside `--css-path`, `--no-hook`, `--no-preview` and `--preview-port`.
+- **A Figma push sizes and themes its frames from the record.**
+  [generate.md](pushpin/reference/generate.md) § The frame takes the project's
+  form factor and colour mode: a frame this run creates is 390 for `native` and
+  1440 for `desktop`, with `both` one frame at each; the skeleton sets explicit
+  modes on it with `setExplicitVariableModeForCollection` — `native` or
+  `desktop` on `Tokens / Font`, `Light` or `Dark` on `Tokens / Semantic Colors`,
+  each frame twice when the colour mode is `both`. Both are library collections,
+  reached through a variable already in the file: `getVariableByIdAsync`, its
+  `variableCollectionId`, `getVariableCollectionByIdAsync`, and the mode by
+  name. `Tokens / Font` publishes nothing importable, so its variable id is read
+  off an imported text style's `boundVariables.fontSize`, as a live probe. A
+  duplicated frame keeps its original's width and the font mode follows it; an
+  absent key falls back to `context.md`'s width inference. Nothing under
+  `[data-pp-devtool]` is pushed. [flows.md](pushpin/reference/flows.md) applies
+  the same to a catalog, where the form factor lands on the instances and the
+  main frame's font mode rather than on a frame width, and `both` is two
+  catalogs in the column.
+
+**Changed**
+
+- **The setup interview is five questions in one call, before the writes.**
+  [setup.md](pushpin/reference/setup.md) § 3: after `--assess` and before a
+  file is written, one `AskQuestion` carries the overwrite question when it was
+  raised and the interview — fidelity first, with the label carrying the
+  reason, then start point, surface, form factor as "Native — phone, 390 wide"
+  / "Desktop — 1440 wide" / "Both", and colour mode as "Light" / "Dark" /
+  "Both, with a floating toggle in the prototype". A harness that caps the
+  questions per call splits at the fewest calls it allows, fidelity first.
+  `init.mjs --write` then runs with the three flags, and `/impeccable init`
+  runs after the writes with the fidelity already recorded. The never-appears
+  list gains the toggle, a readback of the answers, and the flags they became.
+- **`impeccable.md` gates on fidelity rather than banning production outright.**
+  § Handoff or ships replaces § Not a production surface: `handoff` keeps the
+  static HTML/CSS and `web` pre-answers, skips the stack question, leaves
+  live-mode config unwritten, and keeps `harden` and `optimize` out of scope;
+  `ships` lets impeccable ask stack and deploy target and puts those back on
+  the table, with `## Platform` still `web` and every Pushpin rule still
+  binding. § The platform is `web` states the word collision outright:
+  `formFactor: native` is Pushpin's name for the 390 frame and the `Tokens /
+  Font` mode, and is never recorded as `ios`, `android` or `adaptive`. § The
+  form factor is a fact for `## Operating Context` records the answer there as
+  one sentence and limits impeccable's batched desktop-and-mobile inspection
+  round to the recorded form factor.
+- **"Mobile is the primary surface" is qualified by the record.**
+  [rules.md](pushpin/reference/rules.md) § Type and copy: `native` is checked
+  at 390 only, `desktop` at 1440 only, `both` at each; unrecorded means
+  mobile-first as before.
+- **[tokens.md](pushpin/reference/tokens.md) § Dark mode and
+  [SKILL.md](pushpin/SKILL.md) § Using it in a project** show the `<script>`
+  line beside the stylesheet link and what `data-pp-default` and
+  `data-pp-modes` do.
+
 ## 0.22.1 — 2026-09-04
 
 A designer asked to "update Pushpin to the latest" and read nine paragraphs of

@@ -382,6 +382,48 @@ sizing, its own regions. Nothing about being one of several loosens a rule, and
 the column has no fill, no name of its own beyond the batch's, and no capstone:
 the catalogs head themselves.
 
+### The main frame carries the project's form factor and colour mode
+
+A project set up through `setup` records `formFactor` and `colorMode` in
+`pushpin.config.json`, and the skeleton reads both when it creates the main
+frame —
+[generate.md](generate.md#the-frame-takes-the-projects-form-factor-and-colour-mode)
+has the tables, the collection names and the code. A catalog applies them
+differently from a screen in one respect: nothing here has a fixed width, so the
+form factor never sizes the main frame. It lands in two places instead.
+
+- **The `Tokens / Font` mode on the main frame** — `native` or `desktop` —
+  which every state card inherits, so a catalog's labels and its instances
+  resolve the type ramp at the same end.
+- **The width the states are instanced at.** A `native` catalog's cards hold the
+  surface as a phone draws it, 390 wide where the region is the whole screen;
+  a `desktop` catalog's hold it at 1440. The card hugs whichever it is given.
+
+The `Tokens / Semantic Colors` mode goes on the main frame too, `Light` or
+`Dark`, and it is the reason the main frame is the only frame with a fill: a
+bound `background/neutral/default` follows the mode, so one explicit mode on
+the top flips the whole catalog.
+
+**`both` is more catalogs, not a mixed one.** `formFactor: both` is one catalog
+at each width and `colorMode: both` is one in each mode, stacked in
+[the column above](#several-catalogs-go-in-a-column) with the width or the mode
+in each catalog's name. A row mixing modes or widths asks the reader to compare
+a state against itself under two conditions where the row exists to compare it
+against its neighbours, so the pair lands one above the other instead. Four
+catalogs where both are `both`, and the column takes them like any batch.
+
+Absent keys — a project set up before the choices existed, or a catalog built
+from a link with no project behind it — leave the width to
+[context.md](context.md#reading-the-page-off-names-and-boxes)'s read of the
+source frames and the modes at the kit's defaults, `native` and `Light`. On the
+reflow path the duplicated states already carry their width, and the font mode
+follows it rather than the record; colour mode follows the record either way.
+
+Nothing under `[data-pp-devtool]` in a pushed prototype becomes a state, a card,
+or a bullet — [generate.md](generate.md#when-the-code-already-says-what-it-is).
+A theme toggle is furniture for the browser, and a catalog documenting it would
+be documenting a control the product does not ship.
+
 ### Type and colour
 
 | | Style | Colour |
@@ -467,9 +509,11 @@ The catalog decomposes like every other write path here —
 [skeleton then fill](parallel.md#skeleton-then-fill).
 
 **The skeleton claims the main frame, the capstones, the lane frames and the
-states rows, and stops there** — each shimmering, each in its final order. The
-cards belong to the lane that fills them and are created inside the row by that
-lane.
+states rows, and stops there** — each shimmering, each in its final order, and
+the main frame's
+[explicit modes](#the-main-frame-carries-the-projects-form-factor-and-colour-mode)
+set before anything sits inside it. The cards belong to the lane that fills them
+and are created inside the row by that lane.
 
 **Its link goes to the user before the lanes go out** —
 [generate.md](generate.md#the-frame-gets-linked-before-it-gets-filled) — and a

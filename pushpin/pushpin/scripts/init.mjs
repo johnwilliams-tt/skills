@@ -12,6 +12,9 @@
  *   node scripts/init.mjs <project-dir> [--write] [--force] [--css-path <p>]
  *                                       [--no-share] [--no-hook]
  *                                       [--no-preview] [--preview-port <n>]
+ *                                       [--fidelity handoff|ships]
+ *                                       [--form-factor native|desktop|both]
+ *                                       [--color-mode light|dark|both]
  *                                       [--advice]
  *
  * What a --write prints when it is done is what someone still has to do, and
@@ -31,7 +34,7 @@ import { GUARD_FLAG, hookCommands, PREVIEW_FLAG, SHIM_REL, withoutHook } from '.
 import { ALLOWED_SCRIPTS, allowRules, SETTINGS_REL } from './lib/permissions.mjs';
 import { DEFAULT_PORT, previewUrl } from './lib/preview.mjs';
 import { describeStack, detectStack } from './lib/project.mjs';
-import { catalogPins, inspectPin } from './pin.mjs';
+import { CHOICES, catalogPins, inspectPin } from './pin.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const ASSETS = join(here, '..', 'assets');
@@ -40,7 +43,7 @@ const argv = process.argv.slice(2);
 const flag = (n) => argv.includes(n);
 const opt = (n, d) => (argv.includes(n) ? argv[argv.indexOf(n) + 1] : d);
 /** Flags whose value follows them, so it is not mistaken for the target directory. */
-const VALUE_FLAGS = new Set(['--css-path', '--preview-port']);
+const VALUE_FLAGS = new Set(['--css-path', '--preview-port', ...CHOICES.map((c) => c.flag)]);
 const target = resolve(argv.find((a, i) => !a.startsWith('--') && !VALUE_FLAGS.has(argv[i - 1])) ?? '.');
 
 const WRITE = flag('--write');
@@ -60,6 +63,21 @@ if (!existsSync(target)) {
 if (!Number.isInteger(PREVIEW_PORT) || PREVIEW_PORT < 1 || PREVIEW_PORT > 65535) {
   console.error(`--preview-port needs a port number, got: ${opt('--preview-port', '')}`);
   process.exit(1);
+}
+
+// The interview answers, keyed as the config records them. A flag not given
+// writes no key: a project set up before the interview existed has no answer
+// to record, and inventing one would make it indistinguishable from a project
+// that was asked.
+const choices = {};
+for (const { flag: name, key, values } of CHOICES) {
+  if (!flag(name)) continue;
+  const value = opt(name, '') ?? '';
+  if (!values.includes(value)) {
+    console.error(`${name} takes ${values.join(', ')}, got: ${value}`);
+    process.exit(1);
+  }
+  choices[key] = value;
 }
 
 const TOKENS = JSON.parse(readFileSync(join(ASSETS, 'tokens.figma.json'), 'utf8'));
@@ -203,6 +221,23 @@ planFile(cssPath, 'the Pushpin token stylesheet, 300 custom properties', (abs) =
   copyFileSync(join(ASSETS, 'pushpin.css'), abs);
 });
 
+// Beside the stylesheet, because the page links it right after the stylesheet
+// and a relative `src` has to resolve from the same place the `href` does. It is
+// what sets `data-pp-theme` before first paint: without it the stylesheet's
+// prefers-color-scheme block answers, and a dark-OS machine previews a
+// light-only prototype in dark. Hand-authored here rather than built into
+// assets/, so it carries no manifest hash and is replaced like the stylesheet.
+const TOGGLE_SRC = join(here, 'theme-toggle.js');
+const toggleRel = join(dirname(cssPath), 'theme-toggle.js');
+planFile(
+  toggleRel,
+  'pins the color mode on load, and a floating toggle between the two when both were chosen',
+  (abs) => {
+    mkdirSync(dirname(abs), { recursive: true });
+    copyFileSync(TOGGLE_SRC, abs);
+  },
+);
+
 // Design-system drift is now usually introduced in the browser and pushed to
 // Figma afterwards, which means the Figma audit catches it a step too late.
 // These two files project Pushpin's tokens into the format `impeccable`'s
@@ -231,7 +266,9 @@ planFile('pushpin.config.json', 'Figma keys and the capture this project is pinn
           '`componentsCapturedAt` and `specsCapturedAt` are the latest date each component ' +
           'catalog carries — the catalogs move on their own clocks, and when they move, a ' +
           'component this project declares may have been restyled or lost a variant. ' +
-          '`preview` is where the prototype is served and whether Pushpin may start it.',
+          '`preview` is where the prototype is served and whether Pushpin may start it. ' +
+          '`fidelity`, `formFactor` and `colorMode` are the setup interview\'s answers, and are ' +
+          'absent when the project was set up before it asked them.',
         designSystem: 'pushpin',
         pluginVersion: PLUGIN.version,
         capturedAt: MANIFEST.capturedAt,
@@ -251,6 +288,8 @@ planFile('pushpin.config.json', 'Figma keys and the capture this project is pinn
         // deliberate --no-preview, and absent means a project set up before the
         // preview existed — which is why the two are not the same value.
         preview,
+        // Only the answers that were given, so absent keeps meaning "never asked".
+        ...choices,
         // The install that ran init, and the shim's first choice when locating
         // the plugin. A hint rather than a dependency: it is checked for
         // existence, and the host caches are searched when it is gone.
@@ -628,6 +667,50 @@ function previewNote() {
   );
 }
 
+/**
+ * What was decided at setup, so nobody re-decides it mid-session.
+ *
+ * Each line is conditional on its answer having been given: a project set up
+ * before the interview has nothing recorded, and a note that named a default as
+ * a choice would be read as one. The widths are named because "native" is
+ * Pushpin's phone frame and not impeccable's `ios`, and the number is what
+ * settles that.
+ */
+function choicesNote() {
+  const FORM = {
+    native: 'native — a phone, designed and checked at 390 wide',
+    desktop: 'desktop — designed and checked at 1440 wide',
+    both: 'both — native at 390 and desktop at 1440, each checked',
+  };
+  const lines = [];
+  if (choices.fidelity) {
+    lines.push(
+      choices.fidelity === 'ships'
+        ? `- Fidelity: ships. This code is the product, so it may take a stack and a\n` +
+            `  deploy target; every Pushpin rule still applies.\n`
+        : `- Fidelity: handoff. The artifact is a Figma frame and the code does not\n` +
+            `  ship; the rigor is the same, the stack question is not asked.\n`,
+    );
+  }
+  if (choices.formFactor) lines.push(`- Form factor: ${FORM[choices.formFactor]}.\n`);
+  if (choices.colorMode) {
+    const fallback = choices.colorMode === 'dark' ? 'dark' : 'light';
+    const src = toggleRel.split('\\').join('/');
+    lines.push(
+      `- Color mode: ${choices.colorMode}. \`theme-toggle.js\` sits beside the stylesheet and is\n` +
+        `  linked right after its \`<link>\`:\n` +
+        `  \`<script src="${src}" data-pp-default="${fallback}" data-pp-modes="${choices.colorMode}"></script>\`.\n` +
+        (choices.colorMode === 'both'
+          ? `  It sets \`data-pp-theme\` on \`<html>\` before first paint and renders a floating\n` +
+            `  toggle between the two that remembers the last choice.\n` +
+            `  The toggle marks itself \`data-pp-devtool\` and is never pushed to Figma or audited.\n`
+          : `  It pins \`data-pp-theme\` on \`<html>\` before first paint, so the OS preference\n` +
+            `  cannot override it, and renders nothing.\n`),
+    );
+  }
+  return lines.join('');
+}
+
 const NOTE = `## Design system
 
 This project uses **Pushpin**, Thumbtack's design system.
@@ -640,7 +723,7 @@ This project uses **Pushpin**, Thumbtack's design system.
   (\`--pp-color-blue-950\`). Reaching for a base ramp means no semantic token fit,
   which is worth questioning.
 - Buttons, inputs, and chips are pill-shaped: \`--pp-radius-sides\`.
-- \`DESIGN.md\` and \`.impeccable/design.json\` are generated from those tokens, so
+${choicesNote()}- \`DESIGN.md\` and \`.impeccable/design.json\` are generated from those tokens, so
   a hardcoded color, font, radius, or font size is flagged as drift while you
   work. Both are machine-written — fix the code, not the check.
 - **Never overwrite either file.** \`/impeccable document\` and any new-work flow
