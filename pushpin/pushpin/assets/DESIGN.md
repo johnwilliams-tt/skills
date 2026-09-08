@@ -89,7 +89,7 @@ genuinely open, and deferring those to Pushpin is as much a mistake as
 overriding it.
 
 The Figma kit is the source of truth, and this file is a generated projection of
-it — written by the `pushpin` plugin, v0.22.1, from the
+it — written by the `pushpin` plugin, v0.23.1, from the
 2026-08-06 capture. Where any other description of Pushpin disagrees with
 these values, the tokens win and the disagreement is a bug to fix. Editing this
 file by hand does not change the design system; it only makes the checks
@@ -247,7 +247,7 @@ When nothing published fits, say that instead, and say what it extends:
 - **Resting:** fill --pp-background-brand-strong, radius --pp-radius-sides, height 52px, padding 12/24px, gap 8px, label --pp-text-on-brand-strong, type 16px
 - **theme=secondary:** fill --pp-background-neutral-low, label --pp-text-neutral-default
 - **theme=tertiary:** fill --pp-background-neutral-default, label --pp-heading-neutral-default
-- **theme=link:** fill --pp-background-neutral-default, label --pp-link-brand-default, no height, no padding
+- **theme=link:** label --pp-link-brand-default, no fill, no height, no padding
 - **theme=caution:** fill --pp-background-neutral-default, border --pp-border-neutral-default 1.5px, label --pp-text-alert-medium
 - **theme=alert:** fill --pp-background-alert-medium, border --pp-border-alert-default 1.5px, label --pp-color-system-white
 - **size=small:** height 40px, padding 12/20px, type 14px
@@ -274,7 +274,7 @@ When nothing published fits, say that instead, and say what it extends:
 
 - **Source:** published component set in the Pushpin kit. Instance it; never rebuild it.
 - **Declare in code:** `data-pp-component="Link"`
-- **theme:** primary (default), secondary, inverse, alert, longtext, theme6
+- **theme:** primary (default), secondary, inverse, alert, longtext, disabled
 - **isDisabled:** false, true
 - **State:** Default, Hover
 - **Resting:** radius 0px, gap 4px, label --pp-link-brand-default, type 16px
@@ -282,7 +282,7 @@ When nothing published fits, say that instead, and say what it extends:
 - **theme=inverse:** label --pp-heading-neutral-inverse
 - **theme=alert:** label --pp-link-alert-default
 - **theme=longtext:** label --pp-heading-neutral-default
-- **theme=theme6:** label --pp-text-disabled
+- **theme=disabled:** label --pp-text-disabled
 - **isDisabled=true:** label --pp-text-disabled
 
 ### TextInput
@@ -402,10 +402,10 @@ When nothing published fits, say that instead, and say what it extends:
 - **state:** default, hover, pressed, placeholder
 - **isSelected:** false, true
 - **isDisabled:** false, true
-- **Resting:** fill --pp-background-neutral-default, border --pp-border-neutral-default 1.5px, radius --pp-radius-sides, height 36px, padding 8/8/8/12px, label --pp-heading-neutral-default, type 16px
+- **Resting:** fill --pp-background-neutral-default, border --pp-border-neutral-default 1.5px, radius --pp-radius-sides, height 36px, padding 8/8/8/12px, label --pp-heading-neutral-default, type 12px
 - **state=hover:** fill --pp-background-neutral-low-hover
 - **state=pressed:** fill --pp-background-neutral-default-pressed, border --pp-border-neutral-default-active 1.5px
-- **state=placeholder:** padding 8/12px
+- **state=placeholder:** padding 8/12px, type 16px
 - **isSelected=true:** fill --pp-background-neutral-default-pressed, border --pp-border-neutral-default-active 1.5px
 - **isDisabled=true:** fill --pp-background-disabled-low, border --pp-border-disabled-default 1.5px, label --pp-text-disabled
 
@@ -491,13 +491,11 @@ When nothing published fits, say that instead, and say what it extends:
 - **position=right:** height 34px
 - **position=left:** height 34px
 
-### Accordion / Item
+### Accordion / Group
 
-- **Source:** published component set in the Pushpin kit. Instance it; never rebuild it.
-- **Declare in code:** `data-pp-component="Accordion / Item"`
-- **State:** closed, open
-- **Resting:** fill --pp-background-neutral-default, border --pp-border-neutral-default, radius 0px, padding 16/0px, gap 16px, label --pp-heading-neutral-default, type 20px
-- **State=open:** padding 0/0/16/0px, no gap
+- **Source:** published component in the Pushpin kit. Instance it; never rebuild it.
+- **Declare in code:** `data-pp-component="Accordion / Group"`
+- **Resting:** fill --pp-background-neutral-default, radius 0px, label --pp-heading-neutral-default, type 20px
 
 ### Tabs
 
@@ -514,7 +512,7 @@ When nothing published fits, say that instead, and say what it extends:
 - **Declare in code:** `data-pp-component="Segmented Control"`
 - **size:** large, small
 - **selected:** 1, 2, 3
-- **Resting:** radius 0px, gap 8px, label --pp-heading-neutral-default, type 18px
+- **Resting:** radius 0px, gap 8px, label --pp-heading-neutral-default, type 16px
 - **selected=2:** label --pp-heading-neutral-low
 - **selected=3:** label --pp-heading-neutral-low
 

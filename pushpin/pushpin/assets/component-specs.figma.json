@@ -3,70 +3,26 @@
   "source": {
     "fileKey": "VVRGrLgkPRU3vs765d5Q3r",
     "fileName": "Pushpin Thumbprint UI Kit",
-    "extractedAt": "2026-09-01",
-    "pagesRead": 45,
-    "componentsRecorded": 113,
-    "componentSets": 95,
+    "extractedAt": "2026-09-08",
+    "pagesRead": 47,
+    "componentsRecorded": 124,
+    "componentSets": 96,
     "capPerSet": 24,
-    "realVariantChildren": 837,
-    "variantsRecorded": 441,
+    "realVariantChildren": 870,
+    "variantsRecorded": 458,
     "setsAtCap": 0,
-    "colorMode": "Light",
-    "pageCaptures": {
-      "Accordion": "2026-08-21",
-      "Action Sheet": "2026-08-21",
-      "Alert": "2026-08-21",
-      "Additional components": "2026-08-21",
-      "Avatar": "2026-08-21",
-      "Badge": "2026-08-21",
-      "Brand Assets": "2026-08-21",
-      "📌 Button": "2026-08-21",
-      "Button Row": "2026-08-21",
-      "Calendar": "2026-08-21",
-      "Callout": "2026-08-21",
-      "Checkbox": "2026-08-21",
-      "Chip": "2026-08-21",
-      "Carousel": "2026-08-21",
-      "Layouts": "2026-08-21",
-      "Disclosure": "2026-08-21",
-      "📌 Dropdown": "2026-08-21",
-      "Form Note": "2026-08-21",
-      "Horizontal Rule": "2026-08-21",
-      "Icon Button": "2026-09-01",
-      "Fab": "2026-08-21",
-      "Image": "2026-08-21",
-      "Input Row": "2026-08-21",
-      "Label": "2026-08-21",
-      "Link": "2026-09-01",
-      "Loader Dots": "2026-08-21",
-      "Modal": "2026-08-21",
-      "Pill": "2026-08-21",
-      "Popover": "2026-08-21",
-      "Progress Meter": "2026-08-21",
-      "Radio": "2026-08-21",
-      "Segemented Control": "2026-08-21",
-      "Service Card": "2026-08-21",
-      "Slider": "2026-08-21",
-      "Star Rating": "2026-08-21",
-      "Counter": "2026-08-21",
-      "Switch": "2026-08-21",
-      "Tabs": "2026-08-21",
-      "📌 Text Area": "2026-08-21",
-      "📌 Text Input": "2026-08-21",
-      "Tip": "2026-08-21",
-      "Toast": "2026-08-21",
-      "Tooltip": "2026-08-21",
-      "Playground": "2026-08-21",
-      "Button": "2026-09-01"
-    }
+    "colorMode": "Light"
   },
   "coverage": {
     "measuredAgainst": "components.figma.json",
-    "catalogComponents": 115,
-    "withSpec": 113,
-    "withoutSpec": [
-      "_Bubble / Text",
-      "_Stamps"
+    "catalogComponents": 124,
+    "withSpec": 124,
+    "withoutSpec": [],
+    "nameCollisions": [
+      "\"Headers / Tab\" is published twice on \"Additional components\" — kept 13333:125848, dropped 35574:59932; the capture script reached only one of them",
+      "\"Tabs\" is published twice on \"Additional components\" — kept 13333:125819, dropped 35574:59851; the capture script reached only one of them",
+      "\"Tabs\" is published twice — kept 13333:125819 on \"Additional components\" (the one the catalog names), dropped 20968:83266 on \"Tabs\"",
+      "\"iOS / Sheet\" is published twice on \"Layouts\" — kept 13333:131632, dropped 13333:131648; the capture script reached only one of them"
     ],
     "coloursMatchingNeitherMode": [
       "Alert theme=Success heading/neutral/default rendered #450a0a, Light #1f2022 / Dark #f5f6f6",
@@ -78,13 +34,348 @@
       "Button State=pressed background/brand/strong/pressed rendered #0b516f, Light #07344a / Dark #009fd9",
       "Checkbox isChecked=true Background/Primary/medium [default] rendered #009fd9, Light ? / Dark ?",
       "Checkbox isIndeterminate=true Background/Primary/medium [default] rendered #009fd9, Light ? / Dark ?",
-      "Icon Button State=pressed background/brand/strong/pressed rendered #0b516f, Light #07344a / Dark #009fd9"
+      "Icon Button State=pressed background/brand/strong/pressed rendered #0b516f, Light #07344a / Dark #009fd9",
+      "Icon Fab State=Pressing background/brand/strong/pressed rendered #0b516f, Light #07344a / Dark #009fd9",
+      "Text Fab State=Pressing background/brand/strong/pressed rendered #0b516f, Light #07344a / Dark #009fd9"
     ],
     "captureNotes": [
-      "Additional components: read under an ONLY list for the three components whose axes moved in the 2026-09-01 republish"
+      "Icons: Read under an ONLY list of the four components the catalog holds; the page publishes 904 icon owners, which icons.figma.json covers and a whole-page spec read truncates on.",
+      "Playground: page published nothing"
     ]
   },
   "components": {
+    "❌ Headers": {
+      "type": "COMPONENT_SET",
+      "page": "Additional components",
+      "nodeId": "35574:59747",
+      "axes": {
+        "OS": [
+          "iOS",
+          "Android"
+        ],
+        "Type": [
+          "Navbar",
+          "Scope",
+          "Big Title (iOS Only)",
+          "Search (Explore)",
+          "Search"
+        ],
+        "Icon Left": [
+          "False",
+          "True"
+        ],
+        "Icon Right": [
+          "False",
+          "True"
+        ]
+      },
+      "defaults": {
+        "OS": "iOS",
+        "Type": "Navbar",
+        "Icon Left": "True",
+        "Icon Right": "True"
+      },
+      "children": 20,
+      "crossProduct": 40,
+      "recorded": 8,
+      "reduced": {
+        "children": 20,
+        "recorded": 8,
+        "cappedAt": null
+      },
+      "variants": [
+        {
+          "for": [
+            "OS=iOS",
+            "Type=Navbar",
+            "Icon Left=True",
+            "Icon Right=True"
+          ],
+          "props": {},
+          "fill": [
+            "Colors",
+            "White",
+            "#ffffff"
+          ],
+          "radius": 0,
+          "size": [
+            375,
+            44
+          ],
+          "mode": "VERTICAL",
+          "sizing": [
+            "FIXED",
+            "HUG"
+          ],
+          "gap": 0,
+          "padding": 0,
+          "text": {
+            "layer": "Link - Left",
+            "fill": [
+              "Colors",
+              "Blue",
+              "#009fd9"
+            ],
+            "style": "Body/Text 1",
+            "size": 16
+          }
+        },
+        {
+          "for": [
+            "OS=Android"
+          ],
+          "props": {
+            "OS": "Android"
+          },
+          "fill": [
+            "Colors",
+            "White",
+            "#ffffff"
+          ],
+          "radius": 0,
+          "size": [
+            411,
+            56
+          ],
+          "mode": "VERTICAL",
+          "sizing": [
+            "FIXED",
+            "HUG"
+          ],
+          "gap": 10,
+          "padding": 0,
+          "text": {
+            "layer": "Title",
+            "fill": [
+              "Colors",
+              "Black",
+              "#2f3033"
+            ],
+            "style": "Headings/Native/Title 6",
+            "size": 16
+          }
+        },
+        {
+          "for": [
+            "Type=Scope"
+          ],
+          "props": {
+            "Type": "Scope",
+            "Icon Left": "False",
+            "Icon Right": "False"
+          },
+          "radius": 0,
+          "size": [
+            375,
+            49
+          ],
+          "mode": "VERTICAL",
+          "sizing": [
+            "FIXED",
+            "HUG"
+          ],
+          "gap": 0,
+          "padding": 0,
+          "text": {
+            "layer": "Text",
+            "fill": [
+              "Colors",
+              "Black 300",
+              "#676d73"
+            ],
+            "style": null,
+            "size": 17
+          }
+        },
+        {
+          "for": [
+            "Type=Big Title (iOS Only)"
+          ],
+          "props": {
+            "Type": "Big Title (iOS Only)",
+            "Icon Left": "False",
+            "Icon Right": "False"
+          },
+          "radius": 0,
+          "size": [
+            375,
+            50
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "FIXED",
+            "FIXED"
+          ],
+          "gap": [
+            "Space",
+            "native/1",
+            4
+          ],
+          "padding": [
+            0,
+            [
+              "Space",
+              "native/3",
+              16
+            ],
+            0,
+            [
+              "Space",
+              "native/3",
+              16
+            ]
+          ],
+          "text": {
+            "layer": "Page Heading",
+            "fill": [
+              "Colors",
+              "Black",
+              "#2f3033"
+            ],
+            "style": null,
+            "size": 34
+          }
+        },
+        {
+          "for": [
+            "Type=Search (Explore)"
+          ],
+          "props": {
+            "OS": "Android",
+            "Type": "Search (Explore)",
+            "Icon Left": "False",
+            "Icon Right": "False"
+          },
+          "fill": [
+            "Colors",
+            "White",
+            "#ffffff"
+          ],
+          "radius": 0,
+          "size": [
+            411,
+            80
+          ],
+          "mode": "VERTICAL",
+          "sizing": [
+            "FIXED",
+            "HUG"
+          ],
+          "gap": 0,
+          "padding": 0,
+          "text": {
+            "layer": "Which service do you",
+            "fill": [
+              "Colors",
+              "Black 300",
+              "#676d73"
+            ],
+            "style": null,
+            "size": 16
+          }
+        },
+        {
+          "for": [
+            "Type=Search"
+          ],
+          "props": {
+            "Type": "Search"
+          },
+          "radius": 0,
+          "size": [
+            375,
+            68
+          ],
+          "mode": "VERTICAL",
+          "sizing": [
+            "FIXED",
+            "HUG"
+          ],
+          "gap": 0,
+          "padding": 0,
+          "text": {
+            "layer": "Which service do you",
+            "fill": [
+              "Colors",
+              "Black 300",
+              "#676d73"
+            ],
+            "style": null,
+            "size": 16
+          }
+        },
+        {
+          "for": [
+            "Icon Left=False"
+          ],
+          "props": {
+            "Icon Left": "False"
+          },
+          "fill": [
+            "Colors",
+            "White",
+            "#ffffff"
+          ],
+          "radius": 0,
+          "size": [
+            375,
+            44
+          ],
+          "mode": "VERTICAL",
+          "sizing": [
+            "FIXED",
+            "HUG"
+          ],
+          "gap": 0,
+          "padding": 0,
+          "text": {
+            "layer": "Link - Left",
+            "fill": [
+              "Colors",
+              "Blue",
+              "#009fd9"
+            ],
+            "style": "Body/Text 1",
+            "size": 16
+          }
+        },
+        {
+          "for": [
+            "Icon Right=False"
+          ],
+          "props": {
+            "Icon Right": "False"
+          },
+          "fill": [
+            "Colors",
+            "White",
+            "#ffffff"
+          ],
+          "radius": 0,
+          "size": [
+            375,
+            44
+          ],
+          "mode": "VERTICAL",
+          "sizing": [
+            "FIXED",
+            "HUG"
+          ],
+          "gap": 0,
+          "padding": 0,
+          "text": {
+            "layer": "Link - Left",
+            "fill": [
+              "Colors",
+              "Blue",
+              "#009fd9"
+            ],
+            "style": "Body/Text 1",
+            "size": 16
+          }
+        }
+      ]
+    },
     "Accordion / Group": {
       "type": "COMPONENT",
       "page": "Accordion",
@@ -118,141 +409,6 @@
           "size": 20
         }
       }
-    },
-    "Accordion / Item": {
-      "type": "COMPONENT_SET",
-      "page": "Accordion",
-      "nodeId": "15247:1965",
-      "axes": {
-        "State": [
-          "closed",
-          "open"
-        ]
-      },
-      "defaults": {
-        "State": "closed"
-      },
-      "children": 2,
-      "crossProduct": 2,
-      "recorded": 2,
-      "variants": [
-        {
-          "for": [
-            "State=closed"
-          ],
-          "props": {},
-          "fill": [
-            "Tokens / Semantic Colors",
-            "background/neutral/default",
-            "#ffffff"
-          ],
-          "stroke": [
-            "Tokens / Semantic Colors",
-            "border/neutral/default",
-            "#dddee1"
-          ],
-          "strokeWeight": [
-            0,
-            0,
-            1,
-            0
-          ],
-          "radius": 0,
-          "size": [
-            466,
-            56
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "FILL",
-            "HUG"
-          ],
-          "gap": [
-            "Tokens / Space",
-            "4",
-            16
-          ],
-          "padding": [
-            [
-              "Tokens / Space",
-              "4",
-              16
-            ],
-            0,
-            [
-              "Tokens / Space",
-              "4",
-              16
-            ],
-            0
-          ],
-          "text": {
-            "layer": "heading",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "heading/neutral/default",
-              "#1f2022"
-            ],
-            "style": "Title/4",
-            "size": 20
-          }
-        },
-        {
-          "for": [
-            "State=open"
-          ],
-          "props": {
-            "State": "open"
-          },
-          "fill": [
-            "Tokens / Semantic Colors",
-            "background/neutral/default",
-            "#ffffff"
-          ],
-          "stroke": [
-            "Tokens / Semantic Colors",
-            "border/neutral/default",
-            "#dddee1"
-          ],
-          "strokeWeight": [
-            0,
-            0,
-            1,
-            0
-          ],
-          "radius": 0,
-          "size": [
-            466,
-            92
-          ],
-          "mode": "VERTICAL",
-          "sizing": [
-            "FILL",
-            "HUG"
-          ],
-          "gap": 0,
-          "padding": [
-            0,
-            0,
-            [
-              "Tokens / Space",
-              "4",
-              16
-            ],
-            0
-          ],
-          "text": {
-            "layer": "heading",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "heading/neutral/default",
-              "#1f2022"
-            ],
-            "style": "Title/4",
-            "size": 20
-          }
-        }
-      ]
     },
     "Action Sheet": {
       "type": "COMPONENT",
@@ -573,6 +729,207 @@
             72,
             72
           ]
+        }
+      ]
+    },
+    "Availability Chip": {
+      "type": "COMPONENT_SET",
+      "page": "💠 Local components",
+      "nodeId": "34627:8912",
+      "axes": {
+        "Property 1": [
+          "Available",
+          "Native",
+          "Not built",
+          "Not applicable",
+          "In progress",
+          "Partial"
+        ]
+      },
+      "defaults": {
+        "Property 1": "Available"
+      },
+      "children": 6,
+      "crossProduct": 6,
+      "recorded": 6,
+      "variants": [
+        {
+          "for": [
+            "Property 1=Available"
+          ],
+          "props": {},
+          "radius": 0,
+          "size": [
+            100,
+            24
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "FIXED",
+            "FIXED"
+          ],
+          "gap": 4,
+          "padding": 0,
+          "text": {
+            "layer": "Available",
+            "fill": [
+              "Tokens / Semantic Colors",
+              "text/success/strong",
+              "#07271d"
+            ],
+            "style": "Title/8",
+            "size": 12
+          }
+        },
+        {
+          "for": [
+            "Property 1=Native"
+          ],
+          "props": {
+            "Property 1": "Native"
+          },
+          "radius": 0,
+          "size": [
+            100,
+            24
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "FIXED",
+            "FIXED"
+          ],
+          "gap": 6,
+          "padding": 0,
+          "text": {
+            "layer": "Use Native OS",
+            "fill": [
+              "Tokens / Semantic Colors",
+              "text/info/strong",
+              "#1d2249"
+            ],
+            "style": "Title/8",
+            "size": 12
+          }
+        },
+        {
+          "for": [
+            "Property 1=Not built"
+          ],
+          "props": {
+            "Property 1": "Not built"
+          },
+          "radius": 0,
+          "size": [
+            100,
+            24
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "FIXED",
+            "FIXED"
+          ],
+          "gap": 4,
+          "padding": 0,
+          "text": {
+            "layer": "Not built",
+            "fill": [
+              "Tokens / Semantic Colors",
+              "heading/neutral/medium",
+              "#595c61"
+            ],
+            "style": "Title/8",
+            "size": 12
+          }
+        },
+        {
+          "for": [
+            "Property 1=Not applicable"
+          ],
+          "props": {
+            "Property 1": "Not applicable"
+          },
+          "radius": 0,
+          "size": [
+            100,
+            24
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "FIXED",
+            "FIXED"
+          ],
+          "gap": 6,
+          "padding": 0,
+          "text": {
+            "layer": "Not applicable",
+            "fill": [
+              "Tokens / Semantic Colors",
+              "heading/neutral/medium",
+              "#595c61"
+            ],
+            "style": "Title/8",
+            "size": 12
+          }
+        },
+        {
+          "for": [
+            "Property 1=In progress"
+          ],
+          "props": {
+            "Property 1": "In progress"
+          },
+          "radius": 0,
+          "size": [
+            100,
+            24
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "FIXED",
+            "FIXED"
+          ],
+          "gap": 6,
+          "padding": 0,
+          "text": {
+            "layer": "In progress",
+            "fill": [
+              "Tokens / Semantic Colors",
+              "text/warning/strong",
+              "#713f12"
+            ],
+            "style": "Title/8",
+            "size": 12
+          }
+        },
+        {
+          "for": [
+            "Property 1=Partial"
+          ],
+          "props": {
+            "Property 1": "Partial"
+          },
+          "radius": 0,
+          "size": [
+            100,
+            24
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "FIXED",
+            "FIXED"
+          ],
+          "gap": 4,
+          "padding": 0,
+          "text": {
+            "layer": "Partial availability",
+            "fill": [
+              "Tokens / Semantic Colors",
+              "text/success/strong",
+              "#07271d"
+            ],
+            "style": "Title/8",
+            "size": 12
+          }
         }
       ]
     },
@@ -1923,6 +2280,166 @@
         }
       ]
     },
+    "Bubble / Media": {
+      "type": "COMPONENT_SET",
+      "page": "Additional components",
+      "nodeId": "31675:40060",
+      "axes": {
+        "Theme": [
+          "Recipient",
+          "Sender"
+        ],
+        "Type": [
+          "Media",
+          "File",
+          "File & Media"
+        ]
+      },
+      "defaults": {
+        "Theme": "Recipient",
+        "Type": "Media"
+      },
+      "children": 6,
+      "crossProduct": 6,
+      "recorded": 4,
+      "reduced": {
+        "children": 6,
+        "recorded": 4,
+        "cappedAt": null
+      },
+      "variants": [
+        {
+          "for": [
+            "Theme=Recipient",
+            "Type=Media"
+          ],
+          "props": {},
+          "radius": 0,
+          "size": [
+            375,
+            145.5
+          ],
+          "mode": "VERTICAL",
+          "sizing": [
+            "FILL",
+            "HUG"
+          ],
+          "gap": [
+            "Space",
+            "web/2",
+            8
+          ],
+          "padding": [
+            0,
+            40,
+            0,
+            0
+          ]
+        },
+        {
+          "for": [
+            "Theme=Sender"
+          ],
+          "props": {
+            "Theme": "Sender"
+          },
+          "radius": 0,
+          "size": [
+            375,
+            145.5
+          ],
+          "mode": "VERTICAL",
+          "sizing": [
+            "FILL",
+            "HUG"
+          ],
+          "gap": [
+            "Space",
+            "web/2",
+            8
+          ],
+          "padding": 0
+        },
+        {
+          "for": [
+            "Type=File"
+          ],
+          "props": {
+            "Type": "File"
+          },
+          "radius": 0,
+          "size": [
+            375,
+            61.8
+          ],
+          "mode": "VERTICAL",
+          "sizing": [
+            "FILL",
+            "HUG"
+          ],
+          "gap": [
+            "Space",
+            "web/2",
+            8
+          ],
+          "padding": [
+            0,
+            40,
+            0,
+            0
+          ],
+          "text": {
+            "layer": "Text",
+            "fill": [
+              "Tokens / Semantic Colors",
+              "heading/neutral/default",
+              "#1f2022"
+            ],
+            "style": "Title/7",
+            "size": 14
+          }
+        },
+        {
+          "for": [
+            "Type=File & Media"
+          ],
+          "props": {
+            "Type": "File & Media"
+          },
+          "radius": 0,
+          "size": [
+            375,
+            215.3
+          ],
+          "mode": "VERTICAL",
+          "sizing": [
+            "FILL",
+            "HUG"
+          ],
+          "gap": [
+            "Space",
+            "web/2",
+            8
+          ],
+          "padding": [
+            0,
+            40,
+            0,
+            0
+          ],
+          "text": {
+            "layer": "Text",
+            "fill": [
+              "Tokens / Semantic Colors",
+              "heading/neutral/default",
+              "#1f2022"
+            ],
+            "style": "Title/7",
+            "size": 14
+          }
+        }
+      ]
+    },
     "Bubble / Structure": {
       "type": "COMPONENT_SET",
       "page": "Additional components",
@@ -2661,11 +3178,6 @@
           "props": {
             "theme": "link"
           },
-          "fill": [
-            "Tokens / Semantic Colors",
-            "background/neutral/default",
-            "#ffffff"
-          ],
           "radius": [
             "Tokens / Corner Radius",
             "sides",
@@ -3690,6 +4202,161 @@
         }
       }
     },
+    "Carousel": {
+      "type": "COMPONENT_SET",
+      "page": "Carousel",
+      "nodeId": "13326:25697",
+      "axes": {
+        "visibleCount": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      "defaults": {
+        "visibleCount": "1"
+      },
+      "children": 4,
+      "crossProduct": 4,
+      "recorded": 4,
+      "variants": [
+        {
+          "for": [
+            "visibleCount=1"
+          ],
+          "props": {},
+          "radius": 0,
+          "size": [
+            848,
+            583
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "FILL",
+            "HUG"
+          ],
+          "gap": [
+            "Tokens / Space",
+            "global/4 [16]",
+            16
+          ],
+          "padding": 0,
+          "text": {
+            "layer": "ServiceCardTitle",
+            "fill": [
+              "Tokens / Semantic Colors",
+              "heading/neutral/default",
+              "#1f2022"
+            ],
+            "style": "Title/4",
+            "size": 20
+          }
+        },
+        {
+          "for": [
+            "visibleCount=2"
+          ],
+          "props": {
+            "visibleCount": "2"
+          },
+          "radius": 0,
+          "size": [
+            848,
+            313
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "FILL",
+            "HUG"
+          ],
+          "gap": [
+            "Tokens / Space",
+            "global/4 [16]",
+            16
+          ],
+          "padding": 0,
+          "text": {
+            "layer": "ServiceCardTitle",
+            "fill": [
+              "Tokens / Semantic Colors",
+              "heading/neutral/default",
+              "#1f2022"
+            ],
+            "style": "Title/4",
+            "size": 20
+          }
+        },
+        {
+          "for": [
+            "visibleCount=3"
+          ],
+          "props": {
+            "visibleCount": "3"
+          },
+          "radius": 0,
+          "size": [
+            848,
+            223
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "FILL",
+            "HUG"
+          ],
+          "gap": [
+            "Tokens / Space",
+            "global/4 [16]",
+            16
+          ],
+          "padding": 0,
+          "text": {
+            "layer": "ServiceCardTitle",
+            "fill": [
+              "Tokens / Semantic Colors",
+              "heading/neutral/default",
+              "#1f2022"
+            ],
+            "style": "Title/4",
+            "size": 20
+          }
+        },
+        {
+          "for": [
+            "visibleCount=4"
+          ],
+          "props": {
+            "visibleCount": "4"
+          },
+          "radius": 0,
+          "size": [
+            848,
+            178
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "FILL",
+            "HUG"
+          ],
+          "gap": [
+            "Tokens / Space",
+            "global/4 [16]",
+            16
+          ],
+          "padding": 0,
+          "text": {
+            "layer": "ServiceCardTitle",
+            "fill": [
+              "Tokens / Semantic Colors",
+              "heading/neutral/default",
+              "#1f2022"
+            ],
+            "style": "Title/4",
+            "size": 20
+          }
+        }
+      ]
+    },
     "Checkbox": {
       "type": "COMPONENT_SET",
       "page": "Checkbox",
@@ -4343,7 +5010,7 @@
             9999
           ],
           "size": [
-            67,
+            58,
             36
           ],
           "mode": "HORIZONTAL",
@@ -4381,8 +5048,8 @@
               "heading/neutral/default",
               "#1f2022"
             ],
-            "style": "Title/6",
-            "size": 16
+            "style": "Title/8",
+            "size": 12
           }
         },
         {
@@ -4413,7 +5080,7 @@
             9999
           ],
           "size": [
-            67,
+            58,
             36
           ],
           "mode": "HORIZONTAL",
@@ -4451,8 +5118,8 @@
               "heading/neutral/default",
               "#1f2022"
             ],
-            "style": "Title/6",
-            "size": 16
+            "style": "Title/8",
+            "size": 12
           }
         },
         {
@@ -4483,7 +5150,7 @@
             9999
           ],
           "size": [
-            67,
+            58,
             36
           ],
           "mode": "HORIZONTAL",
@@ -4521,8 +5188,8 @@
               "heading/neutral/default",
               "#1f2022"
             ],
-            "style": "Title/6",
-            "size": 16
+            "style": "Title/8",
+            "size": 12
           }
         },
         {
@@ -4623,7 +5290,7 @@
             9999
           ],
           "size": [
-            67,
+            58,
             36
           ],
           "mode": "HORIZONTAL",
@@ -4661,8 +5328,8 @@
               "heading/neutral/default",
               "#1f2022"
             ],
-            "style": "Title/6",
-            "size": 16
+            "style": "Title/8",
+            "size": 12
           }
         },
         {
@@ -4693,7 +5360,7 @@
             9999
           ],
           "size": [
-            67,
+            58,
             36
           ],
           "mode": "HORIZONTAL",
@@ -4731,163 +5398,8 @@
               "text/disabled",
               "#b9bbbf"
             ],
-            "style": "Title/6",
-            "size": 16
-          }
-        }
-      ]
-    },
-    "Coursel": {
-      "type": "COMPONENT_SET",
-      "page": "Carousel",
-      "nodeId": "13326:25697",
-      "axes": {
-        "visibleCount": [
-          "1",
-          "2",
-          "3",
-          "4"
-        ]
-      },
-      "defaults": {
-        "visibleCount": "1"
-      },
-      "children": 4,
-      "crossProduct": 4,
-      "recorded": 4,
-      "variants": [
-        {
-          "for": [
-            "visibleCount=1"
-          ],
-          "props": {},
-          "radius": 0,
-          "size": [
-            848,
-            583
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "FILL",
-            "HUG"
-          ],
-          "gap": [
-            "Tokens / Space",
-            "global/4 [16]",
-            16
-          ],
-          "padding": 0,
-          "text": {
-            "layer": "ServiceCardTitle",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "heading/neutral/default",
-              "#1f2022"
-            ],
-            "style": "Title/4",
-            "size": 20
-          }
-        },
-        {
-          "for": [
-            "visibleCount=2"
-          ],
-          "props": {
-            "visibleCount": "2"
-          },
-          "radius": 0,
-          "size": [
-            848,
-            313
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "FILL",
-            "HUG"
-          ],
-          "gap": [
-            "Tokens / Space",
-            "global/4 [16]",
-            16
-          ],
-          "padding": 0,
-          "text": {
-            "layer": "ServiceCardTitle",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "heading/neutral/default",
-              "#1f2022"
-            ],
-            "style": "Title/4",
-            "size": 20
-          }
-        },
-        {
-          "for": [
-            "visibleCount=3"
-          ],
-          "props": {
-            "visibleCount": "3"
-          },
-          "radius": 0,
-          "size": [
-            848,
-            223
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "FILL",
-            "HUG"
-          ],
-          "gap": [
-            "Tokens / Space",
-            "global/4 [16]",
-            16
-          ],
-          "padding": 0,
-          "text": {
-            "layer": "ServiceCardTitle",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "heading/neutral/default",
-              "#1f2022"
-            ],
-            "style": "Title/4",
-            "size": 20
-          }
-        },
-        {
-          "for": [
-            "visibleCount=4"
-          ],
-          "props": {
-            "visibleCount": "4"
-          },
-          "radius": 0,
-          "size": [
-            848,
-            178
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "FILL",
-            "HUG"
-          ],
-          "gap": [
-            "Tokens / Space",
-            "global/4 [16]",
-            16
-          ],
-          "padding": 0,
-          "text": {
-            "layer": "ServiceCardTitle",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "heading/neutral/default",
-              "#1f2022"
-            ],
-            "style": "Title/4",
-            "size": 20
+            "style": "Title/8",
+            "size": 12
           }
         }
       ]
@@ -5346,7 +5858,7 @@
     },
     "Dropdown": {
       "type": "COMPONENT_SET",
-      "page": "📌 Dropdown",
+      "page": "Dropdown",
       "nodeId": "11235:8445",
       "axes": {
         "Platform": [
@@ -5731,36 +6243,317 @@
         }
       ]
     },
-    "Headers / Filtering": {
+    "Google-Plus Icon - Large": {
       "type": "COMPONENT",
-      "page": "Additional components",
-      "nodeId": "13333:125719",
+      "page": "Icons",
+      "nodeId": "34877:6909",
       "resting": {
         "radius": 0,
         "size": [
+          32,
+          32
+        ]
+      }
+    },
+    "Google-Plus Icon - Medium": {
+      "type": "COMPONENT",
+      "page": "Icons",
+      "nodeId": "34877:6938",
+      "resting": {
+        "radius": 0,
+        "size": [
+          28,
+          28
+        ]
+      }
+    },
+    "Google-Plus Icon - Small": {
+      "type": "COMPONENT",
+      "page": "Icons",
+      "nodeId": "34877:6950",
+      "resting": {
+        "radius": 0,
+        "size": [
+          18,
+          18
+        ]
+      }
+    },
+    "Google-Plus Icon - Tiny": {
+      "type": "COMPONENT",
+      "page": "Icons",
+      "nodeId": "34877:6978",
+      "resting": {
+        "radius": 0,
+        "size": [
+          14,
+          14
+        ]
+      }
+    },
+    "Headers": {
+      "type": "COMPONENT_SET",
+      "page": "Additional components",
+      "nodeId": "35574:60014",
+      "axes": {
+        "Type": [
+          "Big Title",
+          "Navbar",
+          "Scope",
+          "Search"
+        ],
+        "Platform": [
+          "Android",
+          "iOS"
+        ]
+      },
+      "defaults": {
+        "Type": "Navbar",
+        "Platform": "iOS"
+      },
+      "children": 7,
+      "crossProduct": 8,
+      "recorded": 5,
+      "reduced": {
+        "children": 7,
+        "recorded": 5,
+        "cappedAt": null
+      },
+      "variants": [
+        {
+          "for": [
+            "Type=Big Title"
+          ],
+          "props": {
+            "Type": "Big Title"
+          },
+          "radius": 0,
+          "size": [
+            375,
+            50
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "FIXED",
+            "FIXED"
+          ],
+          "gap": [
+            "Space",
+            "native/1",
+            4
+          ],
+          "padding": [
+            0,
+            [
+              "Space",
+              "native/3",
+              16
+            ],
+            0,
+            [
+              "Space",
+              "native/3",
+              16
+            ]
+          ],
+          "text": {
+            "layer": "Page Heading",
+            "fill": [
+              "Colors",
+              "Black",
+              "#2f3033"
+            ],
+            "style": "Headings/Native/Title 6",
+            "size": 16
+          }
+        },
+        {
+          "for": [
+            "Type=Navbar",
+            "Platform=iOS"
+          ],
+          "props": {},
+          "fill": [
+            "Colors",
+            "White",
+            "#ffffff"
+          ],
+          "radius": 0,
+          "size": [
+            375,
+            44
+          ],
+          "mode": "VERTICAL",
+          "sizing": [
+            "FIXED",
+            "FIXED"
+          ],
+          "gap": 0,
+          "padding": 0,
+          "text": {
+            "layer": "Title",
+            "fill": [
+              "Colors",
+              "Black",
+              "#2f3033"
+            ],
+            "style": "Headings/Native/Title 6",
+            "size": 16
+          }
+        },
+        {
+          "for": [
+            "Type=Scope"
+          ],
+          "props": {
+            "Type": "Scope"
+          },
+          "radius": 0,
+          "size": [
+            375,
+            49
+          ],
+          "mode": "VERTICAL",
+          "sizing": [
+            "FIXED",
+            "HUG"
+          ],
+          "gap": 0,
+          "padding": 0,
+          "text": {
+            "layer": "Text",
+            "fill": [
+              "Colors",
+              "Black 300",
+              "#676d73"
+            ],
+            "style": null,
+            "size": 17
+          }
+        },
+        {
+          "for": [
+            "Type=Search"
+          ],
+          "props": {
+            "Type": "Search"
+          },
+          "radius": 0,
+          "size": [
+            375,
+            68
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "FIXED",
+            "HUG"
+          ],
+          "gap": [
+            "Space",
+            "native/2",
+            8
+          ],
+          "padding": [
+            [
+              "Space",
+              "native/3",
+              16
+            ],
+            [
+              "Space",
+              "native/3",
+              16
+            ],
+            0,
+            [
+              "Space",
+              "native/3",
+              16
+            ]
+          ],
+          "text": {
+            "layer": "Which service do you",
+            "fill": [
+              "Colors",
+              "Black 300",
+              "#676d73"
+            ],
+            "style": null,
+            "size": 16
+          }
+        },
+        {
+          "for": [
+            "Platform=Android"
+          ],
+          "props": {
+            "Platform": "Android"
+          },
+          "fill": [
+            "Colors",
+            "White",
+            "#ffffff"
+          ],
+          "radius": 0,
+          "size": [
+            411,
+            56
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "FIXED",
+            "FIXED"
+          ],
+          "gap": 0,
+          "padding": [
+            "Space",
+            "native/3",
+            16
+          ],
+          "text": {
+            "layer": "Title",
+            "fill": [
+              "Colors",
+              "Black",
+              "#2f3033"
+            ],
+            "style": "Headings/Native/Title 6",
+            "size": 16
+          }
+        }
+      ]
+    },
+    "Headers / Navbar / iOS": {
+      "type": "COMPONENT",
+      "page": "Additional components",
+      "nodeId": "35574:59957",
+      "resting": {
+        "fill": [
+          "Colors",
+          "White",
+          "#ffffff"
+        ],
+        "radius": 0,
+        "size": [
           375,
-          34
+          44
         ],
         "mode": "VERTICAL",
         "sizing": [
           "FIXED",
-          "HUG"
+          "FIXED"
         ],
-        "gap": [
-          "Space",
-          "native/2",
-          8
-        ],
+        "gap": 0,
         "padding": 0,
         "text": {
-          "layer": "Label",
+          "layer": "Title",
           "fill": [
-            "Tokens / Semantic Colors",
-            "heading/neutral/default",
-            "#1f2022"
+            "Colors",
+            "Black",
+            "#2f3033"
           ],
-          "style": null,
-          "size": 12
+          "style": "Headings/Native/Title 6",
+          "size": 16
         }
       }
     },
@@ -6737,7 +7530,7 @@
           "fill": [
             "Tokens / Semantic Colors",
             "background/brand/strong/pressed",
-            "#07344a"
+            "#0b516f"
           ],
           "radius": [
             "Corner Radius",
@@ -6946,99 +7739,35 @@
       ]
     },
     "iOS / Sheet": {
-      "type": "COMPONENT_SET",
+      "type": "COMPONENT",
       "page": "Layouts",
-      "nodeId": "13333:131648",
-      "axes": {
-        "Size": [
-          "Half",
-          "Full"
-        ]
-      },
-      "defaults": {
-        "Size": "Full"
-      },
-      "children": 2,
-      "crossProduct": 2,
-      "recorded": 2,
-      "variants": [
-        {
-          "for": [
-            "Size=Half"
+      "nodeId": "13333:131632",
+      "resting": {
+        "fill": [
+          "Tokens / Base Colors",
+          "system/black",
+          "#000000"
+        ],
+        "radius": 0,
+        "size": [
+          [
+            "Platform Support",
+            "Native/Width/Default",
+            390
           ],
-          "props": {
-            "Size": "Half"
-          },
-          "radius": [
-            10,
-            10,
-            0,
-            0
+          812
+        ],
+        "text": {
+          "layer": "✏️ Time",
+          "fill": [
+            "Tokens / Semantic Colors",
+            "text/success/strong",
+            "#07271d"
           ],
-          "size": [
-            [
-              "Platform Support",
-              "Native/Width/Default",
-              390
-            ],
-            378.5
-          ],
-          "mode": "VERTICAL",
-          "sizing": [
-            "FIXED",
-            "FIXED"
-          ],
-          "gap": 0,
-          "padding": 0,
-          "text": {
-            "layer": "Title",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "heading/neutral/default",
-              "#1f2022"
-            ],
-            "style": "Headings / Title 6",
-            "size": 16
-          }
-        },
-        {
-          "for": [
-            "Size=Full"
-          ],
-          "props": {},
-          "radius": [
-            10,
-            10,
-            0,
-            0
-          ],
-          "size": [
-            [
-              "Platform Support",
-              "Native/Width/Default",
-              390
-            ],
-            757
-          ],
-          "mode": "VERTICAL",
-          "sizing": [
-            "FIXED",
-            "FIXED"
-          ],
-          "gap": 0,
-          "padding": 0,
-          "text": {
-            "layer": "Title",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "heading/neutral/default",
-              "#1f2022"
-            ],
-            "style": "Headings / Title 6",
-            "size": 16
-          }
+          "style": null,
+          "size": 14.3247
         }
-      ]
+      }
     },
     "iOS / Sheet / Backdrop": {
       "type": "COMPONENT",
@@ -7450,7 +8179,7 @@
           "inverse",
           "alert",
           "longtext",
-          "theme6"
+          "disabled"
         ],
         "isDisabled": [
           "false",
@@ -7647,11 +8376,11 @@
         },
         {
           "for": [
-            "theme=theme6",
+            "theme=disabled",
             "isDisabled=true"
           ],
           "props": {
-            "theme": "theme6",
+            "theme": "disabled",
             "isDisabled": "true"
           },
           "radius": 0,
@@ -7716,6 +8445,48 @@
           }
         }
       ]
+    },
+    "Link Section": {
+      "type": "COMPONENT",
+      "page": "💠 Local components",
+      "nodeId": "35184:30059",
+      "resting": {
+        "fill": "#f5f6f6",
+        "stroke": "#eeeff2",
+        "strokeWeight": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "radius": 0,
+        "size": [
+          258,
+          44.8
+        ],
+        "mode": "VERTICAL",
+        "sizing": [
+          "FIXED",
+          "HUG"
+        ],
+        "gap": 0,
+        "padding": [
+          15.5,
+          16,
+          12.3,
+          16
+        ],
+        "text": {
+          "layer": "Thumbprint.design",
+          "fill": [
+            "Tokens / Semantic Colors",
+            "heading/neutral/medium",
+            "#595c61"
+          ],
+          "style": null,
+          "size": 12
+        }
+      }
     },
     "Loader Dots": {
       "type": "COMPONENT_SET",
@@ -7825,6 +8596,82 @@
           "padding": 0
         }
       ]
+    },
+    "Messager / Media modal": {
+      "type": "COMPONENT",
+      "page": "Additional components",
+      "nodeId": "20501:48138",
+      "resting": {
+        "fill": [
+          "Tokens / Semantic Colors",
+          "background/neutral/default",
+          "#ffffff"
+        ],
+        "radius": [
+          [
+            "cornerRadius",
+            "size",
+            16
+          ],
+          [
+            "cornerRadius",
+            "size",
+            16
+          ],
+          0,
+          0
+        ],
+        "size": [
+          [
+            "width",
+            "FINAL/width/small",
+            390
+          ],
+          382
+        ],
+        "mode": "VERTICAL",
+        "sizing": [
+          "FIXED",
+          "HUG"
+        ],
+        "gap": 0,
+        "padding": 0,
+        "text": {
+          "layer": "Media",
+          "fill": [
+            "Tokens / Semantic Colors",
+            "heading/neutral/default",
+            "#1f2022"
+          ],
+          "style": "Title/4",
+          "size": 20
+        }
+      }
+    },
+    "Messager Elements / Composer / Image": {
+      "type": "COMPONENT",
+      "page": "Additional components",
+      "nodeId": "20602:10238",
+      "resting": {
+        "radius": 0,
+        "size": [
+          64,
+          64
+        ],
+        "mode": "VERTICAL",
+        "sizing": [
+          "FIXED",
+          "FIXED"
+        ],
+        "gap": 0,
+        "padding": 0,
+        "text": {
+          "layer": "0:14",
+          "fill": "#ffffff",
+          "style": "Headings/Native/Title 8",
+          "size": 12
+        }
+      }
     },
     "Messenger Elements / Composer": {
       "type": "COMPONENT_SET",
@@ -8500,8 +9347,8 @@
             "layer": "Label",
             "fill": [
               "Tokens / Semantic Colors",
-              "link/brand/default",
-              "#0175a3"
+              "text/neutral/default",
+              "#1f2022"
             ],
             "style": null,
             "size": 16
@@ -8536,8 +9383,8 @@
             "layer": "Label",
             "fill": [
               "Tokens / Semantic Colors",
-              "link/brand/default",
-              "#0175a3"
+              "text/neutral/default",
+              "#1f2022"
             ],
             "style": null,
             "size": 16
@@ -8571,8 +9418,8 @@
             "layer": "Label",
             "fill": [
               "Tokens / Semantic Colors",
-              "link/brand/default",
-              "#0175a3"
+              "text/neutral/default",
+              "#1f2022"
             ],
             "style": null,
             "size": 16
@@ -9163,63 +10010,6 @@
           715
         ]
       }
-    },
-    "MultiModalControls": {
-      "type": "COMPONENT_SET",
-      "page": "Additional components",
-      "nodeId": "15280:97570",
-      "axes": {
-        "State": [
-          "Default",
-          "Recording"
-        ]
-      },
-      "defaults": {
-        "State": "Default"
-      },
-      "children": 2,
-      "crossProduct": 2,
-      "recorded": 2,
-      "variants": [
-        {
-          "for": [
-            "State=Default"
-          ],
-          "props": {},
-          "radius": 0,
-          "size": [
-            337,
-            40
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "FIXED",
-            "HUG"
-          ],
-          "gap": 8,
-          "padding": 0
-        },
-        {
-          "for": [
-            "State=Recording"
-          ],
-          "props": {
-            "State": "Recording"
-          },
-          "radius": 0,
-          "size": [
-            337,
-            40
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "FIXED",
-            "HUG"
-          ],
-          "gap": 8,
-          "padding": 0
-        }
-      ]
     },
     "Native / Alphabetic Keyboard": {
       "type": "COMPONENT_SET",
@@ -11624,7 +12414,7 @@
           },
           "radius": 0,
           "size": [
-            611,
+            619,
             59
           ],
           "mode": "HORIZONTAL",
@@ -11654,7 +12444,7 @@
           },
           "radius": 0,
           "size": [
-            609,
+            617,
             59
           ],
           "mode": "HORIZONTAL",
@@ -11684,7 +12474,7 @@
           },
           "radius": 0,
           "size": [
-            610,
+            618,
             59
           ],
           "mode": "HORIZONTAL",
@@ -11714,7 +12504,7 @@
           },
           "radius": 0,
           "size": [
-            610,
+            618,
             59
           ],
           "mode": "HORIZONTAL",
@@ -11744,7 +12534,7 @@
           },
           "radius": 0,
           "size": [
-            611,
+            619,
             59
           ],
           "mode": "HORIZONTAL",
@@ -11774,7 +12564,7 @@
           },
           "radius": 0,
           "size": [
-            612,
+            620,
             59
           ],
           "mode": "HORIZONTAL",
@@ -11802,7 +12592,7 @@
           "props": {},
           "radius": 0,
           "size": [
-            612,
+            620,
             59
           ],
           "mode": "HORIZONTAL",
@@ -12015,10 +12805,10 @@
       "nodeId": "11239:21525",
       "axes": {
         "theme": [
+          "default",
           "success",
           "warning",
-          "alert",
-          "default"
+          "alert"
         ]
       },
       "defaults": {
@@ -12028,6 +12818,52 @@
       "crossProduct": 4,
       "recorded": 4,
       "variants": [
+        {
+          "for": [
+            "theme=default"
+          ],
+          "props": {},
+          "fill": [
+            "Tokens / Semantic Colors",
+            "background/neutral/medium",
+            "#eeeff2"
+          ],
+          "radius": [
+            "Base Dimensions",
+            "Border Radius/rounded-full",
+            9999
+          ],
+          "size": [
+            54,
+            24
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "HUG",
+            "FIXED"
+          ],
+          "gap": [
+            "Tokens / Space",
+            "1",
+            4
+          ],
+          "padding": [
+            0,
+            12,
+            0,
+            12
+          ],
+          "text": {
+            "layer": "Label",
+            "fill": [
+              "Tokens / Semantic Colors",
+              "heading/neutral/default",
+              "#1f2022"
+            ],
+            "style": "Title/8",
+            "size": 12
+          }
+        },
         {
           "for": [
             "theme=success"
@@ -12061,17 +12897,9 @@
           ],
           "padding": [
             0,
-            [
-              "Tokens / Space",
-              "3",
-              12
-            ],
+            12,
             0,
-            [
-              "Tokens / Space",
-              "3",
-              12
-            ]
+            12
           ],
           "text": {
             "layer": "Label",
@@ -12117,17 +12945,9 @@
           ],
           "padding": [
             0,
-            [
-              "Tokens / Space",
-              "3",
-              12
-            ],
+            12,
             0,
-            [
-              "Tokens / Space",
-              "3",
-              12
-            ]
+            12
           ],
           "text": {
             "layer": "Label",
@@ -12173,17 +12993,9 @@
           ],
           "padding": [
             0,
-            [
-              "Tokens / Space",
-              "3",
-              12
-            ],
+            12,
             0,
-            [
-              "Tokens / Space",
-              "3",
-              12
-            ]
+            12
           ],
           "text": {
             "layer": "Label",
@@ -12195,62 +13007,107 @@
             "style": "Title/8",
             "size": 12
           }
-        },
-        {
-          "for": [
-            "theme=default"
-          ],
-          "props": {},
-          "fill": [
-            "Tokens / Semantic Colors",
-            "background/neutral/medium",
-            "#eeeff2"
-          ],
-          "radius": [
-            "Base Dimensions",
-            "Border Radius/rounded-full",
-            9999
-          ],
-          "size": [
-            54,
-            24
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "HUG",
-            "FIXED"
-          ],
-          "gap": [
-            "Tokens / Space",
-            "1",
-            4
-          ],
-          "padding": [
-            0,
-            [
-              "Tokens / Space",
-              "3",
-              12
-            ],
-            0,
-            [
-              "Tokens / Space",
-              "3",
-              12
-            ]
-          ],
-          "text": {
-            "layer": "Label",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "heading/neutral/default",
-              "#1f2022"
-            ],
-            "style": "Title/8",
-            "size": 12
-          }
         }
       ]
+    },
+    "Platform availability": {
+      "type": "COMPONENT",
+      "page": "💠 Local components",
+      "nodeId": "34627:8902",
+      "resting": {
+        "fill": [
+          "Tokens / Base Colors",
+          "system/white",
+          "#ffffff"
+        ],
+        "stroke": "#dddee1",
+        "strokeWeight": 1,
+        "radius": 16,
+        "size": [
+          258,
+          256.8
+        ],
+        "mode": "VERTICAL",
+        "sizing": [
+          "FIXED",
+          "HUG"
+        ],
+        "gap": 0,
+        "padding": [
+          16,
+          0,
+          1,
+          0
+        ],
+        "text": {
+          "layer": "Platform availability",
+          "fill": [
+            "Tokens / Semantic Colors",
+            "heading/neutral/medium",
+            "#595c61"
+          ],
+          "style": null,
+          "size": 14
+        }
+      }
+    },
+    "Platform Section": {
+      "type": "COMPONENT",
+      "page": "💠 Local components",
+      "nodeId": "35184:30157",
+      "resting": {
+        "fill": [
+          "Tokens / Base Colors",
+          "system/white",
+          "#ffffff"
+        ],
+        "stroke": "#eeeff2",
+        "strokeWeight": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "radius": 0,
+        "size": [
+          258,
+          56
+        ],
+        "mode": "VERTICAL",
+        "sizing": [
+          "FIXED",
+          "HUG"
+        ],
+        "gap": [
+          "Tokens / Space",
+          "1",
+          4
+        ],
+        "padding": [
+          [
+            "Tokens / Space",
+            "4",
+            16
+          ],
+          16,
+          [
+            "Tokens / Space",
+            "4",
+            16
+          ],
+          16
+        ],
+        "text": {
+          "layer": "Web",
+          "fill": [
+            "Tokens / Semantic Colors",
+            "heading/neutral/default",
+            "#1f2022"
+          ],
+          "style": null,
+          "size": 14
+        }
+      }
     },
     "Popovers": {
       "type": "COMPONENT_SET",
@@ -13757,8 +14614,8 @@
               "heading/neutral/default",
               "#1f2022"
             ],
-            "style": "Title/5",
-            "size": 18
+            "style": "Title/6",
+            "size": 16
           }
         },
         {
@@ -13770,7 +14627,7 @@
           },
           "radius": 0,
           "size": [
-            318,
+            294,
             40
           ],
           "mode": "VERTICAL",
@@ -13787,8 +14644,8 @@
               "heading/neutral/default",
               "#1f2022"
             ],
-            "style": "Title/5",
-            "size": 18
+            "style": "Title/6",
+            "size": 16
           }
         },
         {
@@ -13817,8 +14674,8 @@
               "heading/neutral/low",
               "#686c72"
             ],
-            "style": "Title/5",
-            "size": 18
+            "style": "Title/6",
+            "size": 16
           }
         },
         {
@@ -13847,8 +14704,8 @@
               "heading/neutral/low",
               "#686c72"
             ],
-            "style": "Title/5",
-            "size": 18
+            "style": "Title/6",
+            "size": 16
           }
         }
       ]
@@ -15184,7 +16041,7 @@
           "radius": 0,
           "size": [
             178,
-            41
+            46
           ],
           "mode": "VERTICAL",
           "sizing": [
@@ -16354,7 +17211,7 @@
     },
     "Text Area": {
       "type": "COMPONENT_SET",
-      "page": "📌 Text Area",
+      "page": "Text Area",
       "nodeId": "13268:34178",
       "axes": {
         "State": [
@@ -16843,7 +17700,7 @@
           "fill": [
             "Tokens / Semantic Colors",
             "background/brand/strong/pressed",
-            "#07344a"
+            "#0b516f"
           ],
           "radius": [
             "Corner Radius",
@@ -16901,7 +17758,7 @@
     },
     "TextInput": {
       "type": "COMPONENT_SET",
-      "page": "📌 Text Input",
+      "page": "Text Input",
       "nodeId": "13232:23754",
       "axes": {
         "size": [
@@ -17941,8 +18798,8 @@
     },
     "view": {
       "type": "COMPONENT",
-      "page": "Playground",
-      "nodeId": "25247:3665",
+      "page": "Guidelines",
+      "nodeId": "25246:2695",
       "resting": {
         "radius": 0,
         "size": [

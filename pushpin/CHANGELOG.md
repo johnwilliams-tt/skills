@@ -17,6 +17,102 @@ Changes are grouped the way `diff.mjs` classifies them:
 An entry about the plugin rather than the capture adds **Fixed** for a bug in
 the toolchain, which `diff.mjs` has no category for.
 
+## 0.23.1 — 2026-09-08
+
+The kit's 2026-09 republish: Accordion / Item folded into Accordion / Group,
+Coursel renamed Carousel, Headers / Filtering and MultiModalControls retired,
+and the styles capture picked up the Native and Desktop heading ramps and the
+two body text styles. The four retired specs were dropped by a full re-read of
+every publishing page (46 pages, 124 of 124 components covered). CORE_COMPONENTS
+now names Accordion / Group so DESIGN.md keeps its accordion section.
+
+Re-captured: `styles.figma.json` (captured 2026-08-21 → 2026-09-08),
+`components.figma.json` (captured 2026-08-27 → 2026-09-08),
+`component-specs.figma.json` (captured 2026-09-01 → 2026-09-08),
+`icons.figma.json` (captured 2026-09-02 → 2026-09-08).
+
+**Breaking**
+
+- components.figma.json · components: "_Bubble / Text" is no longer in the
+  capture
+- components.figma.json · components: "_Stamps" is no longer in the capture
+- components.figma.json · components: "Accordion / Item" is no longer in the
+  capture
+- components.figma.json · components: "Coursel" is no longer in the capture
+- components.figma.json · components: "Headers / Filtering" is no longer in the
+  capture
+- components.figma.json · components: "MultiModalControls" is no longer in the
+  capture
+- component-specs.figma.json · specs: "Accordion / Item" is no longer in the
+  capture
+- component-specs.figma.json · specs: "Coursel" is no longer in the capture
+- component-specs.figma.json · specs: "Headers / Filtering" is no longer in the
+  capture
+- component-specs.figma.json · specs: "MultiModalControls" is no longer in the
+  capture
+
+**Changed**
+
+- components.figma.json · components: 14 entries changed — Bubble / Structure,
+  Bubble / Text, Button, Chip, Dropdown, Icon Button, Link, Modal / Factory /
+  Illustration, Modal / Factory / Main, Modal / Promotion, Pill, Text Area, +2
+  more
+- component-specs.figma.json · specs: 15 entries changed — Button, Chip,
+  Dropdown, Icon Fab, iOS / Sheet, Link, Modal / Factory / Footer, Navigation /
+  Pro / Tabs, Pill, Segmented Control, Star Rating / ReviewScoreSummary, Text
+  Area, +3 more
+
+**Added**
+
+- styles.figma.json · textStyles: "Headings/Native/Title 7" is new
+- styles.figma.json · textStyles: "Body/Text 1" is new
+- styles.figma.json · textStyles: "Headings/Native/Title 5" is new
+- styles.figma.json · textStyles: "Headings/Desktop/Title 2" is new
+- styles.figma.json · textStyles: "Body/Text 2" is new
+- styles.figma.json · textStyles: "Body/Text 3" is new
+- styles.figma.json · textStyles: "Headings/Native/Title 6" is new
+- styles.figma.json · textStyles: "Headings/Desktop/Title 3" is new
+- styles.figma.json · textStyles: "Headings/Native/Title 8" is new
+- styles.figma.json · textStyles: "Headings/Native/Title 3" is new
+- styles.figma.json · textStyles: "Headings/Native/Title 1" is new
+- styles.figma.json · textStyles: "Headings/Native/Title 2" is new
+- styles.figma.json · textStyles: "Headings/Native/Title 4" is new
+- styles.figma.json · textStyles: "Headings/Desktop/Title 1" is new
+- styles.figma.json · effectStyles: "B Footer · Shadow" is new
+- styles.figma.json · effectStyles: "A Header · Shadow" is new
+- components.figma.json · components: "❌ Headers" is new
+- components.figma.json · components: "Availability Chip" is new
+- components.figma.json · components: "Bubble / Media" is new
+- components.figma.json · components: "Carousel" is new
+- components.figma.json · components: "Google-Plus Icon - Large" is new
+- components.figma.json · components: "Google-Plus Icon - Medium" is new
+- components.figma.json · components: "Google-Plus Icon - Small" is new
+- components.figma.json · components: "Google-Plus Icon - Tiny" is new
+- components.figma.json · components: "Headers" is new
+- components.figma.json · components: "Headers / Navbar / iOS" is new
+- components.figma.json · components: "Link Section" is new
+- components.figma.json · components: "Messager / Media modal" is new
+- components.figma.json · components: "Messager Elements / Composer / Image" is
+  new
+- components.figma.json · components: "Platform availability" is new
+- components.figma.json · components: "Platform Section" is new
+- component-specs.figma.json · specs: "❌ Headers" is new
+- component-specs.figma.json · specs: "Availability Chip" is new
+- component-specs.figma.json · specs: "Bubble / Media" is new
+- component-specs.figma.json · specs: "Carousel" is new
+- component-specs.figma.json · specs: "Google-Plus Icon - Large" is new
+- component-specs.figma.json · specs: "Google-Plus Icon - Medium" is new
+- component-specs.figma.json · specs: "Google-Plus Icon - Small" is new
+- component-specs.figma.json · specs: "Google-Plus Icon - Tiny" is new
+- component-specs.figma.json · specs: "Headers" is new
+- component-specs.figma.json · specs: "Headers / Navbar / iOS" is new
+- component-specs.figma.json · specs: "Link Section" is new
+- component-specs.figma.json · specs: "Messager / Media modal" is new
+- component-specs.figma.json · specs: "Messager Elements / Composer / Image" is
+  new
+- component-specs.figma.json · specs: "Platform availability" is new
+- component-specs.figma.json · specs: "Platform Section" is new
+
 ## 0.23.0 — 2026-09-08
 
 Three things about a project were never asked and so never recorded: whether the
