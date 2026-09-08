@@ -158,7 +158,7 @@ export const CORE_COMPONENTS = [
   'Tip',
   'Toast',
   'Tooltip',
-  'Accordion / Item',
+  'Accordion / Group',
   'Tabs',
   'Segmented Control',
   'Progress Meter',

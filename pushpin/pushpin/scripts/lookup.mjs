@@ -816,7 +816,7 @@ function advise(term) {
     console.error('\nDid you mean:');
     for (const n of near) console.error(`  ${n}`);
   } else {
-    console.error('\nNames are case-sensitive and often qualified — "Accordion / Item", not "Accordion".');
+    console.error('\nNames are case-sensitive and often qualified — "Accordion / Group", not "Accordion".');
     console.error('Try a shorter fragment, or --list to see what exists.');
   }
 }
