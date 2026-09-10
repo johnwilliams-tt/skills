@@ -134,8 +134,10 @@ Asking the derivation during a build is still the thing
 out at its checkpoint: departures get stated once, before anything is written,
 not raised one state at a time — and the checkpoint's own two questions are
 where and what to run, not what a card holds. **Its preamble names the lanes and
-the region each one shows**, in a line, derived by
-the rule below — so a wrong guess costs the user a correction instead of a
+the region each one shows**, in a line — one line for the whole catalog, never
+the state names inside it
+([generate.md](generate.md#the-preamble-is-scanned-not-read)) — derived by
+the rule below, so a wrong guess costs the user a correction instead of a
 question.
 
 **A card shows the smallest region containing every element the lane's bullets

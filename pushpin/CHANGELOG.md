@@ -17,6 +17,32 @@ Changes are grouped the way `diff.mjs` classifies them:
 An entry about the plugin rather than the capture adds **Fixed** for a bug in
 the toolchain, which `diff.mjs` has no category for.
 
+## 0.23.2 — 2026-09-10
+
+A Figma push put its whole checkpoint inside the question widget: the page walk,
+the naming, five lanes with every state name in parentheses, the departures and
+the region cost, run together with semicolons into a paragraph that filled the
+widget and clipped before the options. The preamble rules were already right — a
+line each, about six lines, never the state names — but nothing said where the
+preamble is written, and a question's `prompt` field is the nearest place to put
+it. That field wraps line breaks away and clips, so the shape the rules describe
+cannot survive being placed there.
+
+**Fixed**
+
+- **The checkpoint's preamble is the turn's message, not a question's prompt.**
+  It is written as text immediately before the `AskQuestion` call, and each
+  question's `prompt` is one short line — *Where should this land?*, *Anything on
+  top of the build?*.
+  [generate.md](pushpin/reference/generate.md) § The checkpoint and
+  [SKILL.md](pushpin/SKILL.md) § Where designs get written both carry it, because
+  it governs every question this skill asks rather than only this one.
+- **The preamble's lines stay lines**, one per row, never joined into a paragraph
+  by punctuation however few items there are. And how the link resolved is not
+  one of them: the node it pointed at, the section that held it, and what the
+  walk passed through on the way to the page are not things the user can stop the
+  run over, and the first line of a preamble is the most expensive line in it.
+
 ## 0.23.1 — 2026-09-08
 
 The kit's 2026-09 republish: Accordion / Item folded into Accordion / Group,

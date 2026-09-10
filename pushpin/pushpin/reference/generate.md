@@ -1363,21 +1363,35 @@ anything. It used to be two turns — the page-context offer, then the statement
 what would be built — both waiting on the same answer, and adding a third would
 put three turns between a link and a frame.
 
+**The preamble is the turn's message, not a question's prompt.** It is written
+as text immediately before the `AskQuestion` call. Each question's `prompt` is
+one short line — *Where should this land?* and *Anything on top of the build?* —
+and nothing else. A prompt field renders as running text inside the widget above
+the options, wraps its line breaks away, and clips at a few lines, so a preamble
+pasted into one arrives as an unreadable paragraph with the question buried under
+it. This message is the one thing this path says before the outcome;
+[../SKILL.md § What the user reads](../SKILL.md#what-the-user-reads) governs the
+housekeeping tasks, not this checkpoint.
+
 **The preamble states; the questions ask.** Everything below is said in the
 preamble, in a line each, so the user can stop you over any of it without being
 asked to choose about it:
 
-- What is on the page — [context.md](context.md). Skip this when the page holds
-  nothing else.
+- What is on the page — [context.md](context.md). The sections by name and
+  nothing else. Skip it entirely when the page holds nothing else.
 - What will be duplicated and what the copy is named, or that the artifact is
   net-new and nothing is being copied.
 - Every intended departure from the page's patterns, all of them here rather
-  than one at a time during the build.
+  than one at a time during the build. A clause each, naming the departure and
+  its reason — not the spec of the thing being proposed.
 - Anything the preflight degraded, so the user learns their icons will be
-  placeholders before the screen is built rather than after.
-- Where the subject is a flow, the lane list and the region each lane shows —
-  [flows.md](flows.md#what-a-card-shows-is-decided-per-lane). Stated, never
-  asked.
+  placeholders before the screen is built rather than after. A clean preflight
+  is silent — libraries that reached and assets already in the file are the
+  normal case, and reporting them spends a line on nothing having happened.
+- Where the subject is a flow, its lane count and the region each lane shows —
+  [flows.md](flows.md#what-a-card-shows-is-decided-per-lane). One line for the
+  whole catalog, lanes named inside it, never the state names —
+  [below](#the-preamble-is-scanned-not-read). Stated, never asked.
 - **What a wider region would cost, where the derived one is narrower than the
   surface its states live in.** One clause, naming the alternative and its price:
   *each card crops to the rail; the whole modal instead means hand-building it
@@ -1428,18 +1442,72 @@ is only the correction of words that arrived from somewhere else.
 check that decides whether the frame hands over at all, and a build nobody
 verified is not a cheaper build.
 
+### The preamble is scanned, not read
+
+**A line each means a line each.** Every item above is one line, and a line is a
+clause or two — not a sentence that keeps going because the underlying decision
+was interesting to make. The whole preamble fits in about six lines and reads in
+fifteen seconds, because it stands in front of two sets of options the user is
+about to pick from, and a user who has to work to find the question has been
+asked nothing at all. A run that spent a dense paragraph on page conventions,
+every state name in all four lanes, and both proposals down to their thumbnail
+sizes got back *I'm not sure what you're asking* — a wrong guess costing a round
+trip, which is the exact price stating was supposed to avoid.
+
+**The lines stay lines.** They are written one per row, as the block below is,
+and never run together into a paragraph with semicolons between them. A preamble
+whose items are separated by punctuation rather than by line breaks is the wall
+this section exists to prevent, however few items it holds.
+
+**How the link resolved is not one of the lines.** Which node the URL pointed
+at, which section it sat in, what the traversal walked through to reach the page
+— none of that is a decision the user can stop you over, and the first line of a
+preamble is the most expensive line in it.
+
+**One line per artifact, carrying its lane count and its region. Not one line
+per lane, and never one per state.** A flow catalog is one artifact however many
+lanes it holds, so a four-lane catalog of fourteen states is one line like any
+other — the same line
+[a batch](#a-batch-states-artifacts-not-lanes) writes five of. Lanes are named
+inside that line where they fit, because the decomposition is a guess the user
+should be able to correct; the states are not, because fourteen names is the
+wall:
+
+```
+Page: Setup, Site Editor, Editor Modules.
+Net-new: 'Projects Flow — Spec [Sep 8]', below Editor Modules.
+Projects Flow — 4 lanes, 14 cards, whole modal: starting point, choosing,
+  browse and filter, managing the list.
+Departures: two proposed components, from Sortable Row and ReviewPickerRow —
+  Pushpin has no row with a thumbnail.
+```
+
+**The detail is not lost, it is placed.** What a proposal extends and what it
+adds is the proposal's note, written at step 6 where an engineer reads it against
+the component — [annotate.md](annotate.md). The state names are the cards
+themselves. The page's conventions are why the build looks the way it does, and
+the user sees that by looking at it. None of that is what the user is being asked
+to stop you over; what they can stop you over is *four lanes, whole modal, two
+new components*, and that is what the preamble is for.
+
+**Where the derivation is the thing at stake, the line stays.** The region-cost
+clause above is a spend the user is being shown on purpose, and it is one clause.
+Brevity is a budget on restating what the build will show anyway, not on the two
+or three facts the checkpoint exists to surface.
+
 ### A batch states artifacts, not lanes
 
-A request covering several surfaces — a page and each of its flows — is still one
-checkpoint, and the preamble does not grow with the work.
+A batch is the rule above at scale, not a different rule. A request covering
+several surfaces — a page and each of its flows — is still one checkpoint, and
+the preamble does not grow with the work.
 [parallel.md](parallel.md#a-batch-of-artifacts) has how such a run is decomposed
 and issued; this is the shape of the one question in front of it.
 
-**One line per artifact, carrying its region and its lane count.** Not one line
-per lane. Five catalogs at five lanes each is twenty-five stated lines, and the
-argument for stating rather than asking rests on a wrong guess costing one
-correction — at twenty-five it costs the user a careful read of a wall, which is
-the same thing as costing nothing:
+**At batch scale the lane names go too, and only the count stays.** Five
+catalogs at five lanes each is twenty-five stated lines, and the argument for
+stating rather than asking rests on a wrong guess costing one correction — at
+twenty-five it costs the user a careful read of a wall, which is the same thing
+as costing nothing:
 
 ```
 Adding a service — 4 lanes, whole modal
@@ -1479,8 +1547,9 @@ before the first node exists.
 3. **One checkpoint, before anything is written** —
    [above](#the-checkpoint-is-one-call-with-two-questions). One `AskQuestion`
    call, carrying the destination and which of the paid passes to run, under a
-   preamble that states everything the user is not being asked. Nothing is
-   written until it is answered.
+   preamble that states everything the user is not being asked. The preamble is
+   the message the call is made under; a question's `prompt` is one short line.
+   Nothing is written until it is answered.
 4. **Look up what the layout needs, and claim the canvas, in one message.** Two
    calls, with no dependency between them — three where the checkpoint asked for
    the copy pass.

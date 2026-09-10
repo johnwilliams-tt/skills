@@ -1,7 +1,7 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.23.1
+version: 0.23.2
 argument-hint: "[generate|audit|figma · setup|init|update|freshness · refresh] [target]"
 allowed-tools:
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/check.mjs *)
@@ -300,6 +300,12 @@ and which of annotation and the copy pass to run, since both cost time a first
 look at a layout may not want spent. Replacing the original is not one of the
 answers: it is offered afterwards, as a move plus an `— archived [date]` rename,
 and it never deletes anything.
+
+**What is being built is stated in the message, not inside the question.** A
+`prompt` is one short line. Everything the user is not being asked — the page,
+the departures, the lane count — goes in the text the call is made under, a line
+each, because a prompt field wraps a preamble into one unreadable paragraph and
+buries the options beneath it.
 
 **The frame is linked as soon as it exists** — the empty frame, before anything
 is written into it, so the user watches it fill rather than waiting on a report
