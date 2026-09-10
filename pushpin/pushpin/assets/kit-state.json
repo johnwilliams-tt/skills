@@ -1,7 +1,7 @@
 {
   "$comment": "What the scheduled Figma check last found about the captures in this directory. Written by scripts/kit-state.mjs from a freshness --json report, read by scripts/freshness.mjs when no token is available. Not a capture: deliberately absent from manifest.json, because a verdict changing must not report every project as holding an older build.",
   "verdict": "moved",
-  "pluginVersion": "0.23.1",
+  "pluginVersion": "0.23.2",
   "against": {
     "tokens": "2026-08-06",
     "components": "2026-09-08",
