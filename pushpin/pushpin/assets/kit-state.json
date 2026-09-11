@@ -28,10 +28,10 @@
     }
   },
   "findings": [
-    "The Pushpin Thumbprint UI Kit capture has not been taken in 35 days. Nothing is known to have changed — only that it has been long enough that nobody has checked, so re-capture it before trusting a value out of it."
+    "The Pushpin Thumbprint UI Kit capture has not been taken in 36 days. Nothing is known to have changed — only that it has been long enough that nobody has checked, so re-capture it before trusting a value out of it."
   ],
   "brief": [
-    "Pushpin's copy of the Pushpin kit is 35 days old and may be behind; the next plugin update will carry a fresh one."
+    "Pushpin's copy of the Pushpin kit is 36 days old and may be behind; the next plugin update will carry a fresh one."
   ],
-  "observedAt": "2026-09-10"
+  "observedAt": "2026-09-11"
 }
