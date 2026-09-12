@@ -11,12 +11,32 @@
     "icons": "2026-09-08"
   },
   "layers": [
-    "capture age"
+    "capture age",
+    "components"
   ],
   "moved": {
     "components": {
       "unpublished": [],
-      "changed": []
+      "changed": [
+        {
+          "name": "Icon Button",
+          "key": "f78f3a616236692e3c921a2003c2ea2e54a787e8",
+          "page": "Icon Button",
+          "updatedAt": "2026-09-11T22:33:57.240Z"
+        },
+        {
+          "name": "Chip",
+          "key": "2a57896aa43e02ed4afceefa5ce5c956b306e3e7",
+          "page": "Chip",
+          "updatedAt": "2026-09-11T22:33:57.233Z"
+        },
+        {
+          "name": "Pill",
+          "key": "16f6afc13c439e980e7d2394f8a360d5109e18e4",
+          "page": "Pill",
+          "updatedAt": "2026-09-11T22:33:57.220Z"
+        }
+      ]
     },
     "icons": {
       "unpublished": [],
@@ -28,10 +48,12 @@
     }
   },
   "findings": [
-    "The Pushpin Thumbprint UI Kit capture has not been taken in 36 days. Nothing is known to have changed — only that it has been long enough that nobody has checked, so re-capture it before trusting a value out of it."
+    "The Pushpin Thumbprint UI Kit capture has not been taken in 37 days. Nothing is known to have changed — only that it has been long enough that nobody has checked, so re-capture it before trusting a value out of it.",
+    "3 components in the kit changed after the capture (2026-09-08), most recently on 2026-09-11. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Icon Button\n   Chip\n   Pill"
   ],
   "brief": [
-    "Pushpin's copy of the Pushpin kit is 36 days old and may be behind; the next plugin update will carry a fresh one."
+    "Pushpin's copy of the Pushpin kit is 37 days old and may be behind; the next plugin update will carry a fresh one.",
+    "The Pushpin team has changed some components since this version of Pushpin; the next plugin update will carry those."
   ],
-  "observedAt": "2026-09-11"
+  "observedAt": "2026-09-12"
 }
