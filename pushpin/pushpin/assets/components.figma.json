@@ -3,7 +3,7 @@
   "source": {
     "fileKey": "VVRGrLgkPRU3vs765d5Q3r",
     "fileName": "Pushpin Thumbprint UI Kit",
-    "extractedAt": "2026-09-08",
+    "extractedAt": "2026-09-12",
     "capturedTotal": 1029,
     "publishedTotal": 1028,
     "publishedSets": 100,
@@ -17,7 +17,15 @@
       "\"iOS / Sheet\" is published twice — kept 13333:131648 on \"Layouts\", dropped 13333:131632 on \"Layouts\""
     ],
     "nameStatusDisagreement": [
-      "\"Conversation\" reads as public and is not published"
+      "\"Conversation\" reads as public and is not published",
+      "\"_Badge\" reads as internal and is published",
+      "\"_Callout\" reads as internal and is published",
+      "\"_Disclosure\" reads as internal and is published",
+      "\"_Progress Meter\" reads as internal and is published",
+      "\"_Slider\" reads as internal and is published",
+      "\"_Stepper\" reads as internal and is published",
+      "\"_Tab\" reads as internal and is published",
+      "\"_Tip\" reads as internal and is published"
     ],
     "properties": "rest-editor-state",
     "carried": [
@@ -26,6 +34,248 @@
     ]
   },
   "components": {
+    "_Badge": {
+      "key": "18cc824af2c9a69129e1ef000cd46878dd9332c8",
+      "type": "COMPONENT_SET",
+      "page": "Badge",
+      "nodeId": "19384:5984",
+      "publishedAs": "Badge",
+      "instanceCount": 24,
+      "properties": {
+        "count": {
+          "type": "TEXT",
+          "key": "count#19409:4",
+          "default": "88"
+        },
+        "size": {
+          "type": "VARIANT",
+          "key": "size",
+          "options": [
+            "small",
+            "medium"
+          ],
+          "default": "small"
+        },
+        "type": {
+          "type": "VARIANT",
+          "key": "type",
+          "options": [
+            "count",
+            "dot"
+          ],
+          "default": "dot"
+        },
+        "theme": {
+          "type": "VARIANT",
+          "key": "theme",
+          "options": [
+            "alert"
+          ],
+          "default": "alert"
+        }
+      }
+    },
+    "_Callout": {
+      "key": "bc12566bdaebefb317f949326ff269b329cfa23c",
+      "type": "COMPONENT",
+      "page": "Callout",
+      "nodeId": "15271:94083",
+      "publishedAs": "Callout",
+      "instanceCount": 29,
+      "children": [
+        "_Sparkle Icon · Small"
+      ]
+    },
+    "_Disclosure": {
+      "key": "5fd3e226989c531e0ee601b2251cf2e2c176f653",
+      "type": "COMPONENT_SET",
+      "page": "Disclosure",
+      "nodeId": "19227:6590",
+      "publishedAs": "Disclosure",
+      "instanceCount": 14,
+      "properties": {
+        "isExpanded": {
+          "type": "VARIANT",
+          "key": "isExpanded",
+          "options": [
+            "false",
+            "true"
+          ],
+          "default": "false"
+        }
+      },
+      "children": [
+        "Button"
+      ]
+    },
+    "_Progress Meter": {
+      "key": "9617e6e8ece41453fa24e36d8a59c39d95e2cc58",
+      "type": "COMPONENT_SET",
+      "page": "Progress Meter",
+      "nodeId": "18463:12020",
+      "publishedAs": "Progress Meter",
+      "instanceCount": 25,
+      "properties": {
+        "status": {
+          "type": "VARIANT",
+          "key": "status",
+          "options": [
+            "0%",
+            "25%",
+            "50%",
+            "75%",
+            "100%"
+          ],
+          "default": "0%"
+        }
+      }
+    },
+    "_Slider": {
+      "key": "0ef2afae43d1aa23dc68539f171e21eac5041617",
+      "type": "COMPONENT",
+      "page": "Slider",
+      "nodeId": "15247:2002",
+      "publishedAs": "Slider",
+      "instanceCount": 10
+    },
+    "_Stepper": {
+      "key": "881c6ca001e8ce7dde06c15bfd4c6639250d298f",
+      "type": "COMPONENT",
+      "page": "Counter",
+      "nodeId": "19235:2866",
+      "publishedAs": "Stepper",
+      "instanceCount": 9,
+      "children": [
+        "_Icon Button"
+      ]
+    },
+    "_Tab": {
+      "key": "720f182bdd15a8805e64be0f88f9c7dbf71a9e6f",
+      "type": "COMPONENT_SET",
+      "page": "Tabs",
+      "nodeId": "20968:83022",
+      "publishedAs": "Tab",
+      "instanceCount": 80,
+      "properties": {
+        "showDropdown": {
+          "type": "BOOLEAN",
+          "key": "showDropdown#19409:11",
+          "default": false
+        },
+        "showBadge": {
+          "type": "BOOLEAN",
+          "key": "showBadge#19409:15",
+          "default": false
+        },
+        "showPill": {
+          "type": "BOOLEAN",
+          "key": "showPill#19409:23",
+          "default": false
+        },
+        "showIcon": {
+          "type": "VARIANT",
+          "key": "showIcon",
+          "options": [
+            "false",
+            "true"
+          ],
+          "default": "false"
+        },
+        "orientation": {
+          "type": "VARIANT",
+          "key": "orientation",
+          "options": [
+            "inline",
+            "stacked"
+          ],
+          "default": "inline"
+        },
+        "isActive": {
+          "type": "VARIANT",
+          "key": "isActive",
+          "options": [
+            "false",
+            "true"
+          ],
+          "default": "false"
+        },
+        "state": {
+          "type": "VARIANT",
+          "key": "state",
+          "options": [
+            "default",
+            "hover"
+          ],
+          "default": "default"
+        },
+        "Active Type": {
+          "type": "VARIANT",
+          "key": "Active Type",
+          "options": [
+            "round"
+          ],
+          "default": "round"
+        }
+      },
+      "children": [
+        "_Grass Icon · Tiny",
+        "Pill",
+        "Badge",
+        "Caret-Down Icon · Tiny"
+      ]
+    },
+    "_Tip": {
+      "key": "b6f0e083a187a826129131250ebc152d57156c83",
+      "type": "COMPONENT_SET",
+      "page": "Tip",
+      "nodeId": "21085:202583",
+      "publishedAs": "Tip",
+      "instanceCount": 36,
+      "properties": {
+        "showMoreAction": {
+          "type": "BOOLEAN",
+          "key": "showMoreAction#4128:0",
+          "default": true
+        },
+        "text": {
+          "type": "TEXT",
+          "key": "text#4272:0",
+          "default": "Hello and thank you for looking into my profile. I have 15 years of maintenance/handyman experience. I started at the young age of 16 helping my step dad with fixes and additions on my moms 5 unit property. I have since worked in new construction, maintenance for high end hotels like Marriott and Hilton, high end apartment complexes."
+        },
+        "color": {
+          "type": "VARIANT",
+          "key": "color",
+          "options": [
+            "Blue"
+          ],
+          "default": "Blue"
+        },
+        "showDismiss": {
+          "type": "VARIANT",
+          "key": "showDismiss",
+          "options": [
+            "false",
+            "true"
+          ],
+          "default": "false"
+        },
+        "State": {
+          "type": "VARIANT",
+          "key": "State",
+          "options": [
+            "Collapsed",
+            "Expanded"
+          ],
+          "default": "Collapsed"
+        }
+      },
+      "children": [
+        "Icons / Encircled",
+        "Caret-Down Icon · Tiny",
+        "Caret-Up Icon · Tiny",
+        "Close Icon · Tiny"
+      ]
+    },
     "❌ Headers": {
       "key": "8f322739b21f9129cc7c22d3974077956a27855b",
       "type": "COMPONENT_SET",
@@ -242,46 +492,6 @@
         "Status",
         "Avatar initials"
       ]
-    },
-    "Badge": {
-      "key": "18cc824af2c9a69129e1ef000cd46878dd9332c8",
-      "type": "COMPONENT_SET",
-      "page": "Badge",
-      "nodeId": "19384:5984",
-      "instanceCount": 24,
-      "properties": {
-        "count": {
-          "type": "TEXT",
-          "key": "count#19409:4",
-          "default": "88"
-        },
-        "size": {
-          "type": "VARIANT",
-          "key": "size",
-          "options": [
-            "small",
-            "medium"
-          ],
-          "default": "small"
-        },
-        "type": {
-          "type": "VARIANT",
-          "key": "type",
-          "options": [
-            "count",
-            "dot"
-          ],
-          "default": "dot"
-        },
-        "theme": {
-          "type": "VARIANT",
-          "key": "theme",
-          "options": [
-            "alert"
-          ],
-          "default": "alert"
-        }
-      }
     },
     "Bottom Navigation": {
       "key": "b939620cca9cc9892c0e34ff2e2337c0045cd24d",
@@ -837,16 +1047,6 @@
         "_base / Calendar / Web / Row"
       ]
     },
-    "Callout": {
-      "key": "bc12566bdaebefb317f949326ff269b329cfa23c",
-      "type": "COMPONENT",
-      "page": "Callout",
-      "nodeId": "15271:94083",
-      "instanceCount": 29,
-      "children": [
-        "_Sparkle Icon · Small"
-      ]
-    },
     "Carousel": {
       "key": "68271ee1dde47698f5a4f161dcb464aa7181e5d5",
       "type": "COMPONENT_SET",
@@ -1120,27 +1320,6 @@
         "Navigation / Customer",
         "Carousel",
         "Web Browers / Footer"
-      ]
-    },
-    "Disclosure": {
-      "key": "5fd3e226989c531e0ee601b2251cf2e2c176f653",
-      "type": "COMPONENT_SET",
-      "page": "Disclosure",
-      "nodeId": "19227:6590",
-      "instanceCount": 14,
-      "properties": {
-        "isExpanded": {
-          "type": "VARIANT",
-          "key": "isExpanded",
-          "options": [
-            "false",
-            "true"
-          ],
-          "default": "false"
-        }
-      },
-      "children": [
-        "Button"
       ]
     },
     "Disclosure copy": {
@@ -1417,16 +1596,17 @@
       "nodeId": "21119:210039",
       "instanceCount": 204,
       "properties": {
-        "Label": {
-          "type": "TEXT",
-          "key": "Label#13326:0",
-          "default": "Label"
-        },
         "Icon": {
           "type": "INSTANCE_SWAP",
           "key": "Icon#21132:0",
-          "default": "Plus Icon · Large",
-          "defaultSize": "Large"
+          "default": "Plus Icon · Medium",
+          "defaultSize": "Medium"
+        },
+        "icon Small [Fig only]": {
+          "type": "INSTANCE_SWAP",
+          "key": "icon Small [Fig only]#36601:0",
+          "default": "Plus Icon · Small",
+          "defaultSize": "Small"
         },
         "theme": {
           "type": "VARIANT",
@@ -1445,8 +1625,8 @@
           "type": "VARIANT",
           "key": "size",
           "options": [
-            "large",
-            "small"
+            "small",
+            "large"
           ],
           "default": "large"
         },
@@ -1456,11 +1636,27 @@
           "options": [
             "default",
             "hover",
-            "pressed",
-            "loading",
-            "disabled"
+            "pressed"
           ],
           "default": "default"
+        },
+        "isDisabled": {
+          "type": "VARIANT",
+          "key": "isDisabled",
+          "options": [
+            "false",
+            "true"
+          ],
+          "default": "false"
+        },
+        "isLoading": {
+          "type": "VARIANT",
+          "key": "isLoading",
+          "options": [
+            "false",
+            "true"
+          ],
+          "default": "false"
         }
       },
       "children": [
@@ -1923,9 +2119,9 @@
           "key": "Size",
           "options": [
             "Small",
-            "Medium"
+            "Large"
           ],
-          "default": "Medium"
+          "default": "Large"
         },
         "State": {
           "type": "VARIANT",
@@ -2981,27 +3177,6 @@
       "nodeId": "18412:46469",
       "instanceCount": 13
     },
-    "Progress Meter": {
-      "key": "9617e6e8ece41453fa24e36d8a59c39d95e2cc58",
-      "type": "COMPONENT_SET",
-      "page": "Progress Meter",
-      "nodeId": "18463:12020",
-      "instanceCount": 25,
-      "properties": {
-        "status": {
-          "type": "VARIANT",
-          "key": "status",
-          "options": [
-            "0%",
-            "25%",
-            "50%",
-            "75%",
-            "100%"
-          ],
-          "default": "0%"
-        }
-      }
-    },
     "Radio": {
       "key": "fe9ebc8ea4d71092a0eb50e5d8dad2e2257bbb60",
       "type": "COMPONENT_SET",
@@ -3296,13 +3471,6 @@
         "Caret-Right Icon · Small"
       ]
     },
-    "Slider": {
-      "key": "0ef2afae43d1aa23dc68539f171e21eac5041617",
-      "type": "COMPONENT",
-      "page": "Slider",
-      "nodeId": "15247:2002",
-      "instanceCount": 10
-    },
     "Star": {
       "key": "cac82382054b17de9634d6d674f046889b9513e8",
       "type": "COMPONENT_SET",
@@ -3424,16 +3592,6 @@
       "nodeId": "15271:94223",
       "instanceCount": 19
     },
-    "Stepper": {
-      "key": "881c6ca001e8ce7dde06c15bfd4c6639250d298f",
-      "type": "COMPONENT",
-      "page": "Counter",
-      "nodeId": "19235:2866",
-      "instanceCount": 9,
-      "children": [
-        "_Icon Button"
-      ]
-    },
     "Stripe payment / Card Element Only": {
       "key": "ef237a236eb70439e1323ad23043fc9b047332c9",
       "type": "COMPONENT_SET",
@@ -3521,80 +3679,6 @@
           "default": "false"
         }
       }
-    },
-    "Tab": {
-      "key": "720f182bdd15a8805e64be0f88f9c7dbf71a9e6f",
-      "type": "COMPONENT_SET",
-      "page": "Tabs",
-      "nodeId": "20968:83022",
-      "instanceCount": 80,
-      "properties": {
-        "showDropdown": {
-          "type": "BOOLEAN",
-          "key": "showDropdown#19409:11",
-          "default": false
-        },
-        "showBadge": {
-          "type": "BOOLEAN",
-          "key": "showBadge#19409:15",
-          "default": false
-        },
-        "showPill": {
-          "type": "BOOLEAN",
-          "key": "showPill#19409:23",
-          "default": false
-        },
-        "showIcon": {
-          "type": "VARIANT",
-          "key": "showIcon",
-          "options": [
-            "false",
-            "true"
-          ],
-          "default": "false"
-        },
-        "orientation": {
-          "type": "VARIANT",
-          "key": "orientation",
-          "options": [
-            "inline",
-            "stacked"
-          ],
-          "default": "inline"
-        },
-        "isActive": {
-          "type": "VARIANT",
-          "key": "isActive",
-          "options": [
-            "false",
-            "true"
-          ],
-          "default": "false"
-        },
-        "state": {
-          "type": "VARIANT",
-          "key": "state",
-          "options": [
-            "default",
-            "hover"
-          ],
-          "default": "default"
-        },
-        "Active Type": {
-          "type": "VARIANT",
-          "key": "Active Type",
-          "options": [
-            "round"
-          ],
-          "default": "round"
-        }
-      },
-      "children": [
-        "_Grass Icon · Tiny",
-        "Pill",
-        "Badge",
-        "Caret-Down Icon · Tiny"
-      ]
     },
     "Tabs": {
       "key": "15314a533334d9410e275a416ae210ccab747ef6",
@@ -3839,57 +3923,6 @@
       "instanceCount": 2,
       "children": [
         "Button"
-      ]
-    },
-    "Tip": {
-      "key": "b6f0e083a187a826129131250ebc152d57156c83",
-      "type": "COMPONENT_SET",
-      "page": "Tip",
-      "nodeId": "21085:202583",
-      "instanceCount": 36,
-      "properties": {
-        "showMoreAction": {
-          "type": "BOOLEAN",
-          "key": "showMoreAction#4128:0",
-          "default": true
-        },
-        "text": {
-          "type": "TEXT",
-          "key": "text#4272:0",
-          "default": "Hello and thank you for looking into my profile. I have 15 years of maintenance/handyman experience. I started at the young age of 16 helping my step dad with fixes and additions on my moms 5 unit property. I have since worked in new construction, maintenance for high end hotels like Marriott and Hilton, high end apartment complexes."
-        },
-        "color": {
-          "type": "VARIANT",
-          "key": "color",
-          "options": [
-            "Blue"
-          ],
-          "default": "Blue"
-        },
-        "showDismiss": {
-          "type": "VARIANT",
-          "key": "showDismiss",
-          "options": [
-            "false",
-            "true"
-          ],
-          "default": "false"
-        },
-        "State": {
-          "type": "VARIANT",
-          "key": "State",
-          "options": [
-            "Collapsed",
-            "Expanded"
-          ],
-          "default": "Collapsed"
-        }
-      },
-      "children": [
-        "Icons / Encircled",
-        "Caret-Down Icon · Tiny",
-        "Caret-Up Icon · Tiny",
-        "Close Icon · Tiny"
       ]
     },
     "Toast": {
