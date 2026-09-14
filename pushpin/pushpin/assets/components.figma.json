@@ -18,8 +18,6 @@
     ],
     "nameStatusDisagreement": [
       "\"Conversation\" reads as public and is not published",
-      "\"_Badge\" reads as internal and is published",
-      "\"_Callout\" reads as internal and is published",
       "\"_Disclosure\" reads as internal and is published",
       "\"_Progress Meter\" reads as internal and is published",
       "\"_Slider\" reads as internal and is published",
@@ -34,58 +32,6 @@
     ]
   },
   "components": {
-    "_Badge": {
-      "key": "18cc824af2c9a69129e1ef000cd46878dd9332c8",
-      "type": "COMPONENT_SET",
-      "page": "Badge",
-      "nodeId": "19384:5984",
-      "publishedAs": "Badge",
-      "instanceCount": 24,
-      "properties": {
-        "count": {
-          "type": "TEXT",
-          "key": "count#19409:4",
-          "default": "88"
-        },
-        "size": {
-          "type": "VARIANT",
-          "key": "size",
-          "options": [
-            "small",
-            "medium"
-          ],
-          "default": "small"
-        },
-        "type": {
-          "type": "VARIANT",
-          "key": "type",
-          "options": [
-            "count",
-            "dot"
-          ],
-          "default": "dot"
-        },
-        "theme": {
-          "type": "VARIANT",
-          "key": "theme",
-          "options": [
-            "alert"
-          ],
-          "default": "alert"
-        }
-      }
-    },
-    "_Callout": {
-      "key": "bc12566bdaebefb317f949326ff269b329cfa23c",
-      "type": "COMPONENT",
-      "page": "Callout",
-      "nodeId": "15271:94083",
-      "publishedAs": "Callout",
-      "instanceCount": 29,
-      "children": [
-        "_Sparkle Icon · Small"
-      ]
-    },
     "_Disclosure": {
       "key": "5fd3e226989c531e0ee601b2251cf2e2c176f653",
       "type": "COMPONENT_SET",
@@ -492,6 +438,46 @@
         "Status",
         "Avatar initials"
       ]
+    },
+    "Badge": {
+      "key": "18cc824af2c9a69129e1ef000cd46878dd9332c8",
+      "type": "COMPONENT_SET",
+      "page": "Badge",
+      "nodeId": "19384:5984",
+      "instanceCount": 24,
+      "properties": {
+        "count": {
+          "type": "TEXT",
+          "key": "count#19409:4",
+          "default": "88"
+        },
+        "size": {
+          "type": "VARIANT",
+          "key": "size",
+          "options": [
+            "small",
+            "medium"
+          ],
+          "default": "small"
+        },
+        "type": {
+          "type": "VARIANT",
+          "key": "type",
+          "options": [
+            "count",
+            "dot"
+          ],
+          "default": "dot"
+        },
+        "theme": {
+          "type": "VARIANT",
+          "key": "theme",
+          "options": [
+            "alert"
+          ],
+          "default": "alert"
+        }
+      }
     },
     "Bottom Navigation": {
       "key": "b939620cca9cc9892c0e34ff2e2337c0045cd24d",
@@ -1045,6 +1031,16 @@
         "Caret-Right Icon · Medium",
         "_base / Calendar / Web / Header",
         "_base / Calendar / Web / Row"
+      ]
+    },
+    "Callout": {
+      "key": "bc12566bdaebefb317f949326ff269b329cfa23c",
+      "type": "COMPONENT",
+      "page": "Callout",
+      "nodeId": "15271:94083",
+      "instanceCount": 29,
+      "children": [
+        "_Sparkle Icon · Small"
       ]
     },
     "Carousel": {
