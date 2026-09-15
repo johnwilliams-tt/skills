@@ -3,7 +3,7 @@
   "source": {
     "fileKey": "VVRGrLgkPRU3vs765d5Q3r",
     "fileName": "Pushpin Thumbprint UI Kit",
-    "extractedAt": "2026-09-14",
+    "extractedAt": "2026-09-15",
     "capturedTotal": 1029,
     "publishedTotal": 1028,
     "publishedSets": 100,
@@ -19,7 +19,6 @@
     "nameStatusDisagreement": [
       "\"Conversation\" reads as public and is not published",
       "\"_Disclosure\" reads as internal and is published",
-      "\"_Progress Meter\" reads as internal and is published",
       "\"_Slider\" reads as internal and is published",
       "\"_Stepper\" reads as internal and is published",
       "\"_Tab\" reads as internal and is published",
@@ -53,28 +52,6 @@
       "children": [
         "Button"
       ]
-    },
-    "_Progress Meter": {
-      "key": "9617e6e8ece41453fa24e36d8a59c39d95e2cc58",
-      "type": "COMPONENT_SET",
-      "page": "Progress Meter",
-      "nodeId": "18463:12020",
-      "publishedAs": "Progress Meter",
-      "instanceCount": 25,
-      "properties": {
-        "status": {
-          "type": "VARIANT",
-          "key": "status",
-          "options": [
-            "0%",
-            "25%",
-            "50%",
-            "75%",
-            "100%"
-          ],
-          "default": "0%"
-        }
-      }
     },
     "_Slider": {
       "key": "0ef2afae43d1aa23dc68539f171e21eac5041617",
@@ -3102,6 +3079,27 @@
       "page": "Additional components",
       "nodeId": "18412:46469",
       "instanceCount": 13
+    },
+    "Progress Meter": {
+      "key": "9617e6e8ece41453fa24e36d8a59c39d95e2cc58",
+      "type": "COMPONENT_SET",
+      "page": "Progress Meter",
+      "nodeId": "18463:12020",
+      "instanceCount": 25,
+      "properties": {
+        "status": {
+          "type": "VARIANT",
+          "key": "status",
+          "options": [
+            "0%",
+            "25%",
+            "50%",
+            "75%",
+            "100%"
+          ],
+          "default": "0%"
+        }
+      }
     },
     "Radio": {
       "key": "fe9ebc8ea4d71092a0eb50e5d8dad2e2257bbb60",
