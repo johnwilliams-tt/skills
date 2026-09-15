@@ -2909,7 +2909,8 @@
             "Services",
             "Calendar",
             "Profile",
-            "None"
+            "None",
+            "Selected8"
           ],
           "default": "None"
         }

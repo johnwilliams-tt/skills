@@ -19,6 +19,24 @@
       "unpublished": [],
       "changed": [
         {
+          "name": "Button",
+          "key": "ebc80753f095633977049c061a28a082816ef9c7",
+          "page": "Button",
+          "updatedAt": "2026-09-15T17:37:32.353Z"
+        },
+        {
+          "name": "Navigation / Pro",
+          "key": "f7adf5ef55df8d2266ecb2e180c4b74302d7ed54",
+          "page": "Additional components",
+          "updatedAt": "2026-09-15T15:12:39.621Z"
+        },
+        {
+          "name": "Navigation / Pro / Tabs",
+          "key": "939320af4fadc2432b1e9a7a26446dcee1f6f3e6",
+          "page": "Additional components",
+          "updatedAt": "2026-09-15T15:12:39.610Z"
+        },
+        {
           "name": "Icon Button",
           "key": "f78f3a616236692e3c921a2003c2ea2e54a787e8",
           "page": "Icon Button",
@@ -49,7 +67,7 @@
   },
   "findings": [
     "The Pushpin Thumbprint UI Kit capture has not been taken in 40 days. Nothing is known to have changed — only that it has been long enough that nobody has checked, so re-capture it before trusting a value out of it.",
-    "3 components in the kit changed after the capture (2026-09-08), most recently on 2026-09-11. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Icon Button\n   Chip\n   Pill"
+    "6 components in the kit changed after the capture (2026-09-08), most recently on 2026-09-15. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Button\n   Navigation / Pro\n   Navigation / Pro / Tabs\n   Icon Button\n   Chip\n   Pill"
   ],
   "brief": [
     "Pushpin's copy of the Pushpin kit is 40 days old and may be behind; the next plugin update will carry a fresh one.",
