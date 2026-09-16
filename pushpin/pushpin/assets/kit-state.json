@@ -12,7 +12,8 @@
   },
   "layers": [
     "capture age",
-    "components"
+    "components",
+    "annotations"
   ],
   "moved": {
     "components": {
@@ -62,16 +63,25 @@
     },
     "annotations": {
       "unpublished": [],
-      "changed": []
+      "changed": [
+        {
+          "name": "Sticky Note Status",
+          "key": "55802bb08788df30f28f9d68544f5478451fec5d",
+          "page": "General",
+          "updatedAt": "2026-09-16T00:41:03.314Z"
+        }
+      ]
     }
   },
   "findings": [
     "The Pushpin Thumbprint UI Kit capture has not been taken in 41 days. Nothing is known to have changed — only that it has been long enough that nobody has checked, so re-capture it before trusting a value out of it.",
-    "6 components in the kit changed after the capture (2026-09-08), most recently on 2026-09-15. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Button\n   Navigation / Pro\n   Navigation / Pro / Tabs\n   Icon Button\n   Chip\n   Pill"
+    "6 components in the kit changed after the capture (2026-09-08), most recently on 2026-09-15. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Button\n   Navigation / Pro\n   Navigation / Pro / Tabs\n   Icon Button\n   Chip\n   Pill",
+    "1 component in the Annotation Kit changed after the capture (2026-08-28), most recently on 2026-09-16. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Sticky Note Status"
   ],
   "brief": [
     "Pushpin's copy of the Pushpin kit is 41 days old and may be behind; the next plugin update will carry a fresh one.",
-    "The Pushpin team has changed some components since this version of Pushpin; the next plugin update will carry those."
+    "The Pushpin team has changed some components since this version of Pushpin; the next plugin update will carry those.",
+    "The Pushpin team has changed some annotation components since this version of Pushpin; the next plugin update will carry those."
   ],
   "observedAt": "2026-09-16"
 }
