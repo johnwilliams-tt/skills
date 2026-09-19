@@ -3,13 +3,13 @@
   "source": {
     "fileKey": "VVRGrLgkPRU3vs765d5Q3r",
     "fileName": "Pushpin Thumbprint UI Kit",
-    "extractedAt": "2026-09-08",
-    "capturedTotal": 1029,
-    "publishedTotal": 1028,
-    "publishedSets": 100,
+    "extractedAt": "2026-09-19",
+    "capturedTotal": 1021,
+    "publishedTotal": 1020,
+    "publishedSets": 96,
     "unpublishedOmitted": 1,
     "iconsOmitted": 900,
-    "publicKept": 124,
+    "publicKept": 116,
     "nameCollisions": [
       "\"Headers / Tab\" is published twice — kept 13333:125848 on \"Additional components\", dropped 35574:59932 on \"Additional components\"",
       "\"Tabs\" is published twice — kept 13333:125819 on \"Additional components\", dropped 35574:59851 on \"Additional components\"",
@@ -166,27 +166,6 @@
         "Logomark - Black",
         "Logomark - Blue"
       ]
-    },
-    "Availability Chip": {
-      "key": "5866be8e734c9497e434de119a7535a209a02947",
-      "type": "COMPONENT_SET",
-      "page": "💠 Local components",
-      "nodeId": "34627:8912",
-      "properties": {
-        "Property 1": {
-          "type": "VARIANT",
-          "key": "Property 1",
-          "options": [
-            "Available",
-            "Native",
-            "Not built",
-            "Not applicable",
-            "In progress",
-            "Partial"
-          ],
-          "default": "Available"
-        }
-      }
     },
     "Avatar": {
       "key": "0df3248a5ccec613267d9ba33f3f7f8444b91a9c",
@@ -637,7 +616,7 @@
         "icon": {
           "type": "INSTANCE_SWAP",
           "key": "icon#34740:123",
-          "default": "Arrow-Left Icon · Small",
+          "default": "Caret-Left Icon · Small",
           "defaultSize": "Small"
         },
         "👁️ iconRight": {
@@ -648,7 +627,7 @@
         "iconRight": {
           "type": "INSTANCE_SWAP",
           "key": "iconRight#35089:121",
-          "default": "Arrow-Right Icon · Small",
+          "default": "Caret-Right Icon · Small",
           "defaultSize": "Small"
         },
         "Label": {
@@ -1122,27 +1101,6 @@
         "Web Browers / Footer"
       ]
     },
-    "Disclosure": {
-      "key": "5fd3e226989c531e0ee601b2251cf2e2c176f653",
-      "type": "COMPONENT_SET",
-      "page": "Disclosure",
-      "nodeId": "19227:6590",
-      "instanceCount": 14,
-      "properties": {
-        "isExpanded": {
-          "type": "VARIANT",
-          "key": "isExpanded",
-          "options": [
-            "false",
-            "true"
-          ],
-          "default": "false"
-        }
-      },
-      "children": [
-        "Button"
-      ]
-    },
     "Disclosure copy": {
       "key": "9cb5ae5148856c50598abd6542e1fc1c75e18212",
       "type": "COMPONENT",
@@ -1417,14 +1375,27 @@
       "nodeId": "21119:210039",
       "instanceCount": 204,
       "properties": {
-        "Label": {
-          "type": "TEXT",
-          "key": "Label#13326:0",
-          "default": "Label"
-        },
         "Icon": {
           "type": "INSTANCE_SWAP",
           "key": "Icon#21132:0",
+          "default": "Plus Icon · Medium",
+          "defaultSize": "Medium"
+        },
+        "icon Small [Fig only]": {
+          "type": "INSTANCE_SWAP",
+          "key": "icon Small [Fig only]#36601:0",
+          "default": "Plus Icon · Small",
+          "defaultSize": "Small"
+        },
+        "icon Tiny [Fig only]": {
+          "type": "INSTANCE_SWAP",
+          "key": "icon Tiny [Fig only]#37594:0",
+          "default": "Plus Icon · Tiny",
+          "defaultSize": "Tiny"
+        },
+        "icon Large [Fig only]": {
+          "type": "INSTANCE_SWAP",
+          "key": "icon Large [Fig only]#37594:151",
           "default": "Plus Icon · Large",
           "defaultSize": "Large"
         },
@@ -1437,7 +1408,8 @@
             "tertiary",
             "link",
             "caution",
-            "alert"
+            "alert",
+            "ghost"
           ],
           "default": "primary"
         },
@@ -1445,10 +1417,14 @@
           "type": "VARIANT",
           "key": "size",
           "options": [
+            "xsmall",
+            "small",
+            "medium",
             "large",
-            "small"
+            "xlarge",
+            "xxlarge"
           ],
-          "default": "large"
+          "default": "medium"
         },
         "State": {
           "type": "VARIANT",
@@ -1456,11 +1432,27 @@
           "options": [
             "default",
             "hover",
-            "pressed",
-            "loading",
-            "disabled"
+            "pressed"
           ],
           "default": "default"
+        },
+        "isDisabled": {
+          "type": "VARIANT",
+          "key": "isDisabled",
+          "options": [
+            "false",
+            "true"
+          ],
+          "default": "false"
+        },
+        "isLoading": {
+          "type": "VARIANT",
+          "key": "isLoading",
+          "options": [
+            "false",
+            "true"
+          ],
+          "default": "false"
         }
       },
       "children": [
@@ -1690,18 +1682,18 @@
         "showRightIcon": {
           "type": "BOOLEAN",
           "key": "showRightIcon#13534:15",
-          "default": true
+          "default": false
         },
         "iconLeft": {
           "type": "INSTANCE_SWAP",
           "key": "iconLeft#13534:17",
-          "default": "Arrow-Left Icon · Tiny",
+          "default": "Caret-Left Icon · Tiny",
           "defaultSize": "Tiny"
         },
         "iconRight": {
           "type": "INSTANCE_SWAP",
           "key": "iconRight#13534:21",
-          "default": "Arrow-Right Icon · Tiny",
+          "default": "Caret-Right Icon · Tiny",
           "defaultSize": "Tiny"
         },
         "theme": {
@@ -1710,8 +1702,8 @@
           "options": [
             "primary (default)",
             "secondary",
-            "inverse",
             "alert",
+            "inverse",
             "longtext",
             "disabled"
           ],
@@ -1741,12 +1733,6 @@
         "_Arrow-Right Icon · Tiny"
       ]
     },
-    "Link Section": {
-      "key": "21db9953a55c63fc3bbeaf5354350befd6a30338",
-      "type": "COMPONENT",
-      "page": "💠 Local components",
-      "nodeId": "35184:30059"
-    },
     "Loader Dots": {
       "key": "28ccade893aa5ce0521c0aab68681a529a79a77f",
       "type": "COMPONENT_SET",
@@ -1769,7 +1755,8 @@
           "options": [
             "brand",
             "inverse",
-            "muted"
+            "muted",
+            "caution"
           ],
           "default": "brand"
         }
@@ -1923,9 +1910,9 @@
           "key": "Size",
           "options": [
             "Small",
-            "Medium"
+            "Large"
           ],
-          "default": "Medium"
+          "default": "Large"
         },
         "State": {
           "type": "VARIANT",
@@ -2810,7 +2797,8 @@
             "Services",
             "Calendar",
             "Profile",
-            "None"
+            "None",
+            "Selected8"
           ],
           "default": "None"
         }
@@ -2907,12 +2895,6 @@
         "Icon",
         "IconRight"
       ]
-    },
-    "Platform availability": {
-      "key": "647d51abef12dc8e4afd1da7ce58d258a7b334b9",
-      "type": "COMPONENT",
-      "page": "💠 Local components",
-      "nodeId": "34627:8902"
     },
     "Platform Section": {
       "key": "17673a78249d41fbe61665290da899d7855232c6",
@@ -3296,13 +3278,6 @@
         "Caret-Right Icon · Small"
       ]
     },
-    "Slider": {
-      "key": "0ef2afae43d1aa23dc68539f171e21eac5041617",
-      "type": "COMPONENT",
-      "page": "Slider",
-      "nodeId": "15247:2002",
-      "instanceCount": 10
-    },
     "Star": {
       "key": "cac82382054b17de9634d6d674f046889b9513e8",
       "type": "COMPONENT_SET",
@@ -3424,16 +3399,6 @@
       "nodeId": "15271:94223",
       "instanceCount": 19
     },
-    "Stepper": {
-      "key": "881c6ca001e8ce7dde06c15bfd4c6639250d298f",
-      "type": "COMPONENT",
-      "page": "Counter",
-      "nodeId": "19235:2866",
-      "instanceCount": 9,
-      "children": [
-        "_Icon Button"
-      ]
-    },
     "Stripe payment / Card Element Only": {
       "key": "ef237a236eb70439e1323ad23043fc9b047332c9",
       "type": "COMPONENT_SET",
@@ -3521,80 +3486,6 @@
           "default": "false"
         }
       }
-    },
-    "Tab": {
-      "key": "720f182bdd15a8805e64be0f88f9c7dbf71a9e6f",
-      "type": "COMPONENT_SET",
-      "page": "Tabs",
-      "nodeId": "20968:83022",
-      "instanceCount": 80,
-      "properties": {
-        "showDropdown": {
-          "type": "BOOLEAN",
-          "key": "showDropdown#19409:11",
-          "default": false
-        },
-        "showBadge": {
-          "type": "BOOLEAN",
-          "key": "showBadge#19409:15",
-          "default": false
-        },
-        "showPill": {
-          "type": "BOOLEAN",
-          "key": "showPill#19409:23",
-          "default": false
-        },
-        "showIcon": {
-          "type": "VARIANT",
-          "key": "showIcon",
-          "options": [
-            "false",
-            "true"
-          ],
-          "default": "false"
-        },
-        "orientation": {
-          "type": "VARIANT",
-          "key": "orientation",
-          "options": [
-            "inline",
-            "stacked"
-          ],
-          "default": "inline"
-        },
-        "isActive": {
-          "type": "VARIANT",
-          "key": "isActive",
-          "options": [
-            "false",
-            "true"
-          ],
-          "default": "false"
-        },
-        "state": {
-          "type": "VARIANT",
-          "key": "state",
-          "options": [
-            "default",
-            "hover"
-          ],
-          "default": "default"
-        },
-        "Active Type": {
-          "type": "VARIANT",
-          "key": "Active Type",
-          "options": [
-            "round"
-          ],
-          "default": "round"
-        }
-      },
-      "children": [
-        "_Grass Icon · Tiny",
-        "Pill",
-        "Badge",
-        "Caret-Down Icon · Tiny"
-      ]
     },
     "Tabs": {
       "key": "15314a533334d9410e275a416ae210ccab747ef6",
@@ -3839,57 +3730,6 @@
       "instanceCount": 2,
       "children": [
         "Button"
-      ]
-    },
-    "Tip": {
-      "key": "b6f0e083a187a826129131250ebc152d57156c83",
-      "type": "COMPONENT_SET",
-      "page": "Tip",
-      "nodeId": "21085:202583",
-      "instanceCount": 36,
-      "properties": {
-        "showMoreAction": {
-          "type": "BOOLEAN",
-          "key": "showMoreAction#4128:0",
-          "default": true
-        },
-        "text": {
-          "type": "TEXT",
-          "key": "text#4272:0",
-          "default": "Hello and thank you for looking into my profile. I have 15 years of maintenance/handyman experience. I started at the young age of 16 helping my step dad with fixes and additions on my moms 5 unit property. I have since worked in new construction, maintenance for high end hotels like Marriott and Hilton, high end apartment complexes."
-        },
-        "color": {
-          "type": "VARIANT",
-          "key": "color",
-          "options": [
-            "Blue"
-          ],
-          "default": "Blue"
-        },
-        "showDismiss": {
-          "type": "VARIANT",
-          "key": "showDismiss",
-          "options": [
-            "false",
-            "true"
-          ],
-          "default": "false"
-        },
-        "State": {
-          "type": "VARIANT",
-          "key": "State",
-          "options": [
-            "Collapsed",
-            "Expanded"
-          ],
-          "default": "Collapsed"
-        }
-      },
-      "children": [
-        "Icons / Encircled",
-        "Caret-Down Icon · Tiny",
-        "Caret-Up Icon · Tiny",
-        "Close Icon · Tiny"
       ]
     },
     "Toast": {
