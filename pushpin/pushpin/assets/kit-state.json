@@ -356,17 +356,17 @@
     }
   },
   "findings": [
-    "The Pushpin Thumbprint UI Kit capture has not been taken in 45 days. Nothing is known to have changed — only that it has been long enough that nobody has checked, so re-capture it before trusting a value out of it.",
+    "The Pushpin Thumbprint UI Kit capture has not been taken in 46 days. Nothing is known to have changed — only that it has been long enough that nobody has checked, so re-capture it before trusting a value out of it.",
     "8 components in the catalog are no longer published. Importing by key throws at runtime:\n    Availability Chip\n    Disclosure\n    Link Section\n    Platform availability\n    Slider\n    Stepper\n    Tab\n    Tip",
     "46 components in the kit changed after the capture (2026-09-08), most recently on 2026-09-18. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Action Sheet\n   iOS / Sheet / Backdrop\n   Accordion / Group\n   Themed Link\n   Platform Section\n   Callout\n   view\n   Brand / Logotype / Secondary\n   Modal / Factory / Close action\n   Calendar\n   Brand / Logotype\n   ServiceCard\n   …and 34 more",
     "1 component in the Annotation Kit changed after the capture (2026-08-28), most recently on 2026-09-16. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Sticky Note Status",
-    "The content design rules have not been pulled in 32 days. Nothing is known to have changed — only that nobody has asked GitHub — so re-pull them before trusting a rule quoted out of them."
+    "The content design rules have not been pulled in 33 days. Nothing is known to have changed — only that nobody has asked GitHub — so re-pull them before trusting a rule quoted out of them."
   ],
   "brief": [
-    "Pushpin's copy of the Pushpin kit is 45 days old and may be behind; the next plugin update will carry a fresh one.",
+    "Pushpin's copy of the Pushpin kit is 46 days old and may be behind; the next plugin update will carry a fresh one.",
     "The Pushpin team has changed some components since this version of Pushpin; the next plugin update will carry those.",
     "The Pushpin team has changed some annotation components since this version of Pushpin; the next plugin update will carry those.",
-    "Pushpin's copy of Thumbtack's content rules is 32 days old and may be behind; the next plugin update will carry a fresh one."
+    "Pushpin's copy of Thumbtack's content rules is 33 days old and may be behind; the next plugin update will carry a fresh one."
   ],
-  "observedAt": "2026-09-20"
+  "observedAt": "2026-09-21"
 }
