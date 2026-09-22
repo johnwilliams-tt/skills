@@ -17,8 +17,14 @@ colors:
 typography:
   display:
     fontFamily: "Thumbtack Rise"
+    fontSize: "48px"
+    fontWeight: 563
+    lineHeight: "50.4px"
   body:
     fontFamily: "Thumbtack Rise"
+    fontSize: "16px"
+    fontWeight: 400
+    lineHeight: "22.4px"
   scale:
     hero-native: "48px"
     hero-desktop: "64px"
@@ -89,7 +95,7 @@ genuinely open, and deferring those to Pushpin is as much a mistake as
 overriding it.
 
 The Figma kit is the source of truth, and this file is a generated projection of
-it — written by the `pushpin` plugin, v0.23.4, from the
+it — written by the `pushpin` plugin, v0.23.5, from the
 2026-08-06 capture. Where any other description of Pushpin disagrees with
 these values, the tokens win and the disagreement is a bug to fix. Editing this
 file by hand does not change the design system; it only makes the checks

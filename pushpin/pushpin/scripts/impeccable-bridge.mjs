@@ -386,7 +386,10 @@ function renderComponentSection(tokens, components, specs) {
   return blocks.join('\n\n');
 }
 
-export function renderDesignMd(tokens, { pluginVersion, capturedAt, components, specs } = {}) {
+export function renderDesignMd(
+  tokens,
+  { pluginVersion, capturedAt, components, specs, styles } = {},
+) {
   const featured = {};
   for (const [label, path] of Object.entries(FEATURED)) {
     const hex = resolveHex(tokens, path, 'Light');
@@ -399,6 +402,27 @@ export function renderDesignMd(tokens, { pluginVersion, capturedAt, components, 
 
   const scale = Object.entries(fontScale(tokens))
     .map(([k, v]) => `    ${k}: "${v}"`)
+    .join('\n');
+
+  // The format names two typography roles, and `scale` beneath them carries all
+  // thirteen steps. A role with only a family is a role a reader has to size
+  // itself: the live panel renders both specimens at its own 1rem default, so
+  // Pushpin's display face and its reading size look identical in the one view
+  // that is meant to show the difference. Each role therefore quotes the step it
+  // summarizes, at the native width — mobile is the primary surface, and the
+  // desktop half of every step is in `scale` under its own key.
+  const roles = Object.entries({ display: 'hero', body: 'body-1' })
+    .map(([role, step]) => {
+      const spec = tokens.font[step];
+      const weight = tokens.fontWeight[String(spec.weight).replace(/^@/, '')];
+      return [
+        `  ${role}:`,
+        `    fontFamily: "${FONT_FAMILY}"`,
+        `    fontSize: "${spec.size.native}px"`,
+        `    fontWeight: ${weight}`,
+        `    lineHeight: "${leading(tokens, styles, step).native}px"`,
+      ].join('\n');
+    })
     .join('\n');
 
   const space = Object.entries(spacing(tokens))
@@ -465,10 +489,7 @@ export function renderDesignMd(tokens, { pluginVersion, capturedAt, components, 
 colors:
 ${colors}
 typography:
-  display:
-    fontFamily: "${FONT_FAMILY}"
-  body:
-    fontFamily: "${FONT_FAMILY}"
+${roles}
   scale:
 ${scale}
 spacing:

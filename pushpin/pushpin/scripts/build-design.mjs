@@ -42,6 +42,7 @@ const meta = {
   capturedAt: manifest.capturedAt,
   components: components.components,
   specs: specs.components,
+  styles,
 };
 
 const design = renderDesignMd(tokens, meta);
