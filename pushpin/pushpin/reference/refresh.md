@@ -73,7 +73,8 @@ what this procedure is repairing.
 
 Take the per-page script from
 [../scripts/extract.md §9](../scripts/extract.md) for the pages holding the
-components you need, one `use_figma` call per page, issued in parallel — see
+components you need — one `use_figma` call per page, or a few pages per call
+under the 20 KB response cap § 9 describes, issued in parallel per
 [parallel.md](parallel.md). Then:
 
 ```bash

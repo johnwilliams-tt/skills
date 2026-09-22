@@ -1,7 +1,7 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.23.2
+version: 0.23.3
 argument-hint: "[generate|audit|figma · setup|init|update|freshness · refresh] [target]"
 allowed-tools:
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/check.mjs *)
@@ -381,17 +381,26 @@ A **visual spec** is different, and the difference has bitten. Without
 of them looks like — a silence that reads as "there is nothing more to know",
 which is how a hand-rolled secondary button ended up with a border token the kit
 does not publish. `--variant` closes most of that: it prints the captured fill,
-border, radius, height, padding and label as `--pp-*` names, for one option held
-against the set's other defaults.
+border, radius, height, padding, label inset and label as `--pp-*` names, for
+one option held against the set's other defaults.
+
+**Padding and label inset are two rows, and they are not always the same
+number.** `padding` is the variant's top frame. `label inset` is where the text
+lands, summed over every padded frame between the two — the kit nests a label
+inside a wrapper more often than it looks. Chip's frame pads 8 / 8 / 8 / 12 and
+its label lands 16 from either edge; a `.pp-chip` built from the padding put the
+text at 12 and 8. One box with the text in it takes the inset. A frame-for-frame
+build takes the padding and lets the inner frame carry the rest.
 
 Two things it still cannot answer, and it says so rather than improvising:
 
 - **A combination.** Records are per option, so `theme=secondary, size=large`
   has no single recorded variant. Ask for one option at a time, or read the pair
   from the kit.
-- **Anything below the top frame.** The capture is shallow, so a state that only
-  recolours an inner element — `Text Area`'s `hasError`, for instance — shows no
-  difference.
+- **Anything below the top frame other than the label's position.** The capture
+  reads the top frame, the first text descendant, and the padding on the path
+  between them; nothing else inside. A state that only recolours an inner
+  element — `Text Area`'s `hasError`, for instance — shows no difference.
 
 In both cases `--variant` names the read that returns the answer: one `use_figma`
 call against the component's page, per `scripts/extract.md § Component visual

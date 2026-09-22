@@ -571,6 +571,13 @@ function declarationsFor(attrs, where) {
  * recorded for a variant is the width of the word inside it and comparing
  * against it would flag every button with a different label. Height is here
  * only when the kit fixed it, for the same reason.
+ *
+ * Padding is held against two captured fields. The declared element is the
+ * variant's outer box, so `padding` is one honest match; but a consumer that
+ * puts the text straight inside that box has flattened the kit's inner frames,
+ * and what its padding has to equal is `inset` — where the label lands. Chip
+ * is the case: padding 8 / 8 / 8 / 12, label at 16 from either edge. Nothing
+ * here can see whether the text is a direct child, so either agreement passes.
  */
 const FIDELITY = [
   ['background-color', 'fill', 'color'],
@@ -692,11 +699,31 @@ function checkFidelity(file, line, name, selector, attrs, where) {
   for (const [prop, field, kind] of FIDELITY) {
     const decl = declared.get(prop);
     if (decl === undefined) continue;
-    const want = wantOf(variant, field);
-    if (!want) continue;
-    if (agrees(decl.value, want, kind) !== false) continue;
+    const wants = [[field, wantOf(variant, field)]];
+    if (
+      field === 'padding' &&
+      variant.inset !== undefined &&
+      JSON.stringify(variant.inset) !== JSON.stringify(variant.padding)
+    ) {
+      const inset = wantOf(variant, 'inset');
+      // Four differing sides cannot be held against a shorthand, and holding
+      // the outer padding up alone would call a correctly placed label wrong
+      // — the misreport `inset` exists to end — so the check abstains.
+      if (!inset) continue;
+      wants.push(['inset', inset]);
+    }
+    const held = wants.filter(([, w]) => w);
+    if (!held.length) continue;
+    if (held.some(([, w]) => agrees(decl.value, w, kind) !== false)) continue;
+    // The inset is what a flat element has to write, so where the two differ
+    // it is the one the fix offers and the message names both.
+    const [, want] = held[held.length - 1];
+    const kits =
+      held.length === 1
+        ? `the kit's is ${kitValue(want, kind)}`
+        : `the kit's outer frame is ${kitValue(held[0][1], kind)} and its label lands at ${kitValue(want, kind)}`;
     add(file, line, 'variant-drift',
-      `${name} ${selector} declares ${prop}: ${decl.value.trim()} — the kit's is ${kitValue(want, kind)}`,
+      `${name} ${selector} declares ${prop}: ${decl.value.trim()} — ${kits}`,
       null,
       fixFor(decl, prop, want, kind));
   }

@@ -610,10 +610,19 @@ a hand-rolled component gets guessed into, and the guess named a border token th
 kit does not publish while missing the one it does. This capture is the answer,
 and it needs `use_figma` because the geometry only exists on the nodes.
 
-**One call per page, issued in parallel** — same constraint as §7: `use_figma`
-allows one `setCurrentPageAsync` per call and a page's children are not loaded
-until it is current. 46 pages hold public components, so send them in batches in
-one message each and merge, per [parallel.md](../reference/parallel.md).
+**Several pages per call, calls issued in parallel.** `setCurrentPageAsync`
+works more than once in a single `use_figma` call, so one call can read
+several pages in sequence — loop `getNodeByIdAsync` + `setCurrentPageAsync`
+over a list of ids and return one `{ page, pageId, … }` per page. The
+constraint that matters is the response: `use_figma` truncates its return at
+about 20 KB, so keep each call's pages to roughly 25 KB of compact JSON
+between them, and never let a lane's `skipped` list carry 900 icon names —
+return the count. Do not substitute `await page.loadAsync()` for making the
+page current: it loads the children, but `findOne` then misses TEXT inside
+instances, and Action Sheet, Accordion / Group, Avatar's initials and a dozen
+others lose their label without an error. 46 pages hold public components;
+send the calls in one message and merge, per
+[parallel.md](../reference/parallel.md).
 
 **Enumerate the pages; do not derive them from component names.** Page names
 can carry emoji prefixes — `❌`, `🚧`, `✋` and `💠` appear, and the core pages
@@ -751,6 +760,37 @@ const same = (a) => {
   return k.every((v) => v === k[0]) ? a[0] : a;
 };
 
+const SIDES = ['paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft'];
+const literal = (v) => (Array.isArray(v) ? v[2] : v);
+
+// Where the label lands, measured from the variant's edge. `padding` is the
+// top frame's alone, and a label that sits inside a padded inner frame lands
+// further in than that says: Chip's Label is in a `wrapper` that pads 4 left
+// and 8 right, so the outer 8 / 8 / 8 / 12 puts the text at 16 from either
+// edge, not at 12 and 8. Every auto-layout frame from the text's parent up to
+// the variant contributes its padding. Hidden sibling slots — Chip's `icon`
+// and `iconRight` — are not on that path and auto-layout skips them, so they
+// contribute nothing. A side padded by exactly one frame keeps that frame's
+// binding; a side padded by two or more is a sum no single variable names, so
+// it is recorded as the literal rather than as a token the kit never bound.
+async function insetOf(top, txt) {
+  const parts = [[], [], [], []];
+  for (let n = txt.parent; n; n = n.parent) {
+    if ('layoutMode' in n && n.layoutMode && n.layoutMode !== 'NONE') {
+      for (let i = 0; i < 4; i++) parts[i].push(await dim(n, SIDES[i], n[SIDES[i]]));
+    }
+    if (n === top) break;
+  }
+  return same(
+    parts.map((p) => {
+      const padded = p.filter((v) => literal(v) !== 0);
+      if (padded.length === 0) return p.find((v) => Array.isArray(v)) ?? 0;
+      if (padded.length === 1) return padded[0];
+      return r4(padded.reduce((sum, v) => sum + literal(v), 0));
+    }),
+  );
+}
+
 async function spec(node) {
   const s = {};
   const fill = await paintOf(node.fills);
@@ -774,6 +814,7 @@ async function spec(node) {
     ]);
   }
   s.size = [await dim(node, 'width', node.width), await dim(node, 'height', node.height)];
+  const txt = node.findOne((n) => n.type === 'TEXT');
   if (node.layoutMode && node.layoutMode !== 'NONE') {
     s.mode = node.layoutMode;
     s.sizing = [node.layoutSizingHorizontal, node.layoutSizingVertical];
@@ -784,9 +825,9 @@ async function spec(node) {
       await dim(node, 'paddingBottom', node.paddingBottom),
       await dim(node, 'paddingLeft', node.paddingLeft),
     ]);
+    if (txt) s.inset = await insetOf(node, txt);
   }
 
-  const txt = node.findOne((n) => n.type === 'TEXT');
   if (txt) {
     const t = { layer: txt.name };
     const tf = await paintOf(txt.fills);
@@ -936,10 +977,18 @@ map of page to date, so a page read six weeks ago cannot pass as fresh — and a
 page read under an `ONLY` list keeps its earlier date, since it is no fresher
 than the part nobody re-read. The run says which pages those were.
 
-Five things to know about the result:
+Six things to know about the result:
 
-- **The reduction is recorded, and `verify.mjs` holds it to the record.** 452
-  variants are kept out of 1073 real children. Each set stores `children`,
+- **`padding` is the top frame; `inset` is where the label lands.** The two
+  differ wherever the label sits inside a padded inner frame — Chip's Label is
+  in a `wrapper` padded 4 left and 8 right, so `padding` reads 8 / 8 / 8 / 12
+  and `inset` reads 8 / 16 / 8 / 16. A flat element with one box and the text
+  inside it is built from `inset`; a frame-for-frame reproduction is built from
+  `padding` and the inner frames. `inset` is recorded only where `padding` is
+  and the variant has a text descendant. A side padded by two frames is a
+  literal sum, since no one variable is bound to it.
+- **The reduction is recorded, and `verify.mjs` holds it to the record.** 449
+  variants are kept out of 986 real children. Each set stores `children`,
   `crossProduct`, `recorded` and a `reduced` block, and every axis option must
   be covered by a recorded variant or listed in `unreachable`. An unrecorded
   reduction reads as a complete answer, which is the failure this whole asset
@@ -967,13 +1016,17 @@ Five things to know about the result:
   node ids instead.
 - **`coverage.withSpec` is measured against the catalog, not against the kit.**
   Both key by name, so a name published twice counts once in each and can never
-  appear in `withoutSpec`. `113 of 115` therefore means names the catalog
+  appear in `withoutSpec`. `116 of 124` therefore means names the catalog
   holds. The `Layouts` page publishes nine owners under eight names, and the
   ninth spec is missing from this capture for that reason — read
   `coverage.nameCollisions` and `coverage.captureNotes` before treating the
-  count as completeness. The two in `withoutSpec`, `_Bubble / Text` and
-  `_Stamps`, are the components the publish-status gate added to the catalog
-  after this capture ran; they get specs the next time §9 is run.
+  count as completeness. The eight in `withoutSpec` as of the 2026-09-21
+  capture — `Availability Chip`, `Disclosure`, `Link Section`,
+  `Platform availability`, `Slider`, `Stepper`, `Tab`, `Tip` — are names the
+  catalog still holds that the kit has since prefixed `_` and unpublished,
+  three of them on pages now titled `❌ … - DO NOT USE`. The publish-status
+  gate is right to skip them; they leave `withoutSpec` when §5 is re-read and
+  the catalog drops them.
 
 ## Transcription notes
 

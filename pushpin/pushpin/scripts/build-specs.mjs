@@ -327,7 +327,10 @@ function main() {
   const doc = {
     $comment:
       'Per-variant visual specs for published Pushpin components — fill, stroke, radius, ' +
-      'size, padding and the first text descendant, as they render in the kit. A bound ' +
+      'size, padding and the first text descendant, as they render in the kit. `padding` is ' +
+      'the top frame alone; `inset` is where that text lands, measured from the variant edge, ' +
+      'summed over every padded frame between the two — the number a flat element is built ' +
+      'from, and it differs from `padding` wherever the label sits in a padded inner frame. A bound ' +
       'variable is recorded as [collection, name, literal]: the collection and name ' +
       'verbatim from Figma, and the value that renders beside them. Several bindings have ' +
       'no --pp-* counterpart and inventing one is the defect this capture exists to remove, ' +

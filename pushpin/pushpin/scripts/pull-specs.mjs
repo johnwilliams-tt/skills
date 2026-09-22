@@ -21,7 +21,9 @@
  *                      'COMPONENT_SET'`).
  *   findAllWithCriteria a depth-first walk of `children`, document order. The
  *                      first TEXT descendant (`findOne`) is the same walk
- *                      stopping at the first hit.
+ *                      stopping at the first hit, and the ancestors it passed
+ *                      through are the path `inset` sums padding over; the
+ *                      plugin walks `.parent` back up instead.
  *   variantProperties  not a REST field. A variant's name is
  *                      `axis=option, axis=option`, which is how the plugin
  *                      derives them too; parsed on `, ` and `=`.
@@ -249,6 +251,7 @@ function spec(node, ctx) {
   const box = node.size ? { width: node.size.x, height: node.size.y } : node.absoluteBoundingBox ?? {};
   s.size = [dim(bv.size?.x, box.width), dim(bv.size?.y, box.height)];
 
+  const path = firstTextPath(node);
   if (node.layoutMode && node.layoutMode !== 'NONE') {
     s.mode = node.layoutMode;
     const axis = (mode) => (mode === 'AUTO' ? 'HUG' : 'FIXED');
@@ -266,10 +269,11 @@ function spec(node, ctx) {
       dim(bv.paddingBottom, node.paddingBottom ?? 0),
       dim(bv.paddingLeft, node.paddingLeft ?? 0),
     ]);
+    if (path) s.inset = insetOf(path.slice(0, -1), dim);
   }
 
-  const txt = firstText(node);
-  if (txt) {
+  if (path) {
+    const txt = path[path.length - 1];
     const t = { layer: txt.name };
     const tf = paintOf(txt.fills, txt.boundVariables?.fills);
     if (tf !== null) t.fill = tf;
@@ -281,10 +285,39 @@ function spec(node, ctx) {
   return s;
 }
 
-function firstText(node) {
+const SIDES = ['paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft'];
+const literal = (v) => (Array.isArray(v) ? v[2] : v);
+
+/**
+ * Where the label lands, measured from the variant's edge — § 9's `insetOf`,
+ * over the ancestor path `firstTextPath` returns. `padding` is the top frame's
+ * alone; a label inside a padded inner frame lands further in, and Chip's
+ * `wrapper` is the case that made the difference visible. A side padded by one
+ * frame keeps that frame's binding; a side padded by two or more is a literal
+ * sum, since no single variable is bound to it.
+ */
+function insetOf(frames, dim) {
+  const parts = [[], [], [], []];
+  for (const n of frames) {
+    if (!n.layoutMode || n.layoutMode === 'NONE') continue;
+    const bv = n.boundVariables ?? {};
+    for (let i = 0; i < 4; i++) parts[i].push(dim(bv[SIDES[i]], n[SIDES[i]] ?? 0));
+  }
+  return same(
+    parts.map((p) => {
+      const padded = p.filter((v) => literal(v) !== 0);
+      if (padded.length === 0) return p.find((v) => Array.isArray(v)) ?? 0;
+      if (padded.length === 1) return padded[0];
+      return r4(padded.reduce((sum, v) => sum + literal(v), 0));
+    }),
+  );
+}
+
+/** The first TEXT descendant in document order, with every node from `node` down to it. */
+function firstTextPath(node, trail = [node]) {
   for (const child of node.children ?? []) {
-    if (child.type === 'TEXT') return child;
-    const hit = firstText(child);
+    if (child.type === 'TEXT') return [...trail, child];
+    const hit = firstTextPath(child, [...trail, child]);
     if (hit) return hit;
   }
   return null;

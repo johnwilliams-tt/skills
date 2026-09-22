@@ -194,7 +194,7 @@ export const CORE_COMPONENTS = [
 // axes move them: `theme` recolours the label, `size` resizes it. Held as one
 // phrase, a size change would reprint the colour and imply the option changed
 // that too.
-const SPEC_ORDER = ['fill', 'border', 'radius', 'height', 'padding', 'gap', 'label', 'type'];
+const SPEC_ORDER = ['fill', 'border', 'radius', 'height', 'padding', 'inset', 'gap', 'label', 'type'];
 
 function specPhrases(tokens, variant) {
   const out = new Map();
@@ -238,6 +238,13 @@ function specPhrases(tokens, variant) {
   }
   const pad = sides(variant.padding);
   if (pad && pad !== '0px') out.set('padding', `padding ${pad}`);
+  // Where the label lands, when that is not where the padding puts it. Chip's
+  // Label sits in a wrapper padded 4 left and 8 right, so `padding 8/8/8/12px`
+  // alone had a reader placing the text at 12 and 8; the inset is the number a
+  // single box is built from. Printed only where it departs, since a line
+  // repeating the padding under another name is one more line to not read.
+  const inset = sides(variant.inset);
+  if (inset && inset !== pad) out.set('inset', `label inset ${inset}`);
   const gap = px(variant.gap);
   if (gap && gap !== '0px') out.set('gap', `gap ${gap}`);
   if (variant.text?.fill !== undefined) out.set('label', `label ${name(variant.text.fill)}`);

@@ -1,23 +1,32 @@
 {
-  "$comment": "Per-variant visual specs for published Pushpin components — fill, stroke, radius, size, padding and the first text descendant, as they render in the kit. A bound variable is recorded as [collection, name, literal]: the collection and name verbatim from Figma, and the value that renders beside them. Several bindings have no --pp-* counterpart and inventing one is the defect this capture exists to remove, so resolution happens in scripts/lib/specs.mjs against tokens.figma.json. Generated — see scripts/build-specs.mjs, and scripts/extract.md § Component visual specs for the read.",
+  "$comment": "Per-variant visual specs for published Pushpin components — fill, stroke, radius, size, padding and the first text descendant, as they render in the kit. `padding` is the top frame alone; `inset` is where that text lands, measured from the variant edge, summed over every padded frame between the two — the number a flat element is built from, and it differs from `padding` wherever the label sits in a padded inner frame. A bound variable is recorded as [collection, name, literal]: the collection and name verbatim from Figma, and the value that renders beside them. Several bindings have no --pp-* counterpart and inventing one is the defect this capture exists to remove, so resolution happens in scripts/lib/specs.mjs against tokens.figma.json. Generated — see scripts/build-specs.mjs, and scripts/extract.md § Component visual specs for the read.",
   "source": {
     "fileKey": "VVRGrLgkPRU3vs765d5Q3r",
     "fileName": "Pushpin Thumbprint UI Kit",
-    "extractedAt": "2026-09-08",
-    "pagesRead": 47,
-    "componentsRecorded": 124,
-    "componentSets": 96,
+    "extractedAt": "2026-09-21",
+    "pagesRead": 46,
+    "componentsRecorded": 116,
+    "componentSets": 92,
     "capPerSet": 24,
-    "realVariantChildren": 870,
-    "variantsRecorded": 458,
+    "realVariantChildren": 986,
+    "variantsRecorded": 449,
     "setsAtCap": 0,
     "colorMode": "Light"
   },
   "coverage": {
     "measuredAgainst": "components.figma.json",
     "catalogComponents": 124,
-    "withSpec": 124,
-    "withoutSpec": [],
+    "withSpec": 116,
+    "withoutSpec": [
+      "Availability Chip",
+      "Disclosure",
+      "Link Section",
+      "Platform availability",
+      "Slider",
+      "Stepper",
+      "Tab",
+      "Tip"
+    ],
     "nameCollisions": [
       "\"Headers / Tab\" is published twice on \"Additional components\" — kept 13333:125848, dropped 35574:59932; the capture script reached only one of them",
       "\"Tabs\" is published twice on \"Additional components\" — kept 13333:125819, dropped 35574:59851; the capture script reached only one of them",
@@ -39,8 +48,7 @@
       "Text Fab State=Pressing background/brand/strong/pressed rendered #0b516f, Light #07344a / Dark #009fd9"
     ],
     "captureNotes": [
-      "Icons: Read under an ONLY list of the four components the catalog holds; the page publishes 904 icon owners, which icons.figma.json covers and a whole-page spec read truncates on.",
-      "Playground: page published nothing"
+      "Icons: Read under an ONLY list of the four components the catalog holds; the page publishes 900-odd icon owners, which icons.figma.json covers and a whole-page spec read truncates on."
     ]
   },
   "components": {
@@ -109,6 +117,28 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "native/2",
+              8
+            ],
+            [
+              "Space",
+              "native/3",
+              16
+            ],
+            [
+              "Space",
+              "native/2",
+              8
+            ],
+            [
+              "Space",
+              "native/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Link - Left",
             "fill": [
@@ -144,6 +174,11 @@
           ],
           "gap": 10,
           "padding": 0,
+          "inset": [
+            "Space",
+            "native/3",
+            16
+          ],
           "text": {
             "layer": "Title",
             "fill": [
@@ -176,6 +211,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            16,
+            28,
+            16,
+            28
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -212,6 +253,20 @@
             4
           ],
           "padding": [
+            0,
+            [
+              "Space",
+              "native/3",
+              16
+            ],
+            0,
+            [
+              "Space",
+              "native/3",
+              16
+            ]
+          ],
+          "inset": [
             0,
             [
               "Space",
@@ -263,6 +318,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            28,
+            40,
+            24,
+            28
+          ],
           "text": {
             "layer": "Which service do you",
             "fill": [
@@ -293,6 +354,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            28,
+            40,
+            12,
+            28
+          ],
           "text": {
             "layer": "Which service do you",
             "fill": [
@@ -328,6 +395,28 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "native/2",
+              8
+            ],
+            [
+              "Space",
+              "native/3",
+              16
+            ],
+            [
+              "Space",
+              "native/2",
+              8
+            ],
+            [
+              "Space",
+              "native/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Link - Left",
             "fill": [
@@ -363,6 +452,28 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "native/2",
+              8
+            ],
+            [
+              "Space",
+              "native/3",
+              16
+            ],
+            [
+              "Space",
+              "native/2",
+              8
+            ],
+            [
+              "Space",
+              "native/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Link - Left",
             "fill": [
@@ -398,6 +509,20 @@
         ],
         "gap": 0,
         "padding": 0,
+        "inset": [
+          [
+            "Tokens / Space",
+            "4",
+            16
+          ],
+          0,
+          [
+            "Tokens / Space",
+            "4",
+            16
+          ],
+          0
+        ],
         "text": {
           "layer": "heading",
           "fill": [
@@ -427,6 +552,12 @@
         ],
         "gap": 0,
         "padding": 0,
+        "inset": [
+          46,
+          24,
+          48,
+          24
+        ],
         "text": {
           "layer": "A Short Title is Best",
           "fill": "#7f7f7f80",
@@ -491,6 +622,11 @@
             "web/3",
             16
           ],
+          "inset": [
+            "Space",
+            "web/3",
+            16
+          ],
           "text": {
             "layer": "Message",
             "fill": [
@@ -530,6 +666,11 @@
           ],
           "gap": 0,
           "padding": [
+            "Space",
+            "web/3",
+            16
+          ],
+          "inset": [
             "Space",
             "web/3",
             16
@@ -577,6 +718,11 @@
             "web/3",
             16
           ],
+          "inset": [
+            "Space",
+            "web/3",
+            16
+          ],
           "text": {
             "layer": "Message",
             "fill": [
@@ -620,6 +766,11 @@
             "web/3",
             16
           ],
+          "inset": [
+            "Space",
+            "web/3",
+            16
+          ],
           "text": {
             "layer": "Message",
             "fill": [
@@ -658,6 +809,11 @@
           ],
           "gap": 0,
           "padding": [
+            "Space",
+            "web/3",
+            16
+          ],
+          "inset": [
             "Space",
             "web/3",
             16
@@ -729,207 +885,6 @@
             72,
             72
           ]
-        }
-      ]
-    },
-    "Availability Chip": {
-      "type": "COMPONENT_SET",
-      "page": "💠 Local components",
-      "nodeId": "34627:8912",
-      "axes": {
-        "Property 1": [
-          "Available",
-          "Native",
-          "Not built",
-          "Not applicable",
-          "In progress",
-          "Partial"
-        ]
-      },
-      "defaults": {
-        "Property 1": "Available"
-      },
-      "children": 6,
-      "crossProduct": 6,
-      "recorded": 6,
-      "variants": [
-        {
-          "for": [
-            "Property 1=Available"
-          ],
-          "props": {},
-          "radius": 0,
-          "size": [
-            100,
-            24
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "FIXED",
-            "FIXED"
-          ],
-          "gap": 4,
-          "padding": 0,
-          "text": {
-            "layer": "Available",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "text/success/strong",
-              "#07271d"
-            ],
-            "style": "Title/8",
-            "size": 12
-          }
-        },
-        {
-          "for": [
-            "Property 1=Native"
-          ],
-          "props": {
-            "Property 1": "Native"
-          },
-          "radius": 0,
-          "size": [
-            100,
-            24
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "FIXED",
-            "FIXED"
-          ],
-          "gap": 6,
-          "padding": 0,
-          "text": {
-            "layer": "Use Native OS",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "text/info/strong",
-              "#1d2249"
-            ],
-            "style": "Title/8",
-            "size": 12
-          }
-        },
-        {
-          "for": [
-            "Property 1=Not built"
-          ],
-          "props": {
-            "Property 1": "Not built"
-          },
-          "radius": 0,
-          "size": [
-            100,
-            24
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "FIXED",
-            "FIXED"
-          ],
-          "gap": 4,
-          "padding": 0,
-          "text": {
-            "layer": "Not built",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "heading/neutral/medium",
-              "#595c61"
-            ],
-            "style": "Title/8",
-            "size": 12
-          }
-        },
-        {
-          "for": [
-            "Property 1=Not applicable"
-          ],
-          "props": {
-            "Property 1": "Not applicable"
-          },
-          "radius": 0,
-          "size": [
-            100,
-            24
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "FIXED",
-            "FIXED"
-          ],
-          "gap": 6,
-          "padding": 0,
-          "text": {
-            "layer": "Not applicable",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "heading/neutral/medium",
-              "#595c61"
-            ],
-            "style": "Title/8",
-            "size": 12
-          }
-        },
-        {
-          "for": [
-            "Property 1=In progress"
-          ],
-          "props": {
-            "Property 1": "In progress"
-          },
-          "radius": 0,
-          "size": [
-            100,
-            24
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "FIXED",
-            "FIXED"
-          ],
-          "gap": 6,
-          "padding": 0,
-          "text": {
-            "layer": "In progress",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "text/warning/strong",
-              "#713f12"
-            ],
-            "style": "Title/8",
-            "size": 12
-          }
-        },
-        {
-          "for": [
-            "Property 1=Partial"
-          ],
-          "props": {
-            "Property 1": "Partial"
-          },
-          "radius": 0,
-          "size": [
-            100,
-            24
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "FIXED",
-            "FIXED"
-          ],
-          "gap": 4,
-          "padding": 0,
-          "text": {
-            "layer": "Partial availability",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "text/success/strong",
-              "#07271d"
-            ],
-            "style": "Title/8",
-            "size": 12
-          }
         }
       ]
     },
@@ -1158,6 +1113,7 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "88",
             "fill": [
@@ -1197,6 +1153,7 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "88",
             "fill": [
@@ -1236,6 +1193,20 @@
           ],
           "gap": 0,
           "padding": [
+            0,
+            [
+              "Tokens / Space",
+              "1",
+              4
+            ],
+            0,
+            [
+              "Tokens / Space",
+              "1",
+              4
+            ]
+          ],
+          "inset": [
             0,
             [
               "Tokens / Space",
@@ -1329,6 +1300,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "global/3 [12]",
+              12
+            ],
+            0,
+            [
+              "Tokens / Space",
+              "global/3 [12]",
+              12
+            ],
+            0
+          ],
           "text": {
             "layer": "1",
             "fill": [
@@ -1366,6 +1351,16 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "native/1",
+              4
+            ],
+            0,
+            9,
+            0
+          ],
           "text": {
             "layer": "Explore",
             "fill": [
@@ -1403,6 +1398,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "global/3 [12]",
+              12
+            ],
+            0,
+            [
+              "Tokens / Space",
+              "global/3 [12]",
+              12
+            ],
+            0
+          ],
           "text": {
             "layer": "Jobs",
             "fill": [
@@ -1439,6 +1448,16 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "native/1",
+              4
+            ],
+            0,
+            9,
+            0
+          ],
           "text": {
             "layer": "Explore",
             "fill": [
@@ -1475,6 +1494,16 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "native/1",
+              4
+            ],
+            0,
+            9,
+            0
+          ],
           "text": {
             "layer": "Explore",
             "fill": [
@@ -1510,6 +1539,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "global/3 [12]",
+              12
+            ],
+            0,
+            [
+              "Tokens / Space",
+              "global/3 [12]",
+              12
+            ],
+            0
+          ],
           "text": {
             "layer": "1",
             "fill": [
@@ -1546,6 +1589,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "global/3 [12]",
+              12
+            ],
+            0,
+            [
+              "Tokens / Space",
+              "global/3 [12]",
+              12
+            ],
+            0
+          ],
           "text": {
             "layer": "Jobs",
             "fill": [
@@ -1582,6 +1639,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "global/3 [12]",
+              12
+            ],
+            0,
+            [
+              "Tokens / Space",
+              "global/3 [12]",
+              12
+            ],
+            0
+          ],
           "text": {
             "layer": "Jobs",
             "fill": [
@@ -1618,6 +1689,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "global/3 [12]",
+              12
+            ],
+            0,
+            [
+              "Tokens / Space",
+              "global/3 [12]",
+              12
+            ],
+            0
+          ],
           "text": {
             "layer": "Jobs",
             "fill": [
@@ -1654,6 +1739,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "global/3 [12]",
+              12
+            ],
+            0,
+            [
+              "Tokens / Space",
+              "global/3 [12]",
+              12
+            ],
+            0
+          ],
           "text": {
             "layer": "Jobs",
             "fill": [
@@ -1689,6 +1788,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "global/3 [12]",
+              12
+            ],
+            0,
+            [
+              "Tokens / Space",
+              "global/3 [12]",
+              12
+            ],
+            0
+          ],
           "text": {
             "layer": "1",
             "fill": [
@@ -1724,6 +1837,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "global/3 [12]",
+              12
+            ],
+            0,
+            [
+              "Tokens / Space",
+              "global/3 [12]",
+              12
+            ],
+            0
+          ],
           "text": {
             "layer": "1",
             "fill": [
@@ -1759,6 +1886,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "global/3 [12]",
+              12
+            ],
+            0,
+            [
+              "Tokens / Space",
+              "global/3 [12]",
+              12
+            ],
+            0
+          ],
           "text": {
             "layer": "1",
             "fill": [
@@ -1838,8 +1979,8 @@
           ],
           "props": {},
           "fill": [
-            "Tokens / Colors",
-            "White",
+            "Tokens / Base Colors",
+            "system/white",
             "#ffffff"
           ],
           "radius": 14,
@@ -1856,8 +1997,8 @@
             "User": "Pro"
           },
           "fill": [
-            "Tokens / Colors",
-            "White",
+            "Tokens / Base Colors",
+            "system/white",
             "#ffffff"
           ],
           "radius": 14,
@@ -2205,9 +2346,9 @@
           "text": {
             "layer": "Enter Text",
             "fill": [
-              "Tokens / Colors",
-              "Black 300",
-              "#676d73"
+              "Tokens / Semantic Colors",
+              "background/neutral/heavy",
+              "#686c72"
             ],
             "style": null,
             "size": 24
@@ -2388,6 +2529,12 @@
             0,
             0
           ],
+          "inset": [
+            12,
+            52,
+            12,
+            12
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -2426,6 +2573,12 @@
             40,
             0,
             0
+          ],
+          "inset": [
+            12,
+            52,
+            12,
+            12
           ],
           "text": {
             "layer": "Text",
@@ -2487,6 +2640,24 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            0,
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ]
+          ],
           "text": {
             "layer": "Please leave a review",
             "fill": [
@@ -2521,6 +2692,24 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            0,
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ]
+          ],
           "text": {
             "layer": "Please leave a review",
             "fill": [
@@ -2555,6 +2744,24 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            0,
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ]
+          ],
           "text": {
             "layer": "Please leave a review",
             "fill": [
@@ -2589,6 +2796,24 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            0,
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ]
+          ],
           "text": {
             "layer": "Please leave a review",
             "fill": [
@@ -2623,6 +2848,24 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            0,
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ]
+          ],
           "text": {
             "layer": "Please leave a review",
             "fill": [
@@ -2651,6 +2894,24 @@
           ],
           "gap": 4,
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            0,
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ]
+          ],
           "text": {
             "layer": "Please leave a review",
             "fill": [
@@ -2685,6 +2946,24 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            0,
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ]
+          ],
           "text": {
             "layer": "Please leave a review",
             "fill": [
@@ -2719,6 +2998,24 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            0,
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ]
+          ],
           "text": {
             "layer": "Please leave a review",
             "fill": [
@@ -2753,6 +3050,24 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            0,
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ]
+          ],
           "text": {
             "layer": "Please leave a review",
             "fill": [
@@ -2821,6 +3136,12 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            12,
+            16,
+            12,
+            16
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -2855,6 +3176,12 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            12,
+            16,
+            12,
+            16
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -2889,6 +3216,12 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            12,
+            56,
+            12,
+            16
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -2923,6 +3256,12 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            12,
+            16,
+            12,
+            16
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -3040,6 +3379,20 @@
               24
             ]
           ],
+          "inset": [
+            12,
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            12,
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -3087,6 +3440,20 @@
             8
           ],
           "padding": [
+            12,
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            12,
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
+          "inset": [
             12,
             [
               "Tokens / Space",
@@ -3160,6 +3527,20 @@
               24
             ]
           ],
+          "inset": [
+            12,
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            12,
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -3198,6 +3579,7 @@
             8
           ],
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Label",
             "fill": [
@@ -3255,6 +3637,20 @@
             8
           ],
           "padding": [
+            12,
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            12,
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
+          "inset": [
             12,
             [
               "Tokens / Space",
@@ -3338,6 +3734,20 @@
               24
             ]
           ],
+          "inset": [
+            12,
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            12,
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -3385,6 +3795,20 @@
             8
           ],
           "padding": [
+            12,
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ],
+            12,
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ]
+          ],
+          "inset": [
             12,
             [
               "Tokens / Space",
@@ -3458,6 +3882,20 @@
               24
             ]
           ],
+          "inset": [
+            12,
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            12,
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -3518,6 +3956,20 @@
               24
             ]
           ],
+          "inset": [
+            12,
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            12,
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -3565,6 +4017,20 @@
             8
           ],
           "padding": [
+            12,
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            12,
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
+          "inset": [
             12,
             [
               "Tokens / Space",
@@ -3698,6 +4164,20 @@
               24
             ]
           ],
+          "inset": [
+            12,
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            12,
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -3780,6 +4260,11 @@
             "native/3",
             16
           ],
+          "inset": [
+            "Space",
+            "native/3",
+            16
+          ],
           "text": {
             "layer": "Title",
             "fill": [
@@ -3816,6 +4301,7 @@
             20
           ],
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Title",
             "fill": [
@@ -3863,6 +4349,11 @@
           ],
           "gap": 12,
           "padding": [
+            "Space",
+            "native/3",
+            16
+          ],
+          "inset": [
             "Space",
             "native/3",
             16
@@ -3919,6 +4410,11 @@
             "native/3",
             16
           ],
+          "inset": [
+            "Space",
+            "native/3",
+            16
+          ],
           "text": {
             "layer": "Title",
             "fill": [
@@ -3966,6 +4462,11 @@
           ],
           "gap": 12,
           "padding": [
+            "Space",
+            "native/3",
+            16
+          ],
+          "inset": [
             "Space",
             "native/3",
             16
@@ -4123,6 +4624,7 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Month / Year",
             "fill": [
@@ -4155,6 +4657,7 @@
             12
           ],
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Month / Year",
             "fill": [
@@ -4190,6 +4693,7 @@
         ],
         "gap": 4,
         "padding": 12,
+        "inset": 12,
         "text": {
           "layer": "AI Review Summary",
           "fill": [
@@ -4242,6 +4746,7 @@
             16
           ],
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "ServiceCardTitle",
             "fill": [
@@ -4276,6 +4781,7 @@
             16
           ],
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "ServiceCardTitle",
             "fill": [
@@ -4310,6 +4816,7 @@
             16
           ],
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "ServiceCardTitle",
             "fill": [
@@ -4344,6 +4851,7 @@
             16
           ],
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "ServiceCardTitle",
             "fill": [
@@ -4400,11 +4908,11 @@
         "👁️ Description": "false",
         "type": "control"
       },
-      "children": 36,
+      "children": 45,
       "crossProduct": 128,
       "recorded": 8,
       "reduced": {
-        "children": 36,
+        "children": 45,
         "recorded": 8,
         "cappedAt": null
       },
@@ -4441,12 +4949,12 @@
             16
           ],
           "size": [
-            111,
+            239,
             55
           ],
           "mode": "HORIZONTAL",
           "sizing": [
-            "HUG",
+            "FILL",
             "HUG"
           ],
           "gap": [
@@ -4455,6 +4963,28 @@
             12
           ],
           "padding": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ]
+          ],
+          "inset": [
             [
               "Tokens / Space",
               "4",
@@ -4502,7 +5032,7 @@
           ],
           "mode": "HORIZONTAL",
           "sizing": [
-            "HUG",
+            "FIXED",
             "HUG"
           ],
           "gap": [
@@ -4511,6 +5041,7 @@
             8
           ],
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Label",
             "fill": [
@@ -4550,12 +5081,12 @@
             16
           ],
           "size": [
-            111,
+            239,
             55
           ],
           "mode": "HORIZONTAL",
           "sizing": [
-            "HUG",
+            "FILL",
             "HUG"
           ],
           "gap": [
@@ -4564,6 +5095,28 @@
             12
           ],
           "padding": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ]
+          ],
+          "inset": [
             [
               "Tokens / Space",
               "4",
@@ -4624,12 +5177,12 @@
             16
           ],
           "size": [
-            111,
+            239,
             55
           ],
           "mode": "HORIZONTAL",
           "sizing": [
-            "HUG",
+            "FILL",
             "HUG"
           ],
           "gap": [
@@ -4638,6 +5191,28 @@
             12
           ],
           "padding": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ]
+          ],
+          "inset": [
             [
               "Tokens / Space",
               "4",
@@ -4698,12 +5273,12 @@
             16
           ],
           "size": [
-            111,
+            239,
             55
           ],
           "mode": "HORIZONTAL",
           "sizing": [
-            "HUG",
+            "FILL",
             "HUG"
           ],
           "gap": [
@@ -4712,6 +5287,28 @@
             12
           ],
           "padding": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ]
+          ],
+          "inset": [
             [
               "Tokens / Space",
               "4",
@@ -4772,12 +5369,12 @@
             16
           ],
           "size": [
-            111,
+            239,
             55
           ],
           "mode": "HORIZONTAL",
           "sizing": [
-            "HUG",
+            "FILL",
             "HUG"
           ],
           "gap": [
@@ -4786,6 +5383,28 @@
             12
           ],
           "padding": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ]
+          ],
+          "inset": [
             [
               "Tokens / Space",
               "4",
@@ -4823,13 +5442,31 @@
             "👁️ Description=true"
           ],
           "props": {
-            "👁️ Description": "true",
-            "type": "standard"
+            "👁️ Description": "true"
           },
-          "radius": 0,
+          "fill": [
+            "Tokens / Semantic Colors",
+            "background/neutral/default",
+            "#ffffff"
+          ],
+          "stroke": [
+            "Tokens / Semantic Colors",
+            "border/neutral/default",
+            "#dddee1"
+          ],
+          "strokeWeight": [
+            "Figma / Semantic Dimensions",
+            "Border/inputs",
+            1.5
+          ],
+          "radius": [
+            "Tokens / Corner Radius",
+            "xlarge",
+            16
+          ],
           "size": [
             239,
-            47
+            79
           ],
           "mode": "HORIZONTAL",
           "sizing": [
@@ -4838,10 +5475,53 @@
           ],
           "gap": [
             "Tokens / Space",
-            "2",
-            8
+            "3",
+            12
           ],
-          "padding": 0,
+          "padding": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ]
+          ],
+          "inset": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ]
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -4876,6 +5556,20 @@
             8
           ],
           "padding": [
+            [
+              "Tokens / Space",
+              "3",
+              12
+            ],
+            0,
+            [
+              "Tokens / Space",
+              "3",
+              12
+            ],
+            0
+          ],
+          "inset": [
             [
               "Tokens / Space",
               "3",
@@ -4935,6 +5629,28 @@
           ],
           "gap": 8,
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ]
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -5041,6 +5757,20 @@
               12
             ]
           ],
+          "inset": [
+            [
+              "Tokens / Space",
+              "2",
+              8
+            ],
+            16,
+            [
+              "Tokens / Space",
+              "2",
+              8
+            ],
+            16
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -5048,7 +5778,7 @@
               "heading/neutral/default",
               "#1f2022"
             ],
-            "style": "Title/8",
+            "style": "Text/3",
             "size": 12
           }
         },
@@ -5111,6 +5841,20 @@
               12
             ]
           ],
+          "inset": [
+            [
+              "Tokens / Space",
+              "2",
+              8
+            ],
+            16,
+            [
+              "Tokens / Space",
+              "2",
+              8
+            ],
+            16
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -5118,7 +5862,7 @@
               "heading/neutral/default",
               "#1f2022"
             ],
-            "style": "Title/8",
+            "style": "Text/3",
             "size": 12
           }
         },
@@ -5181,6 +5925,20 @@
               12
             ]
           ],
+          "inset": [
+            [
+              "Tokens / Space",
+              "2",
+              8
+            ],
+            16,
+            [
+              "Tokens / Space",
+              "2",
+              8
+            ],
+            16
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -5188,7 +5946,7 @@
               "heading/neutral/default",
               "#1f2022"
             ],
-            "style": "Title/8",
+            "style": "Text/3",
             "size": 12
           }
         },
@@ -5250,6 +6008,20 @@
               "3",
               12
             ]
+          ],
+          "inset": [
+            [
+              "Tokens / Space",
+              "2",
+              8
+            ],
+            20,
+            [
+              "Tokens / Space",
+              "2",
+              8
+            ],
+            20
           ],
           "text": {
             "layer": "Label",
@@ -5321,6 +6093,20 @@
               12
             ]
           ],
+          "inset": [
+            [
+              "Tokens / Space",
+              "2",
+              8
+            ],
+            16,
+            [
+              "Tokens / Space",
+              "2",
+              8
+            ],
+            16
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -5328,7 +6114,7 @@
               "heading/neutral/default",
               "#1f2022"
             ],
-            "style": "Title/8",
+            "style": "Text/3",
             "size": 12
           }
         },
@@ -5391,6 +6177,20 @@
               12
             ]
           ],
+          "inset": [
+            [
+              "Tokens / Space",
+              "2",
+              8
+            ],
+            16,
+            [
+              "Tokens / Space",
+              "2",
+              8
+            ],
+            16
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -5398,7 +6198,7 @@
               "text/disabled",
               "#b9bbbf"
             ],
-            "style": "Title/8",
+            "style": "Text/3",
             "size": 12
           }
         }
@@ -5444,6 +6244,28 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/6",
+              64
+            ],
+            [
+              "Figma / Device Sizes",
+              "Viewport padding/Horiztontal/Default",
+              0
+            ],
+            [
+              "Space",
+              "web/6",
+              64
+            ],
+            [
+              "Figma / Device Sizes",
+              "Viewport padding/Horiztontal/Default",
+              0
+            ]
+          ],
           "text": {
             "layer": "Heading",
             "fill": [
@@ -5478,6 +6300,28 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Figma / Device Sizes",
+              "Viewport padding/Horiztontal/Tight",
+              16
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Figma / Device Sizes",
+              "Viewport padding/Horiztontal/Tight",
+              16
+            ]
+          ],
           "text": {
             "layer": "Heading",
             "fill": [
@@ -5517,6 +6361,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "global/3 [12]",
+              12
+            ],
+            0,
+            [
+              "Tokens / Space",
+              "global/3 [12]",
+              12
+            ],
+            0
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -5572,6 +6430,7 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "✏️ Time",
             "fill": [
@@ -5610,6 +6469,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            24,
+            28,
+            24,
+            36
+          ],
           "text": {
             "layer": "Category",
             "fill": [
@@ -5667,6 +6532,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            16,
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            16
+          ],
           "text": {
             "layer": "{tab_name}",
             "fill": "#494c4f",
@@ -5702,6 +6581,7 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "✏️ Time",
             "fill": [
@@ -5741,88 +6621,25 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            16,
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            16
+          ],
           "text": {
             "layer": "{tab_name}",
             "fill": "#494c4f",
             "style": null,
             "size": 12
-          }
-        }
-      ]
-    },
-    "Disclosure": {
-      "type": "COMPONENT_SET",
-      "page": "Disclosure",
-      "nodeId": "19227:6590",
-      "axes": {
-        "isExpanded": [
-          "false",
-          "true"
-        ]
-      },
-      "defaults": {
-        "isExpanded": "false"
-      },
-      "children": 2,
-      "crossProduct": 2,
-      "recorded": 2,
-      "variants": [
-        {
-          "for": [
-            "isExpanded=false"
-          ],
-          "props": {},
-          "radius": 0,
-          "size": [
-            688,
-            110
-          ],
-          "mode": "VERTICAL",
-          "sizing": [
-            "FILL",
-            "HUG"
-          ],
-          "gap": 0,
-          "padding": 0,
-          "text": {
-            "layer": "text",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "heading/neutral/default",
-              "#1f2022"
-            ],
-            "style": "Text/1",
-            "size": 16
-          }
-        },
-        {
-          "for": [
-            "isExpanded=true"
-          ],
-          "props": {
-            "isExpanded": "true"
-          },
-          "radius": 0,
-          "size": [
-            688,
-            238
-          ],
-          "mode": "VERTICAL",
-          "sizing": [
-            "FILL",
-            "HUG"
-          ],
-          "gap": 0,
-          "padding": 0,
-          "text": {
-            "layer": "text",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "heading/neutral/default",
-              "#1f2022"
-            ],
-            "style": "Text/1",
-            "size": 16
           }
         }
       ]
@@ -5844,6 +6661,7 @@
         ],
         "gap": 4,
         "padding": 0,
+        "inset": 0,
         "text": {
           "layer": "Label",
           "fill": [
@@ -5926,6 +6744,16 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            0,
+            0,
+            [
+              "Tokens / Space",
+              "1",
+              4
+            ],
+            0
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -5963,6 +6791,16 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            0,
+            0,
+            [
+              "Tokens / Space",
+              "1",
+              4
+            ],
+            0
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -5998,6 +6836,16 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            0,
+            0,
+            [
+              "Tokens / Space",
+              "1",
+              4
+            ],
+            0
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -6033,6 +6881,16 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            0,
+            0,
+            [
+              "Tokens / Space",
+              "1",
+              4
+            ],
+            0
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -6067,6 +6925,16 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            0,
+            0,
+            [
+              "Tokens / Space",
+              "1",
+              4
+            ],
+            0
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -6101,6 +6969,16 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            0,
+            0,
+            [
+              "Tokens / Space",
+              "1",
+              4
+            ],
+            0
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -6135,6 +7013,16 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            0,
+            0,
+            [
+              "Tokens / Space",
+              "1",
+              4
+            ],
+            0
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -6191,6 +7079,16 @@
             0,
             0
           ],
+          "inset": [
+            [
+              "Tokens / Space",
+              "global/1 [4]",
+              4
+            ],
+            0,
+            0,
+            0
+          ],
           "text": {
             "layer": "Form note",
             "fill": [
@@ -6221,6 +7119,16 @@
           ],
           "gap": 10,
           "padding": [
+            [
+              "Tokens / Space",
+              "global/1 [4]",
+              4
+            ],
+            0,
+            0,
+            0
+          ],
+          "inset": [
             [
               "Tokens / Space",
               "global/1 [4]",
@@ -6356,6 +7264,20 @@
               16
             ]
           ],
+          "inset": [
+            0,
+            [
+              "Space",
+              "native/3",
+              16
+            ],
+            0,
+            [
+              "Space",
+              "native/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Page Heading",
             "fill": [
@@ -6390,6 +7312,28 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "native/2",
+              8
+            ],
+            [
+              "Space",
+              "native/3",
+              16
+            ],
+            [
+              "Space",
+              "native/2",
+              8
+            ],
+            [
+              "Space",
+              "native/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Title",
             "fill": [
@@ -6420,6 +7364,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            16,
+            28,
+            16,
+            28
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -6471,6 +7421,12 @@
               16
             ]
           ],
+          "inset": [
+            28,
+            40,
+            12,
+            28
+          ],
           "text": {
             "layer": "Which service do you",
             "fill": [
@@ -6510,6 +7466,11 @@
             "native/3",
             16
           ],
+          "inset": [
+            "Space",
+            "native/3",
+            16
+          ],
           "text": {
             "layer": "Title",
             "fill": [
@@ -6545,6 +7506,28 @@
         ],
         "gap": 0,
         "padding": 0,
+        "inset": [
+          [
+            "Space",
+            "native/2",
+            8
+          ],
+          [
+            "Space",
+            "native/3",
+            16
+          ],
+          [
+            "Space",
+            "native/2",
+            8
+          ],
+          [
+            "Space",
+            "native/3",
+            16
+          ]
+        ],
         "text": {
           "layer": "Title",
           "fill": [
@@ -6602,6 +7585,11 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            "Space",
+            "native/2",
+            8
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -6632,6 +7620,24 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            14,
+            [
+              "Space",
+              "native/2",
+              8
+            ],
+            [
+              "Space",
+              "native/1",
+              4
+            ],
+            [
+              "Space",
+              "native/2",
+              8
+            ]
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -6662,6 +7668,11 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            "Space",
+            "native/2",
+            8
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -6840,39 +7851,54 @@
           "tertiary",
           "link",
           "caution",
-          "alert"
+          "alert",
+          "ghost"
         ],
         "size": [
+          "xsmall",
+          "small",
+          "medium",
           "large",
-          "small"
+          "xlarge",
+          "xxlarge"
         ],
         "State": [
           "default",
           "hover",
-          "pressed",
-          "loading",
-          "disabled"
+          "pressed"
+        ],
+        "isDisabled": [
+          "false",
+          "true"
+        ],
+        "isLoading": [
+          "false",
+          "true"
         ]
       },
       "defaults": {
         "theme": "primary",
-        "size": "large",
-        "State": "default"
+        "size": "medium",
+        "State": "default",
+        "isDisabled": "false",
+        "isLoading": "false"
       },
-      "children": 60,
-      "crossProduct": 60,
-      "recorded": 11,
+      "children": 185,
+      "crossProduct": 504,
+      "recorded": 16,
       "reduced": {
-        "children": 60,
-        "recorded": 11,
+        "children": 185,
+        "recorded": 16,
         "cappedAt": null
       },
       "variants": [
         {
           "for": [
             "theme=primary",
-            "size=large",
-            "State=default"
+            "size=medium",
+            "State=default",
+            "isDisabled=false",
+            "isLoading=false"
           ],
           "props": {},
           "fill": [
@@ -6886,12 +7912,8 @@
             9999
           ],
           "size": [
-            52,
-            [
-              "Figma / Semantic Dimensions",
-              "Control Sizes/xl",
-              52
-            ]
+            32,
+            32
           ],
           "mode": "HORIZONTAL",
           "sizing": [
@@ -6904,6 +7926,7 @@
             8
           ],
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Label",
             "fill": [
@@ -6912,7 +7935,7 @@
               "#7cdcfd"
             ],
             "style": null,
-            "size": 16
+            "size": 14
           }
         },
         {
@@ -6933,12 +7956,8 @@
             9999
           ],
           "size": [
-            52,
-            [
-              "Figma / Semantic Dimensions",
-              "Control Sizes/xl",
-              52
-            ]
+            32,
+            32
           ],
           "mode": "HORIZONTAL",
           "sizing": [
@@ -6951,6 +7970,7 @@
             8
           ],
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Label",
             "fill": [
@@ -6959,7 +7979,7 @@
               "#0175a3"
             ],
             "style": null,
-            "size": 16
+            "size": 14
           }
         },
         {
@@ -6980,12 +8000,8 @@
             9999
           ],
           "size": [
-            52,
-            [
-              "Figma / Semantic Dimensions",
-              "Control Sizes/xl",
-              52
-            ]
+            32,
+            32
           ],
           "mode": "HORIZONTAL",
           "sizing": [
@@ -6998,6 +8014,7 @@
             8
           ],
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Label",
             "fill": [
@@ -7006,7 +8023,7 @@
               "#1f2022"
             ],
             "style": null,
-            "size": 16
+            "size": 14
           }
         },
         {
@@ -7027,12 +8044,8 @@
             9999
           ],
           "size": [
-            52,
-            [
-              "Figma / Semantic Dimensions",
-              "Control Sizes/xl",
-              52
-            ]
+            32,
+            32
           ],
           "mode": "HORIZONTAL",
           "sizing": [
@@ -7045,6 +8058,7 @@
             8
           ],
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Label",
             "fill": [
@@ -7053,7 +8067,7 @@
               "#0175a3"
             ],
             "style": null,
-            "size": 16
+            "size": 14
           }
         },
         {
@@ -7084,12 +8098,8 @@
             9999
           ],
           "size": [
-            52,
-            [
-              "Figma / Semantic Dimensions",
-              "Control Sizes/xl",
-              52
-            ]
+            32,
+            32
           ],
           "mode": "HORIZONTAL",
           "sizing": [
@@ -7102,6 +8112,7 @@
             8
           ],
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Label",
             "fill": [
@@ -7110,7 +8121,7 @@
               "#dc2626"
             ],
             "style": null,
-            "size": 16
+            "size": 14
           }
         },
         {
@@ -7141,12 +8152,8 @@
             9999
           ],
           "size": [
-            52,
-            [
-              "Figma / Semantic Dimensions",
-              "Control Sizes/xl",
-              52
-            ]
+            32,
+            32
           ],
           "mode": "HORIZONTAL",
           "sizing": [
@@ -7159,6 +8166,7 @@
             8
           ],
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Label",
             "fill": [
@@ -7167,7 +8175,90 @@
               "#ffffff"
             ],
             "style": null,
-            "size": 16
+            "size": 14
+          }
+        },
+        {
+          "for": [
+            "theme=ghost"
+          ],
+          "props": {
+            "theme": "ghost"
+          },
+          "radius": [
+            "Tokens / Corner Radius",
+            "sides",
+            9999
+          ],
+          "size": [
+            18,
+            18
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "HUG",
+            "HUG"
+          ],
+          "gap": [
+            "Tokens / Space",
+            "2",
+            8
+          ],
+          "padding": 0,
+          "inset": 0,
+          "text": {
+            "layer": "Label",
+            "fill": [
+              "Tokens / Semantic Colors",
+              "text/on-brand/strong",
+              "#7cdcfd"
+            ],
+            "style": null,
+            "size": 14
+          }
+        },
+        {
+          "for": [
+            "size=xsmall"
+          ],
+          "props": {
+            "size": "xsmall"
+          },
+          "fill": [
+            "Tokens / Semantic Colors",
+            "background/brand/strong",
+            "#07344a"
+          ],
+          "radius": [
+            "Tokens / Corner Radius",
+            "sides",
+            9999
+          ],
+          "size": [
+            20,
+            20
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "FIXED",
+            "FIXED"
+          ],
+          "gap": [
+            "Tokens / Space",
+            "2",
+            8
+          ],
+          "padding": 0,
+          "inset": 0,
+          "text": {
+            "layer": "Label",
+            "fill": [
+              "Tokens / Semantic Colors",
+              "text/on-brand/strong",
+              "#7cdcfd"
+            ],
+            "style": null,
+            "size": 14
           }
         },
         {
@@ -7176,6 +8267,50 @@
           ],
           "props": {
             "size": "small"
+          },
+          "fill": [
+            "Tokens / Semantic Colors",
+            "background/brand/strong",
+            "#07344a"
+          ],
+          "radius": [
+            "Tokens / Corner Radius",
+            "sides",
+            9999
+          ],
+          "size": [
+            28,
+            28
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "FIXED",
+            "FIXED"
+          ],
+          "gap": [
+            "Tokens / Space",
+            "2",
+            8
+          ],
+          "padding": 0,
+          "inset": 0,
+          "text": {
+            "layer": "Label",
+            "fill": [
+              "Tokens / Semantic Colors",
+              "text/on-brand/strong",
+              "#7cdcfd"
+            ],
+            "style": null,
+            "size": 14
+          }
+        },
+        {
+          "for": [
+            "size=large"
+          ],
+          "props": {
+            "size": "large"
           },
           "fill": [
             "Tokens / Semantic Colors",
@@ -7206,6 +8341,7 @@
             8
           ],
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Label",
             "fill": [
@@ -7219,104 +8355,10 @@
         },
         {
           "for": [
-            "State=hover"
+            "size=xlarge"
           ],
           "props": {
-            "State": "hover"
-          },
-          "fill": [
-            "Tokens / Semantic Colors",
-            "background/brand/strong/hover",
-            "#1f2022"
-          ],
-          "radius": [
-            "Tokens / Corner Radius",
-            "sides",
-            9999
-          ],
-          "size": [
-            52,
-            [
-              "Figma / Semantic Dimensions",
-              "Control Sizes/xl",
-              52
-            ]
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "FIXED",
-            "FIXED"
-          ],
-          "gap": [
-            "Tokens / Space",
-            "2",
-            8
-          ],
-          "padding": 0,
-          "text": {
-            "layer": "Label",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "text/on-brand/strong",
-              "#7cdcfd"
-            ],
-            "style": null,
-            "size": 16
-          }
-        },
-        {
-          "for": [
-            "State=pressed"
-          ],
-          "props": {
-            "State": "pressed"
-          },
-          "fill": [
-            "Tokens / Semantic Colors",
-            "background/brand/strong/pressed",
-            "#0b516f"
-          ],
-          "radius": [
-            "Tokens / Corner Radius",
-            "sides",
-            9999
-          ],
-          "size": [
-            52,
-            [
-              "Figma / Semantic Dimensions",
-              "Control Sizes/xl",
-              52
-            ]
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "FIXED",
-            "FIXED"
-          ],
-          "gap": [
-            "Tokens / Space",
-            "2",
-            8
-          ],
-          "padding": 0,
-          "text": {
-            "layer": "Label",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "text/on-brand/strong",
-              "#7cdcfd"
-            ],
-            "style": null,
-            "size": 16
-          }
-        },
-        {
-          "for": [
-            "State=loading"
-          ],
-          "props": {
-            "State": "loading"
+            "size": "xlarge"
           },
           "fill": [
             "Tokens / Semantic Colors",
@@ -7347,6 +8389,7 @@
             8
           ],
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Label",
             "fill": [
@@ -7360,10 +8403,142 @@
         },
         {
           "for": [
-            "State=disabled"
+            "size=xxlarge"
           ],
           "props": {
-            "State": "disabled"
+            "size": "xxlarge"
+          },
+          "fill": [
+            "Tokens / Semantic Colors",
+            "background/brand/strong",
+            "#07344a"
+          ],
+          "radius": [
+            "Tokens / Corner Radius",
+            "sides",
+            9999
+          ],
+          "size": [
+            64,
+            64
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "FIXED",
+            "FIXED"
+          ],
+          "gap": [
+            "Tokens / Space",
+            "2",
+            8
+          ],
+          "padding": 0,
+          "inset": 0,
+          "text": {
+            "layer": "Label",
+            "fill": [
+              "Tokens / Semantic Colors",
+              "text/on-brand/strong",
+              "#7cdcfd"
+            ],
+            "style": null,
+            "size": 16
+          }
+        },
+        {
+          "for": [
+            "State=hover"
+          ],
+          "props": {
+            "State": "hover"
+          },
+          "fill": [
+            "Tokens / Semantic Colors",
+            "background/brand/strong/hover",
+            "#1f2022"
+          ],
+          "radius": [
+            "Tokens / Corner Radius",
+            "sides",
+            9999
+          ],
+          "size": [
+            32,
+            32
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "FIXED",
+            "FIXED"
+          ],
+          "gap": [
+            "Tokens / Space",
+            "2",
+            8
+          ],
+          "padding": 0,
+          "inset": 0,
+          "text": {
+            "layer": "Label",
+            "fill": [
+              "Tokens / Semantic Colors",
+              "text/on-brand/strong",
+              "#7cdcfd"
+            ],
+            "style": null,
+            "size": 14
+          }
+        },
+        {
+          "for": [
+            "State=pressed"
+          ],
+          "props": {
+            "State": "pressed"
+          },
+          "fill": [
+            "Tokens / Semantic Colors",
+            "background/brand/strong/pressed",
+            "#0b516f"
+          ],
+          "radius": [
+            "Tokens / Corner Radius",
+            "sides",
+            9999
+          ],
+          "size": [
+            32,
+            32
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "FIXED",
+            "FIXED"
+          ],
+          "gap": [
+            "Tokens / Space",
+            "2",
+            8
+          ],
+          "padding": 0,
+          "inset": 0,
+          "text": {
+            "layer": "Label",
+            "fill": [
+              "Tokens / Semantic Colors",
+              "text/on-brand/strong",
+              "#7cdcfd"
+            ],
+            "style": null,
+            "size": 14
+          }
+        },
+        {
+          "for": [
+            "isDisabled=true"
+          ],
+          "props": {
+            "isDisabled": "true"
           },
           "fill": [
             "Tokens / Semantic Colors",
@@ -7386,12 +8561,8 @@
             9999
           ],
           "size": [
-            52,
-            [
-              "Figma / Semantic Dimensions",
-              "Control Sizes/xl",
-              52
-            ]
+            32,
+            32
           ],
           "mode": "HORIZONTAL",
           "sizing": [
@@ -7404,6 +8575,7 @@
             8
           ],
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Label",
             "fill": [
@@ -7412,7 +8584,51 @@
               "#7cdcfd"
             ],
             "style": null,
-            "size": 16
+            "size": 14
+          }
+        },
+        {
+          "for": [
+            "isLoading=true"
+          ],
+          "props": {
+            "isLoading": "true"
+          },
+          "fill": [
+            "Tokens / Semantic Colors",
+            "background/brand/strong",
+            "#07344a"
+          ],
+          "radius": [
+            "Tokens / Corner Radius",
+            "sides",
+            9999
+          ],
+          "size": [
+            32,
+            32
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "FIXED",
+            "FIXED"
+          ],
+          "gap": [
+            "Tokens / Space",
+            "2",
+            8
+          ],
+          "padding": 0,
+          "inset": 0,
+          "text": {
+            "layer": "Label",
+            "fill": [
+              "Tokens / Semantic Colors",
+              "text/on-brand/strong",
+              "#7cdcfd"
+            ],
+            "style": null,
+            "size": 14
           }
         }
       ]
@@ -7691,6 +8907,16 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            0,
+            0,
+            [
+              "Tokens / Space",
+              "1",
+              4
+            ],
+            0
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -7725,6 +8951,16 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            0,
+            0,
+            [
+              "Tokens / Space",
+              "1",
+              4
+            ],
+            0
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -7786,6 +9022,7 @@
         ],
         "gap": 0,
         "padding": 0,
+        "inset": 0,
         "text": {
           "layer": "✏️ Time",
           "fill": [
@@ -7820,6 +9057,24 @@
         ],
         "gap": 0,
         "padding": 0,
+        "inset": [
+          12,
+          [
+            "Space",
+            "native/3",
+            16
+          ],
+          [
+            "Space",
+            "native/2",
+            8
+          ],
+          [
+            "Space",
+            "native/3",
+            16
+          ]
+        ],
         "text": {
           "layer": "Link - Left",
           "fill": [
@@ -7903,6 +9158,28 @@
               16
             ]
           ],
+          "inset": [
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Thumbtack for iOS",
             "fill": [
@@ -7959,6 +9236,28 @@
               16
             ]
           ],
+          "inset": [
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Thumbtack for Pros",
             "fill": [
@@ -7994,6 +9293,28 @@
           ],
           "gap": 12,
           "padding": [
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
+          "inset": [
             [
               "Space",
               "web/2",
@@ -8077,6 +9398,16 @@
             ],
             0
           ],
+          "inset": [
+            0,
+            0,
+            [
+              "Tokens / Space",
+              "1",
+              4
+            ],
+            0
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -8107,6 +9438,16 @@
           ],
           "gap": 0,
           "padding": [
+            0,
+            0,
+            [
+              "Tokens / Space",
+              "1",
+              4
+            ],
+            0
+          ],
+          "inset": [
             0,
             0,
             [
@@ -8155,6 +9496,16 @@
             ],
             0
           ],
+          "inset": [
+            0,
+            0,
+            [
+              "Tokens / Space",
+              "1",
+              4
+            ],
+            0
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -8176,8 +9527,8 @@
         "theme": [
           "primary (default)",
           "secondary",
-          "inverse",
           "alert",
+          "inverse",
           "longtext",
           "disabled"
         ],
@@ -8213,7 +9564,7 @@
           "props": {},
           "radius": 0,
           "size": [
-            48,
+            30,
             22
           ],
           "mode": "HORIZONTAL",
@@ -8227,6 +9578,7 @@
             4
           ],
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Link",
             "fill": [
@@ -8247,7 +9599,7 @@
           },
           "radius": 0,
           "size": [
-            48,
+            30,
             22
           ],
           "mode": "HORIZONTAL",
@@ -8261,46 +9613,13 @@
             4
           ],
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Link",
             "fill": [
               "Tokens / Semantic Colors",
               "text/neutral/medium",
               "#595c61"
-            ],
-            "style": "Text/1",
-            "size": 16
-          }
-        },
-        {
-          "for": [
-            "theme=inverse"
-          ],
-          "props": {
-            "theme": "inverse"
-          },
-          "radius": 0,
-          "size": [
-            48,
-            22
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "HUG",
-            "HUG"
-          ],
-          "gap": [
-            "Space",
-            "web/1",
-            4
-          ],
-          "padding": 0,
-          "text": {
-            "layer": "Link",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "heading/neutral/inverse",
-              "#ffffff"
             ],
             "style": "Text/1",
             "size": 16
@@ -8315,7 +9634,7 @@
           },
           "radius": 0,
           "size": [
-            48,
+            30,
             22
           ],
           "mode": "HORIZONTAL",
@@ -8329,12 +9648,48 @@
             4
           ],
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Link",
             "fill": [
               "Tokens / Semantic Colors",
               "link/alert/default",
               "#dc2626"
+            ],
+            "style": "Text/1",
+            "size": 16
+          }
+        },
+        {
+          "for": [
+            "theme=inverse"
+          ],
+          "props": {
+            "theme": "inverse"
+          },
+          "radius": 0,
+          "size": [
+            30,
+            22
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "HUG",
+            "HUG"
+          ],
+          "gap": [
+            "Space",
+            "web/1",
+            4
+          ],
+          "padding": 0,
+          "inset": 0,
+          "text": {
+            "layer": "Link",
+            "fill": [
+              "Tokens / Semantic Colors",
+              "heading/neutral/inverse",
+              "#ffffff"
             ],
             "style": "Text/1",
             "size": 16
@@ -8363,6 +9718,7 @@
             4
           ],
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Link",
             "fill": [
@@ -8385,7 +9741,7 @@
           },
           "radius": 0,
           "size": [
-            48,
+            30,
             22
           ],
           "mode": "HORIZONTAL",
@@ -8399,6 +9755,7 @@
             4
           ],
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Link",
             "fill": [
@@ -8419,7 +9776,7 @@
           },
           "radius": 0,
           "size": [
-            48,
+            30,
             22
           ],
           "mode": "HORIZONTAL",
@@ -8433,6 +9790,7 @@
             4
           ],
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Link",
             "fill": [
@@ -8446,48 +9804,6 @@
         }
       ]
     },
-    "Link Section": {
-      "type": "COMPONENT",
-      "page": "💠 Local components",
-      "nodeId": "35184:30059",
-      "resting": {
-        "fill": "#f5f6f6",
-        "stroke": "#eeeff2",
-        "strokeWeight": [
-          1,
-          0,
-          0,
-          0
-        ],
-        "radius": 0,
-        "size": [
-          258,
-          44.8
-        ],
-        "mode": "VERTICAL",
-        "sizing": [
-          "FIXED",
-          "HUG"
-        ],
-        "gap": 0,
-        "padding": [
-          15.5,
-          16,
-          12.3,
-          16
-        ],
-        "text": {
-          "layer": "Thumbprint.design",
-          "fill": [
-            "Tokens / Semantic Colors",
-            "heading/neutral/medium",
-            "#595c61"
-          ],
-          "style": null,
-          "size": 12
-        }
-      }
-    },
     "Loader Dots": {
       "type": "COMPONENT_SET",
       "page": "Loader Dots",
@@ -8500,19 +9816,20 @@
         "theme": [
           "brand",
           "inverse",
-          "muted"
+          "muted",
+          "caution"
         ]
       },
       "defaults": {
         "size": "small",
         "theme": "brand"
       },
-      "children": 6,
-      "crossProduct": 6,
-      "recorded": 4,
+      "children": 8,
+      "crossProduct": 8,
+      "recorded": 5,
       "reduced": {
-        "children": 6,
-        "recorded": 4,
+        "children": 8,
+        "recorded": 5,
         "cappedAt": null
       },
       "variants": [
@@ -8594,6 +9911,26 @@
           ],
           "gap": 5,
           "padding": 0
+        },
+        {
+          "for": [
+            "theme=caution"
+          ],
+          "props": {
+            "theme": "caution"
+          },
+          "radius": 0,
+          "size": [
+            34,
+            8
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "HUG",
+            "HUG"
+          ],
+          "gap": 5,
+          "padding": 0
         }
       ]
     },
@@ -8636,6 +9973,28 @@
         ],
         "gap": 0,
         "padding": 0,
+        "inset": [
+          [
+            "Modal",
+            "padding",
+            48
+          ],
+          [
+            "padding",
+            "FINAL/small",
+            24
+          ],
+          [
+            "Space",
+            "web/4",
+            24
+          ],
+          [
+            "padding",
+            "FINAL/small",
+            24
+          ]
+        ],
         "text": {
           "layer": "Media",
           "fill": [
@@ -8665,6 +10024,7 @@
         ],
         "gap": 0,
         "padding": 0,
+        "inset": 4,
         "text": {
           "layer": "0:14",
           "fill": "#ffffff",
@@ -8729,6 +10089,16 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            20,
+            16,
+            20,
+            [
+              "Space",
+              "native/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Type a message...",
             "fill": [
@@ -8778,6 +10148,16 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            20,
+            16,
+            20,
+            [
+              "Space",
+              "native/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Type message",
             "fill": [
@@ -8827,6 +10207,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            16,
+            12,
+            16,
+            20
+          ],
           "text": {
             "layer": "0:14",
             "fill": "#ffffff",
@@ -8872,6 +10258,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            16,
+            12,
+            16,
+            20
+          ],
           "text": {
             "layer": "0:14",
             "fill": "#ffffff",
@@ -8917,6 +10309,16 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            20,
+            16,
+            20,
+            [
+              "Space",
+              "native/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Hello how are you?",
             "fill": [
@@ -8973,6 +10375,28 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "FINAL",
+              "padding/large",
+              48
+            ],
+            [
+              "FINAL",
+              "padding/large",
+              48
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ],
+            [
+              "FINAL",
+              "padding/large",
+              48
+            ]
+          ],
           "text": {
             "layer": "Title",
             "fill": [
@@ -9021,6 +10445,28 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "FINAL",
+              "padding/small",
+              32
+            ],
+            [
+              "padding",
+              "FINAL/small",
+              24
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ],
+            [
+              "padding",
+              "FINAL/small",
+              24
+            ]
+          ],
           "text": {
             "layer": "Title",
             "fill": [
@@ -9081,6 +10527,28 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Modal",
+              "padding",
+              48
+            ],
+            [
+              "Modal",
+              "padding",
+              48
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ],
+            [
+              "Modal",
+              "padding",
+              48
+            ]
+          ],
           "text": {
             "layer": "Title",
             "fill": [
@@ -9133,6 +10601,28 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Modal",
+              "padding",
+              48
+            ],
+            [
+              "padding",
+              "FINAL/small",
+              24
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ],
+            [
+              "padding",
+              "FINAL/small",
+              24
+            ]
+          ],
           "text": {
             "layer": "Title",
             "fill": [
@@ -9153,7 +10643,7 @@
       "axes": {
         "Size": [
           "Small",
-          "Medium"
+          "Large"
         ],
         "State": [
           "default",
@@ -9161,7 +10651,7 @@
         ]
       },
       "defaults": {
-        "Size": "Medium",
+        "Size": "Large",
         "State": "default"
       },
       "children": 4,
@@ -9186,8 +10676,8 @@
             9999
           ],
           "size": [
-            48,
-            48
+            52,
+            52
           ],
           "mode": "VERTICAL",
           "sizing": [
@@ -9199,7 +10689,7 @@
         },
         {
           "for": [
-            "Size=Medium",
+            "Size=Large",
             "State=default"
           ],
           "props": {},
@@ -9209,8 +10699,8 @@
             9999
           ],
           "size": [
-            48,
-            48
+            52,
+            52
           ],
           "mode": "VERTICAL",
           "sizing": [
@@ -9233,8 +10723,8 @@
             9999
           ],
           "size": [
-            48,
-            48
+            52,
+            52
           ],
           "mode": "VERTICAL",
           "sizing": [
@@ -9307,6 +10797,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            36,
+            72,
+            60,
+            72
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -9343,6 +10839,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            36,
+            72,
+            60,
+            72
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -9379,6 +10881,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            36,
+            72,
+            60,
+            72
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -9414,6 +10922,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            36,
+            72,
+            36,
+            72
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -9453,6 +10967,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            36,
+            48,
+            36,
+            48
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -9530,6 +11050,28 @@
               48
             ]
           ],
+          "inset": [
+            [
+              "Modal",
+              "padding",
+              48
+            ],
+            [
+              "Modal",
+              "padding",
+              48
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ],
+            [
+              "Modal",
+              "padding",
+              48
+            ]
+          ],
           "text": {
             "layer": "Title",
             "fill": [
@@ -9580,6 +11122,20 @@
           ],
           "gap": 0,
           "padding": [
+            [
+              "Space",
+              "native/4",
+              24
+            ],
+            32,
+            [
+              "Space",
+              "native/4",
+              24
+            ],
+            32
+          ],
+          "inset": [
             [
               "Space",
               "native/4",
@@ -9772,6 +11328,7 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": 16,
           "text": {
             "layer": "Text",
             "fill": [
@@ -9824,6 +11381,7 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": 16,
           "text": {
             "layer": "Text",
             "fill": [
@@ -9937,6 +11495,28 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/5",
+              32
+            ],
+            [
+              "FINAL",
+              "padding/large",
+              48
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ],
+            [
+              "FINAL",
+              "padding/large",
+              48
+            ]
+          ],
           "text": {
             "layer": "Title",
             "fill": [
@@ -9981,6 +11561,24 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "native/4",
+              24
+            ],
+            [
+              "padding",
+              "FINAL/small",
+              24
+            ],
+            0,
+            [
+              "padding",
+              "FINAL/small",
+              24
+            ]
+          ],
           "text": {
             "layer": "Title",
             "fill": [
@@ -10226,6 +11824,12 @@
             0,
             0
           ],
+          "inset": [
+            10,
+            26,
+            0,
+            26
+          ],
           "text": {
             "layer": "apple.com",
             "fill": "#000000",
@@ -10289,6 +11893,12 @@
             0,
             0
           ],
+          "inset": [
+            10,
+            0,
+            0,
+            0
+          ],
           "text": {
             "layer": "apple.com",
             "fill": "#000000",
@@ -10320,6 +11930,12 @@
             0,
             0,
             0
+          ],
+          "inset": [
+            10,
+            26,
+            0,
+            26
           ],
           "text": {
             "layer": "apple.com",
@@ -10488,6 +12104,12 @@
             32,
             8
           ],
+          "inset": [
+            12,
+            24,
+            44,
+            24
+          ],
           "text": {
             "layer": "✏️ Action",
             "fill": "#ebebf599",
@@ -10517,6 +12139,12 @@
             8,
             32,
             8
+          ],
+          "inset": [
+            12,
+            24,
+            44,
+            24
           ],
           "text": {
             "layer": "✏️ Action",
@@ -10581,6 +12209,7 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": 16,
           "text": {
             "layer": "✏️ Title",
             "fill": "#000000",
@@ -10608,6 +12237,7 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": 16,
           "text": {
             "layer": "✏️ Title",
             "fill": "#ffffff",
@@ -10635,6 +12265,7 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": 16,
           "text": {
             "layer": "✏️ Title",
             "fill": "#000000",
@@ -10662,6 +12293,7 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": 16,
           "text": {
             "layer": "✏️ Title",
             "fill": "#000000",
@@ -10689,6 +12321,7 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": 16,
           "text": {
             "layer": "✏️ Title",
             "fill": "#000000",
@@ -10720,6 +12353,7 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": 24,
           "text": {
             "layer": "Heading",
             "fill": "#000000de",
@@ -10765,6 +12399,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            11,
+            16,
+            11,
+            16
+          ],
           "text": {
             "layer": "✏️ Label",
             "fill": "#ffffff",
@@ -10789,6 +12429,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            11,
+            16,
+            11,
+            16
+          ],
           "text": {
             "layer": "✏️ Label",
             "fill": "#000000",
@@ -10847,6 +12493,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            12,
+            16,
+            12,
+            16
+          ],
           "text": {
             "layer": "✏️ Action",
             "fill": "#3c3c4399",
@@ -10873,6 +12525,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            12,
+            16,
+            12,
+            16
+          ],
           "text": {
             "layer": "✏️ Action",
             "fill": "#3c3c4399",
@@ -10899,6 +12557,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            12,
+            16,
+            12,
+            16
+          ],
           "text": {
             "layer": "✏️ Action",
             "fill": "#3c3c4399",
@@ -10924,6 +12588,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            12,
+            16,
+            12,
+            16
+          ],
           "text": {
             "layer": "✏️ Action",
             "fill": "#3c3c4399",
@@ -10952,6 +12622,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            18,
+            16,
+            18,
+            16
+          ],
           "text": {
             "layer": "✏️ Action",
             "fill": "#007aff",
@@ -10997,6 +12673,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            10,
+            16,
+            10,
+            16
+          ],
           "text": {
             "layer": "Row text",
             "fill": "#676d73",
@@ -11023,6 +12705,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            8,
+            16,
+            8,
+            16
+          ],
           "text": {
             "layer": "GROUP TABLE HEADER",
             "fill": [
@@ -11053,6 +12741,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            10,
+            16,
+            10,
+            16
+          ],
           "text": {
             "layer": "Row text",
             "fill": "#676d73",
@@ -11079,6 +12773,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            8,
+            16,
+            8,
+            16
+          ],
           "text": {
             "layer": "GROUP TABLE HEADER",
             "fill": [
@@ -11144,6 +12844,12 @@
             12,
             14
           ],
+          "inset": [
+            14,
+            22,
+            12,
+            14
+          ],
           "text": {
             "layer": "Title",
             "fill": "#000000",
@@ -11173,6 +12879,12 @@
           "padding": [
             14,
             14,
+            12,
+            14
+          ],
+          "inset": [
+            14,
+            22,
             12,
             14
           ],
@@ -11208,6 +12920,12 @@
             12,
             14
           ],
+          "inset": [
+            14,
+            22,
+            12,
+            14
+          ],
           "text": {
             "layer": "Title",
             "fill": "#000000",
@@ -11237,6 +12955,12 @@
           "padding": [
             14,
             14,
+            12,
+            14
+          ],
+          "inset": [
+            14,
+            22,
             12,
             14
           ],
@@ -11285,6 +13009,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            10,
+            16,
+            10,
+            16
+          ],
           "text": {
             "layer": "Row text",
             "fill": "#676d73",
@@ -11311,6 +13041,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            18,
+            16,
+            18,
+            16
+          ],
           "text": {
             "layer": "Row text",
             "fill": [
@@ -11341,6 +13077,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            8,
+            16,
+            8,
+            16
+          ],
           "text": {
             "layer": "Title",
             "fill": [
@@ -11371,6 +13113,7 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": 16,
           "text": {
             "layer": "Title",
             "fill": [
@@ -11512,6 +13255,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            12,
+            15,
+            12,
+            21
+          ],
           "text": {
             "layer": "9:41",
             "fill": [
@@ -11542,6 +13291,12 @@
           ],
           "gap": 10,
           "padding": 0,
+          "inset": [
+            3,
+            12,
+            3,
+            12
+          ],
           "text": {
             "layer": "9:41",
             "fill": [
@@ -11577,6 +13332,7 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "✏️ Time",
             "fill": [
@@ -11616,6 +13372,12 @@
         ],
         "gap": 0,
         "padding": [
+          0,
+          2,
+          0,
+          2
+        ],
+        "inset": [
           0,
           2,
           0,
@@ -11705,6 +13467,16 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            24,
+            [
+              "Tokens / Space",
+              "3",
+              12
+            ],
+            24,
+            36
+          ],
           "text": {
             "layer": "Category",
             "fill": [
@@ -11740,6 +13512,16 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            24,
+            [
+              "Tokens / Space",
+              "3",
+              12
+            ],
+            24,
+            36
+          ],
           "text": {
             "layer": "Category",
             "fill": [
@@ -11775,6 +13557,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            24,
+            28,
+            24,
+            36
+          ],
           "text": {
             "layer": "Category",
             "fill": [
@@ -11848,6 +13636,28 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Tokens / Space",
+              "3",
+              12
+            ],
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ]
+          ],
           "text": {
             "layer": "Category",
             "fill": [
@@ -11893,6 +13703,28 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Tokens / Space",
+              "3",
+              12
+            ],
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ]
+          ],
           "text": {
             "layer": "Placeholder",
             "fill": [
@@ -11938,6 +13770,28 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Tokens / Space",
+              "3",
+              12
+            ],
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ]
+          ],
           "text": {
             "layer": "Category",
             "fill": [
@@ -11989,6 +13843,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -12019,6 +13887,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -12049,6 +13931,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -12077,6 +13973,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -12129,6 +14039,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -12159,6 +14083,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -12189,6 +14127,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -12219,6 +14171,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -12247,6 +14213,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -12300,6 +14280,7 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Membership",
             "fill": [
@@ -12335,6 +14316,16 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            0,
+            32
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -12370,6 +14361,16 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            0,
+            32
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -12395,15 +14396,16 @@
           "Services",
           "Calendar",
           "Profile",
-          "None"
+          "None",
+          "Selected8"
         ]
       },
       "defaults": {
         "Selected": "None"
       },
-      "children": 7,
-      "crossProduct": 7,
-      "recorded": 7,
+      "children": 8,
+      "crossProduct": 8,
+      "recorded": 8,
       "variants": [
         {
           "for": [
@@ -12424,6 +14426,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -12454,6 +14470,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -12484,6 +14514,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -12514,6 +14558,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -12544,6 +14602,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -12574,6 +14646,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -12602,6 +14688,64 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
+          "text": {
+            "layer": "Text",
+            "fill": [
+              "Tokens / Semantic Colors",
+              "heading/neutral/low",
+              "#686c72"
+            ],
+            "style": null,
+            "size": 14
+          }
+        },
+        {
+          "for": [
+            "Selected=Selected8"
+          ],
+          "props": {
+            "Selected": "Selected8"
+          },
+          "radius": 0,
+          "size": [
+            620,
+            59
+          ],
+          "mode": "HORIZONTAL",
+          "sizing": [
+            "HUG",
+            "HUG"
+          ],
+          "gap": 0,
+          "padding": 0,
+          "inset": [
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -12655,6 +14799,20 @@
           ],
           "gap": 0,
           "padding": [
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
+          "inset": [
             0,
             [
               "Space",
@@ -12727,6 +14885,20 @@
               16
             ]
           ],
+          "inset": [
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -12773,6 +14945,20 @@
           ],
           "gap": 0,
           "padding": [
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            0,
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
+          "inset": [
             0,
             [
               "Space",
@@ -12853,6 +15039,12 @@
             0,
             12
           ],
+          "inset": [
+            0,
+            12,
+            0,
+            12
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -12860,7 +15052,7 @@
               "heading/neutral/default",
               "#1f2022"
             ],
-            "style": "Title/8",
+            "style": "Text/3",
             "size": 12
           }
         },
@@ -12901,6 +15093,12 @@
             0,
             12
           ],
+          "inset": [
+            0,
+            12,
+            0,
+            12
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -12908,7 +15106,7 @@
               "text/success/strong",
               "#07271d"
             ],
-            "style": "Title/8",
+            "style": "Text/3",
             "size": 12
           }
         },
@@ -12949,6 +15147,12 @@
             0,
             12
           ],
+          "inset": [
+            0,
+            12,
+            0,
+            12
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -12956,7 +15160,7 @@
               "text/warning/strong",
               "#713f12"
             ],
-            "style": "Title/8",
+            "style": "Text/3",
             "size": 12
           }
         },
@@ -12997,6 +15201,12 @@
             0,
             12
           ],
+          "inset": [
+            0,
+            12,
+            0,
+            12
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -13004,52 +15214,11 @@
               "text/alert/strong",
               "#450a0a"
             ],
-            "style": "Title/8",
+            "style": "Text/3",
             "size": 12
           }
         }
       ]
-    },
-    "Platform availability": {
-      "type": "COMPONENT",
-      "page": "💠 Local components",
-      "nodeId": "34627:8902",
-      "resting": {
-        "fill": [
-          "Tokens / Base Colors",
-          "system/white",
-          "#ffffff"
-        ],
-        "stroke": "#dddee1",
-        "strokeWeight": 1,
-        "radius": 16,
-        "size": [
-          258,
-          256.8
-        ],
-        "mode": "VERTICAL",
-        "sizing": [
-          "FIXED",
-          "HUG"
-        ],
-        "gap": 0,
-        "padding": [
-          16,
-          0,
-          1,
-          0
-        ],
-        "text": {
-          "layer": "Platform availability",
-          "fill": [
-            "Tokens / Semantic Colors",
-            "heading/neutral/medium",
-            "#595c61"
-          ],
-          "style": null,
-          "size": 14
-        }
-      }
     },
     "Platform Section": {
       "type": "COMPONENT",
@@ -13084,6 +15253,20 @@
           4
         ],
         "padding": [
+          [
+            "Tokens / Space",
+            "4",
+            16
+          ],
+          16,
+          [
+            "Tokens / Space",
+            "4",
+            16
+          ],
+          16
+        ],
+        "inset": [
           [
             "Tokens / Space",
             "4",
@@ -13153,6 +15336,28 @@
           ],
           "gap": -1,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ]
+          ],
           "text": {
             "layer": "Headline",
             "fill": [
@@ -13183,6 +15388,28 @@
           ],
           "gap": -1,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ]
+          ],
           "text": {
             "layer": "Headline",
             "fill": [
@@ -13213,6 +15440,28 @@
           ],
           "gap": -1,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ]
+          ],
           "text": {
             "layer": "Headline",
             "fill": [
@@ -13243,6 +15492,28 @@
           ],
           "gap": -1,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ]
+          ],
           "text": {
             "layer": "Headline",
             "fill": [
@@ -13273,6 +15544,28 @@
           ],
           "gap": -1,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ]
+          ],
           "text": {
             "layer": "Headline",
             "fill": [
@@ -13303,6 +15596,28 @@
           ],
           "gap": -1,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ]
+          ],
           "text": {
             "layer": "Headline",
             "fill": [
@@ -13333,6 +15648,28 @@
           ],
           "gap": -1,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ]
+          ],
           "text": {
             "layer": "Headline",
             "fill": [
@@ -13363,6 +15700,28 @@
           ],
           "gap": -1,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ]
+          ],
           "text": {
             "layer": "Headline",
             "fill": [
@@ -13393,6 +15752,28 @@
           ],
           "gap": -1,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ]
+          ],
           "text": {
             "layer": "Headline",
             "fill": [
@@ -13423,6 +15804,28 @@
           ],
           "gap": -1,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ]
+          ],
           "text": {
             "layer": "Headline",
             "fill": [
@@ -13453,6 +15856,28 @@
           ],
           "gap": -1,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ]
+          ],
           "text": {
             "layer": "Headline",
             "fill": [
@@ -13483,6 +15908,28 @@
           ],
           "gap": -1,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "5",
+              20
+            ],
+            [
+              "Space",
+              "web/4",
+              24
+            ]
+          ],
           "text": {
             "layer": "Headline",
             "fill": [
@@ -13753,6 +16200,28 @@
               24
             ]
           ],
+          "inset": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -13852,6 +16321,28 @@
               24
             ]
           ],
+          "inset": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -13905,6 +16396,28 @@
             12
           ],
           "padding": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
+          "inset": [
             [
               "Tokens / Space",
               "4",
@@ -14000,6 +16513,28 @@
               24
             ]
           ],
+          "inset": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -14035,6 +16570,7 @@
             8
           ],
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Label",
             "fill": [
@@ -14069,6 +16605,12 @@
             8
           ],
           "padding": [
+            14,
+            0,
+            14,
+            0
+          ],
+          "inset": [
             14,
             0,
             14,
@@ -14127,6 +16669,28 @@
             12
           ],
           "padding": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
+          "inset": [
             [
               "Tokens / Space",
               "4",
@@ -14210,6 +16774,28 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -14244,6 +16830,28 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -14278,6 +16886,28 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -14312,6 +16942,28 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -14346,6 +16998,28 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -14380,6 +17054,28 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -14414,6 +17110,28 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -14446,6 +17164,28 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -14480,6 +17220,28 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -14514,6 +17276,28 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -14548,6 +17332,28 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ]
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -14607,6 +17413,12 @@
           ],
           "gap": 8,
           "padding": 0,
+          "inset": [
+            16,
+            20,
+            16,
+            20
+          ],
           "text": {
             "layer": "Option 1",
             "fill": [
@@ -14637,6 +17449,12 @@
           ],
           "gap": 8,
           "padding": 0,
+          "inset": [
+            14,
+            18,
+            14,
+            18
+          ],
           "text": {
             "layer": "Option 1",
             "fill": [
@@ -14667,6 +17485,12 @@
           ],
           "gap": 8,
           "padding": 0,
+          "inset": [
+            16,
+            20,
+            16,
+            20
+          ],
           "text": {
             "layer": "Option 1",
             "fill": [
@@ -14697,6 +17521,12 @@
           ],
           "gap": 8,
           "padding": 0,
+          "inset": [
+            16,
+            20,
+            16,
+            20
+          ],
           "text": {
             "layer": "Option 1",
             "fill": [
@@ -14753,6 +17583,28 @@
           ],
           "gap": 8,
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ]
+          ],
           "text": {
             "layer": "Title",
             "fill": [
@@ -14786,6 +17638,28 @@
           ],
           "gap": 8,
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ]
+          ],
           "text": {
             "layer": "Title",
             "fill": [
@@ -14821,6 +17695,28 @@
           ],
           "gap": 8,
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ]
+          ],
           "text": {
             "layer": "Title",
             "fill": [
@@ -14856,6 +17752,28 @@
           ],
           "gap": 8,
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ]
+          ],
           "text": {
             "layer": "Title",
             "fill": [
@@ -14891,6 +17809,28 @@
           ],
           "gap": 8,
           "padding": 0,
+          "inset": [
+            [
+              "Tokens / Space",
+              "6",
+              24
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "4",
+              16
+            ]
+          ],
           "text": {
             "layer": "Title",
             "fill": [
@@ -14926,6 +17866,20 @@
         ],
         "gap": 0,
         "padding": 0,
+        "inset": [
+          [
+            "Space",
+            "web/3",
+            16
+          ],
+          20,
+          12,
+          [
+            "Space",
+            "web/3",
+            16
+          ]
+        ],
         "text": {
           "layer": "Settings",
           "fill": [
@@ -14988,6 +17942,28 @@
           ],
           "gap": 10,
           "padding": [
+            [
+              "Space",
+              "native/3",
+              16
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "native/3",
+              16
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
+          "inset": [
             [
               "Space",
               "native/3",
@@ -15076,6 +18052,28 @@
               16
             ]
           ],
+          "inset": [
+            [
+              "Space",
+              "native/3",
+              16
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "native/3",
+              16
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Account",
             "fill": [
@@ -15138,6 +18136,28 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "native/3",
+              16
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "native/3",
+              16
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Account",
             "fill": [
@@ -15179,6 +18199,28 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "native/3",
+              16
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "native/3",
+              16
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Account",
             "fill": [
@@ -15220,6 +18262,28 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "native/3",
+              16
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "native/3",
+              16
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Account",
             "fill": [
@@ -15261,6 +18325,28 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "native/3",
+              16
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "native/3",
+              16
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Account",
             "fill": [
@@ -15302,6 +18388,28 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "native/3",
+              16
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "native/3",
+              16
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Account",
             "fill": [
@@ -15343,6 +18451,28 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "native/3",
+              16
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "native/3",
+              16
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Account",
             "fill": [
@@ -15411,6 +18541,11 @@
             "web/3",
             16
           ],
+          "inset": [
+            "Space",
+            "web/3",
+            16
+          ],
           "text": {
             "layer": "Title",
             "fill": [
@@ -15457,6 +18592,28 @@
           ],
           "gap": 0,
           "padding": [
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
+          "inset": [
             [
               "Space",
               "web/2",
@@ -15545,6 +18702,28 @@
               16
             ]
           ],
+          "inset": [
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Title",
             "fill": [
@@ -15557,18 +18736,6 @@
           }
         }
       ]
-    },
-    "Slider": {
-      "type": "COMPONENT",
-      "page": "Slider",
-      "nodeId": "15247:2002",
-      "resting": {
-        "radius": 0,
-        "size": [
-          414,
-          8
-        ]
-      }
     },
     "Star": {
       "type": "COMPONENT_SET",
@@ -16050,6 +19217,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            0,
+            0,
+            4
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -16080,6 +19253,7 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Text",
             "fill": [
@@ -16109,6 +19283,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            0,
+            0,
+            4
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -16139,6 +19319,7 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Rating number",
             "fill": [
@@ -16169,6 +19350,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            0,
+            0,
+            4
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -16199,6 +19386,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            0,
+            0,
+            4
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -16229,6 +19422,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            0,
+            0,
+            4
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -16259,6 +19458,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            0,
+            0,
+            4
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -16289,6 +19494,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            0,
+            0,
+            4
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -16312,39 +19523,6 @@
           12,
           12
         ]
-      }
-    },
-    "Stepper": {
-      "type": "COMPONENT",
-      "page": "Counter",
-      "nodeId": "19235:2866",
-      "resting": {
-        "radius": 0,
-        "size": [
-          114,
-          52
-        ],
-        "mode": "HORIZONTAL",
-        "sizing": [
-          "HUG",
-          "HUG"
-        ],
-        "gap": [
-          "Tokens / Space",
-          "1",
-          4
-        ],
-        "padding": 0,
-        "text": {
-          "layer": "Number",
-          "fill": [
-            "Tokens / Semantic Colors",
-            "text/neutral/default",
-            "#1f2022"
-          ],
-          "style": "Title/2",
-          "size": 28
-        }
       }
     },
     "Stripe payment / Card Element Only": {
@@ -16401,6 +19579,7 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Label",
             "fill": [
@@ -16431,6 +19610,7 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Label",
             "fill": [
@@ -16461,6 +19641,7 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Label",
             "fill": [
@@ -16491,6 +19672,7 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Label",
             "fill": [
@@ -16521,6 +19703,7 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Label",
             "fill": [
@@ -16551,6 +19734,28 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "native/2",
+              8
+            ],
+            [
+              "Space",
+              "native/3",
+              16
+            ],
+            [
+              "Space",
+              "native/2",
+              8
+            ],
+            [
+              "Space",
+              "native/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "4242",
             "fill": [
@@ -16581,6 +19786,7 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "Label",
             "fill": [
@@ -16793,211 +19999,6 @@
         }
       ]
     },
-    "Tab": {
-      "type": "COMPONENT_SET",
-      "page": "Tabs",
-      "nodeId": "20968:83022",
-      "axes": {
-        "showIcon": [
-          "false",
-          "true"
-        ],
-        "orientation": [
-          "inline",
-          "stacked"
-        ],
-        "isActive": [
-          "false",
-          "true"
-        ],
-        "state": [
-          "default",
-          "hover"
-        ],
-        "Active Type": [
-          "round"
-        ]
-      },
-      "defaults": {
-        "showIcon": "false",
-        "orientation": "inline",
-        "isActive": "false",
-        "state": "default",
-        "Active Type": "round"
-      },
-      "children": 9,
-      "crossProduct": 16,
-      "recorded": 5,
-      "reduced": {
-        "children": 9,
-        "recorded": 5,
-        "cappedAt": null
-      },
-      "variants": [
-        {
-          "for": [
-            "showIcon=false",
-            "orientation=inline",
-            "isActive=false",
-            "state=default",
-            "Active Type=round"
-          ],
-          "props": {},
-          "radius": 0,
-          "size": [
-            48,
-            48
-          ],
-          "mode": "VERTICAL",
-          "sizing": [
-            "HUG",
-            "HUG"
-          ],
-          "gap": 0,
-          "padding": 0,
-          "text": {
-            "layer": "Text",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "heading/neutral/default",
-              "#1f2022"
-            ],
-            "style": "Body/Text 2",
-            "size": 14
-          }
-        },
-        {
-          "for": [
-            "showIcon=true"
-          ],
-          "props": {
-            "showIcon": "true"
-          },
-          "radius": 0,
-          "size": [
-            81,
-            48
-          ],
-          "mode": "VERTICAL",
-          "sizing": [
-            "HUG",
-            "HUG"
-          ],
-          "gap": 0,
-          "padding": 0,
-          "text": {
-            "layer": "Text",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "heading/neutral/default",
-              "#1f2022"
-            ],
-            "style": "Body/Text 2",
-            "size": 14
-          }
-        },
-        {
-          "for": [
-            "orientation=stacked"
-          ],
-          "props": {
-            "showIcon": "true",
-            "orientation": "stacked"
-          },
-          "radius": 0,
-          "size": [
-            63,
-            62
-          ],
-          "mode": "VERTICAL",
-          "sizing": [
-            "HUG",
-            "HUG"
-          ],
-          "gap": 0,
-          "padding": 0,
-          "text": {
-            "layer": "Text",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "heading/neutral/default",
-              "#1f2022"
-            ],
-            "style": "Body/Text 2",
-            "size": 14
-          }
-        },
-        {
-          "for": [
-            "isActive=true"
-          ],
-          "props": {
-            "isActive": "true"
-          },
-          "fill": [
-            "Tokens / Semantic Colors",
-            "background/neutral/default",
-            "#ffffff"
-          ],
-          "radius": [
-            "Tokens / Corner Radius",
-            "medium",
-            8
-          ],
-          "size": [
-            47,
-            48
-          ],
-          "mode": "VERTICAL",
-          "sizing": [
-            "HUG",
-            "HUG"
-          ],
-          "gap": 0,
-          "padding": 0,
-          "text": {
-            "layer": "Text",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "heading/neutral/default",
-              "#1f2022"
-            ],
-            "style": "Body/Text 2",
-            "size": 14
-          }
-        },
-        {
-          "for": [
-            "state=hover"
-          ],
-          "props": {
-            "state": "hover"
-          },
-          "radius": 0,
-          "size": [
-            48,
-            48
-          ],
-          "mode": "VERTICAL",
-          "sizing": [
-            "HUG",
-            "HUG"
-          ],
-          "gap": 0,
-          "padding": 0,
-          "text": {
-            "layer": "Text",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "heading/neutral/default",
-              "#1f2022"
-            ],
-            "style": "Body/Text 2",
-            "size": 14
-          }
-        }
-      ]
-    },
     "Tabs": {
       "type": "COMPONENT_SET",
       "page": "Additional components",
@@ -17046,6 +20047,11 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            "Space",
+            "native/2",
+            8
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -17076,6 +20082,11 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            "Space",
+            "native/2",
+            8
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -17106,6 +20117,11 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            "Space",
+            "native/2",
+            8
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -17136,6 +20152,11 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            "Space",
+            "native/2",
+            8
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -17166,6 +20187,11 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            "Space",
+            "native/2",
+            8
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -17196,6 +20222,16 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            14,
+            24,
+            [
+              "Space",
+              "native/1",
+              4
+            ],
+            24
+          ],
           "text": {
             "layer": "Text",
             "fill": [
@@ -17256,6 +20292,16 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            0,
+            [
+              "Tokens / Space",
+              "1",
+              4
+            ],
+            0
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -17286,6 +20332,16 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            0,
+            [
+              "Tokens / Space",
+              "1",
+              4
+            ],
+            0
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -17316,6 +20372,16 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            0,
+            [
+              "Tokens / Space",
+              "1",
+              4
+            ],
+            0
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -17347,6 +20413,16 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            0,
+            [
+              "Tokens / Space",
+              "1",
+              4
+            ],
+            0
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -17378,6 +20454,16 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            0,
+            0,
+            [
+              "Tokens / Space",
+              "1",
+              4
+            ],
+            0
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -17477,6 +20563,28 @@
               16
             ]
           ],
+          "inset": [
+            [
+              "Tokens / Space",
+              "3",
+              12
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "3",
+              12
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -17497,8 +20605,8 @@
           },
           "fill": [
             "Tokens / Semantic Colors",
-            "background/neutral/low/hover",
-            "#f0faff"
+            "background/neutral/low",
+            "#f5f6f6"
           ],
           "stroke": [
             "Tokens / Semantic Colors",
@@ -17530,6 +20638,28 @@
             8
           ],
           "padding": [
+            [
+              "Tokens / Space",
+              "3",
+              12
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "3",
+              12
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
+          "inset": [
             [
               "Tokens / Space",
               "3",
@@ -17615,6 +20745,12 @@
               12
             ]
           ],
+          "inset": [
+            16,
+            20,
+            16,
+            16
+          ],
           "text": {
             "layer": "count",
             "fill": [
@@ -17679,6 +20815,28 @@
               16
             ]
           ],
+          "inset": [
+            [
+              "Tokens / Space",
+              "3",
+              12
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "3",
+              12
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -17722,6 +20880,28 @@
             8
           ],
           "padding": [
+            [
+              "Tokens / Space",
+              "3",
+              12
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "3",
+              12
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
+          "inset": [
             [
               "Tokens / Space",
               "3",
@@ -17818,6 +20998,16 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            0,
+            0,
+            [
+              "Tokens / Space",
+              "1",
+              4
+            ],
+            0
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -17852,6 +21042,16 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            0,
+            0,
+            [
+              "Tokens / Space",
+              "1",
+              4
+            ],
+            0
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -17886,6 +21086,16 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            0,
+            0,
+            [
+              "Tokens / Space",
+              "1",
+              4
+            ],
+            0
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -17920,6 +21130,16 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            0,
+            0,
+            [
+              "Tokens / Space",
+              "1",
+              4
+            ],
+            0
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -17955,6 +21175,16 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            0,
+            0,
+            [
+              "Tokens / Space",
+              "1",
+              4
+            ],
+            0
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -17990,6 +21220,16 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            0,
+            0,
+            [
+              "Tokens / Space",
+              "1",
+              4
+            ],
+            0
+          ],
           "text": {
             "layer": "Label",
             "fill": [
@@ -18020,6 +21260,20 @@
         ],
         "gap": 0,
         "padding": 0,
+        "inset": [
+          12,
+          [
+            "Tokens / Space",
+            "6",
+            24
+          ],
+          12,
+          [
+            "Tokens / Space",
+            "6",
+            24
+          ]
+        ],
         "text": {
           "layer": "Label",
           "fill": [
@@ -18031,156 +21285,6 @@
           "size": 16
         }
       }
-    },
-    "Tip": {
-      "type": "COMPONENT_SET",
-      "page": "Tip",
-      "nodeId": "21085:202583",
-      "axes": {
-        "color": [
-          "Blue"
-        ],
-        "showDismiss": [
-          "false",
-          "true"
-        ],
-        "State": [
-          "Collapsed",
-          "Expanded"
-        ]
-      },
-      "defaults": {
-        "color": "Blue",
-        "showDismiss": "false",
-        "State": "Collapsed"
-      },
-      "children": 4,
-      "crossProduct": 4,
-      "recorded": 3,
-      "reduced": {
-        "children": 4,
-        "recorded": 3,
-        "cappedAt": null
-      },
-      "variants": [
-        {
-          "for": [
-            "color=Blue",
-            "showDismiss=false",
-            "State=Collapsed"
-          ],
-          "props": {},
-          "fill": [
-            "Tokens / Semantic Colors",
-            "background/brand/low",
-            "#e0f4fe"
-          ],
-          "radius": [
-            "Tokens / Corner Radius",
-            "xlarge",
-            16
-          ],
-          "size": [
-            701,
-            98
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "FILL",
-            "HUG"
-          ],
-          "gap": 12,
-          "padding": 0,
-          "text": {
-            "layer": "Text",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "text/neutral/default",
-              "#1f2022"
-            ],
-            "style": "Body/Text 2",
-            "size": 14
-          }
-        },
-        {
-          "for": [
-            "showDismiss=true"
-          ],
-          "props": {
-            "showDismiss": "true"
-          },
-          "fill": [
-            "Tokens / Semantic Colors",
-            "background/brand/low",
-            "#e0f4fe"
-          ],
-          "radius": [
-            "Tokens / Corner Radius",
-            "xlarge",
-            16
-          ],
-          "size": [
-            701,
-            98
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "FILL",
-            "HUG"
-          ],
-          "gap": 12,
-          "padding": 0,
-          "text": {
-            "layer": "Text",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "text/neutral/default",
-              "#1f2022"
-            ],
-            "style": "Body/Text 2",
-            "size": 14
-          }
-        },
-        {
-          "for": [
-            "State=Expanded"
-          ],
-          "props": {
-            "State": "Expanded"
-          },
-          "fill": [
-            "Tokens / Semantic Colors",
-            "background/brand/low",
-            "#e0f4fe"
-          ],
-          "radius": [
-            "Tokens / Corner Radius",
-            "xlarge",
-            16
-          ],
-          "size": [
-            701,
-            138
-          ],
-          "mode": "HORIZONTAL",
-          "sizing": [
-            "FILL",
-            "HUG"
-          ],
-          "gap": 12,
-          "padding": 0,
-          "text": {
-            "layer": "Text",
-            "fill": [
-              "Tokens / Semantic Colors",
-              "heading/neutral/default",
-              "#1f2022"
-            ],
-            "style": "Text/2",
-            "size": 14
-          }
-        }
-      ]
     },
     "Toast": {
       "type": "COMPONENT_SET",
@@ -18262,6 +21366,28 @@
               16
             ]
           ],
+          "inset": [
+            [
+              "Tokens / Space",
+              "web/3 [16]",
+              16
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Tokens / Space",
+              "web/3 [16]",
+              16
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Message",
             "fill": [
@@ -18304,6 +21430,11 @@
             8
           ],
           "padding": [
+            "Space",
+            "native/3",
+            16
+          ],
+          "inset": [
             "Space",
             "native/3",
             16
@@ -18355,6 +21486,11 @@
             "4",
             16
           ],
+          "inset": [
+            "Tokens / Space",
+            "4",
+            16
+          ],
           "text": {
             "layer": "Message",
             "fill": [
@@ -18398,6 +21534,11 @@
             8
           ],
           "padding": [
+            "Space",
+            "native/3",
+            16
+          ],
+          "inset": [
             "Space",
             "native/3",
             16
@@ -18449,6 +21590,11 @@
             "native/3",
             16
           ],
+          "inset": [
+            "Space",
+            "native/3",
+            16
+          ],
           "text": {
             "layer": "Message",
             "fill": [
@@ -18496,6 +21642,11 @@
             "native/3",
             16
           ],
+          "inset": [
+            "Space",
+            "native/3",
+            16
+          ],
           "text": {
             "layer": "Message",
             "fill": [
@@ -18539,6 +21690,11 @@
             8
           ],
           "padding": [
+            "Space",
+            "native/3",
+            16
+          ],
+          "inset": [
             "Space",
             "native/3",
             16
@@ -18613,6 +21769,28 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Message",
             "fill": [
@@ -18647,6 +21825,28 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Message",
             "fill": [
@@ -18681,6 +21881,28 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Message",
             "fill": [
@@ -18715,6 +21937,28 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Message",
             "fill": [
@@ -18749,6 +21993,28 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Message",
             "fill": [
@@ -18783,6 +22049,28 @@
             8
           ],
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ],
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            [
+              "Space",
+              "web/3",
+              16
+            ]
+          ],
           "text": {
             "layer": "Message",
             "fill": [
@@ -18821,6 +22109,12 @@
         ],
         "gap": 0,
         "padding": 0,
+        "inset": [
+          22.5,
+          24,
+          19,
+          24
+        ],
         "text": {
           "layer": "Time",
           "fill": [
@@ -18878,6 +22172,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            16,
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            16
+          ],
           "text": {
             "layer": "{tab_name}",
             "fill": [
@@ -18923,6 +22231,12 @@
             12,
             20
           ],
+          "inset": [
+            18,
+            26,
+            18,
+            26
+          ],
           "text": {
             "layer": "domain.com",
             "fill": [
@@ -18958,6 +22272,7 @@
           ],
           "gap": 7,
           "padding": 0,
+          "inset": 0,
           "text": {
             "layer": "✏️ Time",
             "fill": [
@@ -19009,6 +22324,12 @@
           ],
           "gap": 11,
           "padding": 0,
+          "inset": [
+            8,
+            0,
+            0,
+            0
+          ],
           "text": {
             "layer": "domain",
             "fill": "#000000",
@@ -19064,6 +22385,12 @@
             0,
             0,
             0
+          ],
+          "inset": [
+            8,
+            22,
+            0,
+            22
           ],
           "text": {
             "layer": "􀎡",
@@ -19121,6 +22448,20 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            16,
+            [
+              "Space",
+              "web/2",
+              8
+            ],
+            16
+          ],
           "text": {
             "layer": "{tab_name}",
             "fill": "#494c4f",
@@ -19153,6 +22494,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            18,
+            26,
+            18,
+            26
+          ],
           "text": {
             "layer": "domain.com",
             "fill": "#4c4c4c",
@@ -19186,6 +22533,12 @@
           ],
           "gap": 0,
           "padding": 0,
+          "inset": [
+            12,
+            15,
+            12,
+            21
+          ],
           "text": {
             "layer": "9:41",
             "fill": [
@@ -19217,6 +22570,12 @@
           ],
           "gap": 7,
           "padding": 0,
+          "inset": [
+            12,
+            15,
+            12,
+            21
+          ],
           "text": {
             "layer": "9:41",
             "fill": [

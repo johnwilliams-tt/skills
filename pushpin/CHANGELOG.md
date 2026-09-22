@@ -17,6 +17,86 @@ Changes are grouped the way `diff.mjs` classifies them:
 An entry about the plugin rather than the capture adds **Fixed** for a bug in
 the toolchain, which `diff.mjs` has no category for.
 
+## 0.23.3 — 2026-09-21
+
+The component spec capture recorded padding on a variant's top frame only. Where
+the label sits inside a padded inner frame that number says where the wrapper
+starts, not where the text lands: Chip's frame pads 8 / 8 / 8 / 12, its `wrapper`
+pads the Label a further 4 left and 8 right, and the spec, `lookup --variant`
+and `DESIGN.md` all said 8 / 8 / 8 / 12. A `.pp-chip` built from that put the
+label 12 from the left and 8 from the right and grew a comment explaining the
+asymmetry as an icon slot. The designer's frames show 16 / 16.
+
+Re-captured: `component-specs.figma.json` (captured 2026-09-08 → 2026-09-21),
+every one of the 46 publishing pages, 116 of 124 catalog names covered.
+
+**Fixed**
+
+- **Every recorded variant now carries `inset` beside `padding`.** `padding`
+  is still the top frame, unchanged for Chip and everything else. `inset` is
+  where the first text descendant lands, summed over every padded auto-layout
+  frame between the variant and the text; hidden sibling slots contribute
+  nothing. A side padded by one frame keeps that frame's variable, so Chip's
+  top and bottom stay `--pp-space-2`; a side padded by two frames is the literal
+  sum, since no single variable is bound to it. Chip reads
+  `padding 8 / 8 / 8 / 12`, `inset 8 / 16 / 8 / 16`. Both the `use_figma` script
+  in [extract.md § 9](pushpin/scripts/extract.md) and the REST mirror
+  [pull-specs.mjs](pushpin/scripts/pull-specs.mjs) record it.
+- **`lookup --variant` prints two rows, `padding (outer frame)` and
+  `label inset`,** and says under them which to build from when they differ.
+  `DESIGN.md` prints `label inset` on any line where it departs from the
+  padding; `check.mjs` holds a declared `padding` against either value and
+  abstains where the two disagree and the inset cannot be compared, instead of
+  calling a correctly placed label wrong against the outer frame.
+- **[SKILL.md](pushpin/SKILL.md) § Looking something up** names the two rows and
+  narrows the "below the top frame" caveat to what the capture still cannot see:
+  a state that only recolours an inner element.
+- **The § 9 read can take several pages per call.** `setCurrentPageAsync` works
+  more than once in one `use_figma` call; the real limit is the 20 KB response.
+  `page.loadAsync()` alone is not enough — `findOne` misses TEXT inside instances
+  on a page that is loaded but not current, which silently drops the label from
+  Action Sheet, Accordion / Group, Avatar and a dozen others.
+
+**Changed**
+
+- component-specs.figma.json · specs: `inset` differs from `padding` on 224
+  recorded variants across 59 components — each of these was a spec that
+  misreported where the label lands. By page: Accordion / Group; Action Sheet;
+  Checkbox / List; Chip; Dropdown; Input Row; Popovers; Radio / List; Segmented
+  Control; ServiceCard; Text Area; Text Fab; TextInput; Themed Link; Tooltip;
+  view (Guidelines); on Layouts — Device template / Footer, Device template /
+  Native, Device template / Web, iOS / Sheet / Header, Web Browers / Footer,
+  Web Browers / Headers; on Modal — Modal / Confirmation, Modal / Default,
+  Modal / Factory / Footer, Modal / Factory / Modal, Modal / Promotion; on
+  Additional components — ❌ Headers, Bottom Navigation, Bubble / Media,
+  Bubble / Structure, Bubble / Text, Headers, Headers / Navbar / iOS,
+  Headers / Tab, Messager / Media modal, Messager Elements / Composer / Image,
+  Messenger Elements / Composer, Native / Browser Navigation, Native / iOS /
+  Action Sheet, Native / iOS / Alert, Native / iOS / Contextual Menu, Native /
+  iOS / Grouped Actions, Native / iOS / Grouped Table, Native / iOS / Push
+  Notification, Native / iOS / Table Row, Native / Status Bar, Navigation /
+  Customer, Navigation / Customer / Category Search, Navigation / Customer /
+  Tabs, Navigation / Customer / Tabs [Logged in], Navigation / Pro, Navigation /
+  Pro / Tabs, Settings / Navigation, Settings / Navigation / Options, Star
+  Rating / ReviewScoreSummary, Stripe payment / Card Element Only, Tabs, Web
+  Browers. In 50 of the 59 the top frame pads nothing at all — Text Area,
+  Tooltip, Popovers, Segmented Control among them — so the old spec printed no
+  padding and a reader had no number to build from.
+- component-specs.figma.json · specs: 11 entries changed apart from `inset` —
+  Brand / App / Icon, Brand / Logotype / Secondary, Checkbox, Chip, Icon Button,
+  Link, Loader Dots, Modal / Factory / Close action, Navigation / Pro / Tabs,
+  Pill, Text Fab. Chip's and Pill's label style is `Text/3` where it was
+  `Title/8`; Icon Button's default size is `medium` (32) where it was `xlarge`
+  (52).
+
+**Breaking**
+
+- component-specs.figma.json · specs: eight names the catalog still holds are
+  `_`-prefixed and unpublished in the kit and have no spec — Availability Chip,
+  Disclosure, Link Section, Platform availability, Slider, Stepper, Tab, Tip.
+  Three sit on pages now titled `❌ … - DO NOT USE`. `components.figma.json`
+  was not re-read; they leave the catalog when § 5 runs.
+
 ## 0.23.2 — 2026-09-10
 
 A Figma push put its whole checkpoint inside the question widget: the page walk,

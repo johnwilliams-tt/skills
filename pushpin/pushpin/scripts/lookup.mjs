@@ -132,8 +132,10 @@ if (has('--help') || has('-h') || (!query && !listOnly)) {
       '  --variant  what an option looks like — fill, border, radius, height, padding —\n' +
       '           as --pp-* names. A component entry says Theme accepts "secondary";\n' +
       '           this says what secondary is. Narrows to components. Bare --variant\n' +
-      '           gives the resting appearance. Where nothing was captured it says so\n' +
-      '           and names the read that returns it, rather than answering nothing.\n' +
+      '           gives the resting appearance. Padding is the outer frame and label\n' +
+      '           inset is where the text lands; build one box from the inset. Where\n' +
+      '           nothing was captured it says so and names the read that returns it,\n' +
+      '           rather than answering nothing.\n' +
       '  --list   names only, no detail. With no query, lists everything of that kind.\n' +
       '  --json   the raw catalog entries, for scripts. Keyed by term when several.',
   );
@@ -359,6 +361,7 @@ const SPEC_FIELDS = [
   ['width', 'width', 'px'],
   ['height', 'height', 'px'],
   ['padding', 'padding', 'px'],
+  ['inset', 'label inset', 'px'],
   ['gap', 'gap', 'px'],
   ['sizing', 'sizing', ''],
 ];
@@ -384,6 +387,33 @@ function specValue(field, v) {
   return cell(v, unit);
 }
 
+/** Does the label land somewhere other than where the top frame's padding puts it? */
+const insetDiffers = (v) =>
+  v.inset !== undefined && JSON.stringify(v.inset) !== JSON.stringify(v.padding);
+
+/**
+ * `padding` and `inset` as rows a reader can build from.
+ *
+ * `padding` is the top frame's own; `inset` is where the label lands, summed
+ * over every padded frame between the two. For most components they agree. For
+ * Chip they do not — the Label sits in a `wrapper` padded 4 left and 8 right,
+ * so the frame reads 8 / 8 / 8 / 12 while the text lands 16 from either edge,
+ * and a `.pp-chip` built from the padding alone put the label in the wrong
+ * place. Both rows are named for what they measure so neither reads as "the"
+ * padding, and where they differ the inset row says so rather than leaving two
+ * numbers to be reconciled by eye.
+ */
+function paddingRows(v) {
+  const padding = specValue('padding', v.padding);
+  if (padding === null) return [];
+  const inset = specValue('inset', v.inset);
+  if (inset === null) return [['padding', padding]];
+  return [
+    ['padding (outer frame)', padding],
+    ['label inset', insetDiffers(v) ? `${inset} — differs from the padding` : `${inset} — same as the padding`],
+  ];
+}
+
 /** The rows for one recorded variant, label and value. */
 function specRows(v) {
   // Width and height are two separate decisions bound to two separate
@@ -392,6 +422,8 @@ function specRows(v) {
   const shaped = { ...v, width: v.size?.[0], height: v.size?.[1] };
   const rows = [];
   for (const [field, label] of SPEC_FIELDS) {
+    if (field === 'padding') rows.push(...paddingRows(v));
+    if (field === 'padding' || field === 'inset') continue;
     const shown = specValue(field, shaped[field]);
     if (shown !== null) rows.push([label, shown]);
   }
@@ -503,6 +535,13 @@ function renderVariantSpec(name, entry, selector) {
       : '  Recorded on the child with every axis at its default.',
   );
   printRows(specRows(variant));
+  if (insetDiffers(variant)) {
+    p(
+      `  The label sits inside a padded inner frame, so it lands further in than the outer\n` +
+        `  padding says. One box with the text in it takes the label inset; a frame-for-frame\n` +
+        `  build takes the padding and lets the inner frame carry the rest.`,
+    );
+  }
 
   if (set.reduced) {
     p(

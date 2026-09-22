@@ -89,7 +89,7 @@ genuinely open, and deferring those to Pushpin is as much a mistake as
 overriding it.
 
 The Figma kit is the source of truth, and this file is a generated projection of
-it — written by the `pushpin` plugin, v0.23.2, from the
+it — written by the `pushpin` plugin, v0.23.3, from the
 2026-08-06 capture. Where any other description of Pushpin disagrees with
 these values, the tokens win and the disagreement is a bug to fix. Editing this
 file by hand does not change the design system; it only makes the checks
@@ -263,12 +263,17 @@ When nothing published fits, say that instead, and say what it extends:
 - **theme:** primary, secondary, tertiary, link, caution, alert
 - **size:** large, small
 - **State:** default, hover, pressed, loading, disabled
-- **Resting:** fill --pp-background-brand-strong, radius --pp-radius-sides, height 52px, gap 8px, label --pp-text-on-brand-strong, type 16px
+- **Resting:** fill --pp-background-brand-strong, radius --pp-radius-sides, height 32px, gap 8px, label --pp-text-on-brand-strong, type 14px
 - **Same as Button:** theme=tertiary, theme=caution, theme=alert, State=hover, State=pressed — each as Button's line above, against this Resting.
 - **theme=secondary:** fill --pp-background-neutral-low, label --pp-link-brand-default
 - **theme=link:** fill --pp-background-neutral-default, label --pp-link-brand-default
-- **size=small:** height 40px, type 14px
-- **State=disabled:** fill --pp-background-disabled-low, border --pp-border-neutral-medium-disabled 1.5px
+- **theme=ghost:** no fill, no height
+- **size=xsmall:** height 20px
+- **size=small:** height 28px
+- **size=large:** height 40px
+- **size=xlarge:** height 52px, type 16px
+- **size=xxlarge:** height 64px, type 16px
+- **isDisabled=true:** fill --pp-background-disabled-low, border --pp-border-neutral-medium-disabled 1.5px
 
 ### Link
 
@@ -279,8 +284,8 @@ When nothing published fits, say that instead, and say what it extends:
 - **State:** Default, Hover
 - **Resting:** radius 0px, gap 4px, label --pp-link-brand-default, type 16px
 - **theme=secondary:** label --pp-text-neutral-medium
-- **theme=inverse:** label --pp-heading-neutral-inverse
 - **theme=alert:** label --pp-link-alert-default
+- **theme=inverse:** label --pp-heading-neutral-inverse
 - **theme=longtext:** label --pp-heading-neutral-default
 - **theme=disabled:** label --pp-text-disabled
 - **isDisabled=true:** label --pp-text-disabled
@@ -293,7 +298,7 @@ When nothing published fits, say that instead, and say what it extends:
 - **State:** Placeholder, Filled, Focus
 - **isDisabled:** false, true
 - **hasError:** false, true
-- **Resting:** radius 0px, gap 8px, label --pp-heading-neutral-default, type 16px
+- **Resting:** radius 0px, label inset 0/0/4/0px, gap 8px, label --pp-heading-neutral-default, type 16px
 
 ### Text Area
 
@@ -302,7 +307,7 @@ When nothing published fits, say that instead, and say what it extends:
 - **State:** Placeholder, Default, Focus
 - **hasError:** false, true
 - **isDisabled:** false, true
-- **Resting:** radius 0px, height 220px, label --pp-heading-neutral-default, type 16px
+- **Resting:** radius 0px, height 220px, label inset 0/0/4/0px, label --pp-heading-neutral-default, type 16px
 
 ### Dropdown
 
@@ -314,7 +319,7 @@ When nothing published fits, say that instead, and say what it extends:
 - **State:** Default, Focus
 - **isDisabled:** false, true
 - **hasError:** false, true
-- **Resting:** radius 0px, gap 8px, label --pp-heading-neutral-default, type 16px
+- **Resting:** radius 0px, label inset 0/0/4/0px, gap 8px, label --pp-heading-neutral-default, type 16px
 
 ### Checkbox
 
@@ -333,7 +338,6 @@ When nothing published fits, say that instead, and say what it extends:
 - **isDisabled=true:** fill --pp-background-disabled-low, label --pp-text-disabled
 - **hasError=true:** label --pp-text-alert-medium
 - **isIndeterminate=true:** border #009fd9 (Figma `Background/Primary/medium [default]`) 1.5px
-- **👁️ Description=true:** radius 0px, gap 8px, no fill, no border, no padding
 - **type=standard:** radius 0px, padding 12/0px, gap 8px, no fill, no border
 
 ### Radio
@@ -375,7 +379,6 @@ When nothing published fits, say that instead, and say what it extends:
 
 - **Source:** published component in the Pushpin kit. Instance it; never rebuild it.
 - **Declare in code:** `data-pp-component="Slider"`
-- **Resting:** radius 0px
 
 ### Label
 
@@ -402,10 +405,10 @@ When nothing published fits, say that instead, and say what it extends:
 - **state:** default, hover, pressed, placeholder
 - **isSelected:** false, true
 - **isDisabled:** false, true
-- **Resting:** fill --pp-background-neutral-default, border --pp-border-neutral-default 1.5px, radius --pp-radius-sides, height 36px, padding 8/8/8/12px, label --pp-heading-neutral-default, type 12px
+- **Resting:** fill --pp-background-neutral-default, border --pp-border-neutral-default 1.5px, radius --pp-radius-sides, height 36px, padding 8/8/8/12px, label inset 8/16px, label --pp-heading-neutral-default, type 12px
 - **state=hover:** fill --pp-background-neutral-low-hover
 - **state=pressed:** fill --pp-background-neutral-default-pressed, border --pp-border-neutral-default-active 1.5px
-- **state=placeholder:** padding 8/12px, type 16px
+- **state=placeholder:** padding 8/12px, label inset 8/20px, type 16px
 - **isSelected=true:** fill --pp-background-neutral-default-pressed, border --pp-border-neutral-default-active 1.5px
 - **isDisabled=true:** fill --pp-background-disabled-low, border --pp-border-disabled-default 1.5px, label --pp-text-disabled
 
@@ -462,8 +465,6 @@ When nothing published fits, say that instead, and say what it extends:
 - **Declare in code:** `data-pp-component="Tip"`
 - **showDismiss:** false, true
 - **State:** Collapsed, Expanded
-- **Resting:** fill --pp-background-brand-low, radius --pp-radius-xlarge, gap 12px, label --pp-text-neutral-default, type 14px
-- **State=Expanded:** label --pp-heading-neutral-default
 
 ### Toast
 
@@ -486,7 +487,7 @@ When nothing published fits, say that instead, and say what it extends:
 - **theme:** dark, light
 - **position:** right, top, bottom, left
 - **Dynamic:** true, false
-- **Resting:** radius 0px, gap 8px, label --pp-text-neutral-inverse, type 12px
+- **Resting:** radius 0px, label inset 8/16px, gap 8px, label --pp-text-neutral-inverse, type 12px
 - **theme=light:** label --pp-text-neutral-default
 - **position=right:** height 34px
 - **position=left:** height 34px
@@ -495,7 +496,7 @@ When nothing published fits, say that instead, and say what it extends:
 
 - **Source:** published component in the Pushpin kit. Instance it; never rebuild it.
 - **Declare in code:** `data-pp-component="Accordion / Group"`
-- **Resting:** fill --pp-background-neutral-default, radius 0px, label --pp-heading-neutral-default, type 20px
+- **Resting:** fill --pp-background-neutral-default, radius 0px, label inset 16/0px, label --pp-heading-neutral-default, type 20px
 
 ### Tabs
 
@@ -503,8 +504,8 @@ When nothing published fits, say that instead, and say what it extends:
 - **Declare in code:** `data-pp-component="Tabs"`
 - **Active tab:** 1, 2, 3, 4, 5
 - **Theme:** Even, Split
-- **Resting:** radius 0px, label #2f3033 (Figma `Black`), type 14px
-- **Theme=Split:** type 12px
+- **Resting:** radius 0px, label inset 8px, label #2f3033 (Figma `Black`), type 14px
+- **Theme=Split:** label inset 14/24/4/24px, type 12px
 
 ### Segmented Control
 
@@ -512,7 +513,8 @@ When nothing published fits, say that instead, and say what it extends:
 - **Declare in code:** `data-pp-component="Segmented Control"`
 - **size:** large, small
 - **selected:** 1, 2, 3
-- **Resting:** radius 0px, gap 8px, label --pp-heading-neutral-default, type 16px
+- **Resting:** radius 0px, label inset 16/20px, gap 8px, label --pp-heading-neutral-default, type 16px
+- **size=small:** label inset 14/18px
 - **selected=2:** label --pp-heading-neutral-low
 - **selected=3:** label --pp-heading-neutral-low
 
