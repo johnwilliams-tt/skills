@@ -231,12 +231,38 @@ const TOGGLE_SRC = join(here, 'theme-toggle.js');
 const toggleRel = join(dirname(cssPath), 'theme-toggle.js');
 planFile(
   toggleRel,
-  'pins the color mode on load, and a floating toggle between the two when both were chosen',
+  'pins the color mode and form factor on load, and a floating toggle between the two themes when both were chosen',
   (abs) => {
     mkdirSync(dirname(abs), { recursive: true });
     copyFileSync(TOGGLE_SRC, abs);
   },
 );
+
+// The phone frame, for a project that designs at phone width. `desktop` gets
+// nothing: a desktop design is the browser window, and a frame around it would
+// be a picture of a monitor. `both` gets it because half of what that project
+// draws is a phone.
+//
+// Hand-authored beside the theme script rather than built into assets/, so
+// neither carries a manifest hash and both are replaced under --force the way
+// the stylesheet is. The glyph masks resolve relative to the stylesheet, which
+// is why they land in a `device/` folder beside it rather than in the
+// project's own asset directory.
+const DEVICE_GLYPHS = ['cellular.svg', 'wifi.svg', 'battery-cap.svg'];
+const wantsDevice = choices.formFactor === 'native' || choices.formFactor === 'both';
+const deviceRel = join(dirname(cssPath), 'pushpin-device.css');
+if (wantsDevice) {
+  planFile(deviceRel, 'the 393x852 phone frame and the iOS status bar that sits in it', (abs) => {
+    mkdirSync(dirname(abs), { recursive: true });
+    copyFileSync(join(here, 'pushpin-device.css'), abs);
+  });
+  for (const glyph of DEVICE_GLYPHS) {
+    planFile(join(dirname(cssPath), 'device', glyph), `a status bar glyph`, (abs) => {
+      mkdirSync(dirname(abs), { recursive: true });
+      copyFileSync(join(here, 'device', glyph), abs);
+    });
+  }
+}
 
 // Design-system drift is now usually introduced in the browser and pushed to
 // Figma afterwards, which means the Figma audit catches it a step too late.
@@ -692,14 +718,68 @@ function choicesNote() {
             `  ship; the rigor is the same, the stack question is not asked.\n`,
     );
   }
-  if (choices.formFactor) lines.push(`- Form factor: ${FORM[choices.formFactor]}.\n`);
+  if (choices.formFactor) {
+    lines.push(`- Form factor: ${FORM[choices.formFactor]}.\n`);
+    // The attribute is the platform axis the stylesheet switches the type ramp
+    // on. Without it a phone frame in a desktop window silently renders the
+    // desktop ramp, which no screenshot tells you and which used to be worked
+    // around by redeclaring four font sizes per project.
+    if (choices.formFactor === 'both') {
+      lines.push(
+        `  Leave \`data-pp-form-factor\` off \`<html>\`: with both surfaces in play the type ramp\n` +
+          `  follows the viewport, stepping up to the desktop sizes at 700px.\n`,
+      );
+    } else {
+      lines.push(
+        `  Every page opens \`<html lang="en" data-pp-form-factor="${choices.formFactor}">\`. That is what\n` +
+          `  pins the \`${choices.formFactor}\` half of the type ramp at any window size — never redeclare a\n` +
+          `  \`--pp-font-size-*\` or \`--pp-line-height-*\` to correct the sizes yourself.\n`,
+      );
+    }
+    if (wantsDevice) {
+      const deviceSrc = deviceRel.split('\\').join('/');
+      lines.push(
+        `  A phone surface is drawn in the device frame, linked after the stylesheet:\n` +
+          `  \`<link rel="stylesheet" href="${deviceSrc}">\`. The frame is a fixed 393x852 and the\n` +
+          `  page scrolls when the window is shorter; it is never scaled to fit, because a scaled\n` +
+          `  frame is not a 390-wide design any more. The markup it expects:\n` +
+          '  ```html\n' +
+          `  <div class="pp-device">\n` +
+          `    <div class="pp-status-bar" aria-hidden="true"\n` +
+          `         data-pp-component="Native / Status Bar"\n` +
+          `         data-pp-variant="OS=iOS X [Dynamic Island], Dark Mode=False">\n` +
+          `      <p class="pp-status-bar__time">9:41</p>\n` +
+          `      <div class="pp-status-bar__levels">\n` +
+          `        <span class="pp-status-bar__glyph pp-status-bar__cellular"></span>\n` +
+          `        <span class="pp-status-bar__glyph pp-status-bar__wifi"></span>\n` +
+          `        <div class="pp-status-bar__battery"></div>\n` +
+          `        <div class="pp-status-bar__battery-fill"></div>\n` +
+          `        <span class="pp-status-bar__glyph pp-status-bar__battery-cap"></span>\n` +
+          `      </div>\n` +
+          `    </div>\n` +
+          `    <div class="pp-screen">\n` +
+          `      <div class="pp-screen__body"><!-- the screen --></div>\n` +
+          `    </div>\n` +
+          `  </div>\n` +
+          '  ```\n' +
+          `  Screens share one grid cell, so a second \`.pp-screen\` stacks for a transition rather\n` +
+          `  than opening a row. \`.pp-screen__body\` is the only thing that scrolls.\n`,
+      );
+    }
+  }
   if (choices.colorMode) {
     const fallback = choices.colorMode === 'dark' ? 'dark' : 'light';
     const src = toggleRel.split('\\').join('/');
+    // The script backfills the form factor onto <html> for a page whose opening
+    // tag missed it, so the tag carries the recorded value where there is one.
+    const ff =
+      choices.formFactor && choices.formFactor !== 'both'
+        ? ` data-pp-form-factor="${choices.formFactor}"`
+        : '';
     lines.push(
       `- Color mode: ${choices.colorMode}. \`theme-toggle.js\` sits beside the stylesheet and is\n` +
         `  linked right after its \`<link>\`:\n` +
-        `  \`<script src="${src}" data-pp-default="${fallback}" data-pp-modes="${choices.colorMode}"></script>\`.\n` +
+        `  \`<script src="${src}" data-pp-default="${fallback}" data-pp-modes="${choices.colorMode}"${ff}></script>\`.\n` +
         (choices.colorMode === 'both'
           ? `  It sets \`data-pp-theme\` on \`<html>\` before first paint and renders a floating\n` +
             `  toggle between the two that remembers the last choice.\n` +

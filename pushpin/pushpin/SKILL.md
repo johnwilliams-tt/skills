@@ -1,7 +1,7 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.23.5
+version: 0.23.6
 argument-hint: "[generate|audit|figma · setup|init|update|freshness · refresh] [target]"
 allowed-tools:
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/check.mjs *)
@@ -235,10 +235,11 @@ covers the same ground from plain speech. Load one doc, not the table.
 
 ## Using it in a project
 
-Link the generated stylesheet and the theme script beside it, then build with
-the custom properties:
+Carry the recorded form factor on `<html>`, link the generated stylesheet and
+the theme script beside it, then build with the custom properties:
 
 ```html
+<html lang="en" data-pp-form-factor="native">
 <link rel="stylesheet" href="pushpin.css">
 <script src="theme-toggle.js" data-pp-default="light" data-pp-modes="both"></script>
 ```
@@ -248,6 +249,20 @@ dark), spacing, radius, the type ramp, elevation, motion, and breakpoints, plus
 `.pp-*` type utilities. No dependencies and no build step. The script pins
 `data-pp-theme` on `<html>` to the project's recorded color mode before first
 paint, and renders a floating toggle only when that mode is `both`.
+
+**`data-pp-form-factor` is the platform axis** Figma calls the `native` and
+`desktop` modes of `Tokens / Font`. It holds that half of the type ramp at any
+window size, which is what lets a 390-wide phone frame be previewed on a
+desktop monitor without silently rendering desktop sizes. Its value is the
+`formFactor` in `pushpin.config.json`; a project that recorded `both` sets no
+attribute and follows the 700px breakpoint. Never correct the ramp by
+redeclaring a `--pp-font-size-*`.
+
+**A native project draws the phone.** `init` puts `pushpin-device.css` beside
+the stylesheet when the form factor is `native` or `both`; link it after the
+stylesheet and wrap the screen in `.pp-device`. The `AGENTS.md` note it writes
+carries the markup, and [reference/rules.md](reference/rules.md#the-phone-frame)
+carries the rules for building inside it.
 
 **A project that has been set up serves itself.** `init` records a preview port,
 and the edit hook restarts the server whenever an edit finds it stopped —

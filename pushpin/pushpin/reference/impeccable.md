@@ -116,6 +116,12 @@ desktop-only flow produces findings against a layout that does not exist. The
 user's actual viewport, when the harness reports one, still joins the set as
 impeccable already says.
 
+The capture width no longer decides which type ramp renders. That is
+`data-pp-form-factor` on `<html>`, so a page captured at any width shows the
+mode the project chose — [tokens.md](tokens.md#type). Capturing at the
+recorded width is still right, because layout answers to the viewport; it is
+the ramp that has stopped depending on it.
+
 ## The three product-truth questions are still asked
 
 Who the primary user is and what job they are doing in what situation. What the
@@ -171,6 +177,13 @@ in any Pushpin project. The finding reads `Role sizes: body 16px, h1 16px,
 h2 16px`; those are not the page's sizes, and the same file with its CSS inlined
 passes — which is what proves the ramp was never what the gate was reading.
 Inlining is the proof, not the fix; the sizes stay in the stylesheet.
+
+`data-pp-form-factor` on `<html>` is a second thing the gate cannot resolve: it
+selects which half of the ramp `pushpin.css` applies, and the gate reads
+neither the attribute's effect nor the stylesheet it selects within. So the
+sizes it reports are wrong by one more step on a native page than the
+paragraph above already accounts for, and `impeccable detect` is still what
+settles it.
 
 **`impeccable detect <file>`, run from the project root, settles it.** That path
 reads the linked stylesheets and reports the sizes the page actually renders. A

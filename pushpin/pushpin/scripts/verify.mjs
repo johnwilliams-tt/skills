@@ -52,15 +52,20 @@ const rootBlock = css.slice(css.indexOf(':root {'), css.indexOf('\n}'));
 const darkStart = css.indexOf('[data-pp-theme="dark"] {');
 const darkBlock = css.slice(darkStart, css.indexOf('\n}', darkStart));
 
-// The desktop half of the type ramp restates only the steps that move, so the
-// values in force above the breakpoint are the root block with that block laid
-// over it.
+// The desktop half of the type ramp restates only the steps that move, and it
+// is emitted twice: once pinned to the recorded form factor, which is what a
+// desktop project actually renders, and once behind the viewport breakpoint,
+// which answers only where nothing was recorded. The pinned block is the one
+// read here; the two are held against each other further down.
+const pinnedStart = css.indexOf('[data-pp-form-factor="desktop"] {');
+const pinnedBlock =
+  pinnedStart === -1 ? '' : css.slice(pinnedStart, css.indexOf('\n}', pinnedStart));
 const rampStart = css.indexOf('@media (min-width:');
 const rampBlock = rampStart === -1 ? '' : css.slice(rampStart, css.indexOf('\n  }', rampStart));
 
 const light = declsIn(rootBlock);
 const dark = new Map([...light, ...declsIn(darkBlock)]);
-const desktopType = new Map([...light, ...declsIn(rampBlock)]);
+const desktopType = new Map([...light, ...declsIn(pinnedBlock)]);
 
 /** Resolve a var() chain in the CSS to a literal. */
 function cssHex(name, table, seen = new Set()) {
@@ -353,11 +358,38 @@ for (const m of css.matchAll(/^\.pp-([\w-]+) \{\n([\s\S]*?)\n\}/gm)) {
 }
 
 checked++;
+if (pinnedStart === -1) {
+  problems.push(
+    'pushpin.css carries no [data-pp-form-factor="desktop"] block, so a project that recorded ' +
+      'desktop has no way to reach the desktop half of the type ramp and every step below is ' +
+      'being checked against the native mode alone',
+  );
+}
+checked++;
 if (rampStart === -1) {
   problems.push(
-    'pushpin.css carries no min-width media query, so the desktop half of the type ramp is ' +
-      'unreachable and every step below is being checked against one breakpoint',
+    'pushpin.css carries no min-width media query, so a project that recorded "both" or ' +
+      'recorded nothing never reaches the desktop half of the type ramp',
   );
+}
+
+// Two blocks carry the desktop steps, and today one loop emits both. Nothing
+// would catch it if that stopped being true, and the failure is silent in the
+// worst way: a pinned desktop project and a wide window would render different
+// ramps while every other check kept passing against whichever one it read.
+checked++;
+if (pinnedStart !== -1 && rampStart !== -1) {
+  const pinned = declsIn(pinnedBlock);
+  const fallback = declsIn(rampBlock);
+  const differing = [...new Set([...pinned.keys(), ...fallback.keys()])].filter(
+    (k) => pinned.get(k) !== fallback.get(k),
+  );
+  if (differing.length) {
+    problems.push(
+      `the pinned desktop block and the breakpoint fallback disagree on ${differing.join(', ')} — ` +
+        'a project that recorded desktop and one that recorded nothing would render different ramps',
+    );
+  }
 }
 
 const trackingTokens = Object.entries(t.letterSpacing).filter(([k]) => !k.startsWith('$'));
@@ -383,7 +415,7 @@ for (const [step, spec] of Object.entries(t.font)) {
     );
   }
 
-  // Leading, at both breakpoints. The percentage is a property of the style and
+  // Leading, in both font modes. The percentage is a property of the style and
   // the size in force is a property of the mode, so the product is the only
   // number a designer applying the style to a node will see — which the
   // stylesheet agreed with on the nine title steps and missed on the four body
@@ -395,7 +427,7 @@ for (const [step, spec] of Object.entries(t.font)) {
     problems.push(
       `text style "${styleName}": lineHeight is not captured as { value, unit } in PERCENT, ` +
         `and a leading that is not a proportion cannot be resolved against a size that changes ` +
-        `at the breakpoint`,
+        `between the font modes`,
     );
   } else {
     for (const [mode, decls] of [

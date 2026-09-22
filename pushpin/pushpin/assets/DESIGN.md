@@ -106,7 +106,8 @@ disagree with it.
 - Pill-first geometry. Interactive elements are fully rounded.
 - One near-navy brand blue, used sparingly and at full strength.
 - A single variable typeface across the whole ramp.
-- Mobile is the primary surface; the ramp scales up at 700px.
+- Mobile is the primary surface; `data-pp-form-factor` on `<html>` selects the
+  other half of the ramp, and the viewport answers only where it is absent.
 - Restraint in elevation and motion — four shadows, six durations.
 
 ## Colors
@@ -168,10 +169,10 @@ than Thumbprint.
 
 ### Hierarchy
 
-- **hero** (48px mobile / 64px from 700px, weight medium-regular): one per page at most, and only when the page is a landing surface
-- **title-1** (36px mobile / 48px from 700px, weight medium-regular): page title
-- **title-2** (28px mobile / 36px from 700px, weight medium-regular): major section
-- **title-3** (22px mobile / 24px from 700px, weight medium): subsection
+- **hero** (48px native / 64px desktop, weight medium-regular): one per page at most, and only when the page is a landing surface
+- **title-1** (36px native / 48px desktop, weight medium-regular): page title
+- **title-2** (28px native / 36px desktop, weight medium-regular): major section
+- **title-3** (22px native / 24px desktop, weight medium): subsection
 - **title-4** (20px, weight medium-bold): card and panel headings
 - **title-5** (18px, weight medium-bold): dense headings inside a component
 - **title-6** (16px, weight medium-bold): the smallest heading that still reads as one
@@ -189,7 +190,9 @@ starting at 4px and doubling loosely. A gap that is not on the scale is drift
 even when it looks right.
 
 Mobile is the primary surface: design the small screen first and let it scale
-up. Breakpoints are `small` 481px, `medium` 700px, `large` 1025px.
+up. Breakpoints are `small` 481px, `medium` 700px, `large` 1025px. Those govern layout only — which half of
+the type ramp renders is `data-pp-form-factor` on `<html>`, so a phone
+surface keeps its native sizes however wide the window is.
 
 ## Elevation & Depth
 

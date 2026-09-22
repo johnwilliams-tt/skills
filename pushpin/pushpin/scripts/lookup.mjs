@@ -619,7 +619,10 @@ function renderToken(group, name, value) {
   } else if (group.key === 'font') {
     const n = value.size?.native;
     const d = value.size?.desktop;
-    const size = d === n ? `${n}px` : `${n}px mobile / ${d}px from 700px`;
+    // Named by font mode rather than by breakpoint: which one renders is
+    // `data-pp-form-factor` on `<html>`, and the viewport answers only where
+    // the project recorded no form factor.
+    const size = d === n ? `${n}px` : `${n}px native / ${d}px desktop`;
     const weight = String(value.weight ?? '').replace(/^@/, '');
     // Resolved from the published style rather than read from the variable
     // beside the size, because that is what `--pp-line-height-*` carries.

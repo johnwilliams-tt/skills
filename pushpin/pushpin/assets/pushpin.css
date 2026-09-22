@@ -566,9 +566,24 @@
   }
 }
 
-/* Desktop type scale — Figma's "desktop" font mode. */
+/* Desktop type scale — Figma's "desktop" font mode, pinned by the form factor
+ * the project recorded. The base :root above is the "native" mode, so a page
+ * carrying data-pp-form-factor="native" needs no block of its own and holds that
+ * ramp at any window size — which is what a phone frame in a wide browser has to do. */
+[data-pp-form-factor="desktop"] {
+  --pp-font-size-hero: 64px;
+  --pp-line-height-hero: 67.2px;
+  --pp-font-size-title-1: 48px;
+  --pp-line-height-title-1: 50.4px;
+  --pp-font-size-title-2: 36px;
+  --pp-line-height-title-2: 39.6px;
+  --pp-font-size-title-3: 24px;
+  --pp-line-height-title-3: 26.4px;
+}
+
+/* No form factor recorded, or "both": the viewport stands in for the platform axis. */
 @media (min-width: 700px) {
-  :root {
+  :root:not([data-pp-form-factor]) {
     --pp-font-size-hero: 64px;
     --pp-line-height-hero: 67.2px;
     --pp-font-size-title-1: 48px;

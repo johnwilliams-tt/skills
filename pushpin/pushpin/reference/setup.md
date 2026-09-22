@@ -366,8 +366,8 @@ option is the default where one is named:
 3. **Surface.** Prototype in the browser first, or go straight to Figma. The
    browser option carries its reason: faster, better for ironing out the flow,
    and it pushes into Figma afterwards.
-4. **Form factor.** "Native — phone, 390 wide" / "Desktop — 1440 wide" /
-   "Both".
+4. **Form factor.** "Native — phone, 390 wide, previewed in a device frame" /
+   "Desktop — 1440 wide" / "Both".
 5. **Color mode.** "Light" / "Dark" / "Both, with a floating toggle in the
    prototype".
 
@@ -391,10 +391,17 @@ toggle renders a floating pill only when the mode is `both`; otherwise it pins
 `data-pp-theme` to the one mode and shows nothing, which is what keeps a
 dark-OS browser from silently previewing a light design dark. Fidelity is what
 [impeccable.md](impeccable.md) § Handoff or ships reads when `/impeccable init`
-runs in § 4. Form factor sets the frame width and the `Tokens / Font` mode on
-the Figma push, and which widths the checks look at; color mode sets the color
-collection's mode on the same push — [generate.md](generate.md) and
-[rules.md](rules.md) carry those. Start point and surface choose the route.
+runs in § 4.
+
+Form factor does three things. On the Figma push it sets the frame width and
+the `Tokens / Font` mode, and it decides which widths the checks look at. In
+the browser it becomes `data-pp-form-factor` on `<html>`, which is what holds
+the native ramp in a phone frame that a desktop window would otherwise render
+at desktop sizes. And on `native` or `both` it installs `pushpin-device.css`
+beside the stylesheet, the 393 x 852 frame a phone surface is drawn in. Color
+mode sets the color collection's mode on the same push — [generate.md](generate.md),
+[init.md](init.md#the-device-frame) and [rules.md](rules.md) carry those. Start
+point and surface choose the route.
 
 **If Figma is the starting point, ask for the frame link and wait.** Nothing is
 searched for — "Figma with no link stops and waits" in

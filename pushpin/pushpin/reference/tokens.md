@@ -158,9 +158,27 @@ text style carries any.
 
 Only `hero` and `title-1` … `title-3` change between mobile and desktop; the
 rest are fixed. In Figma these are the `native` and `desktop` modes of
-`Tokens / Font`, a platform axis. CSS has no platform axis, so the generator
-maps them to a 700px viewport breakpoint — the single interpretive decision in
+`Tokens / Font`, a platform axis, and in CSS that axis is
+`data-pp-form-factor` on `<html>`:
+
+| On `<html>` | What renders |
+|---|---|
+| `data-pp-form-factor="native"` | the base `:root` ramp, at any window size |
+| `data-pp-form-factor="desktop"` | the `[data-pp-form-factor="desktop"]` block, at any window size |
+| nothing | the 700px viewport breakpoint answers |
+
+`init` writes the attribute's value into the `AGENTS.md` note from the recorded
+`formFactor`, and `theme-toggle.js` backfills it onto `<html>` for a page whose
+opening tag missed it. A project that recorded `both` sets no attribute, which
+is the case the breakpoint is for — the single interpretive decision left in
 the build, marked in `build-css.mjs`.
+
+**The attribute is what makes a phone frame possible.** A 393-wide frame
+previewed on a desktop monitor is still a wide viewport, so before the ramp had
+a platform axis a native prototype silently rendered the desktop sizes and the
+only fix was redeclaring the four steps that move, per project. `check.mjs`
+now reports both halves of that: a page with no attribute, and a stylesheet
+redeclaring a `--pp-font-size-*` or `--pp-line-height-*` by hand.
 
 Weights are variable-font values: 400 `regular`, 563 `medium-regular`, 590
 `medium`, 660 `medium-bold`, 700 `bold`. Titles use 563–660, never 700.
@@ -189,7 +207,7 @@ Standalone ratios also exist for custom blocks: `--pp-leading-flat` (1),
 (1.2 / 1.4 / 1.6 / 1.9). Tracking: `--pp-tracking-extra-tight` (−0.02em),
 `--pp-tracking-tight` (−0.01em), `--pp-tracking-loose` (0.01em). The kit sets
 letter spacing in percent, and `em` is the emitted unit because the ramp
-rescales at the 700px breakpoint and only a proportional unit survives that.
+rescales between the two font modes and only a proportional unit survives that.
 
 Tracking belongs to the step rather than to the family. `hero`, `title-1` and
 `title-2` are `extra-tight`, `title-3` is `tight`, and `title-4` through

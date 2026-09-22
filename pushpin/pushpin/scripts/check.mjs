@@ -122,6 +122,25 @@ function impeccableIsLive(root) {
   );
 }
 
+/**
+ * The form factor the project recorded, or null.
+ *
+ * `both` counts as nothing recorded here: it is the one answer that leaves the
+ * type ramp on the viewport breakpoint, so a page carrying no attribute is
+ * correct rather than broken.
+ */
+function recordedFormFactor(root) {
+  try {
+    const cfg = JSON.parse(readFileSync(join(root, 'pushpin.config.json'), 'utf8'));
+    return cfg.formFactor === 'native' || cfg.formFactor === 'desktop' ? cfg.formFactor : null;
+  } catch {
+    // No config, or one nothing can parse. Either way there is no answer to
+    // hold a page against, which is what a project set up before the interview
+    // looks like too.
+    return null;
+  }
+}
+
 /** A project on Thumbprint's React components declares nothing and needs nothing. */
 function usesThumbprint(root) {
   const pkg = join(root, 'package.json');
@@ -137,6 +156,7 @@ function usesThumbprint(root) {
 }
 
 const ROOT = process.cwd();
+const FORM_FACTOR = recordedFormFactor(ROOT);
 const IMPECCABLE_LIVE = impeccableIsLive(ROOT);
 const COMPONENT_ONLY = has('--component-only') || IMPECCABLE_LIVE;
 const COPY_ON = !has('--no-copy');
@@ -208,12 +228,13 @@ const say = (f) => (isCritical(f) ? `critical: ${f.message}` : f.message);
 
 /**
  * The generated stylesheet is the token definitions; every hex in it is the
- * point. The theme toggle init copies beside it is tooling, not the prototype,
- * and is named the same way.
+ * point. The theme toggle and the device frame init copies beside it are
+ * tooling and chrome rather than the prototype, and are named the same way.
  */
 const isGenerated = (file, src) =>
   basename(file) === 'pushpin.css' ||
   basename(file) === 'theme-toggle.js' ||
+  basename(file) === 'pushpin-device.css' ||
   src.startsWith('/*\n * Pushpin Design System');
 
 const CONTROL = /\b(button|btn|input|textarea|select|chip|pill|tag|search|combobox|switch|toggle)\b/i;
@@ -284,6 +305,49 @@ function checkTokens(file, src) {
     add(file, lineOf(s, m.index + m[0].indexOf(r[0])), 'square-control',
       `${selector.trim().split('\n').pop().trim()} sets border-radius: ${r[1].trim()} — controls are --pp-radius-sides`);
   }
+}
+
+// ------------------------------------------------------------- platform axis
+
+/**
+ * The two ways a project loses the font mode it chose.
+ *
+ * Figma models native and desktop as a platform axis, and `pushpin.css` carries
+ * both halves: the base `:root` is native, `[data-pp-form-factor="desktop"]` is
+ * desktop, and a viewport breakpoint answers only where nothing was recorded.
+ * A page that never sets the attribute falls through to that breakpoint — so a
+ * 393-wide phone frame in a maximized browser renders the desktop ramp, and
+ * nothing on screen says so. The fix used to be redeclaring the four steps that
+ * move, per project, which is why both findings are here rather than one.
+ *
+ * Neither is a token finding impeccable also makes: it knows the ramps, it has
+ * no notion of which mode this project chose. So neither is suppressed by
+ * `--component-only`.
+ */
+function checkFormFactor(file, src) {
+  if (FORM_FACTOR && MARKUP_EXT.has(extname(file))) {
+    // The opening tag only — a closing `</html>` carries no attributes, and the
+    // string "html" appears in doctypes and URLs that are not it.
+    for (const m of src.matchAll(/<html\b([^>]*)>/gi)) {
+      if (/\bdata-pp-form-factor\s*=/.test(m[1])) continue;
+      add(file, lineOf(src, m.index), 'no-form-factor',
+        `<html> sets no data-pp-form-factor, so this page renders the ramp the window width ` +
+          `picks rather than the ${FORM_FACTOR} one this project recorded — ` +
+          `\`<html data-pp-form-factor="${FORM_FACTOR}">\``);
+    }
+  }
+
+  if (!STYLE_EXT.has(extname(file)) && !EMBEDS_STYLE.has(extname(file))) return;
+  eachBlock(mask(src), (ancestors, prelude, body, at) => {
+    // A redeclaration inside `@media` is someone deliberately overriding at a
+    // breakpoint, which is the same allowance the fidelity check makes.
+    if (ancestors.some((a) => a.trim().startsWith('@media'))) return;
+    for (const m of body.matchAll(/(--pp-(?:font-size|line-height)-[\w-]+)\s*:/g)) {
+      add(file, lineOf(src, at + m.index), 'ramp-override',
+        `${m[1]} is redeclared here; the ramp follows data-pp-form-factor on <html>, ` +
+          `so a hand-set step overrides the mode the project chose`);
+    }
+  });
 }
 
 // -------------------------------------------------------- component identity
@@ -790,6 +854,7 @@ for (const file of files) {
 
 for (const [file, rel, src] of sources) {
   if (!COMPONENT_ONLY) checkTokens(rel, src);
+  checkFormFactor(rel, src);
   checkIdentity(rel, src);
   if (COPY_ON && MARKUP_EXT.has(extname(file))) checkCopy(rel, src);
 }

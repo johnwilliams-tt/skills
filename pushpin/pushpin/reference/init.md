@@ -176,7 +176,7 @@ absent key keeps meaning "never asked".
 | Flag | Key | Values | What reads it |
 |---|---|---|---|
 | `--fidelity` | `fidelity` | `handoff` (the usual case) · `ships` | [impeccable.md](impeccable.md): `ships` unlocks impeccable's stack and deploy questions; `handoff` pre-answers them |
-| `--form-factor` | `formFactor` | `native` · `desktop` · `both` | the width a Figma push creates its frames at and the `Tokens / Font` mode it sets — [generate.md](generate.md#the-frame-takes-the-projects-form-factor-and-colour-mode); which widths [rules.md](rules.md#type-and-copy) checks at |
+| `--form-factor` | `formFactor` | `native` · `desktop` · `both` | the width a Figma push creates its frames at and the `Tokens / Font` mode it sets — [generate.md](generate.md#the-frame-takes-the-projects-form-factor-and-colour-mode); which widths [rules.md](rules.md#type-and-copy) checks at; and in the browser, the `data-pp-form-factor` attribute and the device frame below |
 | `--color-mode` | `colorMode` | `light` · `dark` · `both` | the theme script below, and the `Tokens / Semantic Colors` mode a Figma push sets |
 
 **The theme script is copied beside the stylesheet** as `theme-toggle.js`, from
@@ -202,6 +202,46 @@ skip, so a tool for looking at the prototype never becomes a finding about it
 or a control in a frame. It is hand-authored rather than built into `assets/`,
 so it carries no manifest hash and is replaced under `--force` the way the
 stylesheet is.
+
+**The form factor is an attribute on `<html>`, not a breakpoint.** Figma models
+`native` and `desktop` as a platform axis, and `pushpin.css` carries both
+halves: the base `:root` is `native`, `[data-pp-form-factor="desktop"]` is
+`desktop`, and the 700px viewport breakpoint answers only where the attribute
+is absent. That absence is what a recorded `both` means, and what a project set
+up before the interview looks like.
+
+The reason it is not a breakpoint alone: a 393-wide phone frame previewed on a
+desktop monitor is still a wide viewport, so a native prototype rendered the
+*desktop* ramp and the only fix was redeclaring the four steps that move, in
+every project, by hand. `check.mjs` reports both halves of that now — a page
+whose `<html>` carries no attribute, and a stylesheet redeclaring a
+`--pp-font-size-*` or `--pp-line-height-*`.
+
+The `AGENTS.md` note prints the exact opening tag with the recorded value, and
+`theme-toggle.js` carries the same value on its own tag as a backfill: it sets
+the attribute only when `<html>` has none, since the markup path needs no
+script and cannot flash.
+
+## The device frame
+
+`pushpin-device.css` and the three status bar glyphs in `device/` land beside
+the stylesheet when `formFactor` is `native` or `both`, and nowhere else — a
+desktop design is the browser window, and a frame around it would be a picture
+of a monitor. Hand-authored like the theme script, so no manifest hash and
+replaced under `--force`.
+
+What it draws is a fixed 393 x 852 `.pp-device` holding a `.pp-status-bar` that
+declares the published `Native / Status Bar` component, with every screen
+placed into one shared grid cell so a transition can stack two of them. The
+frame is deliberately not scaled to fit a short window: a scaled frame is not a
+390-wide design any more, and the Figma frame it becomes is drawn at the real
+size. `--pp-device-width` and `--pp-device-height` are there for another
+device.
+
+It declares no font sizes. That is the point of the attribute above — the frame
+is a frame, rather than a place to correct four steps of the ramp by hand.
+[rules.md](rules.md#the-phone-frame) carries the rules for building inside it,
+and the `AGENTS.md` note carries the markup.
 
 **A replay carries the flags from the record.** `pin.mjs` exports
 `choiceArgs(config)`, which emits the three flags from whatever

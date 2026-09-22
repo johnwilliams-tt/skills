@@ -1,8 +1,9 @@
 /*
- * Pushpin color mode, settled before first paint.
+ * Pushpin color mode and form factor, settled before first paint.
  *
  * Copied beside pushpin.css by `pushpin init` and linked right after it:
- *   <script src="theme-toggle.js" data-pp-default="light" data-pp-modes="both"></script>
+ *   <script src="theme-toggle.js" data-pp-default="light" data-pp-modes="both"
+ *           data-pp-form-factor="native"></script>
  *
  * The stylesheet follows the OS through prefers-color-scheme unless <html>
  * carries data-pp-theme, so a prototype that chose light previews dark on a
@@ -11,6 +12,13 @@
  * mode the attribute is pinned to it and nothing is rendered. With `both`, the
  * last choice is read from localStorage, `data-pp-default` breaks the tie, and a
  * small pill at bottom-right flips between the two.
+ *
+ * `data-pp-form-factor` is the same idea for the type ramp, and it is a
+ * backfill rather than the primary path: the attribute belongs on <html> in the
+ * page's own markup, where it needs no JS and cannot flash. A page whose
+ * opening tag missed it would otherwise render the desktop ramp in a phone
+ * frame, which is the failure the attribute exists to stop, so this fills it in
+ * when <html> carries none and never overrides one that is already there.
  *
  * The pill is a devtool, not part of the design: it carries data-pp-devtool,
  * which is what tells the edit check, the copy audit and the Figma push to leave
@@ -31,6 +39,13 @@
   };
   var fallback = read('data-pp-default', THEMES, 'light');
   var modes = read('data-pp-modes', ['light', 'dark', 'both'], 'both');
+
+  // `both` names no platform, so it writes nothing and the stylesheet's
+  // breakpoint answers — which is what a project that chose both asked for.
+  var formFactor = read('data-pp-form-factor', ['native', 'desktop'], null);
+  if (formFactor && !document.documentElement.hasAttribute('data-pp-form-factor')) {
+    document.documentElement.setAttribute('data-pp-form-factor', formFactor);
+  }
 
   // A single recorded mode outranks both the stored choice and the default: the
   // toggle that wrote the stored value is not rendered here, so honouring it

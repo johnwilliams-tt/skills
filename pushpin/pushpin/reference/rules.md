@@ -17,6 +17,33 @@ express is still yours to hold.
   size. This is the most recognisable thing about Pushpin and it is not a
   preference.
 
+## The phone frame
+
+Only for a project whose recorded `formFactor` is `native` or `both`, where
+`init` has put `pushpin-device.css` beside the stylesheet.
+
+- **A phone surface is drawn in the frame, not edge to edge in the window.** A
+  390-wide design laid across a browser is not the design: the measure is four
+  times too wide and no reading order survives it. `.pp-device` holds the
+  status bar and the screens; `.pp-screen__body` is the only thing that
+  scrolls.
+- **The frame is a fixed 393 x 852 and is never scaled to fit.** The page
+  scrolls when the window is shorter. Every measurement taken off a scaled
+  frame is wrong by the scale factor, and the Figma frame it becomes is drawn
+  at the real size. Override `--pp-device-width` and `--pp-device-height` for
+  another device instead.
+- **Nothing inside may widen the frame.** The column is `minmax(0, 1fr)`, so a
+  child that refuses to wrap pushes the frame's own chrome off its edge rather
+  than being clipped. Give a flex or grid child that holds variable-length text
+  `min-width: 0`.
+- **Screens share one grid cell.** A second `.pp-screen` stacks for a
+  transition rather than opening a row beneath the first. Anything that has to
+  cover the status bar — a sheet, a scrim — is positioned against the frame
+  instead of placed in the grid.
+- **Size children from `--pp-space-*` against the 390 column**, never from a
+  percentage of the viewport. The frame is not the viewport, and `vw` units
+  inside it measure the monitor.
+
 ## Color
 
 - **The signature contrast.** The primary action is
@@ -36,8 +63,15 @@ express is still yours to hold.
 - **The recorded form factor is the surface.** `formFactor` in
   `pushpin.config.json` names it: `native` is checked at 390 and nowhere else,
   `desktop` at 1440 and nowhere else, `both` at each. Where nothing is recorded,
-  mobile is the primary surface — the type ramp ships mobile-first and scales up
-  at 700px, so design the small screen first.
+  mobile is the primary surface, so design the small screen first.
+- **Every page carries the form factor on `<html>`** —
+  `<html data-pp-form-factor="native">` or `"desktop"`, matching what was
+  recorded. That attribute is what selects the Figma font mode, so a page
+  without it renders whichever ramp the window width happens to pick. A project
+  that recorded `both` sets no attribute and follows the viewport.
+- **Never redeclare a `--pp-font-size-*` or `--pp-line-height-*`.** Correcting
+  the ramp by hand is the workaround the attribute replaced, and it pins a
+  screen to one mode while the rest of the project moves.
 - **No display size above `hero`, and no all-caps overline.** A comp that
   appears to need one is off-system — raise it rather than inventing a token.
 - **A call to action names its action** — four words, verb plus object; a link

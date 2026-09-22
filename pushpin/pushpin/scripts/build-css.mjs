@@ -28,9 +28,15 @@ const STYLE_SRC = join(here, '..', 'assets', 'styles.figma.json');
 const OUT = join(here, '..', 'assets', 'pushpin.css');
 
 /**
- * Figma models native and desktop as a platform axis. CSS has no such axis, so
- * the type scale is emitted mobile-first with desktop applied above this
- * breakpoint. This is the generator's only interpretive decision.
+ * Figma models native and desktop as a platform axis, and the project records
+ * which one it is. `[data-pp-form-factor]` on `<html>` is that axis in CSS, so
+ * a 390-wide phone frame previewed in a wide browser window still renders the
+ * native ramp — which a viewport breakpoint alone cannot express, and got
+ * wrong every time.
+ *
+ * The breakpoint stays as the fallback, for a project that recorded `both` or
+ * recorded nothing. That is the generator's only interpretive decision, and it
+ * now applies only where the platform is genuinely unknown.
  */
 const TYPE_BREAKPOINT = 'medium';
 
@@ -52,8 +58,8 @@ function value(raw) {
 
 /**
  * A group's `$unit`, rendered as CSS. `percent` becomes `em` rather than `%`:
- * `%` is not a letter-spacing unit at all, and the ramp rescales at the 700px
- * breakpoint (hero 48→64), so only a proportional unit survives that.
+ * `%` is not a letter-spacing unit at all, and the ramp rescales between the
+ * two font modes (hero 48→64), so only a proportional unit survives that.
  */
 const UNIT_CSS = {
   px: (n) => `${n}px`,
@@ -146,9 +152,9 @@ function trackingToken(step) {
  * stylesheet emits; the variable stays in the capture as captured.
  *
  * Percent is the only unit accepted. A pixel or AUTO line height is a different
- * model of the ramp — it would not rescale with the size at the breakpoint the
- * way `hero` 48→64 does — and reinterpreting one as a proportion is the kind of
- * guess that emitted -1px of tracking for a kit that means -1%.
+ * model of the ramp — it would not rescale with the size between the two font
+ * modes the way `hero` 48→64 does — and reinterpreting one as a proportion is
+ * the kind of guess that emitted -1px of tracking for a kit that means -1%.
  */
 function leadingPx(step, mode) {
   const styleName = styleFor(step);
@@ -163,7 +169,7 @@ function leadingPx(step, mode) {
   if (FIGMA_UNIT[lh.unit] !== 'percent') {
     throw new Error(
       `Text style "${styleName}" sets line height in ${lh.unit}, and only a proportion can be ` +
-        `resolved against a size that changes at the breakpoint`,
+        `resolved against a size that changes between the font modes`,
     );
   }
   const size = t.font[step]?.size?.[mode];
@@ -268,23 +274,41 @@ darkDecls.forEach((d) => p(`  ${d}`));
 p('  }');
 p('}');
 
-p();
-p(`/* Desktop type scale — Figma's "${t.font.$modes[1]}" font mode. */`);
-p(`@media (min-width: ${scalar(t.breakpoint, 'breakpoint', t.breakpoint[TYPE_BREAKPOINT])}) {`);
-p('  :root {');
 // A step is restated only where it moves. Both properties are tested rather
 // than just the size, because leading is resolved from the style rather than
 // read beside the size now: they move together while every style sets one
 // percentage for both modes, and a step whose leading moved on its own would
-// otherwise keep its mobile value above the breakpoint, silently.
+// otherwise keep its native value in the desktop mode, silently.
+const desktopSteps = [];
 for (const [name, def] of entries(t.font)) {
   const [native, desktop] = t.font.$modes;
   const size = px(def.size[desktop]);
   const leading = px(leadingPx(name, desktop));
   if (size === px(def.size[native]) && leading === px(leadingPx(name, native))) continue;
-  p(`    --pp-font-size-${seg(name)}: ${size};`);
-  p(`    --pp-line-height-${seg(name)}: ${leading};`);
+  desktopSteps.push([`--pp-font-size-${seg(name)}`, size], [`--pp-line-height-${seg(name)}`, leading]);
 }
+
+// Both blocks below are emitted from this one list, so the ramp a pinned
+// desktop project renders and the ramp a wide window falls back to cannot
+// disagree. verify.mjs holds that position.
+const emitDesktopSteps = (indent) => {
+  for (const [prop, val] of desktopSteps) p(`${indent}${prop}: ${val};`);
+};
+
+p();
+p(`/* Desktop type scale — Figma's "${t.font.$modes[1]}" font mode, pinned by the form factor`);
+p(` * the project recorded. The base :root above is the "${t.font.$modes[0]}" mode, so a page`);
+p(` * carrying data-pp-form-factor="${t.font.$modes[0]}" needs no block of its own and holds that`);
+p(' * ramp at any window size — which is what a phone frame in a wide browser has to do. */');
+p(`[data-pp-form-factor="${t.font.$modes[1]}"] {`);
+emitDesktopSteps('  ');
+p('}');
+
+p();
+p('/* No form factor recorded, or "both": the viewport stands in for the platform axis. */');
+p(`@media (min-width: ${scalar(t.breakpoint, 'breakpoint', t.breakpoint[TYPE_BREAKPOINT])}) {`);
+p('  :root:not([data-pp-form-factor]) {');
+emitDesktopSteps('    ');
 p('  }');
 p('}');
 
