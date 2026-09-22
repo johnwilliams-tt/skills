@@ -132,7 +132,7 @@ const SHADOW_PURPOSE = {
 /**
  * The components a browser build actually composes, in the order a form-heavy
  * screen tends to need them. Curated rather than the whole catalog: the kit
- * publishes 124 entries, most of which are device mocks, brand marks, and
+ * publishes 116 entries, most of which are device mocks, brand marks, and
  * page furniture that no one hand-rolls. Names are resolved against the
  * capture, so an entry the kit drops is skipped rather than invented.
  */
@@ -146,7 +146,6 @@ export const CORE_COMPONENTS = [
   'Checkbox',
   'Radio',
   'Switch',
-  'Slider',
   'Label',
   'Form Note',
   'Chip',
@@ -155,7 +154,6 @@ export const CORE_COMPONENTS = [
   'Avatar',
   'Alert',
   'Callout',
-  'Tip',
   'Toast',
   'Tooltip',
   'Accordion / Group',
