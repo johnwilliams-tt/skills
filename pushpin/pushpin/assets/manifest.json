@@ -10,7 +10,7 @@
     "fileKey": "Qefv6O2RMPSBtSYBrCGcdI",
     "fileName": "Annotation Kit",
     "libraryKey": "lk-7faccc611b9ec03ccd81012447b2a1a34ffe027b513f5f94a328a5498c10f76052ba27c537a70120b6b9bd592bd8c09c3fc9abc03281c9fab80b1513aa2f03b1",
-    "capturedAt": "2026-08-28"
+    "capturedAt": "2026-09-22"
   },
   "iconLibrary": {
     "fileKey": "VVRGrLgkPRU3vs765d5Q3r",
@@ -24,21 +24,21 @@
     "path": "content-design-assistant.md",
     "ref": "main",
     "sha": "94a057494588b09e0f684dcee353611b4ad209db",
-    "capturedAt": "2026-08-19"
+    "capturedAt": "2026-09-22"
   },
   "hashes": {
     "tokens.figma.json": "1c415d4b053bf02c",
     "variable-keys.figma.json": "c9ab1d5fb17ec585",
-    "components.figma.json": "1a0ad1f3bbe0f458",
+    "components.figma.json": "87b40d9097407550",
     "component-specs.figma.json": "a27a1060a27db36d",
-    "annotations.figma.json": "38512cbc238fa27f",
+    "annotations.figma.json": "da2a9e6470279fd6",
     "icons.figma.json": "f8cb52861363116f",
     "styles.figma.json": "88cbde7c04343e7c",
     "pushpin.css": "ff6b417809dbcfa9",
-    "DESIGN.md": "dcab1b59638fae62",
-    "design.json": "57ca43964b942165",
+    "DESIGN.md": "178119e5dd711d81",
+    "design.json": "fb2ef350f4dd9e8a",
     "copy.source.md": "9f46bb257ac0f34b",
-    "copy.json": "f46dbef109af6bf8",
+    "copy.json": "b2740a6c5bd9f999",
     "copy-map.json": "c2861b2dc7bf2701"
   },
   "shape": {
@@ -62,7 +62,7 @@
     "tokensTotal": 273,
     "bindable": 131,
     "hidden": 168,
-    "components": 124,
+    "components": 116,
     "componentSpecs": 116,
     "specVariants": 449,
     "specChildren": 986,

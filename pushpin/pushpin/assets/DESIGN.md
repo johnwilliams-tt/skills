@@ -95,7 +95,7 @@ genuinely open, and deferring those to Pushpin is as much a mistake as
 overriding it.
 
 The Figma kit is the source of truth, and this file is a generated projection of
-it — written by the `pushpin` plugin, v0.23.5, from the
+it — written by the `pushpin` plugin, v0.23.7, from the
 2026-08-06 capture. Where any other description of Pushpin disagrees with
 these values, the tokens win and the disagreement is a bug to fix. Editing this
 file by hand does not change the design system; it only makes the checks
@@ -269,9 +269,11 @@ When nothing published fits, say that instead, and say what it extends:
 
 - **Source:** published component set in the Pushpin kit. Instance it; never rebuild it.
 - **Declare in code:** `data-pp-component="Icon Button"`
-- **theme:** primary, secondary, tertiary, link, caution, alert
-- **size:** large, small
-- **State:** default, hover, pressed, loading, disabled
+- **theme:** primary, secondary, tertiary, link, caution, alert, ghost
+- **size:** xsmall, small, medium, large, xlarge, xxlarge
+- **State:** default, hover, pressed
+- **isDisabled:** false, true
+- **isLoading:** false, true
 - **Resting:** fill --pp-background-brand-strong, radius --pp-radius-sides, height 32px, gap 8px, label --pp-text-on-brand-strong, type 14px
 - **Same as Button:** theme=tertiary, theme=caution, theme=alert, State=hover, State=pressed — each as Button's line above, against this Resting.
 - **theme=secondary:** fill --pp-background-neutral-low, label --pp-link-brand-default
@@ -288,7 +290,7 @@ When nothing published fits, say that instead, and say what it extends:
 
 - **Source:** published component set in the Pushpin kit. Instance it; never rebuild it.
 - **Declare in code:** `data-pp-component="Link"`
-- **theme:** primary (default), secondary, inverse, alert, longtext, disabled
+- **theme:** primary (default), secondary, alert, inverse, longtext, disabled
 - **isDisabled:** false, true
 - **State:** Default, Hover
 - **Resting:** radius 0px, gap 4px, label --pp-link-brand-default, type 16px
@@ -384,11 +386,6 @@ When nothing published fits, say that instead, and say what it extends:
 - **isActive=on:** fill --pp-background-brand-medium-active
 - **isDisabled=true:** fill --pp-background-disabled-low
 
-### Slider
-
-- **Source:** published component in the Pushpin kit. Instance it; never rebuild it.
-- **Declare in code:** `data-pp-component="Slider"`
-
 ### Label
 
 - **Source:** published component set in the Pushpin kit. Instance it; never rebuild it.
@@ -468,13 +465,6 @@ When nothing published fits, say that instead, and say what it extends:
 - **Declare in code:** `data-pp-component="Callout"`
 - **Resting:** fill --pp-background-brand-low, radius 16px, padding 12px, gap 4px, label --pp-heading-neutral-default, type 18px
 
-### Tip
-
-- **Source:** published component set in the Pushpin kit. Instance it; never rebuild it.
-- **Declare in code:** `data-pp-component="Tip"`
-- **showDismiss:** false, true
-- **State:** Collapsed, Expanded
-
 ### Toast
 
 - **Source:** published component set in the Pushpin kit. Instance it; never rebuild it.
@@ -547,7 +537,7 @@ When nothing published fits, say that instead, and say what it extends:
 - **Source:** published component set in the Pushpin kit. Instance it; never rebuild it.
 - **Declare in code:** `data-pp-component="Loader Dots"`
 - **size:** small, large
-- **theme:** brand, inverse, muted
+- **theme:** brand, inverse, muted, caution
 - **Resting:** radius 0px, gap 5px
 - **size=large:** gap 10px
 
