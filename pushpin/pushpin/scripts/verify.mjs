@@ -507,6 +507,23 @@ for (const name of CORE_COMPONENTS) {
   }
 }
 
+// The sidecar's keys are read at fixed positions by tools outside this repo,
+// and a key in the wrong place is not an error anywhere: the reader falls back
+// to a default and renders something plausible. The panel reads
+// `sidecar.narrative`, so a `narrative` moved under `extensions` — where the
+// rest of the capture lives, which is why it is an easy move to make — silently
+// swaps Pushpin's written rules for ones synthesized from the prose.
+{
+  const rendered = JSON.parse(readFileSync(join(here, '..', 'assets', 'design.json'), 'utf8'));
+  checked++;
+  if (!rendered.narrative?.rules?.length) {
+    problems.push(
+      'design.json: the panel reads `narrative` at the top level, and this build carries none ' +
+        'there — check renderDesignJson has not nested it under `extensions`',
+    );
+  }
+}
+
 // ------------------------------------------- component specs against the kit
 
 // The spec capture is a reduction — 456 variants recorded out of 1079 real

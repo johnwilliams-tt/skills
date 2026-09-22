@@ -1,7 +1,7 @@
 ---
 name: pushpin
 description: Thumbtack's Pushpin design system — tokens, type ramp, components, icons, and the Figma bridge. Use when building, restyling, reviewing, or mocking up Thumbtack interfaces (web, mobile, marketing, prototype), when a design references Pushpin or Thumbprint, and when translating Figma to code or back.
-version: 0.23.3
+version: 0.23.4
 argument-hint: "[generate|audit|figma · setup|init|update|freshness · refresh] [target]"
 allowed-tools:
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/check.mjs *)
@@ -184,6 +184,7 @@ covers the same ground from plain speech. Load one doc, not the table.
 | "send this flow to Figma", "document this flow", "spec this for eng handoff" — several states of one surface, laid out as a state catalog | [flows.md](reference/flows.md) |
 | "push this page and each of its flows", "send all of these to Figma" — several surfaces in one request | [parallel.md](reference/parallel.md#a-batch-of-artifacts), then flows.md per catalog |
 | `/impeccable init` about to run on a Pushpin project, or asked whether to install it | [impeccable.md](reference/impeccable.md) |
+| impeccable's detector blocked a write, or reported a finding to answer | [impeccable.md](reference/impeccable.md#when-the-detector-blocks-an-edit) |
 | "do these in parallel", a Figma write with many sections or notes to fill | [parallel.md](reference/parallel.md) |
 | "what else is on this page", a link landing beside work already done | [context.md](reference/context.md) |
 | "this hex disagrees with the token", "an export says otherwise" | [provenance.md](reference/provenance.md) |

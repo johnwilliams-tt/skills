@@ -146,3 +146,46 @@ most authority. It replaces Pushpin with an invented visual world and every
 check downstream keeps passing against it. [setup.md](setup.md) § The rule that
 survives setup and [init.md](init.md) § The generated files both give the full
 reason and what to run instead.
+
+## When the detector blocks an edit
+
+On Cursor the detector is a pre-write gate, so a finding arrives as the error on
+a write that never landed. What follows comes before changing any design in
+answer to one.
+
+**Read `.impeccable/config.json` first.** Every ignore in it was written by
+someone who triaged this rule on this project, and the `reason` field says what
+they found. A rule already waived four times, each with the same reason, is a
+known false positive and not a design problem that appeared today. This costs
+one file read and it is the difference between a lookup and a redesign of
+something that was never wrong.
+
+**`flat-type-hierarchy` on a Pushpin page is the gate's own blind spot.** The
+gate judges the proposed file content by itself and does not resolve the
+stylesheets the file links, even when they are on disk beside it. A Pushpin page
+carries no font size in its markup — every step is a class resolving to
+`--pp-font-size-*` in `pushpin.css` or the project's own sheet — so every text
+role presents at the browser's 16px default, the largest step between roles is
+1.00:1 against a 1.25:1 target, and the rule is unconditionally true of any page
+in any Pushpin project. The finding reads `Role sizes: body 16px, h1 16px,
+h2 16px`; those are not the page's sizes, and the same file with its CSS inlined
+passes — which is what proves the ramp was never what the gate was reading.
+Inlining is the proof, not the fix; the sizes stay in the stylesheet.
+
+**`impeccable detect <file>`, run from the project root, settles it.** That path
+reads the linked stylesheets and reports the sizes the page actually renders. A
+clean result means the ramp is fine and the block was the gate reading the file
+in isolation. A file that already carries an ignore for the rule also reads
+clean, which is the other reason the config comes first.
+
+**Waive it per file, and put the real ramp in the reason**, so the next person
+to hit this can tell a sanctioned exception from a rule someone got tired of:
+
+```bash
+npx impeccable hooks ignore-value flat-type-hierarchy "*" --file quote.html \
+  --reason "Agent: sizes are in styles/app.css, which the pre-write gate does not resolve; the ramp runs 36px title, 22px section, 16px body"
+```
+
+Do not redesign the type, and do not reach for `ignore-rule` or `ignore-file` —
+one silences the rule across the project, the other silences every rule on the
+file, and both need the user's approval anyway.

@@ -786,7 +786,11 @@ export function renderDesignJson(tokens, { pluginVersion, capturedAt, generatedA
       motion,
       breakpoints,
       typographyMeta,
-      narrative: NARRATIVE,
     },
+    // Top level, not under `extensions`: the panel reads `sidecar.narrative`
+    // and falls back to synthesizing one from the DESIGN.md prose when it is
+    // not there, which is the same content guessed at rather than the rules as
+    // written. verify.mjs holds this position.
+    narrative: NARRATIVE,
   };
 }
