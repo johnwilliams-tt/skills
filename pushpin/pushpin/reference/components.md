@@ -9,12 +9,13 @@ Calendar, Carousel, Checkbox, Chip, Dropdown, Fab, Form Note, Horizontal Rule,
 Icon Button, Image, Input Row, Label, Link, Loader Dots, Modal, Pill, Popover,
 Radio, Service Card, Star Rating, Switch, Text Area, Text Input, Toast, Tooltip.
 
-**New in Pushpin** — Accordion, Badge, Callout, Counter, Disclosure, Progress
-Meter, Segmented Control, Slider, Tabs, Tip. In progress: Banner, Card, Combobox,
-Pro details.
+**New in Pushpin** — Accordion, Badge, Callout, Progress Meter, Segmented
+Control, Tabs. In progress: Banner, Card, Combobox, Pro details.
 
 **Retired** — Alert Banner and Date Picker are marked ❌ in the file. Don't
-introduce them into new work.
+introduce them into new work. Counter, Disclosure, Slider, Tab and Tip were
+`_`-prefixed and unpublished in the 2026-09-22 capture, three of them onto
+`❌ … - DO NOT USE` pages; they no longer import by key.
 
 The new components have **no React equivalent** in `@thumbtack/thumbprint-react`.
 Building one means composing it from primitives and tokens. Do that with

@@ -1022,11 +1022,13 @@ Six things to know about the result:
   `coverage.nameCollisions` and `coverage.captureNotes` before treating the
   count as completeness. The eight in `withoutSpec` as of the 2026-09-21
   capture — `Availability Chip`, `Disclosure`, `Link Section`,
-  `Platform availability`, `Slider`, `Stepper`, `Tab`, `Tip` — are names the
-  catalog still holds that the kit has since prefixed `_` and unpublished,
-  three of them on pages now titled `❌ … - DO NOT USE`. The publish-status
-  gate is right to skip them; they leave `withoutSpec` when §5 is re-read and
-  the catalog drops them.
+  `Platform availability`, `Slider`, `Stepper`, `Tab`, `Tip` — were names the
+  catalog still held that the kit had prefixed `_` and unpublished, three of
+  them on pages now titled `❌ … - DO NOT USE`. The publish-status gate was
+  right to skip them, and the 2026-09-22 §5 re-read dropped all eight from the
+  catalog. The coverage block still counts them because it is written at distil
+  time; it clears to `116 of 116` at the next specs read, and the figures here
+  are read against `source.extractedAt`, not against the current catalog.
 
 ## Transcription notes
 

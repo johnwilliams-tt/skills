@@ -202,8 +202,8 @@ Three specific ways it goes wrong here:
   production imports is unknown. A snippet that names the wrong module is worse
   than no snippet.
 - **Pushpin's new components have no React implementation.** Accordion, Badge,
-  Callout, Counter, Disclosure, Progress Meter, Segmented Control, Slider, Tabs,
-  Tip. Mapping them means inventing an API for something that doesn't exist.
+  Callout, Progress Meter, Segmented Control, Tabs. Mapping them means inventing
+  an API for something that doesn't exist.
 - **Work is already underway.** The Pushpin file has `MCP / Code Connect PoC`
   and `Pushpin Migration` pages. Assume an owner and a plan; ask before adding.
 

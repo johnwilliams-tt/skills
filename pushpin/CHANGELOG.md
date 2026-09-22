@@ -17,6 +17,51 @@ Changes are grouped the way `diff.mjs` classifies them:
 An entry about the plugin rather than the capture adds **Fixed** for a bug in
 the toolchain, which `diff.mjs` has no category for.
 
+## 0.23.7 — 2026-09-22
+
+The catalog read 0.23.3 deferred. That release found eight names the kit had
+`_`-prefixed and unpublished but left `components.figma.json` unread, so the
+names stayed in the catalog with no spec behind them. This is the read: the
+eight leave, `CORE_COMPONENTS` loses Slider and Tip — which `verify.mjs` fails
+on otherwise — and [components.md](pushpin/reference/components.md) and
+[figma.md](pushpin/reference/figma.md) stop offering Counter, Disclosure,
+Slider, Tab and Tip as things to build with. `component-specs.figma.json` still
+counts 124 catalog names in its coverage block because that block is written
+when the specs are distilled; it clears to 116 of 116 at the next specs read.
+
+Two of the entries under **Changed** moved a property, which an entry named by
+component alone does not say. Icon Button dropped its `Label` text property and
+the `loading` and `disabled` options of `State`, replacing the latter two with
+`isLoading` and `isDisabled` booleans; it also gained a `ghost` theme, four
+sizes either side of the old pair, three `[Fig only]` icon slots, and a default
+size of `medium` where it was `large`. Modal / Factory / Close action replaced
+`Size` option `Medium` with `Large`. Anything setting those by name fails.
+
+`copy.json` is rebuilt here for an unrelated reason: the content design source
+was re-verified on 2026-09-22 against the same blob, and the new date had not
+been carried through the build.
+
+Re-captured: `components.figma.json` (captured 2026-09-08 → 2026-09-22),
+`annotations.figma.json` (captured 2026-08-28 → 2026-09-22).
+
+**Breaking**
+
+- components.figma.json · components: "Availability Chip" is no longer in the
+  capture
+- components.figma.json · components: "Disclosure" is no longer in the capture
+- components.figma.json · components: "Link Section" is no longer in the capture
+- components.figma.json · components: "Platform availability" is no longer in
+  the capture
+- components.figma.json · components: "Slider" is no longer in the capture
+- components.figma.json · components: "Stepper" is no longer in the capture
+- components.figma.json · components: "Tab" is no longer in the capture
+- components.figma.json · components: "Tip" is no longer in the capture
+
+**Changed**
+
+- components.figma.json · components: 6 entries changed — Button, Icon Button,
+  Link, Loader Dots, Modal / Factory / Close action, Navigation / Pro / Tabs
+
 ## 0.23.3 — 2026-09-21
 
 The component spec capture recorded padding on a variant's top frame only. Where
