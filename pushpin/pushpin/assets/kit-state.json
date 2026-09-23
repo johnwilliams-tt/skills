@@ -11,7 +11,8 @@
     "icons": "2026-09-08"
   },
   "layers": [
-    "capture age"
+    "capture age",
+    "styles"
   ],
   "moved": {
     "components": {
@@ -28,10 +29,12 @@
     }
   },
   "findings": [
-    "The Pushpin Thumbprint UI Kit capture has not been taken in 47 days. Nothing is known to have changed — only that it has been long enough that nobody has checked, so re-capture it before trusting a value out of it."
+    "The Pushpin Thumbprint UI Kit capture has not been taken in 48 days. Nothing is known to have changed — only that it has been long enough that nobody has checked, so re-capture it before trusting a value out of it.",
+    "14 styles in the catalog are no longer published. Importing by key throws at runtime:\n    text style Headings/Native/Title 7\n    text style Body/Text 1\n    text style Headings/Native/Title 5\n    text style Headings/Desktop/Title 2\n    text style Body/Text 2\n    text style Body/Text 3\n    text style Headings/Native/Title 6\n    text style Headings/Desktop/Title 3\n    text style Headings/Native/Title 8\n    text style Headings/Native/Title 3\n    ...and 4 more"
   ],
   "brief": [
-    "Pushpin's copy of the Pushpin kit is 47 days old and may be behind; the next plugin update will carry a fresh one."
+    "Pushpin's copy of the Pushpin kit is 48 days old and may be behind; the next plugin update will carry a fresh one.",
+    "The Pushpin team has changed some text styles since this version of Pushpin; the next plugin update will carry those."
   ],
-  "observedAt": "2026-09-22"
+  "observedAt": "2026-09-23"
 }
