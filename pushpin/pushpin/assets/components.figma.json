@@ -3,13 +3,13 @@
   "source": {
     "fileKey": "VVRGrLgkPRU3vs765d5Q3r",
     "fileName": "Pushpin Thumbprint UI Kit",
-    "extractedAt": "2026-09-22",
-    "capturedTotal": 1021,
-    "publishedTotal": 1020,
+    "extractedAt": "2026-09-26",
+    "capturedTotal": 1020,
+    "publishedTotal": 1019,
     "publishedSets": 96,
     "unpublishedOmitted": 1,
     "iconsOmitted": 900,
-    "publicKept": 116,
+    "publicKept": 115,
     "nameCollisions": [
       "\"Headers / Tab\" is published twice — kept 13333:125848 on \"Additional components\", dropped 35574:59932 on \"Additional components\"",
       "\"Tabs\" is published twice — kept 13333:125819 on \"Additional components\", dropped 35574:59851 on \"Additional components\"",
@@ -1282,34 +1282,6 @@
             "iOS"
           ],
           "default": "iOS"
-        }
-      }
-    },
-    "Headers / Navbar / iOS": {
-      "key": "79bee57b9ed65cab65ae394690cd5006fb02b03f",
-      "type": "COMPONENT",
-      "page": "Additional components",
-      "nodeId": "35574:59957",
-      "properties": {
-        "👁️ Icon Left": {
-          "type": "BOOLEAN",
-          "key": "👁️ Icon Left#13725:84",
-          "default": true
-        },
-        "👁️ Icon Right": {
-          "type": "BOOLEAN",
-          "key": "👁️ Icon Right#13725:85",
-          "default": true
-        },
-        "Title": {
-          "type": "TEXT",
-          "key": "Title#13725:86",
-          "default": "Title"
-        },
-        "👁️ Divider": {
-          "type": "BOOLEAN",
-          "key": "👁️ Divider#13725:93",
-          "default": false
         }
       }
     },
@@ -3642,7 +3614,7 @@
         "innerLeft": {
           "type": "BOOLEAN",
           "key": "innerLeft#13232:5",
-          "default": false
+          "default": true
         },
         "innerRight": {
           "type": "BOOLEAN",
