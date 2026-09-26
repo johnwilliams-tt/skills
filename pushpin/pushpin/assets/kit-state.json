@@ -12,12 +12,206 @@
   },
   "layers": [
     "capture age",
+    "components",
     "styles"
   ],
   "moved": {
     "components": {
-      "unpublished": [],
-      "changed": []
+      "unpublished": [
+        {
+          "name": "Headers / Navbar / iOS",
+          "key": "79bee57b9ed65cab65ae394690cd5006fb02b03f",
+          "page": "Additional components"
+        }
+      ],
+      "changed": [
+        {
+          "name": "view",
+          "key": "872028cf3cf9807db992c1402fa69c9d9c269188",
+          "page": "Guidelines",
+          "updatedAt": "2026-09-26T02:41:45.992Z"
+        },
+        {
+          "name": "Native / Device Mock",
+          "key": "6a0c19ad7edb949af0dd59a226dae696c97c309e",
+          "page": "Additional components",
+          "updatedAt": "2026-09-26T02:41:45.976Z"
+        },
+        {
+          "name": "Star Rating / ReviewScoreSummary",
+          "key": "ffcab530279d1ac112077e913697bf646f7378c6",
+          "page": "Additional components",
+          "updatedAt": "2026-09-26T02:41:45.718Z"
+        },
+        {
+          "name": "Device template / Web",
+          "key": "a2afd87ef9a0c3fb39fd4ca027aeeea4e31b8060",
+          "page": "Layouts",
+          "updatedAt": "2026-09-26T02:41:45.715Z"
+        },
+        {
+          "name": "iOS / Sheet",
+          "key": "972cc358b317396273e7e170662c4d27972d546d",
+          "page": "Layouts",
+          "updatedAt": "2026-09-26T02:41:45.711Z"
+        },
+        {
+          "name": "❌ Headers",
+          "key": "8f322739b21f9129cc7c22d3974077956a27855b",
+          "page": "Additional components",
+          "updatedAt": "2026-09-26T02:41:45.708Z"
+        },
+        {
+          "name": "Bubble / Structure",
+          "key": "7c26792bdf3e00981a775f352feb5c2ba6fe3a48",
+          "page": "Additional components",
+          "updatedAt": "2026-09-26T02:41:45.703Z"
+        },
+        {
+          "name": "Modal / Confirmation",
+          "key": "f78874ffe7d01874c5e339f93343daff8e51a484",
+          "page": "Modal",
+          "updatedAt": "2026-09-26T02:41:40.719Z"
+        },
+        {
+          "name": "Modal / Factory / Close action",
+          "key": "ebb5feb70630504d6cf4f965ae6248a0a07a68b1",
+          "page": "Modal",
+          "updatedAt": "2026-09-26T02:41:40.716Z"
+        },
+        {
+          "name": "Native / iOS / Push Notification",
+          "key": "e37db50dbb8b179840ec92856fe4b0dfef9dc815",
+          "page": "Additional components",
+          "updatedAt": "2026-09-26T02:41:40.713Z"
+        },
+        {
+          "name": "Modal / Default",
+          "key": "d351078b671aff5fc049ebbaca592d99f6059da9",
+          "page": "Modal",
+          "updatedAt": "2026-09-26T02:41:40.710Z"
+        },
+        {
+          "name": "Native / iOS / Action Sheet",
+          "key": "c1a8669dc745915c841af63b20062f20854d458d",
+          "page": "Additional components",
+          "updatedAt": "2026-09-26T02:41:40.707Z"
+        },
+        {
+          "name": "Button Row",
+          "key": "ac39db4bceb59767f18e209979b5fdf7067ca94f",
+          "page": "Button Row",
+          "updatedAt": "2026-09-26T02:41:40.703Z"
+        },
+        {
+          "name": "Device template / Native",
+          "key": "9517010b8ef0ebd6a0a1fd9a48399233abda5785",
+          "page": "Layouts",
+          "updatedAt": "2026-09-26T02:41:40.699Z"
+        },
+        {
+          "name": "Bubble / Media",
+          "key": "90886b403d572593a255ee99a401a9e67bb496f7",
+          "page": "Additional components",
+          "updatedAt": "2026-09-26T02:41:40.695Z"
+        },
+        {
+          "name": "Modal / Factory / Modal",
+          "key": "87feca4dd75e21168f559c335ac75a870c547504",
+          "page": "Modal",
+          "updatedAt": "2026-09-26T02:41:40.691Z"
+        },
+        {
+          "name": "Messenger Elements / Composer",
+          "key": "83e7413015b6501e917d8aa7d460129cdc01abfd",
+          "page": "Additional components",
+          "updatedAt": "2026-09-26T02:41:40.688Z"
+        },
+        {
+          "name": "Carousel",
+          "key": "68271ee1dde47698f5a4f161dcb464aa7181e5d5",
+          "page": "Carousel",
+          "updatedAt": "2026-09-26T02:41:40.683Z"
+        },
+        {
+          "name": "Native / iOS / Table Row",
+          "key": "56a7b5e2696e77155a751ab44dcf0182e08b608c",
+          "page": "Additional components",
+          "updatedAt": "2026-09-26T02:41:40.679Z"
+        },
+        {
+          "name": "Modal / Factory / Footer",
+          "key": "564c5653745f5a1c069e48f49d66b7ca57a11f04",
+          "page": "Modal",
+          "updatedAt": "2026-09-26T02:41:40.676Z"
+        },
+        {
+          "name": "TextInput",
+          "key": "522dbc457c6160fe2d2673326448ee3c16245519",
+          "page": "Text Input",
+          "updatedAt": "2026-09-26T02:41:40.671Z"
+        },
+        {
+          "name": "Input Row",
+          "key": "506a18c60761d0371cd1752f2a797a05272ef189",
+          "page": "Input Row",
+          "updatedAt": "2026-09-26T02:41:40.667Z"
+        },
+        {
+          "name": "Native / iOS / Alert",
+          "key": "4b7785535bf33a17a375b094738adaa3c18f5642",
+          "page": "Additional components",
+          "updatedAt": "2026-09-26T02:41:40.661Z"
+        },
+        {
+          "name": "Headers",
+          "key": "3cfc372ee1f47596e532602fa7c0e269ed723aa0",
+          "page": "Additional components",
+          "updatedAt": "2026-09-26T02:41:40.659Z"
+        },
+        {
+          "name": "Tooltip",
+          "key": "3b8a2ee447d1e1cbebb3193781eef426821486f6",
+          "page": "Tooltip",
+          "updatedAt": "2026-09-26T02:41:40.655Z"
+        },
+        {
+          "name": "Native / Browser Navigation",
+          "key": "3b0cd1a159f3955d7c3a061d94773d4a5192a744",
+          "page": "Additional components",
+          "updatedAt": "2026-09-26T02:41:40.652Z"
+        },
+        {
+          "name": "Modal / Promotion",
+          "key": "2333a8ce880a7c536463a24850a4096422e59eeb",
+          "page": "Modal",
+          "updatedAt": "2026-09-26T02:41:40.648Z"
+        },
+        {
+          "name": "Tabs",
+          "key": "15314a533334d9410e275a416ae210ccab747ef6",
+          "page": "Additional components",
+          "updatedAt": "2026-09-26T02:41:40.644Z"
+        },
+        {
+          "name": "Popovers",
+          "key": "14cb5072dcc07ea9dbaf137060572146d03b4fda",
+          "page": "Popover",
+          "updatedAt": "2026-09-26T02:41:40.641Z"
+        },
+        {
+          "name": "App Icons",
+          "key": "011672a9ffed6370844af6f120b3f0720e57c0f1",
+          "page": "Additional components",
+          "updatedAt": "2026-09-26T02:41:40.632Z"
+        },
+        {
+          "name": "Native / iOS / Grouped Table",
+          "key": "007bc7034753c733ae662c4e32c3c4cd00612190",
+          "page": "Additional components",
+          "updatedAt": "2026-09-26T02:41:40.627Z"
+        }
+      ]
     },
     "icons": {
       "unpublished": [],
@@ -30,10 +224,13 @@
   },
   "findings": [
     "The Pushpin Thumbprint UI Kit capture has not been taken in 51 days. Nothing is known to have changed — only that it has been long enough that nobody has checked, so re-capture it before trusting a value out of it.",
+    "1 component in the catalog is no longer published. Importing by key throws at runtime:\n    Headers / Navbar / iOS",
+    "31 components in the kit changed after the capture (2026-09-22), most recently on 2026-09-26. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   view\n   Native / Device Mock\n   Star Rating / ReviewScoreSummary\n   Device template / Web\n   iOS / Sheet\n   ❌ Headers\n   Bubble / Structure\n   Modal / Confirmation\n   Modal / Factory / Close action\n   Native / iOS / Push Notification\n   Modal / Default\n   Native / iOS / Action Sheet\n   …and 19 more",
     "14 styles in the catalog are no longer published. Importing by key throws at runtime:\n    text style Headings/Native/Title 7\n    text style Body/Text 1\n    text style Headings/Native/Title 5\n    text style Headings/Desktop/Title 2\n    text style Body/Text 2\n    text style Body/Text 3\n    text style Headings/Native/Title 6\n    text style Headings/Desktop/Title 3\n    text style Headings/Native/Title 8\n    text style Headings/Native/Title 3\n    ...and 4 more"
   ],
   "brief": [
     "Pushpin's copy of the Pushpin kit is 51 days old and may be behind; the next plugin update will carry a fresh one.",
+    "The Pushpin team has changed some components since this version of Pushpin; the next plugin update will carry those.",
     "The Pushpin team has changed some text styles since this version of Pushpin; the next plugin update will carry those."
   ],
   "observedAt": "2026-09-26"
