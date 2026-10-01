@@ -17,7 +17,8 @@
       "\"iOS / Sheet\" is published twice — kept 13333:131648 on \"Layouts\", dropped 13333:131632 on \"Layouts\""
     ],
     "nameStatusDisagreement": [
-      "\"Conversation\" reads as public and is not published"
+      "\"Conversation\" reads as public and is not published",
+      "\"_Platform Section\" reads as internal and is published"
     ],
     "properties": "rest-editor-state",
     "carried": [
@@ -26,6 +27,20 @@
     ]
   },
   "components": {
+    "_Platform Section": {
+      "key": "17673a78249d41fbe61665290da899d7855232c6",
+      "type": "COMPONENT",
+      "page": "💠 Local components",
+      "nodeId": "35184:30157",
+      "publishedAs": "Platform Section",
+      "properties": {
+        "Notes": {
+          "type": "BOOLEAN",
+          "key": "Notes#35184:242",
+          "default": false
+        }
+      }
+    },
     "❌ Headers": {
       "key": "8f322739b21f9129cc7c22d3974077956a27855b",
       "type": "COMPONENT_SET",
@@ -2867,19 +2882,6 @@
         "Icon",
         "IconRight"
       ]
-    },
-    "Platform Section": {
-      "key": "17673a78249d41fbe61665290da899d7855232c6",
-      "type": "COMPONENT",
-      "page": "💠 Local components",
-      "nodeId": "35184:30157",
-      "properties": {
-        "Notes": {
-          "type": "BOOLEAN",
-          "key": "Notes#35184:242",
-          "default": false
-        }
-      }
     },
     "Popovers": {
       "key": "14cb5072dcc07ea9dbaf137060572146d03b4fda",
