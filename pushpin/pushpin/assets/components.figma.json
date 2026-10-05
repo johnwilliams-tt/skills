@@ -4,12 +4,12 @@
     "fileKey": "VVRGrLgkPRU3vs765d5Q3r",
     "fileName": "Pushpin Thumbprint UI Kit",
     "extractedAt": "2026-10-05",
-    "capturedTotal": 1020,
-    "publishedTotal": 1019,
+    "capturedTotal": 1019,
+    "publishedTotal": 1018,
     "publishedSets": 96,
     "unpublishedOmitted": 1,
     "iconsOmitted": 900,
-    "publicKept": 115,
+    "publicKept": 114,
     "nameCollisions": [
       "\"Headers / Tab\" is published twice — kept 13333:125848 on \"Additional components\", dropped 35574:59932 on \"Additional components\"",
       "\"Tabs\" is published twice — kept 13333:125819 on \"Additional components\", dropped 35574:59851 on \"Additional components\"",
@@ -17,8 +17,7 @@
       "\"iOS / Sheet\" is published twice — kept 13333:131648 on \"Layouts\", dropped 13333:131632 on \"Layouts\""
     ],
     "nameStatusDisagreement": [
-      "\"Conversation\" reads as public and is not published",
-      "\"_Platform Section\" reads as internal and is published"
+      "\"Conversation\" reads as public and is not published"
     ],
     "properties": "rest-editor-state",
     "carried": [
@@ -27,20 +26,6 @@
     ]
   },
   "components": {
-    "_Platform Section": {
-      "key": "17673a78249d41fbe61665290da899d7855232c6",
-      "type": "COMPONENT",
-      "page": "💠 Local components",
-      "nodeId": "35184:30157",
-      "publishedAs": "Platform Section",
-      "properties": {
-        "Notes": {
-          "type": "BOOLEAN",
-          "key": "Notes#35184:242",
-          "default": false
-        }
-      }
-    },
     "❌ Headers": {
       "key": "8f322739b21f9129cc7c22d3974077956a27855b",
       "type": "COMPONENT_SET",
