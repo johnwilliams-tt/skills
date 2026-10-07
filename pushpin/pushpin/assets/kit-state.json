@@ -281,10 +281,160 @@
       "unpublished": [],
       "changed": [
         {
+          "name": "Project status",
+          "key": "82495b16d8ad9225fe1fc0743bd1a8f14ec02e64",
+          "page": "General",
+          "updatedAt": "2026-10-07T21:59:32.652Z"
+        },
+        {
+          "name": "Thumbnail",
+          "key": "5d33410234feec794874a2af32c1e4293d5b609d",
+          "page": "General",
+          "updatedAt": "2026-10-07T21:59:32.637Z"
+        },
+        {
+          "name": "Gesture / Long press",
+          "key": "f08f02d94336b5e87d412b0df1d442dda36a0445",
+          "page": "General",
+          "updatedAt": "2026-10-07T21:55:23.175Z"
+        },
+        {
+          "name": "Framing Cards / Hypothesis",
+          "key": "dde56ae8a63118fb0f1c828792690510d9149cf6",
+          "page": "General",
+          "updatedAt": "2026-10-07T21:55:23.170Z"
+        },
+        {
+          "name": "Cursor / Pointer",
+          "key": "d10a19e5203e192a6dc1ce08e517a54cfda66284",
+          "page": "General",
+          "updatedAt": "2026-10-07T21:55:23.157Z"
+        },
+        {
+          "name": "Cursor / Hand",
+          "key": "c997daacad3e71e7366723ed8aeca0dc644cea90",
+          "page": "General",
+          "updatedAt": "2026-10-07T21:55:23.143Z"
+        },
+        {
+          "name": "Gesture / Swipe / Horizontal",
+          "key": "b555599ff48dbe8a2beea62ff16fe7b6357e0f9c",
+          "page": "General",
+          "updatedAt": "2026-10-07T21:55:23.116Z"
+        },
+        {
+          "name": "Gesture / Tap",
+          "key": "adcd1fb0f765014c6cc6c47fb130c675c8eeea8f",
+          "page": "General",
+          "updatedAt": "2026-10-07T21:55:23.110Z"
+        },
+        {
+          "name": "Framing Cards / Establish POV",
+          "key": "88b1fd4a4249711345670ca324b61804e7ea68ca",
+          "page": "General",
+          "updatedAt": "2026-10-07T21:55:23.081Z"
+        },
+        {
+          "name": "Framing Cards / Intro",
+          "key": "7b060aa73150e4c518611ba8be8f98363dba64bf",
+          "page": "General",
+          "updatedAt": "2026-10-07T21:55:23.070Z"
+        },
+        {
+          "name": "Deprecated",
+          "key": "662d091d7e3abcfa18981dd0aa38e432113eb1a6",
+          "page": "General",
+          "updatedAt": "2026-10-07T21:55:23.055Z"
+        },
+        {
+          "name": "Gesture / Touch",
+          "key": "577b622cb24b409d391473d42540b294cd5f6474",
+          "page": "General",
+          "updatedAt": "2026-10-07T21:55:23.041Z"
+        },
+        {
+          "name": "Folder message",
+          "key": "524bffc89c85fc039579551f6deb7b5d76b2d7b1",
+          "page": "General",
+          "updatedAt": "2026-10-07T21:55:23.038Z"
+        },
+        {
           "name": "Polish review feedback",
           "key": "4fbf20390f355156205be4878d22b19e5c3f5427",
           "page": "General",
-          "updatedAt": "2026-10-01T23:50:39.005Z"
+          "updatedAt": "2026-10-07T21:55:23.034Z"
+        },
+        {
+          "name": "Gesture / Swipe / Vertical",
+          "key": "1d225d90dd80f36afcf3e66cfb92505b48d571fe",
+          "page": "General",
+          "updatedAt": "2026-10-07T21:55:22.978Z"
+        },
+        {
+          "name": "Framing Cards / Investigate & Understand",
+          "key": "021b0ce98848c39951eeaf613b62b666b44d370c",
+          "page": "General",
+          "updatedAt": "2026-10-07T21:55:22.959Z"
+        },
+        {
+          "name": "Motion Tokens",
+          "key": "c8a40690b37b1b68da0068a0f075925a31fc5024",
+          "page": "General",
+          "updatedAt": "2026-10-07T21:55:22.764Z"
+        },
+        {
+          "name": "Annotations",
+          "key": "aa6e465a9c85c4067a897cc46408bd116d1e3e69",
+          "page": "General",
+          "updatedAt": "2026-10-07T21:55:22.760Z"
+        },
+        {
+          "name": "Studio Feedback",
+          "key": "56e2157c865929f8beb17d9e33c0580c2fa62f8a",
+          "page": "General",
+          "updatedAt": "2026-10-07T21:55:22.757Z"
+        },
+        {
+          "name": "Capstones",
+          "key": "49c39a47554a41882c1798089d1f741cefed5cd0",
+          "page": "General",
+          "updatedAt": "2026-10-07T21:55:22.753Z"
+        },
+        {
+          "name": "Sticky Note",
+          "key": "407484da8c0c66be1d34287aeed7259ea9c83f58",
+          "page": "General",
+          "updatedAt": "2026-10-07T21:55:22.749Z"
+        },
+        {
+          "name": "Framing Cards / Blank",
+          "key": "2c397c2a8e4c007ccba3048cf0319fb671159437",
+          "page": "General",
+          "updatedAt": "2026-10-07T21:55:22.745Z"
+        },
+        {
+          "name": "Studio Feedback / Phase",
+          "key": "1d0f6bc42f3e9128014e748db622651f81807473",
+          "page": "General",
+          "updatedAt": "2026-10-07T21:55:22.742Z"
+        },
+        {
+          "name": "Line",
+          "key": "1381ee906bf0de1662171349cc785b42932c4d3c",
+          "page": "General",
+          "updatedAt": "2026-10-07T21:55:22.739Z"
+        },
+        {
+          "name": "Annotations / Pointers",
+          "key": "0edb90c14d0c3d308159f8fc2d940e036175e8d6",
+          "page": "General",
+          "updatedAt": "2026-10-07T21:55:22.734Z"
+        },
+        {
+          "name": "Team Member",
+          "key": "f0663b7b8fbb55eca9f53de1756dfe09020c3da8",
+          "page": "Team Roster",
+          "updatedAt": "2026-10-07T21:42:21.453Z"
         }
       ]
     }
@@ -294,7 +444,7 @@
     "2 components in the catalog are no longer published. Importing by key throws at runtime:\n    Headers / Navbar / iOS\n    Platform Section",
     "40 components in the kit changed after the capture (2026-09-22), most recently on 2026-10-05. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Action Sheet\n   Accordion / Group\n   Themed Link\n   Button\n   Alert\n   Modal / Default\n   Progress Meter\n   Link\n   Popovers\n   Icon Button\n   Badge\n   view\n   …and 28 more",
     "14 styles in the catalog are no longer published. Importing by key throws at runtime:\n    text style Headings/Native/Title 7\n    text style Body/Text 1\n    text style Headings/Native/Title 5\n    text style Headings/Desktop/Title 2\n    text style Body/Text 2\n    text style Body/Text 3\n    text style Headings/Native/Title 6\n    text style Headings/Desktop/Title 3\n    text style Headings/Native/Title 8\n    text style Headings/Native/Title 3\n    ...and 4 more",
-    "1 component in the Annotation Kit changed after the capture (2026-09-22), most recently on 2026-10-01. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Polish review feedback"
+    "26 components in the Annotation Kit changed after the capture (2026-09-22), most recently on 2026-10-07. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Project status\n   Thumbnail\n   Gesture / Long press\n   Framing Cards / Hypothesis\n   Cursor / Pointer\n   Cursor / Hand\n   Gesture / Swipe / Horizontal\n   Gesture / Tap\n   Framing Cards / Establish POV\n   Framing Cards / Intro\n   Deprecated\n   Gesture / Touch\n   …and 14 more"
   ],
   "brief": [
     "Pushpin's copy of the Pushpin kit is 62 days old and may be behind; the next plugin update will carry a fresh one.",
