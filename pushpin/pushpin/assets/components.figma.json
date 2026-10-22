@@ -256,7 +256,9 @@
           "type": "VARIANT",
           "key": "theme",
           "options": [
-            "alert"
+            "alert",
+            "succes",
+            "warning"
           ],
           "default": "alert"
         }
