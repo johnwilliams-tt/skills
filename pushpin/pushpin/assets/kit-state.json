@@ -15,6 +15,7 @@
     "components",
     "styles",
     "annotations",
+    "icons",
     "copy source"
   ],
   "moved": {
@@ -32,6 +33,180 @@
         }
       ],
       "changed": [
+        {
+          "name": "Messager / Media modal",
+          "key": "99ccc1ff94409ce8de706af3dd67994a142c18e8",
+          "page": "Additional components",
+          "updatedAt": "2026-10-23T21:41:39.914Z"
+        },
+        {
+          "name": "iOS / Sheet / Backdrop",
+          "key": "8a6b5c24c1c14e1c7a23713250e3a255f6977210",
+          "page": "Layouts",
+          "updatedAt": "2026-10-23T21:41:39.880Z"
+        },
+        {
+          "name": "view",
+          "key": "872028cf3cf9807db992c1402fa69c9d9c269188",
+          "page": "Guidelines",
+          "updatedAt": "2026-10-23T21:41:39.870Z"
+        },
+        {
+          "name": "Themed Link",
+          "key": "379ced8ba1b39a1897e02593105eb1cc3001394a",
+          "page": "Link",
+          "updatedAt": "2026-10-23T21:41:39.677Z"
+        },
+        {
+          "name": "Star Rating / ReviewScoreSummary",
+          "key": "ffcab530279d1ac112077e913697bf646f7378c6",
+          "page": "Additional components",
+          "updatedAt": "2026-10-23T21:41:38.865Z"
+        },
+        {
+          "name": "Modal / Confirmation",
+          "key": "f78874ffe7d01874c5e339f93343daff8e51a484",
+          "page": "Modal",
+          "updatedAt": "2026-10-23T21:41:38.860Z"
+        },
+        {
+          "name": "Radio / List",
+          "key": "f6e748bf76b525a9a5509693d8662912f545fe11",
+          "page": "Radio",
+          "updatedAt": "2026-10-23T21:41:38.854Z"
+        },
+        {
+          "name": "Modal / Default",
+          "key": "d351078b671aff5fc049ebbaca592d99f6059da9",
+          "page": "Modal",
+          "updatedAt": "2026-10-23T21:41:38.850Z"
+        },
+        {
+          "name": "Star",
+          "key": "cac82382054b17de9634d6d674f046889b9513e8",
+          "page": "Star Rating",
+          "updatedAt": "2026-10-23T21:41:38.845Z"
+        },
+        {
+          "name": "Star Rating",
+          "key": "aca4a68f64d7fead2f296fbbde7d298ee2a068c3",
+          "page": "Star Rating",
+          "updatedAt": "2026-10-23T21:41:38.839Z"
+        },
+        {
+          "name": "Device template / Web",
+          "key": "a2afd87ef9a0c3fb39fd4ca027aeeea4e31b8060",
+          "page": "Layouts",
+          "updatedAt": "2026-10-23T21:41:38.835Z"
+        },
+        {
+          "name": "iOS / Sheet",
+          "key": "972cc358b317396273e7e170662c4d27972d546d",
+          "page": "Layouts",
+          "updatedAt": "2026-10-23T21:41:38.831Z"
+        },
+        {
+          "name": "Messenger Elements / Composer",
+          "key": "83e7413015b6501e917d8aa7d460129cdc01abfd",
+          "page": "Additional components",
+          "updatedAt": "2026-10-23T21:41:38.827Z"
+        },
+        {
+          "name": "Checkbox / List",
+          "key": "5cdf904a22223333be6d10d77bf2b5b455b7e0ec",
+          "page": "Checkbox",
+          "updatedAt": "2026-10-23T21:41:38.823Z"
+        },
+        {
+          "name": "Modal / Factory / Footer",
+          "key": "564c5653745f5a1c069e48f49d66b7ca57a11f04",
+          "page": "Modal",
+          "updatedAt": "2026-10-23T21:41:38.819Z"
+        },
+        {
+          "name": "Input Row",
+          "key": "506a18c60761d0371cd1752f2a797a05272ef189",
+          "page": "Input Row",
+          "updatedAt": "2026-10-23T21:41:38.815Z"
+        },
+        {
+          "name": "iOS / Smart App Banner",
+          "key": "4fe0fa4ca81b39b7d6a28fd444b3ddff8f2b7595",
+          "page": "Additional components",
+          "updatedAt": "2026-10-23T21:41:38.811Z"
+        },
+        {
+          "name": "Navigation / Customer",
+          "key": "30af9ad9ab2d9de1e4dcf166b27a63ebfc73b269",
+          "page": "Additional components",
+          "updatedAt": "2026-10-23T21:41:38.808Z"
+        },
+        {
+          "name": "Modal / Promotion",
+          "key": "2333a8ce880a7c536463a24850a4096422e59eeb",
+          "page": "Modal",
+          "updatedAt": "2026-10-23T21:41:38.802Z"
+        },
+        {
+          "name": "Checkbox",
+          "key": "12e02268b8300f841113d41deec659d679760b61",
+          "page": "Checkbox",
+          "updatedAt": "2026-10-23T21:41:38.797Z"
+        },
+        {
+          "name": "Radio",
+          "key": "fe9ebc8ea4d71092a0eb50e5d8dad2e2257bbb60",
+          "page": "Radio",
+          "updatedAt": "2026-10-23T21:41:22.663Z"
+        },
+        {
+          "name": "Button",
+          "key": "ebc80753f095633977049c061a28a082816ef9c7",
+          "page": "Button",
+          "updatedAt": "2026-10-23T21:41:22.657Z"
+        },
+        {
+          "name": "Button Row",
+          "key": "ac39db4bceb59767f18e209979b5fdf7067ca94f",
+          "page": "Button Row",
+          "updatedAt": "2026-10-23T21:41:22.651Z"
+        },
+        {
+          "name": "Device template / Native",
+          "key": "9517010b8ef0ebd6a0a1fd9a48399233abda5785",
+          "page": "Layouts",
+          "updatedAt": "2026-10-23T21:41:22.644Z"
+        },
+        {
+          "name": "Web Browers / Headers",
+          "key": "52860889d2d0c724f5ac57632b7b2714d99839af",
+          "page": "Layouts",
+          "updatedAt": "2026-10-23T21:41:22.633Z"
+        },
+        {
+          "name": "Popovers",
+          "key": "14cb5072dcc07ea9dbaf137060572146d03b4fda",
+          "page": "Popover",
+          "updatedAt": "2026-10-23T21:41:22.624Z"
+        },
+        {
+          "name": "Stripe payment / Card Element Only",
+          "key": "ef237a236eb70439e1323ad23043fc9b047332c9",
+          "page": "Additional components",
+          "updatedAt": "2026-10-23T21:41:12.057Z"
+        },
+        {
+          "name": "Bubble / Structure",
+          "key": "7c26792bdf3e00981a775f352feb5c2ba6fe3a48",
+          "page": "Additional components",
+          "updatedAt": "2026-10-23T21:41:12.053Z"
+        },
+        {
+          "name": "Badge",
+          "key": "18cc824af2c9a69129e1ef000cd46878dd9332c8",
+          "page": "Badge",
+          "updatedAt": "2026-10-23T21:41:12.041Z"
+        },
         {
           "name": "Navigation / Badge",
           "key": "f82914e62804bfd07271e157eb493ee1c20eee90",
@@ -51,28 +226,10 @@
           "updatedAt": "2026-10-20T17:34:09.172Z"
         },
         {
-          "name": "Messager / Media modal",
-          "key": "99ccc1ff94409ce8de706af3dd67994a142c18e8",
-          "page": "Additional components",
-          "updatedAt": "2026-10-20T17:34:09.168Z"
-        },
-        {
-          "name": "iOS / Sheet / Backdrop",
-          "key": "8a6b5c24c1c14e1c7a23713250e3a255f6977210",
-          "page": "Layouts",
-          "updatedAt": "2026-10-20T17:34:09.164Z"
-        },
-        {
           "name": "Settings / Navigation",
           "key": "89d92172c1d3386374dbf315c362e70bc7514cc6",
           "page": "Additional components",
           "updatedAt": "2026-10-20T17:34:09.160Z"
-        },
-        {
-          "name": "view",
-          "key": "872028cf3cf9807db992c1402fa69c9d9c269188",
-          "page": "Guidelines",
-          "updatedAt": "2026-10-20T17:34:09.155Z"
         },
         {
           "name": "Native / Device Mock",
@@ -87,24 +244,6 @@
           "updatedAt": "2026-10-20T17:34:09.086Z"
         },
         {
-          "name": "Themed Link",
-          "key": "379ced8ba1b39a1897e02593105eb1cc3001394a",
-          "page": "Link",
-          "updatedAt": "2026-10-20T17:34:09.067Z"
-        },
-        {
-          "name": "Device template / Web",
-          "key": "a2afd87ef9a0c3fb39fd4ca027aeeea4e31b8060",
-          "page": "Layouts",
-          "updatedAt": "2026-10-20T17:34:08.778Z"
-        },
-        {
-          "name": "iOS / Sheet",
-          "key": "972cc358b317396273e7e170662c4d27972d546d",
-          "page": "Layouts",
-          "updatedAt": "2026-10-20T17:34:08.773Z"
-        },
-        {
           "name": "❌ Headers",
           "key": "8f322739b21f9129cc7c22d3974077956a27855b",
           "page": "Additional components",
@@ -115,12 +254,6 @@
           "key": "5f54748d344aa1d937542e650098daf23ae18771",
           "page": "Additional components",
           "updatedAt": "2026-10-20T17:34:08.765Z"
-        },
-        {
-          "name": "Navigation / Customer",
-          "key": "30af9ad9ab2d9de1e4dcf166b27a63ebfc73b269",
-          "page": "Additional components",
-          "updatedAt": "2026-10-20T17:34:08.761Z"
         },
         {
           "name": "Avatar",
@@ -135,28 +268,10 @@
           "updatedAt": "2026-10-20T17:34:08.754Z"
         },
         {
-          "name": "Star Rating / ReviewScoreSummary",
-          "key": "ffcab530279d1ac112077e913697bf646f7378c6",
-          "page": "Additional components",
-          "updatedAt": "2026-10-20T17:33:58.790Z"
-        },
-        {
-          "name": "Modal / Confirmation",
-          "key": "f78874ffe7d01874c5e339f93343daff8e51a484",
-          "page": "Modal",
-          "updatedAt": "2026-10-20T17:33:58.786Z"
-        },
-        {
           "name": "Alert",
           "key": "de49bf36b6d0b8c71a038c26d7075b9dfea79d0e",
           "page": "Alert",
           "updatedAt": "2026-10-20T17:33:58.781Z"
-        },
-        {
-          "name": "Modal / Default",
-          "key": "d351078b671aff5fc049ebbaca592d99f6059da9",
-          "page": "Modal",
-          "updatedAt": "2026-10-20T17:33:58.777Z"
         },
         {
           "name": "Settings / Option",
@@ -171,12 +286,6 @@
           "updatedAt": "2026-10-20T17:33:58.768Z"
         },
         {
-          "name": "Device template / Native",
-          "key": "9517010b8ef0ebd6a0a1fd9a48399233abda5785",
-          "page": "Layouts",
-          "updatedAt": "2026-10-20T17:33:58.764Z"
-        },
-        {
           "name": "Navigation / Pro / Tabs",
           "key": "939320af4fadc2432b1e9a7a26446dcee1f6f3e6",
           "page": "Additional components",
@@ -189,40 +298,10 @@
           "updatedAt": "2026-10-20T17:33:58.753Z"
         },
         {
-          "name": "Messenger Elements / Composer",
-          "key": "83e7413015b6501e917d8aa7d460129cdc01abfd",
-          "page": "Additional components",
-          "updatedAt": "2026-10-20T17:33:58.748Z"
-        },
-        {
           "name": "Navigation / Customer / Tabs",
           "key": "6f20cfe9be8dbf491a205f9392f0f9b726cd8a6d",
           "page": "Additional components",
           "updatedAt": "2026-10-20T17:33:58.742Z"
-        },
-        {
-          "name": "Modal / Factory / Footer",
-          "key": "564c5653745f5a1c069e48f49d66b7ca57a11f04",
-          "page": "Modal",
-          "updatedAt": "2026-10-20T17:33:58.736Z"
-        },
-        {
-          "name": "Web Browers / Headers",
-          "key": "52860889d2d0c724f5ac57632b7b2714d99839af",
-          "page": "Layouts",
-          "updatedAt": "2026-10-20T17:33:58.731Z"
-        },
-        {
-          "name": "Input Row",
-          "key": "506a18c60761d0371cd1752f2a797a05272ef189",
-          "page": "Input Row",
-          "updatedAt": "2026-10-20T17:33:58.724Z"
-        },
-        {
-          "name": "iOS / Smart App Banner",
-          "key": "4fe0fa4ca81b39b7d6a28fd444b3ddff8f2b7595",
-          "page": "Additional components",
-          "updatedAt": "2026-10-20T17:33:58.719Z"
         },
         {
           "name": "Brand / App / Icon",
@@ -249,12 +328,6 @@
           "updatedAt": "2026-10-20T17:33:58.693Z"
         },
         {
-          "name": "Modal / Promotion",
-          "key": "2333a8ce880a7c536463a24850a4096422e59eeb",
-          "page": "Modal",
-          "updatedAt": "2026-10-20T17:33:58.687Z"
-        },
-        {
           "name": "Native / iOS / Contextual Menu",
           "key": "232fde9d18d74f4cd09aecd3cadaa4aa6cb98e82",
           "page": "Additional components",
@@ -271,12 +344,6 @@
           "key": "15314a533334d9410e275a416ae210ccab747ef6",
           "page": "Additional components",
           "updatedAt": "2026-10-20T17:33:58.673Z"
-        },
-        {
-          "name": "Popovers",
-          "key": "14cb5072dcc07ea9dbaf137060572146d03b4fda",
-          "page": "Popover",
-          "updatedAt": "2026-10-20T17:33:58.668Z"
         },
         {
           "name": "Device template / Footer",
@@ -303,12 +370,6 @@
           "updatedAt": "2026-10-20T17:33:34.798Z"
         },
         {
-          "name": "Button",
-          "key": "ebc80753f095633977049c061a28a082816ef9c7",
-          "page": "Button",
-          "updatedAt": "2026-10-20T17:33:34.793Z"
-        },
-        {
           "name": "Native / iOS / Push Notification",
           "key": "e37db50dbb8b179840ec92856fe4b0dfef9dc815",
           "page": "Additional components",
@@ -333,22 +394,10 @@
           "updatedAt": "2026-10-20T17:33:34.775Z"
         },
         {
-          "name": "Button Row",
-          "key": "ac39db4bceb59767f18e209979b5fdf7067ca94f",
-          "page": "Button Row",
-          "updatedAt": "2026-10-20T17:33:34.763Z"
-        },
-        {
           "name": "Settings / Navigation / Option",
           "key": "90e19f84ae4b563432355161f05ef44bb1642e5c",
           "page": "Additional components",
           "updatedAt": "2026-10-20T17:33:34.758Z"
-        },
-        {
-          "name": "Bubble / Structure",
-          "key": "7c26792bdf3e00981a775f352feb5c2ba6fe3a48",
-          "page": "Additional components",
-          "updatedAt": "2026-10-20T17:33:34.754Z"
         },
         {
           "name": "Settings / Navigation / Options",
@@ -361,12 +410,6 @@
           "key": "4b7785535bf33a17a375b094738adaa3c18f5642",
           "page": "Additional components",
           "updatedAt": "2026-10-20T17:33:34.744Z"
-        },
-        {
-          "name": "Stripe payment / Card Element Only",
-          "key": "ef237a236eb70439e1323ad23043fc9b047332c9",
-          "page": "Additional components",
-          "updatedAt": "2026-10-20T17:33:15.341Z"
         },
         {
           "name": "Native / iOS / Action Sheet",
@@ -453,12 +496,6 @@
           "updatedAt": "2026-10-05T20:41:34.764Z"
         },
         {
-          "name": "Badge",
-          "key": "18cc824af2c9a69129e1ef000cd46878dd9332c8",
-          "page": "Badge",
-          "updatedAt": "2026-10-05T20:41:34.741Z"
-        },
-        {
           "name": "Modal / Factory / Close action",
           "key": "ebb5feb70630504d6cf4f965ae6248a0a07a68b1",
           "page": "Modal",
@@ -486,7 +523,1352 @@
     },
     "icons": {
       "unpublished": [],
-      "changed": []
+      "changed": [
+        {
+          "name": "Home-Heart Icon · Large",
+          "key": "fcb61600e9b1b28524e424a958a84f11b02a26d6",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:56.763Z"
+        },
+        {
+          "name": "Info · Large",
+          "key": "ece568a5b0a6788a05dfea70b148c093d581eda1",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:56.760Z"
+        },
+        {
+          "name": "Auto · Large",
+          "key": "eaf71fe86c0bbec76655235f46a1dc25e96edd5c",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:56.757Z"
+        },
+        {
+          "name": "Pets · Large",
+          "key": "e6c418c98267d367332f8f32b635febcad745a16",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:56.754Z"
+        },
+        {
+          "name": "Star-Filled · Large",
+          "key": "d952938f5b33ef48c552ff8f9fd655211f5f62e5",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:56.751Z"
+        },
+        {
+          "name": "Code-Filled · Large",
+          "key": "cfbcbd437eedeb1f233a8806ebad4aa7cfd55bd6",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:56.748Z"
+        },
+        {
+          "name": "Preferences · Large",
+          "key": "bce928a32d62076cf6395e74144552f42bb2cc56",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:56.745Z"
+        },
+        {
+          "name": "Pause-Filled · Large",
+          "key": "b954ff8fbd5463179eef2b03c314fc0d55a69451",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:56.742Z"
+        },
+        {
+          "name": "Wedding · Large",
+          "key": "b7f420525ebe952d8a3fc0cbc2bbfe0678c7e89c",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:56.739Z"
+        },
+        {
+          "name": "Waves · Large",
+          "key": "b40b398abb98212f1b443b270b675ce0ed980922",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:56.736Z"
+        },
+        {
+          "name": "Circle-Check · Large",
+          "key": "983dd5989ad85418e791af78ea69398f7cb9c92d",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:56.733Z"
+        },
+        {
+          "name": "Mute-Filled · Large",
+          "key": "96ba89369e9e8648ec4b4d98690ec50860733d79",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:56.730Z"
+        },
+        {
+          "name": "Dolly · Large",
+          "key": "938be7fa91c539eb10f792448716486d4a8daa1d",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:56.727Z"
+        },
+        {
+          "name": "Events · Large",
+          "key": "7a31ade0bceddb656da2e67b3cf3e0342e7b4972",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:56.724Z"
+        },
+        {
+          "name": "Hand-Heart · Large",
+          "key": "749af918df3d9aa50729375138a1bf051d45e8d6",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:56.721Z"
+        },
+        {
+          "name": "Summer · Large",
+          "key": "6fba8f9d69aa5be1d235ea8bda8cfa6e9e4f3ff2",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:56.718Z"
+        },
+        {
+          "name": "Star · Large",
+          "key": "6ef750d0147ebdfd72a8f0391ebaf5bce3b9ff01",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:56.715Z"
+        },
+        {
+          "name": "Winter · Large",
+          "key": "2ad65ade17a064b91695f5c2281c3d96dba9c7df",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:56.708Z"
+        },
+        {
+          "name": "Hamburger · Large",
+          "key": "1e343c6b3be6acd016b3ac3900517e9867b09f58",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:56.704Z"
+        },
+        {
+          "name": "Trophy · Large",
+          "key": "fff39538b9ae5a76dc846a0b7a0d24f9c0a51e15",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.634Z"
+        },
+        {
+          "name": "Arrow-Right · Large",
+          "key": "ffacc6f8389e5355551186fddb217cd1e91b760c",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.631Z"
+        },
+        {
+          "name": "Preview-Carousel · Large",
+          "key": "ff7ecb984ada6d4c226eca83d9909938ddbf1fcd",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.628Z"
+        },
+        {
+          "name": "Fall · Large",
+          "key": "fd449613c7a4515fa2962eebef59e421341786b6",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.624Z"
+        },
+        {
+          "name": "Filter · Large",
+          "key": "fd3478e44e701001ba6ed33afbd727f0c10ec824",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.621Z"
+        },
+        {
+          "name": "Hidden · Large",
+          "key": "fbb218edb096135db5fdf6f517f15056660af826",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.618Z"
+        },
+        {
+          "name": "Caret-Down · Large",
+          "key": "fba96bcde5b4b70a7551fbc239164bd88d503643",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.614Z"
+        },
+        {
+          "name": "Energy · Large",
+          "key": "fb53e679a0dd565e2e32053c451a81e20f4a2fb1",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.611Z"
+        },
+        {
+          "name": "Piggy-Bank · Large",
+          "key": "f7fdee0cbb813242e8b68aaedbd2c25d506ec8b4",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.608Z"
+        },
+        {
+          "name": "Phone-Call · Large",
+          "key": "f7e1f31b5d336a26967de9fd56284af4e3f4071b",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.605Z"
+        },
+        {
+          "name": "Favorite-Filled · Large",
+          "key": "f308eafdbe7e89d9af421a7c52a4d06e6061036f",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.602Z"
+        },
+        {
+          "name": "Pause · Large",
+          "key": "f2cd5bdf5eeb9a1d86ac56ecc8e3d197e73d210a",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.599Z"
+        },
+        {
+          "name": "Crafts · Large",
+          "key": "f181dcdce45d1f028597ff0ddc70e3b993daaf01",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.596Z"
+        },
+        {
+          "name": "Price-Tag-Filled · Large",
+          "key": "f13ed22d8496cfd346c98f3f50b66fa8765a66ce",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.593Z"
+        },
+        {
+          "name": "Map-Pin · Large",
+          "key": "eb46028a2f8bb588fc5de68e539262560f7b1da4",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.589Z"
+        },
+        {
+          "name": "Warning · Large",
+          "key": "e9a3a74334b2768777ca5c086d45dc5f1ec77b84",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.585Z"
+        },
+        {
+          "name": "Gift · Large",
+          "key": "e967d64610a578e0cb3416c3ea280fa2f58baf4e",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.582Z"
+        },
+        {
+          "name": "Facebook · Large",
+          "key": "e689f7729c35dc46d82666487d18edfa6969a0df",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.579Z"
+        },
+        {
+          "name": "Fullscreen-Collapse · Large",
+          "key": "e210c51e6e59aa67d821c46c2e320a2cd51e4ab4",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.576Z"
+        },
+        {
+          "name": "Security · Large",
+          "key": "e1db350df9a713e35b2a2b4d9f5c72bbc7759156",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.573Z"
+        },
+        {
+          "name": "More-Vertical · Large",
+          "key": "e0afaa59a3939b44ef30fff0e0f1ff6dad9d9753",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.570Z"
+        },
+        {
+          "name": "Favorite · Large",
+          "key": "de733de0702f0bbe25bdabe97d3609b10836b7c3",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.567Z"
+        },
+        {
+          "name": "Refund · Large",
+          "key": "ddff3a966f63765237b7bfc574cb0d7d3f55048c",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.564Z"
+        },
+        {
+          "name": "Help · Large",
+          "key": "dce9a9cd16cd469b2d975d48b770437648cecddd",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.561Z"
+        },
+        {
+          "name": "Caret-Right · Large",
+          "key": "dc4d67d63fe03c7b600b981bacfa7f45e0d60553",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.558Z"
+        },
+        {
+          "name": "Wave · Large",
+          "key": "d78b8b0336940834d03604be8d3889afe37a3a59",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.554Z"
+        },
+        {
+          "name": "Budget · Large",
+          "key": "d6a23333e9479c27344a5bf75fa96af8d0df997d",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.551Z"
+        },
+        {
+          "name": "Incoming-Call · Large",
+          "key": "d55735968baef4f50320e13cd348d5c1c3af4b67",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.548Z"
+        },
+        {
+          "name": "Award · Large",
+          "key": "d4f705efa5cc31053b1494dde2c5ed9ab467d77c",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.545Z"
+        },
+        {
+          "name": "Mail · Large",
+          "key": "d4c86639e209c02d4db412bfc69bc752bdab0d69",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.542Z"
+        },
+        {
+          "name": "Schedule-Meeting · Large",
+          "key": "d1f4b305c64efdfb70ce13b660eaccf6d10d3f81",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.538Z"
+        },
+        {
+          "name": "Portrait Filled · Large",
+          "key": "d1577089e58cdfa78361c793b3befdfa61851bf5",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.535Z"
+        },
+        {
+          "name": "Play · Large",
+          "key": "d1483353fec91c41126a570b3c2bdaea73bede51",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.532Z"
+        },
+        {
+          "name": "Webhooks · Large",
+          "key": "cffd7743f7322943e4715dbc52835562d721920d",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.528Z"
+        },
+        {
+          "name": "Location · Large",
+          "key": "cf71c6aa8adc51cb8f9482123e20b7b701c6b009",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.525Z"
+        },
+        {
+          "name": "Blocked · Large",
+          "key": "cdb712ba209b68230197eddfd6b4899693dfe97c",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.522Z"
+        },
+        {
+          "name": "Google-Login · Large",
+          "key": "cd930901c5af60dd85757157970bc1bddf536cd6",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.519Z"
+        },
+        {
+          "name": "Circle-Map-Pin-Filled · Large",
+          "key": "cc97d5b5906bf6ade0b01c67b2d02ea029b91973",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.516Z"
+        },
+        {
+          "name": "Preview · Large",
+          "key": "ca362c3875372fcf0609331f29d25c2eddb98507",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.512Z"
+        },
+        {
+          "name": "Expand · Large",
+          "key": "c9df009cec40aed26316581d0797d6a0c48ad5ca",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.509Z"
+        },
+        {
+          "name": "Edit · Large",
+          "key": "c7a6829a7a8698d8bacf3e351f44236c54b5c488",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.506Z"
+        },
+        {
+          "name": "Mute · Large",
+          "key": "c6384884e808e4097ea9b5a1ff1741f14a9c9ccd",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.502Z"
+        },
+        {
+          "name": "Bug · Large",
+          "key": "c5eebd675645eacd3ef5303248caeb0e95100318",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.499Z"
+        },
+        {
+          "name": "Home [meta-category] · Large",
+          "key": "c4f8e73cb33b3358fc97b8bb920560b9afa5d9b4",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.496Z"
+        },
+        {
+          "name": "Time · Large",
+          "key": "c43dfe76e819e47dfbf47c4ce79910b4c07155d4",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.493Z"
+        },
+        {
+          "name": "Bookmark · Large",
+          "key": "c34b31df23e9a1d840a058db677bb56ba5eb5fd9",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.489Z"
+        },
+        {
+          "name": "Add · Large",
+          "key": "c2a9807925f3d9add00fab30d2d8afd34ced8337",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.485Z"
+        },
+        {
+          "name": "Jobber · Large",
+          "key": "c1a1a731bb4cffc0f73dac082173f24eb46b7279",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.482Z"
+        },
+        {
+          "name": "Sort · Large",
+          "key": "c13d46a9920fa23ce5ae4c3f5095c63b1444af12",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.479Z"
+        },
+        {
+          "name": "Subtract · Large",
+          "key": "c0f321c477cf62152c458a5faf1171c79e60da92",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.475Z"
+        },
+        {
+          "name": "Trash · Large",
+          "key": "bd7260c78f728ee5c8936519207d926a667f4631",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.472Z"
+        },
+        {
+          "name": "Square · Large",
+          "key": "bd58867a41689ea8ed733c95a43513d7fcbe0cc1",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.469Z"
+        },
+        {
+          "name": "Archive-Filled · Large",
+          "key": "bcd3ed8c559462a1b65d29bb43ab29659e96e427",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.466Z"
+        },
+        {
+          "name": "Meeting-Confirmed · Large",
+          "key": "bab2e2fae367fe99b9290fa4d93818860d710cf6",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.463Z"
+        },
+        {
+          "name": "Date-Placeholder · Large",
+          "key": "baa653944bc9efa5f6386ecda404848e6dd3cfd4",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.460Z"
+        },
+        {
+          "name": "Bookmark Filled · Large",
+          "key": "ba3775e6cc38d6c6c7cad5eb77d7e799efbd07f4",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.457Z"
+        },
+        {
+          "name": "Spring · Large",
+          "key": "b9e500b648254905253141a7a147728c076eaf14",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.452Z"
+        },
+        {
+          "name": "Facebook-Login · Large",
+          "key": "b96bd3a27b700e89a1015fbccd3842f99aba260d",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.449Z"
+        },
+        {
+          "name": "Date-Time · Large",
+          "key": "b75634d13c3e028e3561f6f669b4752eb388ccb5",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.446Z"
+        },
+        {
+          "name": "Thumbs-Down · Large",
+          "key": "b6ef2364e19ef94f439aab659ef8a007081ac57c",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.443Z"
+        },
+        {
+          "name": "Refresh · Large",
+          "key": "b65fb4308aec07d4cc2e676fcb0f81c3ac234857",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.439Z"
+        },
+        {
+          "name": "Mastercard · Large",
+          "key": "b56c702d1c9c2900aa1a430291aeaab699ddc6cf",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.435Z"
+        },
+        {
+          "name": "Store Filled · Large",
+          "key": "b542701411aae66a8577f1ae82ccd99427179bd2",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.432Z"
+        },
+        {
+          "name": "Visa · Large",
+          "key": "b52e5299fbbb43ff5f03b67d52087c2ce722c4f4",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.429Z"
+        },
+        {
+          "name": "Money · Large",
+          "key": "b4bc4c377af14372a780b5b7ab86dbd090ad4d0b",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.425Z"
+        },
+        {
+          "name": "Message · Large",
+          "key": "b3cf006a6b2195100bfebd99562d128acd63b147",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.422Z"
+        },
+        {
+          "name": "Home [navigation] · Large",
+          "key": "b38231fa5f5331cffa715f1293effc7a0d5e6431",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.418Z"
+        },
+        {
+          "name": "Audio · Large",
+          "key": "b2f4b6236a4af4de441a7833e88e7bcf9f67327a",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.415Z"
+        },
+        {
+          "name": "Exclamation · Large",
+          "key": "b21dd710ab9967f1a647342762b641d31685812c",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.410Z"
+        },
+        {
+          "name": "Legal · Large",
+          "key": "b20091b5a737572f41eff7e362f877f6b603d605",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.404Z"
+        },
+        {
+          "name": "Certified · Large",
+          "key": "b0e048c6974ad79bda4a3861ebcd97e1a0c80ffb",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.400Z"
+        },
+        {
+          "name": "Business-Verification · Large",
+          "key": "afd0ace7c3cb7f088b75b0a4c6d1f2be8d696d11",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.396Z"
+        },
+        {
+          "name": "More-Horizontal · Large",
+          "key": "abd8b4b2db5b20e49d3676dbfd3db204aec8d8d2",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.392Z"
+        },
+        {
+          "name": "Star-Half-Filled · Large",
+          "key": "a98f0ec1f398bb8c947a4acd90ec8c74a7fedb2c",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.387Z"
+        },
+        {
+          "name": "Trend · Large",
+          "key": "a6898485a2ec9c237f91587e52f7e34be6090ccb",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.383Z"
+        },
+        {
+          "name": "Services · Large",
+          "key": "a37d04517ce805d81751f2849c63912978a51c67",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.379Z"
+        },
+        {
+          "name": "Share · Large",
+          "key": "a3130ee7894745c973c4199af9f7a7ec64f5f84f",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.374Z"
+        },
+        {
+          "name": "Trophy-Filled · Large",
+          "key": "a2335b8a9f4728fdee285ec066cf5c869650f78c",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.370Z"
+        },
+        {
+          "name": "Gesture · Large",
+          "key": "a1591e8e240262762ab6db4bc0b60a7e9ef1b607",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.366Z"
+        },
+        {
+          "name": "Discover-Card · Large",
+          "key": "a059fa6f13feb3407f95841d9d6c58231fa3923f",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.361Z"
+        },
+        {
+          "name": "Repair-Support · Large",
+          "key": "9fa5545f349e97ace9da2c035b51deb523c639c4",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.357Z"
+        },
+        {
+          "name": "Price-Assurance · Large",
+          "key": "9f1460ea46a74dac55496e2b01bd26a96366dcd4",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.354Z"
+        },
+        {
+          "name": "Outgoing-Call · Large",
+          "key": "9e7a27953fe7275883a8091c52ccdfa9a5a41216",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.350Z"
+        },
+        {
+          "name": "Map · Large",
+          "key": "9c75ab88aa43809b1ce527feb55bcfd1b7e5b11e",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.346Z"
+        },
+        {
+          "name": "Chiirp · Large",
+          "key": "9c4ff07365290ba1a4e1410a684e4bea77a3c4be",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.343Z"
+        },
+        {
+          "name": "Lessons · Large",
+          "key": "9c350a253a64d3f0e49952bd353d19146b8e4dd6",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.339Z"
+        },
+        {
+          "name": "Sparkle · Large",
+          "key": "9966909ad23778789fc70537151e6a901a879d18",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.336Z"
+        },
+        {
+          "name": "Window · Large",
+          "key": "992659710324de74a208b9d47d9af12b7c770232",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.332Z"
+        },
+        {
+          "name": "Message-Declined · Large",
+          "key": "98ce5f81a87142cce62c8baebf267f8842126b46",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.328Z"
+        },
+        {
+          "name": "Minus · Large",
+          "key": "979f30da96f847ca204c167f8161c46a79000cca",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.264Z"
+        },
+        {
+          "name": "Zelle · Large",
+          "key": "95f5c2ee112c922f6a001b8424cf7dbb79e74464",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.261Z"
+        },
+        {
+          "name": "Apple-Login · Large",
+          "key": "92b00a5584f1fbf63e7bfd274ed035066478c319",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.257Z"
+        },
+        {
+          "name": "Design-Web · Large",
+          "key": "90386886253152a93b47ceee276b36fe6bf188ce",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.253Z"
+        },
+        {
+          "name": "Earth · Large",
+          "key": "8f868a354569ad790810919b7e002ed8a231843b",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.250Z"
+        },
+        {
+          "name": "Arrow-Down · Large",
+          "key": "8f0a554417cf53ccb7f39e5416b145daeb4b6b1a",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.246Z"
+        },
+        {
+          "name": "Thumbs-Up · Large",
+          "key": "8d6204f236202f5ea39fd748bc917656cc0be020",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.242Z"
+        },
+        {
+          "name": "Instagram · Large",
+          "key": "8d5b2912410a3fe8695a8a4bedcddad3552a4a99",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.239Z"
+        },
+        {
+          "name": "Price-Tag · Large",
+          "key": "8c685f984e8f98d9221298e39c101917d2360a86",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.235Z"
+        },
+        {
+          "name": "Check · Large",
+          "key": "8ba124bfa37059f6d127605818d80fc2717425c8",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.231Z"
+        },
+        {
+          "name": "Bar-Graph · Large",
+          "key": "8b96e0409605e198a5755f135d1f7c999ddd50cf",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.226Z"
+        },
+        {
+          "name": "Share-Alt · Large",
+          "key": "8a28f621aa63622f2a4f72df57f87fb314ae2155",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.222Z"
+        },
+        {
+          "name": "Close · Large",
+          "key": "89f2da7af3e042376edf06496e6a92faf51ef67d",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.218Z"
+        },
+        {
+          "name": "Notification-Filled · Large",
+          "key": "862eb89c27145e951092ca6f25f95d222f608882",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.214Z"
+        },
+        {
+          "name": "Document · Large",
+          "key": "84fdb2c4a334112988395afc1757d4926bc8fa42",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.210Z"
+        },
+        {
+          "name": "American-Express · Large",
+          "key": "84d20b21c5b6c4fa9db99055d9466441dd099a62",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.206Z"
+        },
+        {
+          "name": "Fire-Extinguisher · Large",
+          "key": "83a9c9d3af294e42ef2d9982d73e229bbb2b02af",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.202Z"
+        },
+        {
+          "name": "Water-Drops · Large",
+          "key": "833907f5e6ab8b43bb4270d6fd27f0fb03ba4dee",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.199Z"
+        },
+        {
+          "name": "Twitter · Large",
+          "key": "8127e042bf987a57022f5017918bcb2af4777e1a",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.195Z"
+        },
+        {
+          "name": "Play-Filled · Large",
+          "key": "808ca2e6dfb9b0c9eaa1b709055ecc8557e0c44b",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.192Z"
+        },
+        {
+          "name": "Image · Large",
+          "key": "7f39c133d9f89b37f18c9431cab02aaf26760f14",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.188Z"
+        },
+        {
+          "name": "Sync · Large",
+          "key": "7af81bcddc18acebb828471701e24dfdaceb5a26",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.183Z"
+        },
+        {
+          "name": "Services-Filled · Large",
+          "key": "7a79fb7b683ffa2a5096248d30633e5b0713f858",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.179Z"
+        },
+        {
+          "name": "Accessibility · Large",
+          "key": "789cc9badf1edcddab75ff8d1aa9f63b1b2fbf77",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.175Z"
+        },
+        {
+          "name": "Grass · Large",
+          "key": "74ff21438f1fdf21bf1e8d2b8c59ebfd55ef66de",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.171Z"
+        },
+        {
+          "name": "ServiceTitan · Large",
+          "key": "73e16ddd599d5981309213c943a16e00a716908d",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.168Z"
+        },
+        {
+          "name": "Explore Filled · Large",
+          "key": "731199da49f88e6f3aafc5d27d950b3edc389177",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.164Z"
+        },
+        {
+          "name": "Messenger · Large",
+          "key": "721ab5fc3cd52da669fbfb2e5dcddf84e5972d02",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.158Z"
+        },
+        {
+          "name": "Store · Large",
+          "key": "70063eab4b520ccb8ec5f1394c3caeb3a13ee872",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.154Z"
+        },
+        {
+          "name": "Warning-Filled · Large",
+          "key": "6f7051e53513bac4a6cbb24bb05cf0b0b6542f63",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.149Z"
+        },
+        {
+          "name": "Avatar · Large",
+          "key": "6ee8a75e2ec659809337e3227efb597a08ddf01b",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.145Z"
+        },
+        {
+          "name": "Attach · Large",
+          "key": "6ee63f574c920d872067c234940027de76a2fa01",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.141Z"
+        },
+        {
+          "name": "Thumbs-Up-Filled · Large",
+          "key": "6e8e9d5fc7213841dde6dd5b52bca5f968aa8c6e",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.137Z"
+        },
+        {
+          "name": "No Security · Large",
+          "key": "6c4ff74d0c1d8aad7e89b71151a26d8e40d6db69",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.134Z"
+        },
+        {
+          "name": "Sent · Large",
+          "key": "6b7761eddc7156335b545afaf1369ac64f753b29",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.130Z"
+        },
+        {
+          "name": "Roof · Large",
+          "key": "6a28652cad0e18a082aa9b509918b1c63e2b808e",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.127Z"
+        },
+        {
+          "name": "Circle-Money-Filled · Large",
+          "key": "69e7d47941751234090c445c25d4bf9bfc5d465b",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.123Z"
+        },
+        {
+          "name": "Archive · Large",
+          "key": "69290002c8fb79fa7267047e9d15d6577b16939a",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.120Z"
+        },
+        {
+          "name": "Portrait · Large",
+          "key": "676f9f1ede4e158fa91cc2e6bc04883caf681baa",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.116Z"
+        },
+        {
+          "name": "Messages Filled · Large",
+          "key": "65bcf07011a92890d21c83189bc99b65f69af627",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.112Z"
+        },
+        {
+          "name": "Settings · Large",
+          "key": "5f140e94de03f4e611d0fefb5fbd37db8d303dd2",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.109Z"
+        },
+        {
+          "name": "User · Large",
+          "key": "5c809dad80f962762d1ab29b9a7516a7d91066dd",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.105Z"
+        },
+        {
+          "name": "Writing-Translation · Large",
+          "key": "5c4ef943182d5d7e392441a50028cc55a4dd319b",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.100Z"
+        },
+        {
+          "name": "Export · Large",
+          "key": "5bfca06269329109b01fc664bec3e11dc648c183",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.069Z"
+        },
+        {
+          "name": "Reply · Large",
+          "key": "5b71d9f5e60476c170c836b6b2f42b17748ceef7",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.065Z"
+        },
+        {
+          "name": "Promoted · Large",
+          "key": "5a0796758ab491d78016b4a31ac9260cbbcf2257",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.061Z"
+        },
+        {
+          "name": "Explore · Large",
+          "key": "596bb67f178d4a32febf683deacf548c05889f9f",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.056Z"
+        },
+        {
+          "name": "Mail Filled · Large",
+          "key": "57b1c9e401c549ea3425c67719d1ef4a9bdab568",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.051Z"
+        },
+        {
+          "name": "Arrow-Up-Right · Large",
+          "key": "573f96dff65085dccc687600e5780007cd5de251",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.018Z"
+        },
+        {
+          "name": "Folder · Large",
+          "key": "5731e6b55573990b97218b403d9c2aa3d8c3235c",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.015Z"
+        },
+        {
+          "name": "Personal · Large",
+          "key": "56f0ba2c24f1db1969454596ce4fdb11bcdc0d58",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.012Z"
+        },
+        {
+          "name": "Copy-Link · Large",
+          "key": "54943a186f636d835ee0dbc6fcd47808dd9ea10e",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.008Z"
+        },
+        {
+          "name": "Messages · Large",
+          "key": "51750d989eae5fbbc8e7f30e775bf81a12bc0677",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.005Z"
+        },
+        {
+          "name": "Photography · Large",
+          "key": "512ec53f4feaeeb3ac03f84c5d574f4e1bb9ba0e",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:54.001Z"
+        },
+        {
+          "name": "Drafts · Large",
+          "key": "4e0181d1e9ff73ab18e6f8c10d5bf3fd371cfa7d",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.997Z"
+        },
+        {
+          "name": "Flag · Large",
+          "key": "4c7017b6e0d151d4a10f5df312484c453687bdf8",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.993Z"
+        },
+        {
+          "name": "Locked · Large",
+          "key": "4ae0e95374ef323bf07684df692055ff8456b1d9",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.990Z"
+        },
+        {
+          "name": "Data · Large",
+          "key": "4a1fb8c81bf787c254718614dfc8f56ffd88b942",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.987Z"
+        },
+        {
+          "name": "Lightning · Large",
+          "key": "475944e3544fd2284cd38d0ada7fd3152c9e96c7",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.984Z"
+        },
+        {
+          "name": "Arrow-Up · Large",
+          "key": "45738970bc29978c7ed04a63c9404068d73e8d8d",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.981Z"
+        },
+        {
+          "name": "Scorpion · Large",
+          "key": "43d17c3ab112697f70d65a3698356fcd11e8c6e5",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.978Z"
+        },
+        {
+          "name": "Search · Large",
+          "key": "42cf0a9db145395d0ff8c272adbaddd6a012b8a5",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.974Z"
+        },
+        {
+          "name": "Upload · Large",
+          "key": "3f553712d5f896fc526afc0e4f8d62e8b366f5d4",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.971Z"
+        },
+        {
+          "name": "Heart-Rate · Large",
+          "key": "3da5cdf2669da077f1d5034453e0612749524003",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.967Z"
+        },
+        {
+          "name": "Wellness · Large",
+          "key": "3d30be59c8cd17348ed7cb32fc52e131fee2362a",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.964Z"
+        },
+        {
+          "name": "Inbox · Large",
+          "key": "3a9c016eb4de73f05073158f369819a98211b677",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.961Z"
+        },
+        {
+          "name": "Chat · Large",
+          "key": "39dc898c926306534c7122aff39456dc00102cf3",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.958Z"
+        },
+        {
+          "name": "Brush · Large",
+          "key": "38be78d862daaf8b32a3870ffe2ce2160d7e073c",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.954Z"
+        },
+        {
+          "name": "Reminder-Repeating · Large",
+          "key": "38af0d2c13dba06e0b4df331abcf9225ace44e64",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.951Z"
+        },
+        {
+          "name": "DIY-Effort · Large",
+          "key": "37191ed553dcb49d8c349d4b4d85243a8432a57f",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.948Z"
+        },
+        {
+          "name": "Caret-Up · Large",
+          "key": "36cfa70826365c8092c1ac33a9e20a396ad76f3b",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.945Z"
+        },
+        {
+          "name": "Thumbs-Down-Filled · Large",
+          "key": "369e2b3d7c007fd68045b9efa9be819cbb4a7f60",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.941Z"
+        },
+        {
+          "name": "PayPal · Large",
+          "key": "35b1b7c13f7f1dad6a5fe98e2cf3973eed12bae1",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.938Z"
+        },
+        {
+          "name": "Venmo · Large",
+          "key": "35a0ccc5655296daba8f2c00716c1ec1c87f5f32",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.934Z"
+        },
+        {
+          "name": "Video · Large",
+          "key": "3520332493f812bdded2f6c3a5daade582983ee5",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.931Z"
+        },
+        {
+          "name": "Sent-Filled · Large",
+          "key": "313e1230ffa0e41bf472e359691169aa7d0920ab",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.928Z"
+        },
+        {
+          "name": "People · Large",
+          "key": "303e1cd69e024770bd66a10f17a212d0fee020ca",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.924Z"
+        },
+        {
+          "name": "Notification · Large",
+          "key": "2f80afb35a908ca848d638e844c8807db20798b3",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.921Z"
+        },
+        {
+          "name": "Toolkit · Large",
+          "key": "2f486ac351fdf29cb9e4c5546d604fe8f8256b4c",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.916Z"
+        },
+        {
+          "name": "Fullscreen · Large",
+          "key": "2f296baaef66aab4862ee2f4f610cbbfb8842991",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.912Z"
+        },
+        {
+          "name": "Caret-Left · Large",
+          "key": "2d0e8459fdb1df44afda2c643aab75951a5d3bc3",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.909Z"
+        },
+        {
+          "name": "Shrink · Large",
+          "key": "2bb326177576d538220d435c67983bc9b3aca0e0",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.905Z"
+        },
+        {
+          "name": "Code · Large",
+          "key": "279eef52c32de519aa0ceaf4f236b9c532c2c71b",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.901Z"
+        },
+        {
+          "name": "GoSite · Large",
+          "key": "2762af6897c0b2e9d0eeaf6e3f5a5951f741ff97",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.897Z"
+        },
+        {
+          "name": "Mold · Large",
+          "key": "1d4b005099435d2258bf527837bfb33766dd8feb",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.894Z"
+        },
+        {
+          "name": "Download · Large",
+          "key": "1cd3b9b106669216291d7e0ff405cea0fb288379",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.891Z"
+        },
+        {
+          "name": "Info-Filled · Large",
+          "key": "1aac90d49a102e0f8b2e822ade9e5b0fac9d903e",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.888Z"
+        },
+        {
+          "name": "Background-Check · Large",
+          "key": "1a5bed4e0cdbb99693eb613d3e94d3ee10787208",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.884Z"
+        },
+        {
+          "name": "Workiz Circle · Large",
+          "key": "19ac8d0e6007118d39e525e3acbc8b53c0e13ab3",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.880Z"
+        },
+        {
+          "name": "Plus · Large",
+          "key": "1918c9aee49345a31e9b879bf6d8653fd7df4a90",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.877Z"
+        },
+        {
+          "name": "Housecall Pro · Large",
+          "key": "16fa56f24319335d15fd9391cb941ea34b00841e",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.873Z"
+        },
+        {
+          "name": "FieldPulse · Large",
+          "key": "161ad9c7a8b7412b177c64b3e3e733083afef51a",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.866Z"
+        },
+        {
+          "name": "Book · Large",
+          "key": "13b5c7b7a135576d67ec0ad51c757faf922d5a33",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.863Z"
+        },
+        {
+          "name": "Date-Time-Filled · Large",
+          "key": "136cda5cd379b3d39b9c1a8843f8e26899c5a7f6",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.859Z"
+        },
+        {
+          "name": "Camera · Large",
+          "key": "123d5a78d2e7ee66e6289032cf98d8cca7454323",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.855Z"
+        },
+        {
+          "name": "List-Check · Large",
+          "key": "0fb587351989de0fe4509825b0484d7945b6d3f3",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.851Z"
+        },
+        {
+          "name": "Blocked-Filled · Large",
+          "key": "0f8dcf35b628a28c2e939bcd026c7c45fff949ca",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.847Z"
+        },
+        {
+          "name": "Meeting-Declined · Large",
+          "key": "0ac5434af27fedecd5740d47f46e9ae5318515e1",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.844Z"
+        },
+        {
+          "name": "Microphone · Large",
+          "key": "099a683fe77a4eedc612c0e3dd74c6fd54fe11ca",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.840Z"
+        },
+        {
+          "name": "Pinterest · Large",
+          "key": "0949756db586aa1963d5515fa3ff5ce68092c77f",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.837Z"
+        },
+        {
+          "name": "Business · Large",
+          "key": "075296b089c6f2ccfc3a55bc9cfab907a9fceb93",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.834Z"
+        },
+        {
+          "name": "Viewed · Large",
+          "key": "073c441f5ea7b1379f4782cf5a586924320760d1",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.830Z"
+        },
+        {
+          "name": "Inbox Filled · Large",
+          "key": "063a561f17551e9e3ccbc4a15e3fcfa31952fdd7",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.827Z"
+        },
+        {
+          "name": "Chart · Large",
+          "key": "05e77a91623fdc7e97c03bff3d6c3140271c7201",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.823Z"
+        },
+        {
+          "name": "Fire · Large",
+          "key": "0404a47eee642ef47ebf6079c487ac9896af7970",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.820Z"
+        },
+        {
+          "name": "Website · Large",
+          "key": "03ab61d344872d758b462521ec7bb48cf2c39e72",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.815Z"
+        },
+        {
+          "name": "Credit-Card · Large",
+          "key": "0354c88a699ea9ed2f769e79113e4eac57fad8db",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.811Z"
+        },
+        {
+          "name": "Circle-Check-Filled · Large",
+          "key": "0171f93ee051d4749d24546505594acfa1ceafc8",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.806Z"
+        },
+        {
+          "name": "Arrow-Left · Large",
+          "key": "00cc8f5c1ec16371dcb676aeba678774d1c02a3f",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.801Z"
+        },
+        {
+          "name": "Lightbulb · Large",
+          "key": "00a1aa56cdabbe4ff834088283fb7d7820eab80d",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.795Z"
+        },
+        {
+          "name": "List · Large",
+          "key": "00614afc64da601f71555d0928cb53fdf6f723dc",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:53.787Z"
+        },
+        {
+          "name": "Stroller · Large",
+          "key": "ff67d69afe1c4a5aec3afba42ce0e7a5a3f9a7e3",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:40.168Z"
+        },
+        {
+          "name": "Rocket · Large",
+          "key": "c3d1fcdcfc0a6cc30deac7d53d5265389a355263",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:40.007Z"
+        },
+        {
+          "name": "Spray-Bottle · Large",
+          "key": "953cb1053b9e9a629b5c0e70fba3bde588c9d0bc",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:39.904Z"
+        },
+        {
+          "name": "Wheelbarrow · Large",
+          "key": "862cd4754e17151d337ddc43af7b360caa8d087e",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:39.863Z"
+        },
+        {
+          "name": "Sign-Hanging · Large",
+          "key": "5716b735cea2aed477b91c4f871df7761ccb8b8f",
+          "page": "Icons",
+          "updatedAt": "2026-10-23T21:41:39.749Z"
+        }
+      ]
     },
     "annotations": {
       "unpublished": [],
@@ -653,9 +2035,10 @@
   "findings": [
     "The Pushpin Thumbprint UI Kit capture has not been taken in 78 days. Nothing is known to have changed — only that it has been long enough that nobody has checked, so re-capture it before trusting a value out of it.",
     "2 components in the catalog are no longer published. Importing by key throws at runtime:\n    Headers / Navbar / iOS\n    Platform Section",
-    "75 components in the kit changed after the capture (2026-09-22), most recently on 2026-10-20. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Navigation / Badge\n   Disclosure copy\n   iOS / Sheet / Header\n   Messager / Media modal\n   iOS / Sheet / Backdrop\n   Settings / Navigation\n   view\n   Native / Device Mock\n   Progress\n   Themed Link\n   Device template / Web\n   iOS / Sheet\n   …and 63 more",
+    "81 components in the kit changed after the capture (2026-09-22), most recently on 2026-10-23. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Messager / Media modal\n   iOS / Sheet / Backdrop\n   view\n   Themed Link\n   Star Rating / ReviewScoreSummary\n   Modal / Confirmation\n   Radio / List\n   Modal / Default\n   Star\n   Star Rating\n   Device template / Web\n   iOS / Sheet\n   …and 69 more",
     "14 styles in the catalog are no longer published. Importing by key throws at runtime:\n    text style Headings/Native/Title 7\n    text style Body/Text 1\n    text style Headings/Native/Title 5\n    text style Headings/Desktop/Title 2\n    text style Body/Text 2\n    text style Body/Text 3\n    text style Headings/Native/Title 6\n    text style Headings/Desktop/Title 3\n    text style Headings/Native/Title 8\n    text style Headings/Native/Title 3\n    ...and 4 more",
     "26 components in the Annotation Kit changed after the capture (2026-09-22), most recently on 2026-10-07. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Project status\n   Thumbnail\n   Gesture / Long press\n   Framing Cards / Hypothesis\n   Cursor / Pointer\n   Cursor / Hand\n   Gesture / Swipe / Horizontal\n   Gesture / Tap\n   Framing Cards / Establish POV\n   Framing Cards / Intro\n   Deprecated\n   Gesture / Touch\n   …and 14 more",
+    "224 components in the icon set changed after the capture (2026-09-08), most recently on 2026-10-23. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Home-Heart Icon Icon · Large\n   Info Icon · Large\n   Auto Icon · Large\n   Pets Icon · Large\n   Star-Filled Icon · Large\n   Code-Filled Icon · Large\n   Preferences Icon · Large\n   Pause-Filled Icon · Large\n   Wedding Icon · Large\n   Waves Icon · Large\n   Circle-Check Icon · Large\n   Mute-Filled Icon · Large\n   …and 212 more",
     "The content design rules have not been pulled in 31 days. Nothing is known to have changed — only that nobody has asked GitHub — so re-pull them before trusting a rule quoted out of them."
   ],
   "brief": [
@@ -663,6 +2046,7 @@
     "The Pushpin team has changed some components since this version of Pushpin; the next plugin update will carry those.",
     "The Pushpin team has changed some text styles since this version of Pushpin; the next plugin update will carry those.",
     "The Pushpin team has changed some annotation components since this version of Pushpin; the next plugin update will carry those.",
+    "The Pushpin team has changed some icons since this version of Pushpin; the next plugin update will carry those.",
     "Pushpin's copy of Thumbtack's content rules is 31 days old and may be behind; the next plugin update will carry a fresh one."
   ],
   "observedAt": "2026-10-23"
