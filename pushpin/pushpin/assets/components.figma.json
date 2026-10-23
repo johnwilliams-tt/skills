@@ -858,9 +858,9 @@
       "nodeId": "13281:21860",
       "instanceCount": 157,
       "properties": {
-        "Label": {
+        "Title": {
           "type": "TEXT",
-          "key": "Label#13281:26",
+          "key": "Title#13281:26",
           "default": "Label"
         },
         "👁️ label": {
@@ -3006,6 +3006,11 @@
           "type": "TEXT",
           "key": "Label#11234:0",
           "default": "Field label"
+        },
+        "Description": {
+          "type": "TEXT",
+          "key": "Description#40934:0",
+          "default": "Description"
         },
         "👁️ label": {
           "type": "VARIANT",
