@@ -3,17 +3,17 @@
   "source": {
     "fileKey": "VVRGrLgkPRU3vs765d5Q3r",
     "fileName": "Pushpin Thumbprint UI Kit",
-    "extractedAt": "2026-09-22",
+    "extractedAt": "2026-10-24",
     "capturedTotal": 1021,
     "publishedTotal": 1020,
-    "publishedSets": 96,
+    "publishedSets": 98,
     "unpublishedOmitted": 1,
     "iconsOmitted": 900,
     "publicKept": 116,
     "nameCollisions": [
-      "\"Headers / Tab\" is published twice — kept 13333:125848 on \"Additional components\", dropped 35574:59932 on \"Additional components\"",
-      "\"Tabs\" is published twice — kept 13333:125819 on \"Additional components\", dropped 35574:59851 on \"Additional components\"",
-      "\"Tabs\" is published twice — kept 35574:59851 on \"Additional components\", dropped 20968:83266 on \"Tabs\"",
+      "\"Headers / Tab\" is published twice — kept 13333:125848 on \"Additional Components\", dropped 35574:59932 on \"Additional Components\"",
+      "\"Tabs\" is published twice — kept 13333:125819 on \"Additional Components\", dropped 35574:59851 on \"Additional Components\"",
+      "\"Tabs\" is published twice — kept 35574:59851 on \"Additional Components\", dropped 20968:83266 on \"Tabs\"",
       "\"iOS / Sheet\" is published twice — kept 13333:131648 on \"Layouts\", dropped 13333:131632 on \"Layouts\""
     ],
     "nameStatusDisagreement": [
@@ -29,7 +29,7 @@
     "❌ Headers": {
       "key": "8f322739b21f9129cc7c22d3974077956a27855b",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "35574:59747",
       "properties": {
         "👁️ Divider": {
@@ -146,7 +146,7 @@
     "App Icons": {
       "key": "011672a9ffed6370844af6f120b3f0720e57c0f1",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13333:122559",
       "instanceCount": 0,
       "properties": {
@@ -256,7 +256,9 @@
           "type": "VARIANT",
           "key": "theme",
           "options": [
-            "alert"
+            "alert",
+            "succes",
+            "warning"
           ],
           "default": "alert"
         }
@@ -265,7 +267,7 @@
     "Bottom Navigation": {
       "key": "b939620cca9cc9892c0e34ff2e2337c0045cd24d",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13333:127154",
       "instanceCount": 63,
       "properties": {
@@ -483,7 +485,7 @@
     "Bubble / Media": {
       "key": "90886b403d572593a255ee99a401a9e67bb496f7",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "31675:40060",
       "properties": {
         "Theme": {
@@ -510,7 +512,7 @@
     "Bubble / Structure": {
       "key": "7c26792bdf3e00981a775f352feb5c2ba6fe3a48",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13333:115477",
       "instanceCount": 18,
       "properties": {
@@ -558,7 +560,7 @@
     "Bubble / Text": {
       "key": "e04ecd46a7c840007f58a33bed0e682bd3f9d4b9",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13333:115503",
       "instanceCount": 4,
       "properties": {
@@ -856,9 +858,9 @@
       "nodeId": "13281:21860",
       "instanceCount": 157,
       "properties": {
-        "Label": {
+        "Title": {
           "type": "TEXT",
-          "key": "Label#13281:26",
+          "key": "Title#13281:26",
           "default": "Label"
         },
         "👁️ label": {
@@ -1104,7 +1106,7 @@
     "Disclosure copy": {
       "key": "9cb5ae5148856c50598abd6542e1fc1c75e18212",
       "type": "COMPONENT",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "18073:12732",
       "instanceCount": 1,
       "properties": {
@@ -1218,6 +1220,56 @@
         }
       }
     },
+    "General / Footer": {
+      "key": "88aa966c84e46395b4ea55f520fc821caefd937c",
+      "type": "COMPONENT_SET",
+      "page": "Layouts",
+      "nodeId": "39939:4832",
+      "properties": {
+        "👁️ Indicator": {
+          "type": "BOOLEAN",
+          "key": "👁️ Indicator#3076:43",
+          "default": true
+        },
+        "👁️ Keypad CTA": {
+          "type": "BOOLEAN",
+          "key": "👁️ Keypad CTA#3501:15",
+          "default": true
+        },
+        "Type": {
+          "type": "VARIANT",
+          "key": "Type",
+          "options": [
+            "Actions",
+            "Navigation",
+            "Plain",
+            "Keypad [Numeric]",
+            "Keypad [Alpha]"
+          ],
+          "default": "Navigation"
+        },
+        "Actions": {
+          "type": "VARIANT",
+          "key": "Actions",
+          "options": [
+            "1 up",
+            "1 up Footnote",
+            "Split",
+            "N/A"
+          ],
+          "default": "N/A"
+        },
+        "Platform": {
+          "type": "VARIANT",
+          "key": "Platform",
+          "options": [
+            "iOS",
+            "Android"
+          ],
+          "default": "iOS"
+        }
+      }
+    },
     "Google-Plus Icon - Large": {
       "key": "9a2151f760163b9e3e37f229bcfd5048c88704f3",
       "type": "COMPONENT",
@@ -1245,7 +1297,7 @@
     "Headers": {
       "key": "3cfc372ee1f47596e532602fa7c0e269ed723aa0",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "35574:60014",
       "properties": {
         "👁️ Right": {
@@ -1285,38 +1337,10 @@
         }
       }
     },
-    "Headers / Navbar / iOS": {
-      "key": "79bee57b9ed65cab65ae394690cd5006fb02b03f",
-      "type": "COMPONENT",
-      "page": "Additional components",
-      "nodeId": "35574:59957",
-      "properties": {
-        "👁️ Icon Left": {
-          "type": "BOOLEAN",
-          "key": "👁️ Icon Left#13725:84",
-          "default": true
-        },
-        "👁️ Icon Right": {
-          "type": "BOOLEAN",
-          "key": "👁️ Icon Right#13725:85",
-          "default": true
-        },
-        "Title": {
-          "type": "TEXT",
-          "key": "Title#13725:86",
-          "default": "Title"
-        },
-        "👁️ Divider": {
-          "type": "BOOLEAN",
-          "key": "👁️ Divider#13725:93",
-          "default": false
-        }
-      }
-    },
     "Headers / Tab": {
       "key": "0346ecfd1edf4cd2ded732657ce4b4f32305fddd",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13333:125848",
       "instanceCount": 4,
       "properties": {
@@ -1605,7 +1629,7 @@
     "iOS / Smart App Banner": {
       "key": "4fe0fa4ca81b39b7d6a28fd444b3ddff8f2b7595",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13333:113878",
       "instanceCount": 0,
       "properties": {
@@ -1765,7 +1789,7 @@
     "Messager / Media modal": {
       "key": "99ccc1ff94409ce8de706af3dd67994a142c18e8",
       "type": "COMPONENT",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "20501:48138",
       "properties": {
         "isProUser": {
@@ -1796,7 +1820,7 @@
     "Messenger Elements / Composer": {
       "key": "83e7413015b6501e917d8aa7d460129cdc01abfd",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13333:124925",
       "instanceCount": 0,
       "properties": {
@@ -2201,7 +2225,7 @@
     "Native / Alphabetic Keyboard": {
       "key": "3d9055e82a656fe808cb418d926a0afcec71e1f5",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13333:119865",
       "instanceCount": 2,
       "properties": {
@@ -2268,7 +2292,7 @@
     "Native / Browser Navigation": {
       "key": "3b0cd1a159f3955d7c3a061d94773d4a5192a744",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13333:120384",
       "instanceCount": 0,
       "properties": {
@@ -2318,14 +2342,14 @@
     "Native / Device Mock": {
       "key": "6a0c19ad7edb949af0dd59a226dae696c97c309e",
       "type": "COMPONENT",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13728:146586",
       "instanceCount": 0
     },
     "Native / Indicator": {
       "key": "05182f823c3a00232c41d7724d17491dc61efd40",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13333:119664",
       "instanceCount": 13,
       "properties": {
@@ -2353,7 +2377,7 @@
     "Native / iOS / Action Sheet": {
       "key": "c1a8669dc745915c841af63b20062f20854d458d",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13333:120186",
       "instanceCount": 0,
       "properties": {
@@ -2375,7 +2399,7 @@
     "Native / iOS / Alert": {
       "key": "4b7785535bf33a17a375b094738adaa3c18f5642",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13333:119714",
       "instanceCount": 0,
       "properties": {
@@ -2417,7 +2441,7 @@
     "Native / iOS / Contextual Menu": {
       "key": "232fde9d18d74f4cd09aecd3cadaa4aa6cb98e82",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13333:120267",
       "instanceCount": 0,
       "properties": {
@@ -2438,7 +2462,7 @@
     "Native / iOS / Grouped Actions": {
       "key": "a735067100224dd9c1f53b4c0162a56c5e7ab20a",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13333:120233",
       "instanceCount": 0,
       "properties": {
@@ -2475,7 +2499,7 @@
     "Native / iOS / Grouped Table": {
       "key": "007bc7034753c733ae662c4e32c3c4cd00612190",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13333:120354",
       "instanceCount": 0,
       "properties": {
@@ -2498,7 +2522,7 @@
     "Native / iOS / Push Notification": {
       "key": "e37db50dbb8b179840ec92856fe4b0dfef9dc815",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13333:119676",
       "instanceCount": 0,
       "properties": {
@@ -2529,7 +2553,7 @@
     "Native / iOS / Table Row": {
       "key": "56a7b5e2696e77155a751ab44dcf0182e08b608c",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13333:120334",
       "instanceCount": 5,
       "properties": {
@@ -2552,7 +2576,7 @@
     "Native / Numeric Keyboard": {
       "key": "fd3d151b7e6fb6b2e21b71bc83680c0d0b7535d6",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13333:120116",
       "instanceCount": 0,
       "properties": {
@@ -2585,7 +2609,7 @@
     "Native / Status Bar": {
       "key": "cf8854ca95fea414f6532a7ea321b39190dd46d9",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13333:119467",
       "instanceCount": 39,
       "properties": {
@@ -2617,7 +2641,7 @@
     "Navigation / Badge": {
       "key": "f82914e62804bfd07271e157eb493ee1c20eee90",
       "type": "COMPONENT",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "15280:103104",
       "instanceCount": 0,
       "properties": {
@@ -2631,7 +2655,7 @@
     "Navigation / Customer": {
       "key": "30af9ad9ab2d9de1e4dcf166b27a63ebfc73b269",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13327:36799",
       "instanceCount": 10,
       "properties": {
@@ -2676,7 +2700,7 @@
     "Navigation / Customer / Category Search": {
       "key": "2fcdf3450388e453c728eea921f7427e21609104",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13327:36603",
       "instanceCount": 0,
       "properties": {
@@ -2708,7 +2732,7 @@
     "Navigation / Customer / Tabs": {
       "key": "6f20cfe9be8dbf491a205f9392f0f9b726cd8a6d",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13327:36756",
       "instanceCount": 0,
       "properties": {
@@ -2731,7 +2755,7 @@
     "Navigation / Customer / Tabs [Logged in]": {
       "key": "c658fa791323284df25162ff1c8e5a015dd658cc",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13327:36773",
       "instanceCount": 0,
       "properties": {
@@ -2755,7 +2779,7 @@
     "Navigation / Pro": {
       "key": "f7adf5ef55df8d2266ecb2e180c4b74302d7ed54",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13327:36851",
       "instanceCount": 0,
       "properties": {
@@ -2783,7 +2807,7 @@
     "Navigation / Pro / Tabs": {
       "key": "939320af4fadc2432b1e9a7a26446dcee1f6f3e6",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13327:36706",
       "instanceCount": 1,
       "properties": {
@@ -2810,7 +2834,7 @@
     "Navigation / Tab": {
       "key": "2c784f3ab43bbb96de6f34aedbdf9aab41e3cebd",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13327:36684",
       "instanceCount": 0,
       "properties": {
@@ -2896,19 +2920,6 @@
         "IconRight"
       ]
     },
-    "Platform Section": {
-      "key": "17673a78249d41fbe61665290da899d7855232c6",
-      "type": "COMPONENT",
-      "page": "💠 Local components",
-      "nodeId": "35184:30157",
-      "properties": {
-        "Notes": {
-          "type": "BOOLEAN",
-          "key": "Notes#35184:242",
-          "default": false
-        }
-      }
-    },
     "Popovers": {
       "key": "14cb5072dcc07ea9dbaf137060572146d03b4fda",
       "type": "COMPONENT_SET",
@@ -2959,7 +2970,7 @@
     "Progress": {
       "key": "44ad4404090223b122f7e55f7b6fccadea2bc2d7",
       "type": "COMPONENT",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "18412:46469",
       "instanceCount": 13
     },
@@ -2995,6 +3006,11 @@
           "type": "TEXT",
           "key": "Label#11234:0",
           "default": "Field label"
+        },
+        "Description": {
+          "type": "TEXT",
+          "key": "Description#40934:0",
+          "default": "Description"
         },
         "👁️ label": {
           "type": "VARIANT",
@@ -3186,7 +3202,7 @@
     "Settings / Navigation": {
       "key": "89d92172c1d3386374dbf315c362e70bc7514cc6",
       "type": "COMPONENT",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13327:112055",
       "instanceCount": 1,
       "children": [
@@ -3196,7 +3212,7 @@
     "Settings / Navigation / Option": {
       "key": "90e19f84ae4b563432355161f05ef44bb1642e5c",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13327:112041",
       "instanceCount": 0,
       "properties": {
@@ -3223,7 +3239,7 @@
     "Settings / Navigation / Options": {
       "key": "4dbd6fb1e35ab9808d95c356c630d1d6da3850cc",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13327:112059",
       "instanceCount": 0,
       "properties": {
@@ -3248,7 +3264,7 @@
     "Settings / Option": {
       "key": "cf79c977180c50030723a7d699e0df119bcb8575",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13327:112102",
       "instanceCount": 1,
       "properties": {
@@ -3357,7 +3373,7 @@
     "Star Rating / ReviewScoreSummary": {
       "key": "ffcab530279d1ac112077e913697bf646f7378c6",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "11429:2411",
       "instanceCount": 17,
       "properties": {
@@ -3402,7 +3418,7 @@
     "Stripe payment / Card Element Only": {
       "key": "ef237a236eb70439e1323ad23043fc9b047332c9",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13333:129101",
       "instanceCount": 68,
       "properties": {
@@ -3490,7 +3506,7 @@
     "Tabs": {
       "key": "15314a533334d9410e275a416ae210ccab747ef6",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13333:125819",
       "instanceCount": 2,
       "properties": {
@@ -3642,7 +3658,7 @@
         "innerLeft": {
           "type": "BOOLEAN",
           "key": "innerLeft#13232:5",
-          "default": false
+          "default": true
         },
         "innerRight": {
           "type": "BOOLEAN",
@@ -3731,6 +3747,50 @@
       "children": [
         "Button"
       ]
+    },
+    "Tip": {
+      "key": "b6f0e083a187a826129131250ebc152d57156c83",
+      "type": "COMPONENT_SET",
+      "page": "Tip",
+      "nodeId": "21085:202583",
+      "properties": {
+        "showMoreAction": {
+          "type": "BOOLEAN",
+          "key": "showMoreAction#4128:0",
+          "default": true
+        },
+        "text": {
+          "type": "TEXT",
+          "key": "text#4272:0",
+          "default": "Hello and thank you for looking into my profile. I have 15 years of maintenance/handyman experience. I started at the young age of 16 helping my step dad with fixes and additions on my moms 5 unit property. I have since worked in new construction, maintenance for high end hotels like Marriott and Hilton, high end apartment complexes."
+        },
+        "color": {
+          "type": "VARIANT",
+          "key": "color",
+          "options": [
+            "Blue"
+          ],
+          "default": "Blue"
+        },
+        "showDismiss": {
+          "type": "VARIANT",
+          "key": "showDismiss",
+          "options": [
+            "false",
+            "true"
+          ],
+          "default": "false"
+        },
+        "State": {
+          "type": "VARIANT",
+          "key": "State",
+          "options": [
+            "Collapsed",
+            "Expanded"
+          ],
+          "default": "Collapsed"
+        }
+      }
     },
     "Toast": {
       "key": "709e37510c3bea56b902e8206136d4ff4a265a65",
@@ -3847,7 +3907,7 @@
     "Web Browers ": {
       "key": "5f54748d344aa1d937542e650098daf23ae18771",
       "type": "COMPONENT_SET",
-      "page": "Additional components",
+      "page": "Additional Components",
       "nodeId": "13333:114663",
       "instanceCount": 0,
       "properties": {
