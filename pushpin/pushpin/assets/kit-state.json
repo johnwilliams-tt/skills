@@ -2033,21 +2033,21 @@
     }
   },
   "findings": [
-    "The Pushpin Thumbprint UI Kit capture has not been taken in 79 days. Nothing is known to have changed — only that it has been long enough that nobody has checked, so re-capture it before trusting a value out of it.",
+    "The Pushpin Thumbprint UI Kit capture has not been taken in 80 days. Nothing is known to have changed — only that it has been long enough that nobody has checked, so re-capture it before trusting a value out of it.",
     "2 components in the catalog are no longer published. Importing by key throws at runtime:\n    Headers / Navbar / iOS\n    Platform Section",
     "81 components in the kit changed after the capture (2026-09-22), most recently on 2026-10-23. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Messager / Media modal\n   iOS / Sheet / Backdrop\n   view\n   Themed Link\n   Star Rating / ReviewScoreSummary\n   Modal / Confirmation\n   Radio / List\n   Modal / Default\n   Star\n   Star Rating\n   Device template / Web\n   iOS / Sheet\n   …and 69 more",
     "14 styles in the catalog are no longer published. Importing by key throws at runtime:\n    text style Headings/Native/Title 7\n    text style Body/Text 1\n    text style Headings/Native/Title 5\n    text style Headings/Desktop/Title 2\n    text style Body/Text 2\n    text style Body/Text 3\n    text style Headings/Native/Title 6\n    text style Headings/Desktop/Title 3\n    text style Headings/Native/Title 8\n    text style Headings/Native/Title 3\n    ...and 4 more",
     "26 components in the Annotation Kit changed after the capture (2026-09-22), most recently on 2026-10-07. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Project status\n   Thumbnail\n   Gesture / Long press\n   Framing Cards / Hypothesis\n   Cursor / Pointer\n   Cursor / Hand\n   Gesture / Swipe / Horizontal\n   Gesture / Tap\n   Framing Cards / Establish POV\n   Framing Cards / Intro\n   Deprecated\n   Gesture / Touch\n   …and 14 more",
     "224 components in the icon set changed after the capture (2026-09-08), most recently on 2026-10-23. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Home-Heart Icon Icon · Large\n   Info Icon · Large\n   Auto Icon · Large\n   Pets Icon · Large\n   Star-Filled Icon · Large\n   Code-Filled Icon · Large\n   Preferences Icon · Large\n   Pause-Filled Icon · Large\n   Wedding Icon · Large\n   Waves Icon · Large\n   Circle-Check Icon · Large\n   Mute-Filled Icon · Large\n   …and 212 more",
-    "The content design rules have not been pulled in 32 days. Nothing is known to have changed — only that nobody has asked GitHub — so re-pull them before trusting a rule quoted out of them."
+    "The content design rules have not been pulled in 33 days. Nothing is known to have changed — only that nobody has asked GitHub — so re-pull them before trusting a rule quoted out of them."
   ],
   "brief": [
-    "Pushpin's copy of the Pushpin kit is 79 days old and may be behind; the next plugin update will carry a fresh one.",
+    "Pushpin's copy of the Pushpin kit is 80 days old and may be behind; the next plugin update will carry a fresh one.",
     "The Pushpin team has changed some components since this version of Pushpin; the next plugin update will carry those.",
     "The Pushpin team has changed some text styles since this version of Pushpin; the next plugin update will carry those.",
     "The Pushpin team has changed some annotation components since this version of Pushpin; the next plugin update will carry those.",
     "The Pushpin team has changed some icons since this version of Pushpin; the next plugin update will carry those.",
-    "Pushpin's copy of Thumbtack's content rules is 32 days old and may be behind; the next plugin update will carry a fresh one."
+    "Pushpin's copy of Thumbtack's content rules is 33 days old and may be behind; the next plugin update will carry a fresh one."
   ],
-  "observedAt": "2026-10-24"
+  "observedAt": "2026-10-25"
 }
