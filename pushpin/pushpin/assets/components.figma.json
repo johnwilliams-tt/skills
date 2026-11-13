@@ -4,11 +4,11 @@
     "fileKey": "VVRGrLgkPRU3vs765d5Q3r",
     "fileName": "Pushpin Thumbprint UI Kit",
     "extractedAt": "2026-11-13",
-    "capturedTotal": 1021,
-    "publishedTotal": 1020,
+    "capturedTotal": 1045,
+    "publishedTotal": 1044,
     "publishedSets": 98,
     "unpublishedOmitted": 1,
-    "iconsOmitted": 900,
+    "iconsOmitted": 924,
     "publicKept": 116,
     "nameCollisions": [
       "\"Headers / Tab\" is published twice — kept 13333:125848 on \"Additional Components\", dropped 35574:59932 on \"Additional Components\"",
@@ -1786,19 +1786,6 @@
         }
       }
     },
-    "Messager / Media modal": {
-      "key": "99ccc1ff94409ce8de706af3dd67994a142c18e8",
-      "type": "COMPONENT",
-      "page": "Additional Components",
-      "nodeId": "20501:48138",
-      "properties": {
-        "isProUser": {
-          "type": "BOOLEAN",
-          "key": "isProUser#20602:0",
-          "default": true
-        }
-      }
-    },
     "Messager Elements / Composer / Image": {
       "key": "8f949c6b838afda6fb34d3e259e7d9dd9348851b",
       "type": "COMPONENT",
@@ -1814,6 +1801,19 @@
           "type": "BOOLEAN",
           "key": "isVideo#31658:16",
           "default": false
+        }
+      }
+    },
+    "Messenger / Media modal": {
+      "key": "99ccc1ff94409ce8de706af3dd67994a142c18e8",
+      "type": "COMPONENT",
+      "page": "Additional Components",
+      "nodeId": "20501:48138",
+      "properties": {
+        "isProUser": {
+          "type": "BOOLEAN",
+          "key": "isProUser#20602:0",
+          "default": true
         }
       }
     },
