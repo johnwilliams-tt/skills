@@ -37,7 +37,73 @@
           "name": "Messager / Media modal",
           "key": "99ccc1ff94409ce8de706af3dd67994a142c18e8",
           "page": "Additional components",
-          "updatedAt": "2026-10-23T21:41:39.914Z"
+          "updatedAt": "2026-11-13T21:39:03.928Z"
+        },
+        {
+          "name": "Native / iOS / Push Notification",
+          "key": "e37db50dbb8b179840ec92856fe4b0dfef9dc815",
+          "page": "Additional components",
+          "updatedAt": "2026-11-13T21:39:03.655Z"
+        },
+        {
+          "name": "Device template / Web",
+          "key": "a2afd87ef9a0c3fb39fd4ca027aeeea4e31b8060",
+          "page": "Layouts",
+          "updatedAt": "2026-11-13T21:39:03.652Z"
+        },
+        {
+          "name": "iOS / Sheet",
+          "key": "972cc358b317396273e7e170662c4d27972d546d",
+          "page": "Layouts",
+          "updatedAt": "2026-11-13T21:39:03.647Z"
+        },
+        {
+          "name": "Device template / Native",
+          "key": "9517010b8ef0ebd6a0a1fd9a48399233abda5785",
+          "page": "Layouts",
+          "updatedAt": "2026-11-13T21:39:03.642Z"
+        },
+        {
+          "name": "Bubble / Media",
+          "key": "90886b403d572593a255ee99a401a9e67bb496f7",
+          "page": "Additional components",
+          "updatedAt": "2026-11-13T21:39:03.639Z"
+        },
+        {
+          "name": "Messenger Elements / Composer",
+          "key": "83e7413015b6501e917d8aa7d460129cdc01abfd",
+          "page": "Additional components",
+          "updatedAt": "2026-11-13T21:39:03.634Z"
+        },
+        {
+          "name": "Bubble / Structure",
+          "key": "7c26792bdf3e00981a775f352feb5c2ba6fe3a48",
+          "page": "Additional components",
+          "updatedAt": "2026-11-13T21:39:03.629Z"
+        },
+        {
+          "name": "Input Row",
+          "key": "506a18c60761d0371cd1752f2a797a05272ef189",
+          "page": "Input Row",
+          "updatedAt": "2026-11-13T21:39:03.605Z"
+        },
+        {
+          "name": "Icon Button",
+          "key": "f78f3a616236692e3c921a2003c2ea2e54a787e8",
+          "page": "Icon Button",
+          "updatedAt": "2026-11-13T21:38:56.769Z"
+        },
+        {
+          "name": "Native / iOS / Action Sheet",
+          "key": "c1a8669dc745915c841af63b20062f20854d458d",
+          "page": "Additional components",
+          "updatedAt": "2026-11-13T21:38:56.764Z"
+        },
+        {
+          "name": "Carousel",
+          "key": "68271ee1dde47698f5a4f161dcb464aa7181e5d5",
+          "page": "Carousel",
+          "updatedAt": "2026-11-13T21:38:56.758Z"
         },
         {
           "name": "iOS / Sheet / Backdrop",
@@ -94,24 +160,6 @@
           "updatedAt": "2026-10-23T21:41:38.839Z"
         },
         {
-          "name": "Device template / Web",
-          "key": "a2afd87ef9a0c3fb39fd4ca027aeeea4e31b8060",
-          "page": "Layouts",
-          "updatedAt": "2026-10-23T21:41:38.835Z"
-        },
-        {
-          "name": "iOS / Sheet",
-          "key": "972cc358b317396273e7e170662c4d27972d546d",
-          "page": "Layouts",
-          "updatedAt": "2026-10-23T21:41:38.831Z"
-        },
-        {
-          "name": "Messenger Elements / Composer",
-          "key": "83e7413015b6501e917d8aa7d460129cdc01abfd",
-          "page": "Additional components",
-          "updatedAt": "2026-10-23T21:41:38.827Z"
-        },
-        {
           "name": "Checkbox / List",
           "key": "5cdf904a22223333be6d10d77bf2b5b455b7e0ec",
           "page": "Checkbox",
@@ -122,12 +170,6 @@
           "key": "564c5653745f5a1c069e48f49d66b7ca57a11f04",
           "page": "Modal",
           "updatedAt": "2026-10-23T21:41:38.819Z"
-        },
-        {
-          "name": "Input Row",
-          "key": "506a18c60761d0371cd1752f2a797a05272ef189",
-          "page": "Input Row",
-          "updatedAt": "2026-10-23T21:41:38.815Z"
         },
         {
           "name": "iOS / Smart App Banner",
@@ -172,12 +214,6 @@
           "updatedAt": "2026-10-23T21:41:22.651Z"
         },
         {
-          "name": "Device template / Native",
-          "key": "9517010b8ef0ebd6a0a1fd9a48399233abda5785",
-          "page": "Layouts",
-          "updatedAt": "2026-10-23T21:41:22.644Z"
-        },
-        {
           "name": "Web Browers / Headers",
           "key": "52860889d2d0c724f5ac57632b7b2714d99839af",
           "page": "Layouts",
@@ -194,12 +230,6 @@
           "key": "ef237a236eb70439e1323ad23043fc9b047332c9",
           "page": "Additional components",
           "updatedAt": "2026-10-23T21:41:12.057Z"
-        },
-        {
-          "name": "Bubble / Structure",
-          "key": "7c26792bdf3e00981a775f352feb5c2ba6fe3a48",
-          "page": "Additional components",
-          "updatedAt": "2026-10-23T21:41:12.053Z"
         },
         {
           "name": "Badge",
@@ -292,12 +322,6 @@
           "updatedAt": "2026-10-20T17:33:58.758Z"
         },
         {
-          "name": "Bubble / Media",
-          "key": "90886b403d572593a255ee99a401a9e67bb496f7",
-          "page": "Additional components",
-          "updatedAt": "2026-10-20T17:33:58.753Z"
-        },
-        {
           "name": "Navigation / Customer / Tabs",
           "key": "6f20cfe9be8dbf491a205f9392f0f9b726cd8a6d",
           "page": "Additional components",
@@ -370,12 +394,6 @@
           "updatedAt": "2026-10-20T17:33:34.798Z"
         },
         {
-          "name": "Native / iOS / Push Notification",
-          "key": "e37db50dbb8b179840ec92856fe4b0dfef9dc815",
-          "page": "Additional components",
-          "updatedAt": "2026-10-20T17:33:34.789Z"
-        },
-        {
           "name": "Bubble / Text",
           "key": "e04ecd46a7c840007f58a33bed0e682bd3f9d4b9",
           "page": "Additional components",
@@ -412,12 +430,6 @@
           "updatedAt": "2026-10-20T17:33:34.744Z"
         },
         {
-          "name": "Native / iOS / Action Sheet",
-          "key": "c1a8669dc745915c841af63b20062f20854d458d",
-          "page": "Additional components",
-          "updatedAt": "2026-10-20T17:33:15.335Z"
-        },
-        {
           "name": "Bottom Navigation",
           "key": "b939620cca9cc9892c0e34ff2e2337c0045cd24d",
           "page": "Additional components",
@@ -428,12 +440,6 @@
           "key": "a735067100224dd9c1f53b4c0162a56c5e7ab20a",
           "page": "Additional components",
           "updatedAt": "2026-10-20T17:33:15.324Z"
-        },
-        {
-          "name": "Carousel",
-          "key": "68271ee1dde47698f5a4f161dcb464aa7181e5d5",
-          "page": "Carousel",
-          "updatedAt": "2026-10-20T17:33:15.318Z"
         },
         {
           "name": "Native / iOS / Table Row",
@@ -488,12 +494,6 @@
           "key": "45ed6a8a6d0282159b28d39c28656998caf035f2",
           "page": "Link",
           "updatedAt": "2026-10-05T20:41:42.125Z"
-        },
-        {
-          "name": "Icon Button",
-          "key": "f78f3a616236692e3c921a2003c2ea2e54a787e8",
-          "page": "Icon Button",
-          "updatedAt": "2026-10-05T20:41:34.764Z"
         },
         {
           "name": "Modal / Factory / Close action",
@@ -2035,7 +2035,7 @@
   "findings": [
     "The Pushpin Thumbprint UI Kit capture has not been taken in 99 days. Nothing is known to have changed — only that it has been long enough that nobody has checked, so re-capture it before trusting a value out of it.",
     "2 components in the catalog are no longer published. Importing by key throws at runtime:\n    Headers / Navbar / iOS\n    Platform Section",
-    "81 components in the kit changed after the capture (2026-09-22), most recently on 2026-10-23. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Messager / Media modal\n   iOS / Sheet / Backdrop\n   view\n   Themed Link\n   Star Rating / ReviewScoreSummary\n   Modal / Confirmation\n   Radio / List\n   Modal / Default\n   Star\n   Star Rating\n   Device template / Web\n   iOS / Sheet\n   …and 69 more",
+    "81 components in the kit changed after the capture (2026-09-22), most recently on 2026-11-13. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Messenger / Media modal\n   Native / iOS / Push Notification\n   Device template / Web\n   iOS / Sheet\n   Device template / Native\n   Bubble / Media\n   Messenger Elements / Composer\n   Bubble / Structure\n   Input Row\n   Icon Button\n   Native / iOS / Action Sheet\n   Carousel\n   …and 69 more",
     "14 styles in the catalog are no longer published. Importing by key throws at runtime:\n    text style Headings/Native/Title 7\n    text style Body/Text 1\n    text style Headings/Native/Title 5\n    text style Headings/Desktop/Title 2\n    text style Body/Text 2\n    text style Body/Text 3\n    text style Headings/Native/Title 6\n    text style Headings/Desktop/Title 3\n    text style Headings/Native/Title 8\n    text style Headings/Native/Title 3\n    ...and 4 more",
     "26 components in the Annotation Kit changed after the capture (2026-09-22), most recently on 2026-10-07. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Project status\n   Thumbnail\n   Gesture / Long press\n   Framing Cards / Hypothesis\n   Cursor / Pointer\n   Cursor / Hand\n   Gesture / Swipe / Horizontal\n   Gesture / Tap\n   Framing Cards / Establish POV\n   Framing Cards / Intro\n   Deprecated\n   Gesture / Touch\n   …and 14 more",
     "224 components in the icon set changed after the capture (2026-09-08), most recently on 2026-10-23. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Home-Heart Icon Icon · Large\n   Info Icon · Large\n   Auto Icon · Large\n   Pets Icon · Large\n   Star-Filled Icon · Large\n   Code-Filled Icon · Large\n   Preferences Icon · Large\n   Pause-Filled Icon · Large\n   Wedding Icon · Large\n   Waves Icon · Large\n   Circle-Check Icon · Large\n   Mute-Filled Icon · Large\n   …and 212 more",
