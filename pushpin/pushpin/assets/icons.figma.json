@@ -6,12 +6,12 @@
     "libraryKey": "lk-003ce4846b4638268325b33ad167ece0cd390787a2782f1949cee2e38ca2e7719472f0968d45b4c2f0db9b35ec1820babadcf97a9f40fdd6cc84ba22f7b10a80",
     "page": "Icons",
     "pageId": "2:1",
-    "extractedAt": "2026-09-08",
-    "capturedTotal": 900,
-    "offPageOmitted": 0,
+    "extractedAt": "2026-11-14",
+    "capturedTotal": 924,
+    "offPageOmitted": 4,
     "duplicateOmitted": 1,
-    "publicKept": 227,
-    "keyCount": 899
+    "publicKept": 232,
+    "keyCount": 919
   },
   "sizes": {
     "Tiny": 14,
@@ -27,7 +27,7 @@
     "home-care": 24,
     "inputs": 9,
     "meta-category": 20,
-    "navigation": 30,
+    "navigation": 35,
     "notification-alerts": 10,
     "social": 21
   },
@@ -444,6 +444,15 @@
         "Small": "962528ee62f6f6c69dc577d78ecedede855ef801",
         "Medium": "d941c7c3521e072f941ae2118e59c2458e6b8224",
         "Large": "69e7d47941751234090c445c25d4bf9bfc5d465b"
+      }
+    },
+    "Circle-Percent": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "2c50faa3260a8aafd380a4ddb18d8f89fe428690",
+        "Small": "84b1b8fd223eb8141ed38b7058615c17033d6fb8",
+        "Medium": "6caaa1451b82633a68b5e7f1143935f4a75dd4df",
+        "Large": "76fa0bf8a473ad584334fe4a5fb71c8846562a79"
       }
     },
     "Close": {
@@ -1191,6 +1200,15 @@
         "Large": "099a683fe77a4eedc612c0e3dd74c6fd54fe11ca"
       }
     },
+    "Microphone-Off": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "89d9b3f2f2583d4ffe74ce43348fdb1548a4993c",
+        "Small": "94d2d34d08ff41e6a4b5c2f5948352f1e00096d4",
+        "Medium": "2703d83615f4e54ce1d3b9432accc55c9142aa72",
+        "Large": "85d5547f662564b7318fcee2fa705a509ff75c1d"
+      }
+    },
     "Minus": {
       "category": "content-actions",
       "keys": {
@@ -1398,6 +1416,15 @@
         "Large": "808ca2e6dfb9b0c9eaa1b709055ecc8557e0c44b"
       }
     },
+    "Playback-Stop": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "3db3e7e70115ab31d87b4c413450f08a9ffa8aa6",
+        "Small": "35862b8e73fc5d4c3c48cebe6383b5f7a9d3f095",
+        "Medium": "d059d9f9d30032313983e4e9b514c6744809e28c",
+        "Large": "0922b692105d65af6bf92d7232fd847d05f6720a"
+      }
+    },
     "Plus": {
       "category": "content-actions",
       "keys": {
@@ -1486,6 +1513,15 @@
         "Small": "de179cd38fe88ec9ad5512eb5a2c3aa9339a93dc",
         "Medium": "4c1e4cdcced7e11890332c19c01d0bd0cf6e785f",
         "Large": "5a0796758ab491d78016b4a31ac9260cbbcf2257"
+      }
+    },
+    "Quotes": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "fb3f8a1ce6f135769566115a0536c6621bc744a1",
+        "Small": "b63303ab24d1d769bc13f5afd7d01372cef1b095",
+        "Medium": "d05ada9de2626ebf85f5e88b851a30e4f4db704c",
+        "Large": "997babe68858f9e3794dccad2e261b87ca243cbf"
       }
     },
     "Refresh": {
@@ -1747,6 +1783,15 @@
         "Small": "d27adcbca85c36679d4fa72965892d6a27c6be69",
         "Medium": "df0e6a6564b60bef27c5452ccaeed91027cfd2e5",
         "Large": "a98f0ec1f398bb8c947a4acd90ec8c74a7fedb2c"
+      }
+    },
+    "Starburst": {
+      "category": "navigation",
+      "keys": {
+        "Tiny": "a53092069e956cb986efb089613e6f428b020fcf",
+        "Small": "0d3ffcc8fe81c15492fe89517f284e12a574e3ef",
+        "Medium": "ee5e56c2c854eaf7b95daccb99e5a5c807ca8f3e",
+        "Large": "2757739b5099e5bcc04848b2e9f63fb7ea9d45fd"
       }
     },
     "Store": {
