@@ -47,6 +47,11 @@
 # a decision with the design system owner, and release.mjs refuses such an entry
 # without `--allow-breaking`. The distilled assets go to a branch and a PR
 # instead, so the decision is made on a diff rather than reconstructed later.
+#
+# Both hand-offs, the breaking PR and the tokens issue, are assigned to
+# PUSHPIN_MAINTAINER and re-raised by a mentioning comment every ESCALATE_DAYS
+# while they stay open, because a PR or issue nobody is assigned to is one
+# nobody is told about.
 
 name: Pushpin release
 
@@ -93,6 +98,11 @@ jobs:
       WRITE: ${{ inputs.dry_run != true && github.ref == 'refs/heads/main' }}
       FORCE: ${{ inputs.force == true }}
       GH_TOKEN: ${{ github.token }}
+      # Who a breaking PR or a tokens issue is assigned to, and who the
+      # escalation comments mention. Set the PUSHPIN_MAINTAINER repository
+      # variable to hand it to someone other than the repo owner.
+      PUSHPIN_MAINTAINER: ${{ vars.PUSHPIN_MAINTAINER || github.repository_owner }}
+      ESCALATE_DAYS: 7
 
     steps:
       - uses: actions/checkout@v7
@@ -555,6 +565,8 @@ jobs:
           if [ -n "$number" ]; then
             git push origin "$branch"
             gh pr comment "$number" --body-file "$WORK/report.md"
+            gh pr edit "$number" --add-assignee "$PUSHPIN_MAINTAINER" ||
+              echo "::warning::Could not assign PR #$number to $PUSHPIN_MAINTAINER."
             echo "Updated PR #$number on $branch."
             exit 0
           fi
@@ -596,6 +608,10 @@ jobs:
               "${{ github.server_url }}/${{ github.repository }}/compare/main...$branch"
             exit 1
           fi
+          # Separate from the create so a reviewer GitHub refuses (not a
+          # collaborator, say) costs the request, not the PR.
+          gh pr edit "$branch" --add-assignee "$PUSHPIN_MAINTAINER" --add-reviewer "$PUSHPIN_MAINTAINER" ||
+            echo "::warning::Could not assign or request review from $PUSHPIN_MAINTAINER on the PR for $branch."
 
       - name: Report the breaking diff (dry run)
         if: steps.detect.outputs.proceed == 'true' && steps.diff.outputs.breaking == 'true' && env.WRITE != 'true'
@@ -701,13 +717,58 @@ jobs:
 
           number=$(gh issue list --label pushpin-tokens --state open --json number --jq '.[0].number')
           if [ -n "$number" ]; then
-            gh issue edit "$number" --body-file "$WORK/issue-body.md"
+            gh issue edit "$number" --body-file "$WORK/issue-body.md" --add-assignee "$PUSHPIN_MAINTAINER"
             echo "Updated issue #$number."
           else
             gh issue create --label pushpin-tokens \
               --title "Tokens need a human capture" \
+              --assignee "$PUSHPIN_MAINTAINER" \
               --body-file "$WORK/issue-body.md"
           fi
+
+      # Assignment notifies once. After that the PR gains bot commits and the
+      # issue has its body rewritten, and neither notifies anyone, which is how
+      # a breaking PR and the tokens issue each sat open for two months. A
+      # comment that mentions the maintainer does notify, so each open item gets
+      # one every ESCALATE_DAYS, counted from the last such comment, or from
+      # when it opened. Runs whether or not this hour found anything, because
+      # waiting is the problem it exists for.
+      - name: Escalate what has waited too long
+        if: ${{ !cancelled() && env.WRITE == 'true' }}
+        run: |
+          marker='<!-- pushpin-escalation -->'
+          now=$(date -u +%s)
+          limit=$(( ESCALATE_DAYS * 86400 ))
+
+          escalate() {
+            local kind=$1 number=$2 created=$3 what=$4
+            local last since days
+            last=$(gh api "repos/${{ github.repository }}/issues/$number/comments" --paginate \
+              --jq ".[] | select(.body | contains(\"$marker\")) | .created_at" | tail -n 1)
+            since=${last:-$created}
+            if [ $(( now - $(date -u -d "$since" +%s) )) -lt "$limit" ]; then
+              return 0
+            fi
+            days=$(( (now - $(date -u -d "$created" +%s)) / 86400 ))
+            printf '%s\n@%s this has been open for %s days. %s Until it is resolved every install stays on the last release, however far the kit moves.\n' \
+              "$marker" "$PUSHPIN_MAINTAINER" "$days" "$what" > "$WORK/escalation.md"
+            gh "$kind" comment "$number" --body-file "$WORK/escalation.md"
+            echo "Escalated $kind #$number ($days days open)."
+          }
+
+          mkdir -p "$WORK"
+          gh pr list --label pushpin-breaking --state open --json number,createdAt \
+            --jq '.[] | "\(.number) \(.createdAt)"' |
+            while read -r number created; do
+              escalate pr "$number" "$created" \
+                "The kit made a breaking change, and it needs a decision and a release on this branch (see the description)."
+            done
+          gh issue list --label pushpin-tokens --state open --json number,createdAt \
+            --jq '.[] | "\(.number) \(.createdAt)"' |
+            while read -r number created; do
+              escalate issue "$number" "$created" \
+                "The kit moved somewhere only a plugin capture can follow; the steps are in the description."
+            done
 
       - name: Save the distilled assets (dry run)
         if: always() && env.WRITE != 'true' && steps.detect.outputs.proceed == 'true'

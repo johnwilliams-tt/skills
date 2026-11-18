@@ -107,7 +107,11 @@ scripts and released through `release.mjs` when the diff is clean; a Breaking
 diff goes to a branch and a PR labelled `pushpin-breaking` for the decision in
 step 4 below; a moved style, a tokens capture past `--max-age`, or a spec page
 whose bound variables REST cannot name opens one issue labelled `pushpin-tokens`
-for the captures only the plugin can take. The token lives there as the
+for the captures only the plugin can take. Both are assigned to the
+`PUSHPIN_MAINTAINER` repository variable (the repo owner when it is unset), the PR
+with a review request, and while either stays open the workflow comments on it
+every seven days, mentioning that person: the body rewrites and bot commits in
+between notify nobody. The token lives there as the
 `FIGMA_TOKEN` repository secret, which is the only copy that needs to exist:
 consumers of the plugin never hold one, and a maintainer only needs a local token
 to take a capture.
