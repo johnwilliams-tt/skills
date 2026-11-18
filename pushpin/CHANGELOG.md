@@ -17,6 +17,44 @@ Changes are grouped the way `diff.mjs` classifies them:
 An entry about the plugin rather than the capture adds **Fixed** for a bug in
 the toolchain, which `diff.mjs` has no category for.
 
+## 0.23.10 — 2026-11-18
+
+Thumbtack Rise reaches every project. The stylesheet named the face and nothing
+supplied it, so a machine without Rise installed rendered every prototype in
+the system fallback. The plugin still contains no copy: this repository is
+public and the font is licensed from &Walsh, so it is downloaded from
+Thumbtack's private repositories with each person's own GitHub login.
+
+Re-run `init --write --force` on an existing project: `pushpin.css` changed, so
+its `cssHash` no longer matches and session start reports it as behind.
+
+**Added**
+
+- **`pushpin.css` opens with an `@font-face`** for the variable face, weights
+  291–836, loading `fonts/ThumbtackRiseVF.woff2` relative to the stylesheet and
+  falling back to an installed Rise, then to the system stack.
+- **`init --write` downloads that file beside the stylesheet**, from
+  `thumbtack/company-context-layer`, and on macOS installs the same variable
+  face as a TTF into `~/Library/Fonts` from `thumbtack/ios` when no Rise is
+  installed, which is what Figma's desktop app renders with. Both are pinned by
+  git blob sha and refused if the bytes do not match.
+  [lib/font.mjs](pushpin/scripts/lib/font.mjs) holds the pins.
+- **Without GitHub access**, `init` names the reason and the Brand Asset
+  Library's Drive folder. Its OTFs, downloaded into `~/Downloads` loose, in a
+  folder, or as the zip, are installed on the next run.
+- **`setup.mjs --ready` reports a Mac without Rise** as a `fix:` line,
+  `node scripts/lib/font.mjs --install`, and **`--verify` reports a project
+  without its font file** as a note with the init remedy.
+
+**Fixed**
+
+- **The pre-commit hook rebuilds `DESIGN.md`, `design.json` and the manifest
+  after it bumps the version.** Both files name the version, so a bump that
+  stopped at the manifests left `build-design --check` red.
+- **`verify.mjs` reads the `:root` block from where it starts.** It took the
+  first closing brace in the file, which an `@font-face` above `:root` would
+  have turned into an empty block.
+
 ## 0.23.9 — 2026-11-18
 
 The token capture 0.23.8 left behind, closing

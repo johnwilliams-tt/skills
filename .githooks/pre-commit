@@ -60,6 +60,12 @@ published=$(version_in "$upstream")
 if [ -n "$published" ] && [ "$working" = "$published" ]; then
   node "$SYNC" patch >/dev/null || exit 0
   echo "pre-commit: $working was already published; bumped to $(version_in "")."
+  # DESIGN.md and design.json name the version, and the manifest hashes them,
+  # so a bump that stops at the manifests leaves build-design --check red.
+  ASSETS="$PLUGIN/$PLUGIN/assets"
+  node "$PLUGIN/$PLUGIN/scripts/build-design.mjs" >/dev/null &&
+    node "$PLUGIN/$PLUGIN/scripts/manifest.mjs" >/dev/null &&
+    git add -- "$ASSETS/DESIGN.md" "$ASSETS/design.json" "$ASSETS/manifest.json"
 else
   node "$SYNC" >/dev/null || exit 0
 fi
