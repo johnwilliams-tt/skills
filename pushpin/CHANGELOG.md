@@ -17,6 +17,93 @@ Changes are grouped the way `diff.mjs` classifies them:
 An entry about the plugin rather than the capture adds **Fixed** for a bug in
 the toolchain, which `diff.mjs` has no category for.
 
+## 0.23.8 — 2026-11-18
+
+Ships the kit re-capture merged in
+[#6](https://github.com/johnwilliams-tt/skills/pull/6), which reached main
+without a release, together with a fresh component spec read taken 2026-11-18.
+The spec read clears the coverage block 0.23.7 left at 124 catalog names: it now
+counts 116 of 116, and the three names that left the catalog leave the specs
+with it. Three things fail for consumers. Fourteen text styles are no longer
+published in the kit — Headings/Native/Title 1-8, Headings/Desktop/Title 1-3 and
+Body/Text 1-3 — and importing any of them by key throws. Headers / Navbar / iOS
+and Platform Section left the catalog. Messager / Media modal is now Messenger /
+Media modal, which appears below as one removal and one addition; anything
+naming the old spelling fails. Tokens were not re-captured and still date from
+2026-08-06; see [#2](https://github.com/johnwilliams-tt/skills/issues/2).
+
+Re-captured: `styles.figma.json` (captured 2026-09-08 → 2026-11-18),
+`components.figma.json` (captured 2026-09-22 → 2026-11-18),
+`component-specs.figma.json` (captured 2026-09-21 → 2026-11-18),
+`annotations.figma.json` (captured 2026-09-22 → 2026-11-18), `icons.figma.json`
+(captured 2026-09-08 → 2026-11-18).
+
+**Breaking**
+
+- styles.figma.json · textStyles: "Headings/Native/Title 7" is no longer in the
+  capture
+- styles.figma.json · textStyles: "Body/Text 1" is no longer in the capture
+- styles.figma.json · textStyles: "Headings/Native/Title 5" is no longer in the
+  capture
+- styles.figma.json · textStyles: "Headings/Desktop/Title 2" is no longer in the
+  capture
+- styles.figma.json · textStyles: "Body/Text 2" is no longer in the capture
+- styles.figma.json · textStyles: "Body/Text 3" is no longer in the capture
+- styles.figma.json · textStyles: "Headings/Native/Title 6" is no longer in the
+  capture
+- styles.figma.json · textStyles: "Headings/Desktop/Title 3" is no longer in the
+  capture
+- styles.figma.json · textStyles: "Headings/Native/Title 8" is no longer in the
+  capture
+- styles.figma.json · textStyles: "Headings/Native/Title 3" is no longer in the
+  capture
+- styles.figma.json · textStyles: "Headings/Native/Title 1" is no longer in the
+  capture
+- styles.figma.json · textStyles: "Headings/Native/Title 2" is no longer in the
+  capture
+- styles.figma.json · textStyles: "Headings/Native/Title 4" is no longer in the
+  capture
+- styles.figma.json · textStyles: "Headings/Desktop/Title 1" is no longer in the
+  capture
+- components.figma.json · components: "Headers / Navbar / iOS" is no longer in
+  the capture
+- components.figma.json · components: "Messager / Media modal" is no longer in
+  the capture
+- components.figma.json · components: "Platform Section" is no longer in the
+  capture
+- component-specs.figma.json · specs: "Headers / Navbar / iOS" is no longer in
+  the capture
+- component-specs.figma.json · specs: "Messager / Media modal" is no longer in
+  the capture
+- component-specs.figma.json · specs: "Platform Section" is no longer in the
+  capture
+
+**Changed**
+
+- components.figma.json · components: 45 entries changed — ❌ Headers, App Icons,
+  Badge, Bottom Navigation, Bubble / Media, Bubble / Structure, Bubble / Text,
+  Checkbox, Disclosure copy, Headers, Headers / Tab, iOS / Smart App Banner, +33
+  more
+- component-specs.figma.json · specs: 53 entries changed — ❌ Headers, Alert, App
+  Icons, Badge, Bottom Navigation, Bubble / Media, Bubble / Structure, Bubble /
+  Text, Button Row, Checkbox, Device template / Footer, Disclosure copy, +41
+  more
+- annotations.figma.json · annotations: 1 entry changed — Team Member
+
+**Added**
+
+- components.figma.json · components: "General / Footer" is new
+- components.figma.json · components: "Messenger / Media modal" is new
+- components.figma.json · components: "Tip" is new
+- component-specs.figma.json · specs: "General / Footer" is new
+- component-specs.figma.json · specs: "Messenger / Media modal" is new
+- component-specs.figma.json · specs: "Tip" is new
+- icons.figma.json · icons: "Circle-Percent" is new
+- icons.figma.json · icons: "Microphone-Off" is new
+- icons.figma.json · icons: "Playback-Stop" is new
+- icons.figma.json · icons: "Quotes" is new
+- icons.figma.json · icons: "Starburst" is new
+
 ## 0.23.7 — 2026-09-22
 
 The catalog read 0.23.3 deferred. That release found eight names the kit had

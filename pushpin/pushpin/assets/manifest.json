@@ -10,13 +10,13 @@
     "fileKey": "Qefv6O2RMPSBtSYBrCGcdI",
     "fileName": "Annotation Kit",
     "libraryKey": "lk-7faccc611b9ec03ccd81012447b2a1a34ffe027b513f5f94a328a5498c10f76052ba27c537a70120b6b9bd592bd8c09c3fc9abc03281c9fab80b1513aa2f03b1",
-    "capturedAt": "2026-09-22"
+    "capturedAt": "2026-11-18"
   },
   "iconLibrary": {
     "fileKey": "VVRGrLgkPRU3vs765d5Q3r",
     "fileName": "Pushpin Thumbprint UI Kit",
     "libraryKey": "lk-003ce4846b4638268325b33ad167ece0cd390787a2782f1949cee2e38ca2e7719472f0968d45b4c2f0db9b35ec1820babadcf97a9f40fdd6cc84ba22f7b10a80",
-    "capturedAt": "2026-09-08"
+    "capturedAt": "2026-11-18"
   },
   "copySource": {
     "kind": "skill-md",
@@ -29,14 +29,14 @@
   "hashes": {
     "tokens.figma.json": "1c415d4b053bf02c",
     "variable-keys.figma.json": "c9ab1d5fb17ec585",
-    "components.figma.json": "87b40d9097407550",
-    "component-specs.figma.json": "a27a1060a27db36d",
-    "annotations.figma.json": "da2a9e6470279fd6",
-    "icons.figma.json": "f8cb52861363116f",
-    "styles.figma.json": "88cbde7c04343e7c",
+    "components.figma.json": "e7217ade47377ce2",
+    "component-specs.figma.json": "daf3173526b0aadc",
+    "annotations.figma.json": "7df326e9ef20f7a6",
+    "icons.figma.json": "05ad907ab78acd72",
+    "styles.figma.json": "8b5fa62e1029b7e7",
     "pushpin.css": "ff6b417809dbcfa9",
-    "DESIGN.md": "178119e5dd711d81",
-    "design.json": "fb2ef350f4dd9e8a",
+    "DESIGN.md": "8e74aef320c28532",
+    "design.json": "a8f63f312ba67b36",
     "copy.source.md": "9f46bb257ac0f34b",
     "copy.json": "b2740a6c5bd9f999",
     "copy-map.json": "c2861b2dc7bf2701"
@@ -64,12 +64,12 @@
     "hidden": 168,
     "components": 116,
     "componentSpecs": 116,
-    "specVariants": 449,
-    "specChildren": 986,
+    "specVariants": 462,
+    "specChildren": 1013,
     "annotations": 91,
-    "icons": 227,
-    "iconKeys": 899,
-    "textStyles": 27,
+    "icons": 232,
+    "iconKeys": 919,
+    "textStyles": 13,
     "effectStyles": 8,
     "copyCodes": 16,
     "copyTerms": 8,

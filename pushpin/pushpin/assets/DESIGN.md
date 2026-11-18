@@ -95,7 +95,7 @@ genuinely open, and deferring those to Pushpin is as much a mistake as
 overriding it.
 
 The Figma kit is the source of truth, and this file is a generated projection of
-it — written by the `pushpin` plugin, v0.23.7, from the
+it — written by the `pushpin` plugin, v0.23.8, from the
 2026-08-06 capture. Where any other description of Pushpin disagrees with
 these values, the tokens win and the disagreement is a bug to fix. Editing this
 file by hand does not change the design system; it only makes the checks
@@ -367,7 +367,6 @@ When nothing published fits, say that instead, and say what it extends:
 - **isChecked=true:** border --pp-border-neutral-default-active 1.5px
 - **hasError=true:** label --pp-text-alert-medium
 - **isDisabled=true:** fill --pp-background-disabled-low, border --pp-background-disabled-low 1.5px, label --pp-text-disabled
-- **👁️ Description=true:** radius 0px, gap 8px, no fill, no border, no padding
 - **type=standard:** radius 0px, padding 14/0px, gap 8px, no fill, no border
 - **state=hover:** fill --pp-background-neutral-low-hover
 
@@ -434,9 +433,12 @@ When nothing published fits, say that instead, and say what it extends:
 - **Declare in code:** `data-pp-component="Badge"`
 - **size:** small, medium
 - **type:** count, dot
+- **theme:** alert, succes, warning
 - **Resting:** fill --pp-background-alert-medium, radius --pp-radius-sides, height 4px, label --pp-heading-neutral-inverse, type 10px
 - **size=medium:** height 8px
 - **type=count:** height 12px, padding 0/4px
+- **theme=succes:** fill --pp-background-success-medium
+- **theme=warning:** fill --pp-background-warning-medium
 
 ### Avatar
 
@@ -453,7 +455,7 @@ When nothing published fits, say that instead, and say what it extends:
 - **Source:** published component set in the Pushpin kit. Instance it; never rebuild it.
 - **Declare in code:** `data-pp-component="Alert"`
 - **theme:** Success, Warning, Alert, Info, Neutral
-- **Resting:** fill --pp-background-brand-low, radius --pp-radius-xlarge, padding 16px, label --pp-heading-neutral-default, type 20px
+- **Resting:** fill --pp-background-brand-low, radius --pp-radius-xlarge, padding 16px, label --pp-heading-neutral-default, type 14px
 - **theme=Success:** fill --pp-background-success-low
 - **theme=Warning:** fill --pp-background-caution-low
 - **theme=Alert:** fill --pp-background-alert-low
@@ -503,7 +505,7 @@ When nothing published fits, say that instead, and say what it extends:
 - **Declare in code:** `data-pp-component="Tabs"`
 - **Active tab:** 1, 2, 3, 4, 5
 - **Theme:** Even, Split
-- **Resting:** radius 0px, label inset 8px, label #2f3033 (Figma `Black`), type 14px
+- **Resting:** radius 0px, label inset 8px, label --pp-color-system-black, type 14px
 - **Theme=Split:** label inset 14/24/4/24px, type 12px
 
 ### Segmented Control
