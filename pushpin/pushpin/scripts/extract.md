@@ -41,8 +41,8 @@ return {
 };
 ```
 
-Expected at the time of capture: 91 pages, 22 collections, 34 text styles, 6
-effect styles. `Tokens / Base Colors` 90 vars, `Tokens / Semantic Colors` 109
+Expected at the time of capture: 80 pages, 22 collections, 34 text styles, 8
+effect styles. `Tokens / Base Colors` 90 vars, `Tokens / Semantic Colors` 110
 vars across Light and Dark, `Tokens / Font` 39 vars across native and desktop.
 
 ## 2. Colors

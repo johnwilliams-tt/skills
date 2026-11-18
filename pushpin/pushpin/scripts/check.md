@@ -178,6 +178,16 @@ for (const c of cols) {
   collections[c.name] = { modes: modes.map((m) => m.name), vars };
 }
 
+// Styles in the kit do not expose `hiddenFromPublishing`; reading it throws
+// "no such property" and takes the whole capture down with it.
+const hiddenStyle = (s) => {
+  try {
+    return !!s.hiddenFromPublishing;
+  } catch {
+    return false;
+  }
+};
+
 const ts = await figma.getLocalTextStylesAsync();
 const textStyles = {};
 for (const s of ts) {
@@ -190,13 +200,13 @@ for (const s of ts) {
     // check downstream could tell the difference.
     letterSpacing: s.letterSpacing,
     lineHeight: s.lineHeight,
-    hidden: !!s.hiddenFromPublishing,
+    hidden: hiddenStyle(s),
   };
 }
 
 const es = await figma.getLocalEffectStylesAsync();
 const effectStyles = {};
-for (const s of es) effectStyles[s.name] = { key: s.key, hidden: !!s.hiddenFromPublishing };
+for (const s of es) effectStyles[s.name] = { key: s.key, hidden: hiddenStyle(s) };
 
 return {
   capturedAt: new Date().toISOString().slice(0, 10),
