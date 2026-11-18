@@ -17,6 +17,38 @@ Changes are grouped the way `diff.mjs` classifies them:
 An entry about the plugin rather than the capture adds **Fixed** for a bug in
 the toolchain, which `diff.mjs` has no category for.
 
+## 0.23.9 — 2026-11-18
+
+The token capture 0.23.8 left behind, closing
+[#2](https://github.com/johnwilliams-tt/skills/issues/2). Tokens and variable
+keys are re-read from the kit for the first time since 2026-08-06, and all 131
+bindable keys were import-verified in rXFecV4AAtgjaES8935fbh. One thing fails
+for consumers: link/neutral/default/hover is now hidden from publishing, so
+binding it by key in Figma throws; --pp-link-neutral-default-hover is unchanged
+in the stylesheet. Pressed primary backgrounds are a step lighter in Light mode,
+and icon/brand/medium is new. This release also commits
+assets/variable-ids.figma.json, which lets the scheduled workflow re-read a
+changed spec page over REST without a plugin capture.
+
+Re-captured: `tokens.figma.json` (captured 2026-08-06 → 2026-11-18),
+`variable-keys.figma.json` (captured 2026-08-06 → 2026-11-18; verified
+2026-08-29 → 2026-11-18).
+
+**Breaking**
+
+- Semantic Colors/link/neutral/default/hover: was bindable, is now hidden from
+  publishing — importVariableByKeyAsync will throw
+- Semantic Colors/link/neutral/default/hover: listed as bindable but is not in
+  the published library
+
+**Changed**
+
+- semanticColors/background/brand/strong/pressed [Light]: @blue/950 -> @blue/900
+
+**Added**
+
+- semanticColors: new token "icon/brand/medium"
+
 ## 0.23.8 — 2026-11-18
 
 Ships the kit re-capture merged in

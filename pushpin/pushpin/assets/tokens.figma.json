@@ -4,7 +4,7 @@
     "fileKey": "VVRGrLgkPRU3vs765d5Q3r",
     "fileName": "Pushpin Thumbprint UI Kit",
     "libraryKey": "lk-003ce4846b4638268325b33ad167ece0cd390787a2782f1949cee2e38ca2e7719472f0968d45b4c2f0db9b35ec1820babadcf97a9f40fdd6cc84ba22f7b10a80",
-    "extractedAt": "2026-08-06",
+    "extractedAt": "2026-11-18",
     "collectionsExtracted": 15
   },
 
@@ -132,7 +132,7 @@
     "background/brand/medium/active": { "Light": "@blue/600", "Dark": "@blue/600" },
     "background/brand/strong": { "Light": "@blue/950", "Dark": "@blue/400" },
     "background/brand/strong/hover": { "Light": "@gray/950", "Dark": "@blue/500" },
-    "background/brand/strong/pressed": { "Light": "@blue/950", "Dark": "@blue/600" },
+    "background/brand/strong/pressed": { "Light": "@blue/900", "Dark": "@blue/600" },
 
     "background/info/low": { "Light": "@indigo/100", "Dark": "@indigo/950" },
     "background/info/medium": { "Light": "@indigo/700", "Dark": "@indigo/300" },
@@ -212,6 +212,7 @@
     "icon/disabled": { "Light": "@gray/300", "Dark": "@gray/600" },
     "icon/brand/default": { "Light": "@blue/600", "Dark": "@blue/400" },
     "icon/brand/low": { "Light": "@blue/400", "Dark": "@blue/600" },
+    "icon/brand/medium": { "Light": "@blue/700", "Dark": "@blue/400" },
     "icon/brand/strong": { "Light": "@blue/950", "Dark": "@blue/100" },
     "icon/on-brand/strong": { "Light": "@blue/300", "Dark": "@text/neutral/inverse" },
     "icon/info/default": { "Light": "@indigo/600", "Dark": "@indigo/400" },

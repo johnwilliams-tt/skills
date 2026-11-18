@@ -123,7 +123,7 @@
   --pp-background-brand-medium-active: var(--pp-color-blue-600);
   --pp-background-brand-strong: var(--pp-color-blue-950);
   --pp-background-brand-strong-hover: var(--pp-color-gray-950);
-  --pp-background-brand-strong-pressed: var(--pp-color-blue-950);
+  --pp-background-brand-strong-pressed: var(--pp-color-blue-900);
   --pp-background-info-low: var(--pp-color-indigo-100);
   --pp-background-info-medium: var(--pp-color-indigo-700);
   --pp-background-info-strong: var(--pp-color-indigo-950);
@@ -195,6 +195,7 @@
   --pp-icon-disabled: var(--pp-color-gray-300);
   --pp-icon-brand-default: var(--pp-color-blue-600);
   --pp-icon-brand-low: var(--pp-color-blue-400);
+  --pp-icon-brand-medium: var(--pp-color-blue-700);
   --pp-icon-brand-strong: var(--pp-color-blue-950);
   --pp-icon-on-brand-strong: var(--pp-color-blue-300);
   --pp-icon-info-default: var(--pp-color-indigo-600);
@@ -432,6 +433,7 @@
   --pp-icon-disabled: var(--pp-color-gray-600);
   --pp-icon-brand-default: var(--pp-color-blue-400);
   --pp-icon-brand-low: var(--pp-color-blue-600);
+  --pp-icon-brand-medium: var(--pp-color-blue-400);
   --pp-icon-brand-strong: var(--pp-color-blue-100);
   --pp-icon-on-brand-strong: var(--pp-text-neutral-inverse);
   --pp-icon-info-default: var(--pp-color-indigo-400);
@@ -545,6 +547,7 @@
     --pp-icon-disabled: var(--pp-color-gray-600);
     --pp-icon-brand-default: var(--pp-color-blue-400);
     --pp-icon-brand-low: var(--pp-color-blue-600);
+    --pp-icon-brand-medium: var(--pp-color-blue-400);
     --pp-icon-brand-strong: var(--pp-color-blue-100);
     --pp-icon-on-brand-strong: var(--pp-text-neutral-inverse);
     --pp-icon-info-default: var(--pp-color-indigo-400);

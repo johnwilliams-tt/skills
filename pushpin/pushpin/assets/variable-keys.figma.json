@@ -4,13 +4,13 @@
     "fileKey": "VVRGrLgkPRU3vs765d5Q3r",
     "fileName": "Pushpin Thumbprint UI Kit",
     "libraryKey": "lk-003ce4846b4638268325b33ad167ece0cd390787a2782f1949cee2e38ca2e7719472f0968d45b4c2f0db9b35ec1820babadcf97a9f40fdd6cc84ba22f7b10a80",
-    "extractedAt": "2026-08-06",
+    "extractedAt": "2026-11-18",
     "bindableCount": 131,
-    "hiddenCount": 168,
-    "verifiedAt": "2026-08-29",
+    "hiddenCount": 169,
+    "verifiedAt": "2026-11-18",
     "verifiedIn": "rXFecV4AAtgjaES8935fbh",
     "verifiedCount": 131,
-    "verifiedBy": "All 131 bindable keys imported successfully into file rXFecV4AAtgjaES8935fbh on 2026-08-29, and every published key matched the committed one in both directions. Written from verifiedAt, verifiedIn and verifiedCount; see scripts/check.md section 2 for the pass that sets them."
+    "verifiedBy": "All 131 bindable keys imported successfully into file rXFecV4AAtgjaES8935fbh on 2026-11-18, and every published key matched the committed one in both directions. Written from verifiedAt, verifiedIn and verifiedCount; see scripts/check.md section 2 for the pass that sets them."
   },
 
   "$howToUse": {
@@ -81,7 +81,6 @@
       "heading/neutral/low": "26afd7bb25fc104b0451e71de15e820ad7628844",
       "heading/neutral/inverse": "834aacb748b9f249bd1a86d540a5e01e6fb05acb",
       "link/neutral/default": "62a2bd71b0fc3febcda672d2d7d99cde1000218a",
-      "link/neutral/default/hover": "276cfd84a07fea98113541d366feb0b97772f909",
       "link/neutral/low": "3a1efd05d0e36052e79473c83943723f5c531244",
       "link/neutral/inverse": "2eae7fc875a6b6d89a313d291e3342e3148dc2b7",
       "link/brand/default": "78a5af1e5413c12de7006a73c440ad5a60824b64",
@@ -94,6 +93,7 @@
       "icon/disabled": "9c5e4595205e4cd6ce53f0043858daf41a57dab9",
       "icon/brand/default": "53a55ee44545fbdc0b9704f5bd0beed267300b04",
       "icon/brand/low": "68c13ccb06f91c4111847bad90845946111f4851",
+      "icon/brand/medium": "5e03c08de06c9c1968e6557b35ad49c87d5b2c10",
       "icon/brand/strong": "54c372b3baa8e93274509cdd01283b7dbf9c9fed",
       "icon/on-brand/strong": "5c14e3225e9b7355c4009d199f44198e28bef3ae",
       "icon/info/default": "98249b8959069fb75c62290345ecd67169ebdb10",
@@ -211,6 +211,7 @@
       "border/neutral/low/active",
       "border/neutral/default/pressed",
       "border/neutral/strong/active",
+      "link/neutral/default/hover",
       "background/brand/low/hover",
       "background/brand/medium/active",
       "background/brand/strong/hover",
