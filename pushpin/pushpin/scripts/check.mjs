@@ -56,7 +56,7 @@ import {
   unknownPairs,
   variantForAll,
 } from './lib/specs.mjs';
-import { TOKEN_GROUPS, loadAsset, real, resolveHex } from './lib/tokens.mjs';
+import { ASSETS, TOKEN_GROUPS, loadAsset, real, resolveHex } from './lib/tokens.mjs';
 
 const argv = process.argv.slice(2);
 const has = (n) => argv.includes(n);
@@ -304,6 +304,95 @@ function checkTokens(file, src) {
     if (/\b(50|100)%|9999/.test(r[1])) continue;
     add(file, lineOf(s, m.index + m[0].indexOf(r[0])), 'square-control',
       `${selector.trim().split('\n').pop().trim()} sets border-radius: ${r[1].trim()} — controls are --pp-radius-sides`);
+  }
+}
+
+// ------------------------------------------------------------- token names
+
+/**
+ * A `var(--pp-*)` naming nothing is invalid at computed-value time, so the
+ * property quietly takes its initial value: a radius renders square, a gap
+ * collapses, and the file reads as on-system. Every other token check passes
+ * it, because it is the right shape. The names are not guessable either —
+ * `--pp-radius-md` reads as plausible and the scale says `medium`.
+ *
+ * Not part of the token half, because impeccable's detector holds values
+ * against the ramps and has no list of names to hold this against, so
+ * `--component-only` would leave nothing reporting it.
+ */
+const SHIPPED_CSS = [
+  join(ASSETS, 'pushpin.css'),
+  join(ASSETS, '..', 'scripts', 'pushpin-device.css'),
+];
+const declaredIn = (src) => [...mask(src).matchAll(/(--pp-[\w-]+)\s*:/g)].map((m) => m[1]);
+const KNOWN_TOKENS = new Set(SHIPPED_CSS.flatMap((f) => declaredIn(readFileSync(f, 'utf8'))));
+const groupOf = (name) => name.slice('--pp-'.length).split('-')[0];
+const stepOf = (name) => name.slice(`--pp-${groupOf(name)}-`.length);
+// A project may declare `--pp-*` properties of its own. Only a name in one of
+// Pushpin's own groups, or a misspelling of one, is held to the list, since an
+// invented `--pp-radius-card` is a token that does not exist and an invented
+// `--pp-card-gap` is not.
+const TOKEN_GROUP_NAMES = new Set([...KNOWN_TOKENS].map(groupOf));
+const pushpinGroup = (group) =>
+  TOKEN_GROUP_NAMES.has(group)
+    ? group
+    : group.length >= 4
+      ? ([...TOKEN_GROUP_NAMES].find((g) => g.length >= 4 && distance(group, g) <= 2) ?? null)
+      : null;
+
+/** The words people reach for, mapped onto the ones the scale uses. */
+const STEP_ALIASES = {
+  xs: 'xsmall', sm: 'small', md: 'medium', lg: 'large', xl: 'xlarge',
+  xxl: 'xxlarge', '2xl': 'xxlarge', pill: 'sides', round: 'sides',
+  rounded: 'sides', circle: 'full',
+};
+
+/**
+ * The real token someone most plausibly meant, or null when none is close.
+ * Distance is measured on the step alone: every name in a group shares its
+ * prefix, so measured over the whole name `--pp-shadow-huge` is as close to
+ * `--pp-shadow-1` as a typo is to the word it misspells.
+ */
+function nearestToken(group, step) {
+  const parts = step.split('-');
+  const alias = STEP_ALIASES[parts.at(-1)];
+  if (alias) {
+    const aliased = `--pp-${group}-${[...parts.slice(0, -1), alias].join('-')}`;
+    if (KNOWN_TOKENS.has(aliased)) return aliased;
+  }
+  if (KNOWN_TOKENS.has(`--pp-${group}-${step}`)) return `--pp-${group}-${step}`;
+  let best = null;
+  let bestD = Infinity;
+  for (const t of KNOWN_TOKENS) {
+    if (groupOf(t) !== group) continue;
+    const d = distance(step, stepOf(t));
+    if (d < bestD) [best, bestD] = [t, d];
+  }
+  return bestD < step.length && bestD <= Math.max(1, Math.floor(step.length / 3)) ? best : null;
+}
+
+function checkTokenNames(file, src, declared) {
+  const s = maskDevtool(mask(src));
+  for (const m of s.matchAll(/var\(\s*(--pp-[\w-]+)/g)) {
+    const name = m[1];
+    if (KNOWN_TOKENS.has(name) || declared.has(name)) continue;
+    const group = pushpinGroup(groupOf(name));
+    if (!group) continue;
+    const step = stepOf(name);
+    const near = nearestToken(group, step);
+    const members = [...KNOWN_TOKENS].filter((t) => groupOf(t) === group);
+    const closest = members
+      .map((t) => [t, distance(step, stepOf(t))])
+      .sort((a, b) => a[1] - b[1])
+      .slice(0, 6)
+      .map(([t]) => t);
+    add(file, lineOf(s, m.index), 'unknown-token',
+      `${name} is not a Pushpin token, so it resolves to nothing` +
+        (near
+          ? `; the scale has ${near}`
+          : members.length <= 12
+            ? `; the ${group} tokens are ${members.join(', ')}`
+            : `; the nearest real ones are ${closest.join(', ')}`));
   }
 }
 
@@ -852,8 +941,13 @@ for (const file of files) {
   }
 }
 
+// Declared anywhere in the walk counts, so a project's own property defined in
+// one file and used in another is not reported as missing.
+const declaredHere = new Set(sources.flatMap(([, , src]) => declaredIn(src)));
+
 for (const [file, rel, src] of sources) {
   if (!COMPONENT_ONLY) checkTokens(rel, src);
+  checkTokenNames(rel, src, declaredHere);
   checkFormFactor(rel, src);
   checkIdentity(rel, src);
   if (COPY_ON && MARKUP_EXT.has(extname(file))) checkCopy(rel, src);

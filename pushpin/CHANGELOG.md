@@ -45,6 +45,13 @@ its `cssHash` no longer matches and session start reports it as behind.
 - **`setup.mjs --ready` reports a Mac without Rise** as a `fix:` line,
   `node scripts/lib/font.mjs --install`, and **`--verify` reports a project
   without its font file** as a note with the init remedy.
+- **`check.mjs` reports `unknown-token`**: a `var(--pp-*)` in one of
+  Pushpin's groups that names nothing, with the token it was probably meant to
+  be. `var(--pp-radius-md)` passed every check while the browser drew square
+  corners, because the property falls back to its initial value; it now
+  reports `--pp-radius-medium`. It runs under `--component-only` too, since
+  impeccable's detector has no list of names to check one against. A
+  project's own `--pp-*` properties outside Pushpin's groups are left alone.
 
 **Fixed**
 

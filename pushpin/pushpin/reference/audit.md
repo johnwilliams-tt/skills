@@ -55,6 +55,7 @@ frame someone is about to build from does not.
 | Raw color | A hex, `rgb()`, or `hsl()` literal — flag it whether or not it matches a ramp. Matching a ramp means the token exists and was bypassed. |
 | Pure black text | `#000`, `black`, `rgb(0,0,0)` on text. Body text is `--pp-text-neutral-default`. |
 | Square corners on a control | A button, input, chip, or search bar without `--pp-radius-sides`. |
+| Unknown token | A `var(--pp-*)` in one of Pushpin's groups that names no token, such as `--pp-radius-md` for `--pp-radius-medium`. It resolves to nothing, so the property silently falls back to its initial value. Reported with the real token it was probably meant to be. |
 | Off-scale spacing | A padding, margin, or gap in px that is not one of the 13 `--pp-space-*` steps. |
 | Off-ramp type | A `font-size` that is not a ramp step, or a family that is not Thumbtack Rise. |
 | Off-ramp weight | A weight outside 400 / 563 / 590 / 660 / 700. |
@@ -65,7 +66,9 @@ its hook installer skips every project that does not hold a provider folder such
 as `.cursor/skills/impeccable`, which the usual user-global install never
 creates, so an initialized project usually has no detector running at all. Where
 one is installed, `check.mjs` reads that off the hook manifests and drops this
-class rather than saying it twice.
+class rather than saying it twice. Unknown tokens are the exception and are
+always reported: impeccable holds values against the ramps and has no list of
+token names to hold a name against.
 [init.md](init.md#why-impeccable-hooks-on-is-not-part-of-this) has why Pushpin
 does not wire one up.
 

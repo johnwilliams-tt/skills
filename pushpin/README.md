@@ -104,8 +104,8 @@ Commit `.claude/settings.json`. It offers Pushpin to anyone who opens the
 project, and the plugin stays unloaded until they accept.
 
 From then on, the edit hook flags raw hex, off-scale spacing, square controls,
-markup posing as a published component, and copy that breaks the content design
-rules as you write. It reports and never blocks.
+token names that don't exist, markup posing as a published component, and copy
+that breaks the content design rules as you write. It reports and never blocks.
 
 Run `/pushpin init` to re-run, repair, or update a project already set up.
 
