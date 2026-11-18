@@ -140,7 +140,8 @@ Never appears:
 
 `--ready` reports the environment rather than the project: whether `impeccable`
 is installed, whether the marketplace updates itself, whether Claude Code is
-going to prompt on every edit, whether the Figma desktop app is running,
+going to prompt on every edit, whether Thumbtack Rise is installed on a Mac,
+whether the Figma desktop app is running,
 whether anything configures a Figma MCP server for this harness, whether this
 project is about to run an older copy of Pushpin than the one installed beside
 it, and whether the Node it is itself running under is new enough for the rest
@@ -180,17 +181,20 @@ after the writes and spent as the AskQuestion in § 4. Harness detection
 decides which lines are relevant at all; `--harness claude` or
 `--harness cursor` overrides it when the detection is wrong.
 
-**One `fix:` line writes outside the project, and it is the one the user sees.**
-Auto-update is turned on by `node scripts/lib/environment.mjs
---enable-auto-update`, which is deliberately not a `setup.mjs` flag:
+**Two `fix:` lines write outside the project, and they are the ones the user
+sees.** Auto-update is turned on by `node scripts/lib/environment.mjs
+--enable-auto-update`, and Thumbtack Rise is installed into `~/Library/Fonts`
+by `node scripts/lib/font.mjs --install`. Neither is a `setup.mjs` flag:
 [lib/permissions.mjs](../scripts/lib/permissions.mjs) pre-approves `setup.mjs`
 to run with no prompt on the stated grounds that its only write is an additive
-backup copy, and a promptless write into `~/.claude/settings.json` would make
-that comment false the day it shipped. Nothing pre-approves the command that
-does write, so the harness asks before it runs, and that prompt is the consent.
-Run it and add nothing to it — the prompt is the whole of what the user sees,
-and narrating a repair they have already approved is the noise this page exists
-to remove.
+backup copy, and a promptless write into `~/.claude/settings.json` or the
+user's font folder would make that comment false the day it shipped. Nothing
+pre-approves the commands that do write, so the harness asks before each runs,
+and that prompt is the consent. Run them and add nothing — the prompt is the
+whole of what the user sees, and narrating a repair they have already approved
+is the noise this page exists to remove. The one exception is the font
+command's own `say:` line, printed when GitHub cannot serve the font: it names
+the Brand Asset Library download, which only the user can do, so spend it.
 
 Two more checks matter more than any of those, and a script gets only part way
 into either.

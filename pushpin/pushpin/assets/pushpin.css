@@ -9,6 +9,17 @@
  * `background/brand/strong` is `--pp-background-brand-strong` here.
  */
 
+/* Thumbtack Rise. Not shipped with the plugin: `pushpin init` downloads it
+ * to fonts/ThumbtackRiseVF.woff2 beside this stylesheet. */
+@font-face {
+  font-family: "Thumbtack Rise";
+  src: url("fonts/ThumbtackRiseVF.woff2") format("woff2"),
+    local("Thumbtack Rise Regular"), local("ThumbtackRise-Regular");
+  font-weight: 291 836;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
 
   /* ── Base colors ─────────────────────────────────────────────────────── */

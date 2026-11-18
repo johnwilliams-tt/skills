@@ -21,7 +21,7 @@ question, never as this command:
 page is for the user; it explains what init does so you run it right.
 
 It installs the token stylesheet somewhere idiomatic for the stack it detects,
-with the theme script beside it, writes `pushpin.config.json` with the Figma
+with the theme script and Thumbtack Rise beside it, writes `pushpin.config.json` with the Figma
 keys so the bridge works without re-deriving them and with the three answers
 the setup interview settled, installs the edit hook that runs `check.mjs`,
 records where the browser preview lives, pre-approves the scripts that only read
@@ -242,6 +242,31 @@ It declares no font sizes. That is the point of the attribute above — the fram
 is a frame, rather than a place to correct four steps of the ramp by hand.
 [rules.md](rules.md#the-phone-frame) carries the rules for building inside it,
 and the `AGENTS.md` note carries the markup.
+
+## The font
+
+`pushpin.css` opens with an `@font-face` for Thumbtack Rise that loads
+`fonts/ThumbtackRiseVF.woff2` relative to itself, and init downloads that file
+beside the stylesheet. The plugin does not contain it: this repository is
+public and the font is licensed, so
+[lib/font.mjs](../scripts/lib/font.mjs) fetches it from a private Thumbtack
+repository with the person's own `gh` login, by git blob sha, and refuses any
+bytes that do not hash to the pin. A copy that is already the pinned file is
+skipped without `--force`; a different file at that path is replaced only
+with it.
+
+On macOS init also installs the same variable face into `~/Library/Fonts`
+when no Rise is installed there, because Figma's desktop app reads only
+installed fonts. That is its one write outside the project, and it never
+replaces a font someone already has.
+
+When GitHub will not serve it — `gh` missing, signed out, or an account
+outside the Thumbtack org — the font writes are not counted as written, and
+Next names the reason and the Brand Asset Library's Drive folder. Drive holds
+the static OTFs, so a download there installs the machine on the next run and
+never the project; a project without its file falls back to `local()`, then
+to the system stack. `setup.mjs --verify` reports the missing file as a NOTE
+with the init remedy.
 
 **A replay carries the flags from the record.** `pin.mjs` exports
 `choiceArgs(config)`, which emits the three flags from whatever

@@ -18,7 +18,7 @@
  *                                       [--advice]
  *
  * What a --write prints when it is done is what someone still has to do, and
- * that is all: the Rise font when the machine does not have it, and `.gitignore`
+ * that is all: the Rise font when GitHub would not serve it, and `.gitignore`
  * only inside a git repository. `--advice` adds back the explanation of what was
  * written, which is documentation rather than a next step, and lives in
  * reference/init.md.
@@ -29,6 +29,14 @@ import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { isGitRepo, riseFontInstalled } from './lib/environment.mjs';
+import {
+  driveRemedy,
+  installSystemFont,
+  WEB_FONT,
+  WEB_FONT_REL,
+  webFontState,
+  writeWebFont,
+} from './lib/font.mjs';
 import { DESIGN_REL, SIDECAR_REL } from './lib/generated.mjs';
 import { GUARD_FLAG, hookCommands, PREVIEW_FLAG, SHIM_REL, withoutHook } from './lib/hooks.mjs';
 import { ALLOWED_SCRIPTS, allowRules, SETTINGS_REL } from './lib/permissions.mjs';
@@ -262,6 +270,48 @@ if (wantsDevice) {
       copyFileSync(join(here, 'device', glyph), abs);
     });
   }
+}
+
+// Thumbtack Rise, fetched rather than copied: the plugin's repository is public
+// and the font is licensed, so lib/font.mjs reads it from a private Thumbtack
+// repository with the person's own GitHub login. Beside the stylesheet because
+// its `@font-face` url is relative to it. A copy that is already the pinned
+// file is left alone without --force, since replacing it changes nothing.
+// A write that cannot reach GitHub returns false, so it is not counted as
+// written, and its reason is spent in Next.
+const fontFailures = { web: null, system: null };
+const fontRel = join(dirname(cssPath), WEB_FONT_REL);
+const fontState = webFontState(join(target, fontRel));
+if (fontState === 'current') {
+  skipped.push(`${fontRel} — already the pinned Thumbtack Rise`);
+} else if (fontState === 'other' && !FORCE) {
+  skipped.push(`${fontRel} — already exists (use --force to replace)`);
+} else {
+  plan.push({
+    rel: fontRel,
+    describe: `Thumbtack Rise, downloaded from ${WEB_FONT.repo} with your GitHub login`,
+    abs: join(target, fontRel),
+    writeFn: (abs) => {
+      fontFailures.web = writeWebFont(abs);
+      return !fontFailures.web;
+    },
+  });
+}
+
+// The machine's copy, which is the one Figma's desktop app renders with. It is
+// the one write outside the project, so it is planned only when there is
+// nothing installed to replace, and never under --force.
+if (process.platform === 'darwin' && !riseFontInstalled()) {
+  plan.push({
+    rel: '~/Library/Fonts/ThumbtackRiseVF.ttf',
+    describe: 'install Thumbtack Rise on this machine, so Figma and the browser both have it',
+    abs: null,
+    writeFn: () => {
+      const r = installSystemFont();
+      if (r.state === 'missing') fontFailures.system = r.reason;
+      return r.state === 'installed';
+    },
+  });
 }
 
 // Design-system drift is now usually introduced in the browser and pushed to
@@ -885,8 +935,8 @@ if (stale.length) {
 }
 
 if (WRITE && plan.length) {
-  for (const p of plan) p.writeFn(p.abs);
-  console.log(`\nDone — ${plan.length} file(s) written.`);
+  const written = plan.filter((p) => p.writeFn(p.abs) !== false).length;
+  console.log(`\nDone — ${written} file(s) written.`);
 
   // Re-asked rather than inferred: the findings above describe the project as it
   // was found, and only the same comparison run again can say whether the writes
@@ -909,13 +959,18 @@ if (WRITE && plan.length) {
   // asking for something get missed. They print on --advice.
   const next = [];
 
-  // Asked of the machine rather than stated unconditionally: the font is not
-  // bundled either way, but telling someone to install one they already have is
-  // a line they have to read to discard.
-  if (!riseFontInstalled()) {
+  // The Drive folder can stand in for the machine's copy and not for the
+  // project's, which needs the variable WOFF2. So a machine that has Rise once
+  // this run is done is told only about the project file.
+  if (fontFailures.system) {
+    next.push(driveRemedy(fontFailures.system));
+  } else if (fontFailures.web) {
     next.push(
-      `Thumbtack Rise is not installed on this machine — install it, or point\n` +
-        `     --pp-font-family at something else.`,
+      `${fontRel} could not be downloaded because ${fontFailures.web}. ` +
+        (riseFontInstalled()
+          ? `Rise is installed\n     on this machine, so pages render in it here and in a fallback anywhere else.\n`
+          : `Pages render in\n     a fallback font until it is there.\n`) +
+        `     Re-run init --write once GitHub can serve ${WEB_FONT.repo}.`,
     );
   }
 

@@ -57,8 +57,10 @@ import {
   MIN_NODE,
   permissionMode,
   pluginInstalls,
+  riseFontInstalled,
   stalePluginRemedy,
 } from './lib/environment.mjs';
+import { WEB_FONT, WEB_FONT_REL, webFontState } from './lib/font.mjs';
 import { GENERATED, generatedState } from './lib/generated.mjs';
 import { inspectHooks } from './lib/hooks.mjs';
 import { ALLOWED_SCRIPTS, missingAllowRules, SETTINGS_REL } from './lib/permissions.mjs';
@@ -176,8 +178,9 @@ function gitSafety(paths) {
 
 // ----------------------------------------------------------------- readiness
 
-/** The one thing here that writes, named in a `fix:` line rather than run from here. */
+/** The two things here that write, named in `fix:` lines rather than run from here. */
 const ENVIRONMENT = join(here, 'lib', 'environment.mjs');
+const FONT = join(here, 'lib', 'font.mjs');
 
 /**
  * The machine the session is running on, as faults only.
@@ -238,6 +241,18 @@ function ready() {
           unreadable: 'the global settings file could not be parsed',
         }[autoUpdate],
     `node "${ENVIRONMENT}" --enable-auto-update`,
+  );
+
+  // macOS only, because ~/Library/Fonts is the only place riseFontInstalled()
+  // knows to look. The command prints a `say:` line of its own when GitHub
+  // cannot serve the font, which is the one case a person has to act on.
+  const mac = process.platform === 'darwin';
+  const rise = mac ? riseFontInstalled() : null;
+  check(
+    'font',
+    !mac ? 'skipped' : rise ? 'ok' : 'fix',
+    !mac ? 'macOS only' : rise ? 'Thumbtack Rise is installed' : 'Thumbtack Rise is not installed',
+    `node "${FONT}" --install`,
   );
 
   // Read, never written. It is the user's guard, and lowering it for them is
@@ -492,6 +507,25 @@ async function verify() {
     'tokens',
     existsSync(join(target, cssRelActual)) ? cssRelActual : `${cssRelActual} is not there`,
   );
+
+  // A note rather than a fault: the page still renders, in a fallback, and
+  // the remedy needs GitHub access that not everybody setting a project up has.
+  const fontRel = join(dirname(cssRelActual), WEB_FONT_REL);
+  const font = webFontState(join(target, fontRel));
+  row(
+    font === 'absent' ? NOTE : OK,
+    'font',
+    {
+      absent: `${fontRel} is not there, so pages render in a fallback unless Rise is installed`,
+      current: `${fontRel}, the pinned Thumbtack Rise`,
+      other: `${fontRel} is a different file from the pinned one, and is left alone`,
+    }[font],
+  );
+  if (font === 'absent') {
+    advice.push(
+      `\`node scripts/init.mjs ${target} --write${replay}\` downloads Thumbtack Rise from ${WEB_FONT.repo}.`,
+    );
+  }
   // The generated files get a row each below, so they are filtered out of the
   // pin's own line rather than reported twice in different words.
   const ownRow = GENERATED.map((g) => `${g.label}:`);
