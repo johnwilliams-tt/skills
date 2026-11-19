@@ -51,8 +51,10 @@ node scripts/init.mjs <project-dir> --advice           # explain what was writte
 `check.mjs` runs on every edit to a stylesheet or component file and reports
 what is off-system in the file that was just written — a raw hex, a control
 that is not a pill, markup that reads as a published component while declaring
-nothing, a button that says `Learn more`. It reports and never blocks; every
-failure path exits 0.
+nothing, a button that says `Learn more`. It runs after every shell command
+too, on the files that changed while the command ran, because a file written by
+`cat >` or `sed -i` never reaches an edit event. It reports and never blocks;
+every failure path exits 0.
 
 This is what lets `SKILL.md` carry five hard rules instead of eleven. A rule the
 model has to still be holding in context is a rule that decays over a long
@@ -62,9 +64,13 @@ Two manifests, merged rather than replaced:
 
 | Harness | File | Event | Hook |
 |---|---|---|---|
-| Cursor | `.cursor/hooks.json` | `afterFileEdit` | edit check |
+| Cursor | `.cursor/hooks.json` | `postToolUse` on `Write\|Shell` | edit check |
 | Cursor | `.cursor/hooks.json` | `preToolUse` | write guard |
-| Claude Code | `.claude/settings.local.json` | `PostToolUse` on `Edit\|Write\|MultiEdit` | edit check |
+| Claude Code | `.claude/settings.json` | `PostToolUse` on `Edit\|Write\|MultiEdit\|Bash` | edit check |
+
+Cursor's check is on `postToolUse` because that is the event whose
+`additional_context` reaches the agent. Cursor runs an `afterFileEdit` hook and
+discards what it prints, so a check installed there reports to nobody.
 
 What they name is `.pushpin/pushpin-check.mjs` in the project, not this plugin.
 The plugin lives in a directory named after its version — a commit hash under
@@ -80,26 +86,36 @@ every hook of ours. The shim's date does not move on an update, and that is
 not a finding: neither the file, its date, where it resolves to, nor why it
 exists is ever reported.
 
-Both manifests are still machine-local, because the path into the project is
-absolute: correct for whoever ran `init`, meaningless to anyone else. A teammate
-without the plugin gets a shim that finds nothing and exits 0 in silence, so the
-worst case is a hook that does nothing.
+**Commit both manifests and the shim.** Neither command names a path on one
+machine: Cursor runs a project hook from the project root, so its command is
+`node .pushpin/pushpin-check.mjs`, and Claude Code's is
+`node "$CLAUDE_PROJECT_DIR/.pushpin/pushpin-check.mjs"`. A teammate who opens
+the repo gets the check without running anything. One without the plugin gets
+a shim that finds nothing and exits 0 in silence, so the worst case is a hook
+that does nothing.
+
+With `--no-share` the Claude Code hook goes into `.claude/settings.local.json`
+instead, unless the shared file already runs it. The silent repair at session
+start passes `--no-share`, so it never edits the shared file; a project set up
+before the hook moved keeps a local copy until someone runs `init --write`
+without it.
 
 **Add `.claude/settings.local.json` to the project's `.gitignore` yourself.**
 Nothing does it for you. Claude Code labels that settings scope "project,
 gitignored", which reads like a guarantee but only describes what the scope is
 for; it never writes the entry, and neither does `init`. The file holds the allow
-rules as well as the hook, and those name this plugin's install by full path, so a
-committed copy points every teammate at a directory on somebody else's disk.
-Nothing breaks loudly when that happens — a rule matching nothing grants nothing,
-and a hook path that does not resolve fails open — which is why it is worth doing
-deliberately instead of discovering later.
+rules, and those name this plugin's install by full path, so a committed copy
+points every teammate at a directory on somebody else's disk. Nothing breaks
+loudly when that happens — a rule matching nothing grants nothing — which is why
+it is worth doing deliberately instead of discovering later.
 
 Installing and repairing are one operation. Prior entries of ours are dropped
 before the current one is added, so a re-run cannot stack duplicates, and a
 manifest naming anything other than the current shim is repointed **without
 `--force`** — a command aimed at a deleted directory is not a decision worth
-preserving.
+preserving. So is one that runs but is in the wrong place: on Cursor's
+`afterFileEdit`, by an absolute path, or on a Claude Code matcher without
+`Bash`. Session start reports those as repairable and fixes them.
 
 `pushpin.config.json` records whether the hook was *wanted*, not whether it is
 installed: the manifests answer that themselves, and a recorded claim about files
@@ -330,8 +346,8 @@ durable grant for this plugin's own commands, and they hold in every mode —
 including `Manual`. Nobody has to lower their guard to stop being asked whether
 a catalog lookup may run.
 
-The file is the machine-local one for the same reason the hook is: the rules
-carry an absolute path. It is also where Claude Code itself saves an approval
+The file is the machine-local one because the rules carry an absolute path.
+It is also where Claude Code itself saves an approval
 when you answer *yes, don't ask again*, so they land where that answer would have
 put them. Allow rules in the shared `.claude/settings.json` would be worse on
 both counts — they grant capability, so Claude Code holds them until the

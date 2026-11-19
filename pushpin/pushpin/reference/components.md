@@ -73,7 +73,7 @@ and then guessed at.
 Name them instead, using the exact catalog name and real variant options:
 
 ```html
-<button data-pp-component="Button" data-pp-variant="theme=primary, size=medium">
+<button data-pp-component="Button" data-pp-variant="theme=primary, size=large">
 ```
 
 When nothing published fits, say that, and say what it extends and why:

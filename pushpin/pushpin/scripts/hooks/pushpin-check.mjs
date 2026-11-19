@@ -18,11 +18,15 @@
  * reports; it does not block.
  *
  * Installed per project by `init.mjs`, into `.cursor/hooks.json` and
- * `.claude/settings.local.json`. Not invoked directly.
+ * `.claude/settings.json`, for edits and for shell commands. A shell event
+ * names no file, so for one the files changed since the last run are checked.
+ * Not invoked directly.
  */
 
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, extname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -44,9 +48,53 @@ function recordedHash(root, kind) {
 
 const WATCHED = new Set([
   '.css', '.scss', '.sass', '.less',
-  '.js', '.jsx', '.ts', '.tsx',
+  '.js', '.mjs', '.jsx', '.ts', '.tsx',
   '.html', '.vue', '.svelte', '.astro',
 ]);
+
+/** Claude Code calls its shell tool Bash, Cursor calls it Shell. */
+const SHELL_TOOLS = new Set(['Bash', 'Shell']);
+
+const SKIP_DIR = new Set([
+  'node_modules', '.git', '.pushpin', 'dist', 'build', 'out', '.next', '.nuxt',
+  'coverage', 'vendor', '.svelte-kit', '.turbo', '.cache',
+]);
+
+/**
+ * When this project was last checked, kept outside it so nothing has to be
+ * ignored. A shell event names no file, so what it wrote is what changed since
+ * then; the floor keeps a stale stamp from sweeping in a day of hand edits.
+ */
+const stampFor = (root) =>
+  join(tmpdir(), `pushpin-check-${createHash('sha1').update(resolve(root)).digest('hex').slice(0, 12)}`);
+const FLOOR_MS = 10 * 60 * 1000;
+
+function changedSince(root, since) {
+  const found = [];
+  let visited = 0;
+  const walk = (dir) => {
+    let entries;
+    try {
+      entries = readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const e of entries) {
+      if (++visited > 5000) return;
+      const p = join(dir, e.name);
+      if (e.isDirectory()) {
+        if (!SKIP_DIR.has(e.name)) walk(p);
+      } else if (e.isFile()) {
+        try {
+          const m = statSync(p).mtimeMs;
+          if (m > since) found.push([p, m]);
+        } catch {}
+      }
+    }
+  };
+  walk(root);
+  return found.sort((a, b) => b[1] - a[1]).slice(0, 20).map(([p]) => p);
+}
 
 /** Exit quietly. The only exit this script has. */
 const done = (payload) => {
@@ -134,11 +182,27 @@ async function main() {
 
   if (!existsSync(CHECK)) finish(null);
 
-  const file = editedFile(event);
-  if (!file) finish(null);
-
-  const abs = isAbsolute(file) ? file : resolve(cwd, file);
-  if (!existsSync(abs)) finish(null);
+  let files;
+  if (SHELL_TOOLS.has(event?.tool_name)) {
+    const stamp = stampFor(cwd);
+    let since = Date.now() - FLOOR_MS;
+    try {
+      since = Math.max(since, statSync(stamp).mtimeMs);
+    } catch {}
+    try {
+      writeFileSync(stamp, '');
+    } catch {}
+    files = changedSince(cwd, since);
+  } else {
+    const file = editedFile(event);
+    if (!file) finish(null);
+    files = [isAbsolute(file) ? file : resolve(cwd, file)];
+    try {
+      writeFileSync(stampFor(cwd), '');
+    } catch {}
+  }
+  files = files.filter((f) => existsSync(f));
+  if (!files.length) finish(null);
 
   // The generated files, before the extension filter — neither is a UI file and
   // `check.mjs` would have nothing to say about them, but an edit to either is
@@ -146,37 +210,40 @@ async function main() {
   // read as the design system, so one that no longer says Pushpin hands an
   // invented one to everything downstream. Reported here so it surfaces on the
   // edit itself rather than waiting for the next session's pin check.
-  const generated = generatedKind(cwd, abs);
-  if (generated) {
-    // Judged against the recorded hash rather than the mere fact of an edit: a
-    // write that lands identical content has changed nothing, and a hook that
-    // complains anyway is one people learn to scroll past. A project with no
-    // recorded hash predates them and stays silent here; the pin check asks it
-    // to re-init.
-    const state = generatedState(cwd, generated === 'design' ? DESIGN_REL : SIDECAR_REL, recordedHash(cwd, generated), hashAsset);
+  //
+  // Judged against the recorded hash rather than the mere fact of an edit: a
+  // write that lands identical content has changed nothing, and a hook that
+  // complains anyway is one people learn to scroll past. A project with no
+  // recorded hash predates them and stays silent here; the pin check asks it
+  // to re-init.
+  const notes = [];
+  for (const abs of files) {
+    const generated = generatedKind(cwd, abs);
+    if (!generated) continue;
+    const name = generated === 'design' ? DESIGN_REL : SIDECAR_REL;
+    const state = generatedState(cwd, name, recordedHash(cwd, generated), hashAsset);
     if (state === 'replaced') {
-      finish(
-        `${file} is generated by Pushpin and has just been replaced with something that is ` +
+      notes.push(
+        `${name} is generated by Pushpin and has just been replaced with something that is ` +
           `not Pushpin. Everything reading it — impeccable's detector included — is now ` +
           `checking against a different design system. Restore it with ` +
           `\`pushpin init --write --force\`. Do not run \`/impeccable document\` on this project.`,
       );
-    }
-    if (state === 'edited') {
-      finish(
-        `${file} is generated by Pushpin and has just been hand-edited. Editing it does not ` +
+    } else if (state === 'edited') {
+      notes.push(
+        `${name} is generated by Pushpin and has just been hand-edited. Editing it does not ` +
           `change the design system — it only makes the checks disagree with it. Restore it ` +
           `with \`pushpin init --write --force\`.`,
       );
     }
-    finish(null);
   }
 
-  if (!WATCHED.has(extname(file))) finish(null);
+  const watched = files.filter((f) => !generatedKind(cwd, f) && WATCHED.has(extname(f)));
+  if (!watched.length) finish(notes.join('\n\n') || null);
 
   let out = '';
   try {
-    out = execFileSync(process.execPath, [CHECK, abs, '--brief'], {
+    out = execFileSync(process.execPath, [CHECK, ...watched, '--brief'], {
       cwd,
       encoding: 'utf8',
       timeout: 10_000,
@@ -190,7 +257,7 @@ async function main() {
   }
 
   out = String(out).trim();
-  if (!out) finish(null);
+  if (!out) finish(notes.join('\n\n') || null);
 
   // `--brief` ends with the doc for each class that actually fired, so a copy
   // finding is not sent to the token rules. The sign-off sentence is the
@@ -201,9 +268,9 @@ async function main() {
     (lines[lines.length - 1].startsWith('Docs: ') ? lines.pop().slice(6).trim() : '') ||
     'reference/rules.md';
   out = lines.join('\n').trim();
-  if (!out) finish(null);
+  if (!out) finish(notes.join('\n\n') || null);
 
-  finish(`${out}\n\nFix these before moving on. Rules: ${docs}.`);
+  finish([...notes, `${out}\n\nFix these before moving on. Rules: ${docs}.`].join('\n\n'));
 }
 
 main().catch(() => done());

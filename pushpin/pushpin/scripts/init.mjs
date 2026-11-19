@@ -38,7 +38,15 @@ import {
   writeWebFont,
 } from './lib/font.mjs';
 import { DESIGN_REL, SIDECAR_REL } from './lib/generated.mjs';
-import { GUARD_FLAG, hookCommands, PREVIEW_FLAG, SHIM_REL, withoutHook } from './lib/hooks.mjs';
+import {
+  CLAUDE_HOOK_CMD,
+  CURSOR_GUARD_CMD,
+  CURSOR_HOOK_CMD,
+  hookCommands,
+  PREVIEW_FLAG,
+  SHIM_REL,
+  withoutHook,
+} from './lib/hooks.mjs';
 import { ALLOWED_SCRIPTS, allowRules, SETTINGS_REL } from './lib/permissions.mjs';
 import { DEFAULT_PORT, previewUrl } from './lib/preview.mjs';
 import { describeStack, detectStack } from './lib/project.mjs';
@@ -433,8 +441,11 @@ function planSettings() {
 
   const sourceCurrent = JSON.stringify(current?.source) === JSON.stringify(source);
   const declared = sourceCurrent && current?.autoUpdate !== undefined;
-  if (declared && enabled[PLUGIN_REF] === true && !FORCE) {
-    skipped.push(`${rel} — already offers Pushpin to anyone who opens this repo`);
+  // The edit check lives here too, so a teammate who opens the repo gets it.
+  // With --no-hook whatever is here is left exactly as found.
+  const hookCurrent = !HOOK || claudeHookCurrent(base);
+  if (declared && enabled[PLUGIN_REF] === true && hookCurrent && !FORCE) {
+    skipped.push(`${rel} — already offers Pushpin and runs its check for anyone who opens this repo`);
     return;
   }
 
@@ -447,6 +458,7 @@ function planSettings() {
       [MARKETPLACE]: { ...current, source, autoUpdate },
     },
     enabledPlugins: { ...enabled, [PLUGIN_REF]: true },
+    ...(HOOK && { hooks: claudeHooks(base) }),
   };
 
   // Named one at a time rather than as "update the declaration", because the three
@@ -465,13 +477,21 @@ function planSettings() {
           : null,
       ].filter(Boolean);
 
+  const runsCheck = 'run the Pushpin check after every edit and shell command';
+  const offer = !existing
+    ? `offer ${PLUGIN_REF} to anyone who opens this repo, no CLI needed`
+    : gains.length
+      ? `give the ${MARKETPLACE} declaration ${gains.join('; ')}`
+      : declared && enabled[PLUGIN_REF] === true
+        ? null
+        : `add ${PLUGIN_REF} to the plugins this repo offers`;
   plan.push({
     rel,
-    describe: !existing
-      ? `offer ${PLUGIN_REF} to anyone who opens this repo, no CLI needed`
-      : gains.length
-        ? `give the ${MARKETPLACE} declaration ${gains.join('; ')}`
-        : `add ${PLUGIN_REF} to the plugins this repo offers`,
+    describe: !offer
+      ? `${runsCheck}, for anyone who opens this repo`
+      : hookCurrent
+        ? offer
+        : `${offer}; ${runsCheck}`,
     abs,
     writeFn: (a) => {
       mkdirSync(dirname(a), { recursive: true });
@@ -480,27 +500,32 @@ function planSettings() {
   });
 }
 
-if (SHARE) planSettings();
-
 // The edit hook. `check.mjs` re-states a broken rule on the edit that broke it,
 // which is what lets SKILL.md carry five rules instead of eleven — a rule the
 // model has to still be holding is a rule that decays over a long session.
 //
-// Both manifests are merged rather than replaced, and both are machine-local by
-// nature: the command carries an absolute path, which is correct for whoever ran
-// `init` and meaningless to anyone else. A teammate without the plugin gets a
-// shim that finds nothing and exits 0 in silence, or a path that does not
-// resolve, which both harnesses fail open on. Either way the worst case is a
-// hook that does nothing.
+// Both manifests are merged rather than replaced, and both name the project's
+// shim by a path relative to the project, so they can be committed: a teammate
+// who opens the repo gets the check with nothing to run. One without the plugin
+// gets a shim that finds nothing and exits 0 in silence.
 //
 // What they name is the project's own shim, not this plugin. The plugin lives in
 // a directory named after its version, and Cursor keeps exactly one, deleting the
 // old one when it updates itself — so a manifest naming the plugin directly stops
 // resolving on the next update, silently, because hooks fail open. The shim does
 // not move, and resolves the installed plugin at run time instead.
-const HOOK_CMD = `node "${join(target, SHIM_REL)}"`;
+//
+// Shell commands are matched as well as edits on both harnesses, because a file
+// written by `cat >` or `sed -i` is never seen by an edit event; the hook
+// checks whatever changed while the command ran.
 const HOOK_TIMEOUT = 15;
 const SHIM_SRC = join(here, 'hooks', 'project-shim.mjs');
+const CLAUDE_MATCHER = 'Edit|Write|MultiEdit|Bash';
+
+// Cursor's `afterFileEdit` runs the hook and drops what it says, so the check
+// rides `postToolUse`, the event that hands its `additional_context` to the
+// agent. `Write` covers every edit tool there, and `Shell` every command.
+const CURSOR_MATCHER = 'Write|Shell';
 
 // The write guard, through the same shim. It refuses a write that would replace
 // DESIGN.md or .impeccable/design.json with something that is not Pushpin —
@@ -509,8 +534,50 @@ const SHIM_SRC = join(here, 'hooks', 'project-shim.mjs');
 // the guard is the weakest of the three layers anyway. The recorded hashes are
 // what guarantee an overwrite is noticed on every harness; this just gets there
 // before the write instead of after it.
-const GUARD_CMD = `node "${join(target, SHIM_REL)}" ${GUARD_FLAG}`;
 const GUARD_TIMEOUT = 10;
+
+/** A hooks list with ours removed, or undefined when nothing else was in it. */
+const othersIn = (list) => {
+  const rest = withoutHook(list);
+  return rest.length ? rest : undefined;
+};
+
+/** Claude Code's PostToolUse list, holding the Pushpin check and everything else as found. */
+const claudeHooks = (base) => ({
+  ...(base.hooks ?? {}),
+  PostToolUse: [
+    ...withoutHook(base.hooks?.PostToolUse),
+    {
+      matcher: CLAUDE_MATCHER,
+      hooks: [{ type: 'command', command: CLAUDE_HOOK_CMD, timeout: HOOK_TIMEOUT }],
+    },
+  ],
+});
+
+/** Whether a Claude Code settings object already carries exactly the current hook. */
+const claudeHookCurrent = (base) => {
+  const ours = (base.hooks?.PostToolUse ?? []).filter((e) => hookCommands(e).length);
+  return (
+    ours.length === 1 &&
+    ours[0].matcher === CLAUDE_MATCHER &&
+    JSON.stringify(hookCommands(ours[0])) === JSON.stringify([CLAUDE_HOOK_CMD]) &&
+    hookCommands(base).length === 1
+  );
+};
+
+/** The settings object with every hook of ours removed, and emptied keys dropped. */
+function withoutClaudeHooks(base) {
+  if (!base.hooks) return base;
+  const hooks = { ...base.hooks };
+  for (const [event, list] of Object.entries(hooks)) {
+    const rest = othersIn(list);
+    if (rest) hooks[event] = rest;
+    else delete hooks[event];
+  }
+  const next = { ...base, hooks };
+  if (!Object.keys(hooks).length) delete next.hooks;
+  return next;
+}
 
 const ALLOW_RULES = allowRules();
 
@@ -585,35 +652,47 @@ function planHooks() {
 
   planHookManifest(
     join('.cursor', 'hooks.json'),
-    [HOOK_CMD, GUARD_CMD],
-    'run the Pushpin check after each edit, and refuse writes that would replace the generated files',
-    (base) => ({
-      ...base,
-      version: base.version ?? 1,
-      hooks: {
-        ...(base.hooks ?? {}),
-        afterFileEdit: [
-          ...withoutHook(base.hooks?.afterFileEdit),
-          { command: HOOK_CMD, timeout: HOOK_TIMEOUT },
-        ],
-        // Merged like the rest: impeccable installs its own detector here, and
-        // preserving foreign entries is what lets both run.
-        preToolUse: [
-          ...withoutHook(base.hooks?.preToolUse),
-          { command: GUARD_CMD, timeout: GUARD_TIMEOUT },
-        ],
-      },
-    }),
+    [CURSOR_HOOK_CMD, CURSOR_GUARD_CMD],
+    'run the Pushpin check after each edit and shell command, and refuse writes that would replace the generated files',
+    (base) => {
+      const { afterFileEdit, ...rest } = base.hooks ?? {};
+      const legacy = othersIn(afterFileEdit);
+      return {
+        ...base,
+        version: base.version ?? 1,
+        hooks: {
+          ...rest,
+          // Ours used to live here; anything else that does stays.
+          ...(legacy && { afterFileEdit: legacy }),
+          // Merged like the rest: impeccable installs its own detector here, and
+          // preserving foreign entries is what lets both run.
+          postToolUse: [
+            ...withoutHook(base.hooks?.postToolUse),
+            { command: CURSOR_HOOK_CMD, matcher: CURSOR_MATCHER, timeout: HOOK_TIMEOUT },
+          ],
+          preToolUse: [
+            ...withoutHook(base.hooks?.preToolUse),
+            { command: CURSOR_GUARD_CMD, timeout: GUARD_TIMEOUT },
+          ],
+        },
+      };
+    },
   );
 }
 
+if (SHARE) planSettings();
+
 /**
- * Claude Code's machine-local settings file, not the shared one. Both things it
- * carries are absolute paths on this machine — the hook command, and the allow
- * rules from `lib/permissions.mjs` — and committing either would hand every
- * teammate a path that does not exist. It is also the file Claude Code writes
- * itself when someone answers "yes, don't ask again", so the rules land where
- * that answer would have put them.
+ * Claude Code's machine-local settings file, not the shared one. The allow
+ * rules from `lib/permissions.mjs` are absolute paths on this machine, and
+ * committing them would hand every teammate a path that does not exist. It is
+ * also the file Claude Code writes itself when someone answers "yes, don't ask
+ * again", so the rules land where that answer would have put them.
+ *
+ * The edit check lands here only under `--no-share`, which keeps the shared
+ * file out of it, and only when the shared file does not already run it.
+ * Otherwise it is in the shared file, and a copy left here by an earlier init
+ * is removed so the check does not run twice.
  *
  * The allow rules go here rather than in the shared `.claude/settings.json` for
  * a second reason: allow rules in project settings grant capability, so Claude
@@ -648,31 +727,26 @@ function planClaudeLocal() {
   // With --no-hook there is nothing to install and nothing to repair, so the
   // hooks already here are left exactly as found and only the rules are merged.
   const commands = hookCommands(base);
-  const hookCurrent = !HOOK || (commands.length === 1 && commands[0] === HOOK_CMD);
+  // A silent repair passes --no-share and must not edit the shared file, but
+  // when that file already runs the check a second copy here would run it twice.
+  let sharedRuns = false;
+  try {
+    sharedRuns = claudeHookCurrent(JSON.parse(readFileSync(join(target, '.claude', 'settings.json'), 'utf8')));
+  } catch {}
+  const hookHere = HOOK && !SHARE && !sharedRuns;
+  const hookCurrent = !HOOK || (hookHere ? claudeHookCurrent(base) : commands.length === 0);
 
   const allow = base.permissions?.allow ?? [];
   const missing = ALLOW_RULES.filter((r) => !allow.includes(r));
 
   if (hookCurrent && !missing.length && !FORCE) {
-    skipped.push(`${rel} — already runs the Pushpin check and allows its scripts`);
+    skipped.push(`${rel} — already allows Pushpin's scripts${hookHere ? ' and runs its check' : ''}`);
     return;
   }
 
   let next = base;
   if (HOOK) {
-    next = {
-      ...next,
-      hooks: {
-        ...(next.hooks ?? {}),
-        PostToolUse: [
-          ...withoutHook(next.hooks?.PostToolUse),
-          {
-            matcher: 'Edit|Write|MultiEdit',
-            hooks: [{ type: 'command', command: HOOK_CMD, timeout: HOOK_TIMEOUT }],
-          },
-        ],
-      },
-    };
+    next = hookHere ? { ...next, hooks: claudeHooks(next) } : withoutClaudeHooks(next);
   }
 
   // Appended, never replaced: a rule someone else added is theirs, and this
@@ -685,9 +759,11 @@ function planClaudeLocal() {
   const describe =
     [
       HOOK && !hookCurrent
-        ? commands.length
-          ? 'repoint the Pushpin check at the project shim'
-          : 'run the Pushpin check after each edit, reporting off-system values, undeclared lookalikes, and off-guideline copy in place'
+        ? !hookHere
+          ? 'remove the Pushpin check from here, now that the shared .claude/settings.json runs it'
+          : commands.length
+            ? 'bring the Pushpin check up to date'
+            : 'run the Pushpin check after each edit and shell command, reporting off-system values, undeclared lookalikes, and off-guideline copy in place'
         : null,
       missing.length
         ? `let Pushpin's ${ALLOWED_SCRIPTS.length} project scripts run without a permission prompt`

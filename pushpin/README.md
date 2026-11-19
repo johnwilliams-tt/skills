@@ -100,12 +100,16 @@ Run `/pushpin setup` in the project. It asks only what it can't detect — on a
 fresh folder, nothing — and writes the token stylesheet, `pushpin.config.json`,
 `DESIGN.md`, an `AGENTS.md` section, and an edit hook.
 
-Commit `.claude/settings.json`. It offers Pushpin to anyone who opens the
-project, and the plugin stays unloaded until they accept.
+Commit `.claude/settings.json`, `.cursor/hooks.json`, and
+`.pushpin/pushpin-check.mjs`. The settings offer Pushpin to anyone who opens the
+project, and the plugin stays unloaded until they accept; the hooks run the
+check for them too.
 
-From then on, the edit hook flags raw hex, off-scale spacing, square controls,
-token names that don't exist, markup posing as a published component, and copy
-that breaks the content design rules as you write. It reports and never blocks.
+From then on, the edit hook flags raw hex and named colors, off-scale spacing
+and radius, off-ramp type, square controls, tokens that don't exist or sit on
+the wrong property, a page that never loads `pushpin.css`, markup posing as a
+published component, and copy that breaks the content design rules. It runs
+after every edit and every shell command. It reports and never blocks.
 
 Run `/pushpin init` to re-run, repair, or update a project already set up.
 

@@ -25,7 +25,10 @@
  * Drive will not serve a file to a script that is not signed in, so the person
  * downloads it in a browser and `installSystemFont()` picks it up from
  * ~/Downloads. That folder holds the static OTFs and no variable face, so it
- * installs the machine and never the project.
+ * installs the machine and never the project. `writeWebFont()` looks in
+ * ~/Downloads too, for the pinned WOFF2 itself, so placing that one file
+ * anywhere Thumbtack can download it is what gets the project its font without
+ * GitHub.
  *
  * Usage:
  *   node scripts/lib/font.mjs --install   # install Rise on this machine
@@ -122,23 +125,39 @@ export function webFontState(abs) {
   return blobSha(readFileSync(abs)) === WEB_FONT.sha ? 'current' : 'other';
 }
 
-/** Downloads the web font to `abs`, returning null on success or the reason it failed. */
+/**
+ * Puts the web font at `abs`, returning null on success or the reason it
+ * failed. GitHub first; then a copy in ~/Downloads, taken only when it hashes
+ * to the pin, so anyone who can download the file in a browser gets the real
+ * face without GitHub access.
+ */
 export function writeWebFont(abs) {
   const got = fetchFont(WEB_FONT);
-  if (!got.bytes) return got.reason;
+  let bytes = got.bytes;
+  if (!bytes) {
+    const found = downloadedFonts(isWebFontFile);
+    try {
+      const match = found.files.map((f) => readFileSync(f)).find((b) => blobSha(b) === WEB_FONT.sha);
+      if (match) bytes = match;
+    } finally {
+      found.cleanup();
+    }
+  }
+  if (!bytes) return got.reason;
   mkdirSync(dirname(abs), { recursive: true });
-  writeFileSync(abs, got.bytes);
+  writeFileSync(abs, bytes);
   return null;
 }
 
 const isRiseFile = (name) => /^thumbtack ?rise.*\.(otf|ttf)$/i.test(name);
+const isWebFontFile = (name) => /^thumbtack ?rise.*\.woff2$/i.test(name);
 
 /**
  * Rise font files the person downloaded from Drive. Downloading a whole Drive
  * folder produces a zip, which Safari unpacks into a folder and Chrome does
  * not, so both a folder one level down and a zip are looked inside.
  */
-function downloadedFonts() {
+function downloadedFonts(isWanted = isRiseFile) {
   let entries;
   try {
     entries = readdirSync(DOWNLOADS, { withFileTypes: true });
@@ -149,11 +168,11 @@ function downloadedFonts() {
   const temps = [];
   for (const e of entries) {
     const abs = join(DOWNLOADS, e.name);
-    if (e.isFile() && isRiseFile(e.name)) files.push(abs);
+    if (e.isFile() && isWanted(e.name)) files.push(abs);
     else if (e.isDirectory() && /rise/i.test(e.name)) {
       try {
         for (const f of readdirSync(abs)) {
-          if (isRiseFile(f) && statSync(join(abs, f)).isFile()) files.push(join(abs, f));
+          if (isWanted(f) && statSync(join(abs, f)).isFile()) files.push(join(abs, f));
         }
       } catch {}
     } else if (e.isFile() && /rise.*\.zip$/i.test(e.name)) {
@@ -161,7 +180,7 @@ function downloadedFonts() {
       temps.push(out);
       try {
         execFileSync('unzip', ['-o', '-j', '-q', abs, '-d', out], { stdio: 'ignore' });
-        for (const f of readdirSync(out)) if (isRiseFile(f)) files.push(join(out, f));
+        for (const f of readdirSync(out)) if (isWanted(f)) files.push(join(out, f));
       } catch {}
     }
   }

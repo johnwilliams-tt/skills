@@ -580,8 +580,9 @@ async function verify() {
 
   // Hooks, read from the manifests rather than from anything recorded.
   const hooks = inspectHooks(target);
-  const live = (role) => hooks.filter((h) => h.role === role && h.exists);
+  const live = (role) => hooks.filter((h) => h.role === role && h.exists && !h.stale);
   const broken = hooks.filter((h) => !h.exists);
+  const stale = hooks.filter((h) => h.exists && h.stale);
 
   if (config.checkHook === false) {
     row(NOTE, 'edit check', 'declined with --no-hook, and respected');
@@ -609,6 +610,10 @@ async function verify() {
   for (const h of broken) {
     row(MISSING, 'hook target', `${h.rel} names something that is not there — ${h.target}`);
     advice.push(`\`node scripts/init.mjs ${target} --write${replay}\` repairs the hook in ${h.rel}.`);
+  }
+  for (const h of stale) {
+    row(MISSING, 'hook', `${h.rel} ${h.stale}`);
+    advice.push(`\`node scripts/init.mjs ${target} --write${replay}\` moves the hook in ${h.rel} to where it reports.`);
   }
 
   // The allow rules name this plugin by full path, so a plugin update leaves

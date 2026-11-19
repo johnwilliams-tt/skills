@@ -56,8 +56,37 @@ its `cssHash` no longer matches and session start reports it as behind.
   `--pp-*` properties outside those groups are left alone, including in the
   edit hook, which reads the project's stylesheets for their declarations.
 
+- **`check.mjs` reads every way a prototype sets a style**: stylesheets,
+  `style=""` attributes, `el.style.*` assignments, `setProperty()` and
+  `cssText`, in `.mjs` files too. It now also reports a token on a property
+  that cannot take it (`wrong-token-type`), an HTML page that never loads
+  `pushpin.css` (`stylesheet-not-loaded`), off-scale radius anywhere, `rem`
+  and `em` spacing and sizes, named colors and modern color functions, the
+  `font:` shorthand, `bolder` and `lighter`, literal `line-height` and
+  `letter-spacing`, the literal half of a `calc()`, and durations, easing
+  curves, high `z-index` values and media query widths that are no token.
+- **The Figma audit reports literal strokes and hand-set shadows** beside
+  literal fills.
+- **`init` takes the pinned WOFF2 from `~/Downloads`** when GitHub cannot serve
+  it, after checking its hash, so the project font no longer depends on GitHub
+  access once the file is somewhere a browser can download it.
+
 **Fixed**
 
+- **Cursor's edit check never reached the agent.** It ran on `afterFileEdit`,
+  whose output Cursor discards; it now runs on `postToolUse`, whose
+  `additional_context` is delivered.
+- **Files written from the shell were never checked.** Both harnesses now run
+  the hook after shell commands, on the files that changed while they ran.
+- **Collaborators had no edit check.** The hooks named the project shim by an
+  absolute path, so the manifests could not be committed. Cursor's now uses a
+  path relative to the project root and Claude Code's uses
+  `$CLAUDE_PROJECT_DIR`, and the Claude Code hook lives in the shared
+  `.claude/settings.json`. Session start reports a hook in the old place as
+  repairable and moves it, without running it twice.
+- **`DESIGN.md` showed `size=medium` for Button**, which has only `large` and
+  `small`, so a declaration copied from it did not resolve. The same example
+  in `components.md` and `generate.md` is corrected too.
 - **The pre-commit hook rebuilds `DESIGN.md`, `design.json` and the manifest
   whenever they name a different version from the plugin manifest.** Both
   files name the version, so a bump that stopped at the manifests left
