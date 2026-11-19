@@ -52,12 +52,23 @@ frame someone is about to build from does not.
 
 | Finding | What it looks like |
 |---|---|
-| Raw color | A hex, `rgb()`, or `hsl()` literal — flag it whether or not it matches a ramp. Matching a ramp means the token exists and was bypassed. |
+| Raw color | A hex, `rgb()`, `hsl()`, `oklch()`, `color-mix()` or other color function, or a named color like `white`, on a color property — flag it whether or not it matches a ramp. Matching a ramp means the token exists and was bypassed. |
 | Pure black text | `#000`, `black`, `rgb(0,0,0)` on text. Body text is `--pp-text-neutral-default`. |
-| Square corners on a control | A button, input, chip, or search bar without `--pp-radius-sides`. |
-| Off-scale spacing | A padding, margin, or gap in px that is not one of the 13 `--pp-space-*` steps. |
-| Off-ramp type | A `font-size` that is not a ramp step, or a family that is not Thumbtack Rise. |
-| Off-ramp weight | A weight outside 400 / 563 / 590 / 660 / 700. |
+| Square corners on a control | A button, input, chip, or search bar without `--pp-radius-sides`, in a rule or an inline `style`. |
+| Unknown token | A `var(--pp-*)` in one of Pushpin's groups that names no token, such as `--pp-radius-md` for `--pp-radius-medium`. It resolves to nothing, so the property silently falls back to its initial value. Reported with the real token it was probably meant to be. A project declaring such a name, like `--pp-radius-md: 8px`, is reported at the declaration and at every use. |
+| Wrong token type | A real token on a property that cannot take it, such as `color: var(--pp-radius-medium)`. The browser drops the declaration. |
+| Stylesheet not loaded | An HTML page that uses `--pp-*` or `.pp-*` and loads no `pushpin.css`, directly or through a linked stylesheet's `@import`. Every token on it does nothing. |
+| Off-scale spacing | A padding, margin, or gap in `px`, `rem` or `em` that is not one of the 13 `--pp-space-*` steps, including the literal half of a `calc()`. |
+| Off-scale radius | A `border-radius` on anything that is not a `--pp-radius-*` step. |
+| Off-ramp type | A `font-size`, a `font` shorthand, or a size keyword that is not a ramp step, or a family that is not Thumbtack Rise. |
+| Off-ramp weight | A weight outside 400 / 563 / 590 / 660 / 700, or `bolder` / `lighter`. |
+| Off-ramp leading and tracking | A `line-height` that is no `--pp-line-height-*` or `--pp-leading-*` value, or a `letter-spacing` that is no `--pp-tracking-*` value. |
+| Off-scale motion, z-index and breakpoints | A transition or animation duration or `cubic-bezier()` that is no token, a `z-index` of 100 or more that is not `--pp-z-modal`, or a media query width that is no `--pp-breakpoint-*` (or one pixel under it, for `max-width`). |
+
+Each of these is read wherever a prototype sets a style: a stylesheet, a
+`<style>` block, a `style=""` attribute, `el.style.borderRadius = …`,
+`setProperty()`, or `cssText`. A value a script is still assembling, such as a
+template interpolation, is skipped.
 
 **Nothing else in the project is reporting these.** Impeccable's per-edit
 detector would — it reads the same ramps out of the generated `DESIGN.md` — but
@@ -65,7 +76,10 @@ its hook installer skips every project that does not hold a provider folder such
 as `.cursor/skills/impeccable`, which the usual user-global install never
 creates, so an initialized project usually has no detector running at all. Where
 one is installed, `check.mjs` reads that off the hook manifests and drops this
-class rather than saying it twice.
+class rather than saying it twice. Unknown tokens, wrong token types, and a
+page that never loads the stylesheet are the exceptions and are always
+reported: impeccable holds values against the ramps, and has no list of token
+names or page wiring to hold them against.
 [init.md](init.md#why-impeccable-hooks-on-is-not-part-of-this) has why Pushpin
 does not wire one up.
 

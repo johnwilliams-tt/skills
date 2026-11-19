@@ -14,6 +14,13 @@ design/
 # design-council's --local seat clones (install-seats.sh --local)
 seats/
 
+# Thumbtack Rise is licensed and this repository is public. lib/font.mjs
+# downloads it into each project from Thumbtack's private repositories; no copy
+# belongs here.
+*.woff2
+*.ttf
+*.otf
+
 # Figma capture scratch. Every capture in pushpin/scripts/check.md is an input
 # the distillers consume and then nothing reads again — the committed artifact is
 # assets/*.figma.json, and the catalog records `source.propertiesCapturedAt` so

@@ -77,7 +77,7 @@ Button by the time it is read.
 The convention is written into the project's generated `DESIGN.md`:
 
 ```html
-<button data-pp-component="Button" data-pp-variant="theme=primary, size=medium">
+<button data-pp-component="Button" data-pp-variant="theme=primary, size=large">
 <div data-pp-proposed="FilterChip" data-pp-extends="Chip" data-pp-tier="better-experience">
 ```
 

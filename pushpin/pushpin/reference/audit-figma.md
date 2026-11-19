@@ -35,8 +35,9 @@ Eight buckets:
 - **Neighbours** — notes belonging to other work on the page that land on this
   artifact — [below](#notes-belong-to-one-artifact).
 - **Defects** — detached instances, lookalikes, undeclared local components,
-  instances resolved from a key no Pushpin catalog publishes, literal fills,
-  unbound spacing and radius, resized icons, nodes left shimmering, drift that
+  instances resolved from a key no Pushpin catalog publishes, literal fills and
+  strokes, shadows not set from a published effect style, unbound spacing and
+  radius, resized icons, nodes left shimmering, drift that
   no `Token drift` note discloses, drift recorded in a form this cannot read,
   `Proposed /` components whose note is missing or incomplete or whose type and
   geometry drifted from the component they claim to extend, overlapping
@@ -511,9 +512,10 @@ for (const n of root.findAllWithCriteria({ types: ['FRAME', 'RECTANGLE'] })) {
 literalSpacing(root, root.name);
 collectDrift(root);
 
-// Literal fills, literal spacing, and recorded drift, over one walk. All three
-// skip nodes inside an instance for the same reason: the library owns that
-// styling, so flagging it would fail every screen that placed a component. Slot
+// Literal fills, strokes and shadows, literal spacing, and recorded drift, over
+// one walk. All of them skip nodes inside an instance for the same reason: the
+// library owns that styling, so flagging it would fail every screen that
+// placed a component. Slot
 // content is the exception the same reason carves out — the caller supplies it,
 // so it is this run's layout and is held to the standard the rest of the frame
 // is. A raw hex or an unbound gap inside a Modal's `children` is not the
@@ -524,6 +526,26 @@ for (const n of root.findAllWithCriteria({ types: ['FRAME', 'RECTANGLE', 'TEXT']
 
   collectDrift(n);
   literalSpacing(n, n.name);
+
+  // A border is a fill along an edge, and a literal one is the same defect.
+  // Hidden strokes are skipped: nothing renders them.
+  const strokes = n.strokes;
+  if (Array.isArray(strokes)) {
+    for (const s of strokes) {
+      if (s.visible !== false && s.type === 'SOLID' && !(s.boundVariables && s.boundVariables.color)) {
+        unbound.add(`${n.name} — literal stroke, not a variable binding`);
+        break;
+      }
+    }
+  }
+
+  // Shadows are published as effect styles, so a shadow set by hand is a value
+  // no token governs, however close it looks to `100 · Shadow`.
+  const effects = n.effects;
+  if (!n.effectStyleId && Array.isArray(effects) &&
+      effects.some((e) => e.visible !== false && (e.type === 'DROP_SHADOW' || e.type === 'INNER_SHADOW'))) {
+    unbound.add(`${n.name} — hand-set shadow, not a published effect style`);
+  }
 
   const fills = n.fills;
   if (!Array.isArray(fills)) continue;                    // figma.mixed on multi-style text

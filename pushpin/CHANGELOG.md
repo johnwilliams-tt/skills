@@ -17,6 +17,84 @@ Changes are grouped the way `diff.mjs` classifies them:
 An entry about the plugin rather than the capture adds **Fixed** for a bug in
 the toolchain, which `diff.mjs` has no category for.
 
+## 0.23.10 — 2026-11-18
+
+Thumbtack Rise reaches every project. The stylesheet named the face and nothing
+supplied it, so a machine without Rise installed rendered every prototype in
+the system fallback. The plugin still contains no copy: this repository is
+public and the font is licensed from &Walsh, so it is downloaded from
+Thumbtack's private repositories with each person's own GitHub login.
+
+Re-run `init --write --force` on an existing project: `pushpin.css` changed, so
+its `cssHash` no longer matches and session start reports it as behind.
+
+**Added**
+
+- **`pushpin.css` opens with an `@font-face`** for the variable face, weights
+  291–836, loading `fonts/ThumbtackRiseVF.woff2` relative to the stylesheet and
+  falling back to an installed Rise, then to the system stack.
+- **`init --write` downloads that file beside the stylesheet**, from
+  `thumbtack/company-context-layer`, and on macOS installs the same variable
+  face as a TTF into `~/Library/Fonts` from `thumbtack/ios` when no Rise is
+  installed, which is what Figma's desktop app renders with. Both are pinned by
+  git blob sha and refused if the bytes do not match.
+  [lib/font.mjs](pushpin/scripts/lib/font.mjs) holds the pins.
+- **Without GitHub access**, `init` names the reason and the Brand Asset
+  Library's Drive folder. Its OTFs, downloaded into `~/Downloads` loose, in a
+  folder, or as the zip, are installed on the next run.
+- **`setup.mjs --ready` reports a Mac without Rise** as a `fix:` line,
+  `node scripts/lib/font.mjs --install`, and **`--verify` reports a project
+  without its font file** as a note with the init remedy.
+- **`check.mjs` reports `unknown-token`**: a `var(--pp-*)` in one of
+  Pushpin's groups that names nothing, with the token it was probably meant to
+  be. `var(--pp-radius-md)` passed every check while the browser drew square
+  corners, because the property falls back to its initial value; it now
+  reports `--pp-radius-medium`. It runs under `--component-only` too, since
+  impeccable's detector has no list of names to check one against. A name
+  declared in one of Pushpin's own groups, such as `--pp-radius-md: 8px`, is
+  reported where it is declared and wherever it is used. A project's own
+  `--pp-*` properties outside those groups are left alone, including in the
+  edit hook, which reads the project's stylesheets for their declarations.
+
+- **`check.mjs` reads every way a prototype sets a style**: stylesheets,
+  `style=""` attributes, `el.style.*` assignments, `setProperty()` and
+  `cssText`, in `.mjs` files too. It now also reports a token on a property
+  that cannot take it (`wrong-token-type`), an HTML page that never loads
+  `pushpin.css` (`stylesheet-not-loaded`), off-scale radius anywhere, `rem`
+  and `em` spacing and sizes, named colors and modern color functions, the
+  `font:` shorthand, `bolder` and `lighter`, literal `line-height` and
+  `letter-spacing`, the literal half of a `calc()`, and durations, easing
+  curves, high `z-index` values and media query widths that are no token.
+- **The Figma audit reports literal strokes and hand-set shadows** beside
+  literal fills.
+- **`init` takes the pinned WOFF2 from `~/Downloads`** when GitHub cannot serve
+  it, after checking its hash, so the project font no longer depends on GitHub
+  access once the file is somewhere a browser can download it.
+
+**Fixed**
+
+- **Cursor's edit check never reached the agent.** It ran on `afterFileEdit`,
+  whose output Cursor discards; it now runs on `postToolUse`, whose
+  `additional_context` is delivered.
+- **Files written from the shell were never checked.** Both harnesses now run
+  the hook after shell commands, on the files that changed while they ran.
+- **Collaborators had no edit check.** The hooks named the project shim by an
+  absolute path, so the manifests could not be committed. Cursor's now uses a
+  path relative to the project root and Claude Code's uses
+  `$CLAUDE_PROJECT_DIR`, and the Claude Code hook lives in the shared
+  `.claude/settings.json`. Session start reports a hook in the old place as
+  repairable and moves it, without running it twice.
+- **`DESIGN.md` showed `size=medium` for Button**, which has only `large` and
+  `small`, so a declaration copied from it did not resolve. The same example
+  in `components.md` and `generate.md` is corrected too.
+- **The pre-commit hook rebuilds `DESIGN.md`, `design.json` and the manifest
+  whenever they name a different version from the plugin manifest.** Both
+  files name the version, so a bump that stopped at the manifests left
+  `build-design --check` red. A rebuild that fails stops the commit.
+- **`verify.mjs` reads the `:root` block from where it starts.** It took the
+  first closing brace in the file, which an `@font-face` above `:root` would
+  have turned into an empty block.
+
 ## 0.23.9 — 2026-11-18
 
 The token capture 0.23.8 left behind, closing

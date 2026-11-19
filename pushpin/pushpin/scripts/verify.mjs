@@ -48,7 +48,8 @@ function declsIn(block) {
   return map;
 }
 
-const rootBlock = css.slice(css.indexOf(':root {'), css.indexOf('\n}'));
+const rootStart = css.indexOf(':root {');
+const rootBlock = css.slice(rootStart, css.indexOf('\n}', rootStart));
 const darkStart = css.indexOf('[data-pp-theme="dark"] {');
 const darkBlock = css.slice(darkStart, css.indexOf('\n}', darkStart));
 

@@ -610,7 +610,7 @@ given block of markup was meant to be, and it has to guess. Naming it removes
 the guess:
 
 \`\`\`html
-<button data-pp-component="Button" data-pp-variant="theme=primary, size=medium">
+<button data-pp-component="Button" data-pp-variant="theme=primary, size=large">
 \`\`\`
 
 Use the exact names and options below — they come from the kit. A declaration

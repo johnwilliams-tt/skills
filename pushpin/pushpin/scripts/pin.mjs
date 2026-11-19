@@ -240,7 +240,7 @@ export function inspectPin(dir, { manifest, pluginVersion }) {
     if (prev.checkHook !== false) {
       const hooks = inspectHooks(target);
       const broken = hooks.filter((h) => !h.exists);
-      const legacy = hooks.filter((h) => h.exists && h.kind === 'plugin');
+      const legacy = hooks.filter((h) => h.exists && (h.kind === 'plugin' || h.stale));
 
       if (!hooks.length) {
         // No key at all means the project predates the hook, which is a
@@ -259,7 +259,11 @@ export function inspectPin(dir, { manifest, pluginVersion }) {
         reasons.push('hook-broken');
       } else if (legacy.length) {
         for (const h of legacy) {
-          details.push(`${h.rel}: names a plugin version directly, so the next update will break it`);
+          details.push(
+            h.kind === 'plugin'
+              ? `${h.rel}: names a plugin version directly, so the next update will break it`
+              : `${h.rel}: ${h.stale}`,
+          );
         }
         reasons.push('hook-legacy');
       }

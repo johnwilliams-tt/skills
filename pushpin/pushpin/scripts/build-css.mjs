@@ -22,6 +22,8 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { WEB_FONT_REL, WEIGHT_RANGE } from './lib/font.mjs';
+
 const here = dirname(fileURLToPath(import.meta.url));
 const SRC = join(here, '..', 'assets', 'tokens.figma.json');
 const STYLE_SRC = join(here, '..', 'assets', 'styles.figma.json');
@@ -196,6 +198,24 @@ p(' *');
 p(' * Custom property names mirror Figma variable paths: the Figma variable');
 p(' * `background/brand/strong` is `--pp-background-brand-strong` here.');
 p(' */');
+p();
+
+// The url resolves from this stylesheet, which is where init puts the file.
+// `local()` is for a project whose copy is missing. Chrome matches it by
+// PostScript name, and on the installed variable TTF that name resolves to the
+// whole weight axis, so it renders exactly as the url does. On the static OTFs
+// from the Brand Asset Library it resolves to Regular alone.
+const fontUrl = WEB_FONT_REL.split('\\').join('/');
+p('/* Thumbtack Rise. Not shipped with the plugin: `pushpin init` downloads it');
+p(` * to ${fontUrl} beside this stylesheet. */`);
+p('@font-face {');
+p('  font-family: "Thumbtack Rise";');
+p(`  src: url("${fontUrl}") format("woff2"),`);
+p('    local("Thumbtack Rise Regular"), local("ThumbtackRise-Regular");');
+p(`  font-weight: ${WEIGHT_RANGE[0]} ${WEIGHT_RANGE[1]};`);
+p('  font-style: normal;');
+p('  font-display: swap;');
+p('}');
 p();
 p(':root {');
 

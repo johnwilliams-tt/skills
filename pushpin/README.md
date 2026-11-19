@@ -18,7 +18,13 @@ content design rules, and scripts that move a design between Figma and code.
 - **The Pushpin Thumbprint UI Kit and the Annotation Kit, both enabled in the
   Figma file you're working in.** Most product files don't subscribe to the
   Annotation Kit.
-- **The Thumbtack Rise font.** Without it, generated text renders in a fallback.
+- **The GitHub CLI, signed in to an account in the Thumbtack org.** Install it
+  from [cli.github.com](https://cli.github.com), then run `gh auth login`.
+  Setup uses it to download the Thumbtack Rise font from Thumbtack's private
+  repos. Without that access, download the fonts from the
+  [Brand Asset Library](https://drive.google.com/drive/folders/1IpQmx6aW4fPFQgLISRW0svw8k9uqzvf7)
+  into `~/Downloads`; setup installs them on your Mac, and pages render in a
+  fallback font elsewhere.
 - **Auto, on Claude Code.** Shift+Tab until the status bar says Auto. Accepting
   edits is not enough; that still asks about commands. `/pushpin setup` asks
   once before it runs any.
@@ -94,12 +100,16 @@ Run `/pushpin setup` in the project. It asks only what it can't detect — on a
 fresh folder, nothing — and writes the token stylesheet, `pushpin.config.json`,
 `DESIGN.md`, an `AGENTS.md` section, and an edit hook.
 
-Commit `.claude/settings.json`. It offers Pushpin to anyone who opens the
-project, and the plugin stays unloaded until they accept.
+Commit `.claude/settings.json`, `.cursor/hooks.json`, and
+`.pushpin/pushpin-check.mjs`. The settings offer Pushpin to anyone who opens the
+project, and the plugin stays unloaded until they accept; the hooks run the
+check for them too.
 
-From then on, the edit hook flags raw hex, off-scale spacing, square controls,
-markup posing as a published component, and copy that breaks the content design
-rules as you write. It reports and never blocks.
+From then on, the edit hook flags raw hex and named colors, off-scale spacing
+and radius, off-ramp type, square controls, tokens that don't exist or sit on
+the wrong property, a page that never loads `pushpin.css`, markup posing as a
+published component, and copy that breaks the content design rules. It runs
+after every edit and every shell command. It reports and never blocks.
 
 Run `/pushpin init` to re-run, repair, or update a project already set up.
 
@@ -134,6 +144,7 @@ node pushpin/scripts/setup.mjs <dir> --ready  # what this machine is missing
 node pushpin/scripts/setup.mjs <dir> --verify # what a project still needs
 node pushpin/scripts/init.mjs <dir> --write   # set up, repair, or update a project
 node pushpin/scripts/preview.mjs --root <dir> # serve a prototype with caching off
+node pushpin/scripts/lib/font.mjs --install   # install Thumbtack Rise on this Mac
 ```
 
 `setup.mjs` reports faults and nothing else, so a clean run prints nothing. Add
@@ -192,6 +203,9 @@ without editing a file first.
   stops asking before every catalog lookup. Keep `.claude/settings.local.json`
   out of git — it names paths on one machine — and run `/pushpin init` after a
   plugin update.
+- **Never commit Thumbtack Rise to this repo.** The repo is public and the font
+  is licensed. `pushpin/scripts/lib/font.mjs` pins the private Thumbtack repos
+  it is downloaded from.
 - **Nothing in `pushpin/assets/` is hand-written except `copy-map.json`.** The
   rest is captured from the Figma kit and the content design source. Refresh it
   per [`reference/maintaining.md`](pushpin/reference/maintaining.md); every

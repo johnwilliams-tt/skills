@@ -37,7 +37,7 @@
  */
 
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
-import { basename, extname, join, relative, resolve } from 'node:path';
+import { basename, dirname, extname, join, relative, resolve } from 'node:path';
 import {
   MARKUP_EXT,
   attrValue,
@@ -56,7 +56,7 @@ import {
   unknownPairs,
   variantForAll,
 } from './lib/specs.mjs';
-import { TOKEN_GROUPS, loadAsset, real, resolveHex } from './lib/tokens.mjs';
+import { ASSETS, TOKEN_GROUPS, loadAsset, real, resolveHex } from './lib/tokens.mjs';
 
 const argv = process.argv.slice(2);
 const has = (n) => argv.includes(n);
@@ -169,12 +169,14 @@ const { scan } = COPY_ON ? await import('./lib/copy.mjs') : { scan: null };
 
 const EXT = new Set([
   '.css', '.scss', '.sass', '.less',
-  '.js', '.jsx', '.ts', '.tsx',
+  '.js', '.mjs', '.jsx', '.ts', '.tsx',
   '.html', '.vue', '.svelte', '.astro',
 ]);
 const SKIP_DIR = new Set([
   'node_modules', '.git', 'dist', 'build', 'out', '.next', '.nuxt',
   'coverage', 'vendor', '.svelte-kit', '.turbo', '.cache',
+  // Pushpin's own state: the hook shim, and backups of stylesheets init replaced.
+  '.pushpin',
 ]);
 
 function collect(p, into) {
@@ -239,6 +241,303 @@ const isGenerated = (file, src) =>
 
 const CONTROL = /\b(button|btn|input|textarea|select|chip|pill|tag|search|combobox|switch|toggle)\b/i;
 
+// ------------------------------------------------------------- declarations
+
+/**
+ * Every property set in a file, however it was written: a CSS rule, a
+ * `style=""` attribute, a `cssText` string, `el.style.borderRadius = '…'`, or
+ * `setProperty('border-radius', …)`. The rules below read this list, so a value
+ * is held to the same scale whichever way a prototype's script set it.
+ *
+ * The first pattern also meets object literals and the like in script; only
+ * the properties the rules name are ever read, and a quoted JavaScript value
+ * stops the match, so those are left alone.
+ */
+const kebab = (p) => p.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
+
+function declarationsIn(s) {
+  const out = [];
+  for (const m of s.matchAll(/(?<![\w$.\-#@])([a-z][a-z-]*)\s*:\s*([^;{}\n"'`<>]*[^;{}\n"'`<>\s])/g)) {
+    out.push({ prop: m[1], value: m[2], index: m.index });
+  }
+  for (const m of s.matchAll(/\.style\.([a-zA-Z]+)\s*=\s*(['"`])([^'"`]*)\2/g)) {
+    out.push({ prop: kebab(m[1]), value: m[3], index: m.index });
+  }
+  for (const m of s.matchAll(/\.setProperty\(\s*(['"`])([a-z-]+)\1\s*,\s*(['"`])([^'"`]*)\3/g)) {
+    out.push({ prop: m[2], value: m[4], index: m.index });
+  }
+  return out;
+}
+
+/** A value with its var() references blanked, so only the literals in it remain. */
+function literalsOf(value) {
+  let out = value;
+  for (let prev = null; prev !== out; ) {
+    prev = out;
+    out = out.replace(/var\([^()]*\)/g, ' ');
+  }
+  return out;
+}
+
+/** Lengths in a value, as px. `rem` and `em` are taken at the 16px root. */
+const lengthsIn = (literal) =>
+  [...literal.matchAll(/(-?\d*\.?\d+)(px|rem|em)\b/g)].map((m) => ({
+    raw: m[0],
+    px: Math.abs(Number(m[1])) * (m[2] === 'px' ? 1 : 16),
+    relative: m[2] !== 'px',
+  }));
+const asPx = (l) => (l.relative ? `${l.raw} (${l.px}px)` : l.raw);
+
+const SPACING_PROP = /^(padding|margin|gap|row-gap|column-gap)(-(top|right|bottom|left|inline|block)(-start|-end)?)?$/;
+const RADIUS_PROP = /^border(-(top|bottom|start|end)-(left|right|start|end))?-radius$/;
+const COLOR_PROP =
+  /^(color|background(-color)?|border(-(top|right|bottom|left|block|inline)(-start|-end)?)?(-color)?|outline(-color)?|fill|stroke|box-shadow|text-shadow|text-decoration(-color)?|caret-color|accent-color|column-rule(-color)?)$/;
+
+const NAMED_COLORS = new Set(
+  ('aliceblue antiquewhite aqua aquamarine azure beige bisque black blanchedalmond blue ' +
+    'blueviolet brown burlywood cadetblue chartreuse chocolate coral cornflowerblue cornsilk ' +
+    'crimson cyan darkblue darkcyan darkgoldenrod darkgray darkgreen darkgrey darkkhaki ' +
+    'darkmagenta darkolivegreen darkorange darkorchid darkred darksalmon darkseagreen ' +
+    'darkslateblue darkslategray darkslategrey darkturquoise darkviolet deeppink deepskyblue ' +
+    'dimgray dimgrey dodgerblue firebrick floralwhite forestgreen fuchsia gainsboro ghostwhite ' +
+    'gold goldenrod gray green greenyellow grey honeydew hotpink indianred indigo ivory khaki ' +
+    'lavender lavenderblush lawngreen lemonchiffon lightblue lightcoral lightcyan ' +
+    'lightgoldenrodyellow lightgray lightgreen lightgrey lightpink lightsalmon lightseagreen ' +
+    'lightskyblue lightslategray lightslategrey lightsteelblue lightyellow lime limegreen linen ' +
+    'magenta maroon mediumaquamarine mediumblue mediumorchid mediumpurple mediumseagreen ' +
+    'mediumslateblue mediumspringgreen mediumturquoise mediumvioletred midnightblue mintcream ' +
+    'mistyrose moccasin navajowhite navy oldlace olive olivedrab orange orangered orchid ' +
+    'palegoldenrod palegreen paleturquoise palevioletred papayawhip peachpuff peru pink plum ' +
+    'powderblue purple rebeccapurple red rosybrown royalblue saddlebrown salmon sandybrown ' +
+    'seagreen seashell sienna silver skyblue slateblue slategray slategrey snow springgreen ' +
+    'steelblue tan teal thistle tomato turquoise violet wheat white whitesmoke yellow yellowgreen'
+  ).split(' '),
+);
+const COLOR_FUNCTION = /\b(oklch|oklab|lab|lch|hwb|color-mix|color)\(/;
+const FONT_SIZE_KEYWORD = /\b(xx-small|x-small|small|medium|large|x-large|xx-large|xxx-large|smaller|larger)\b/;
+const RESETS = /^(inherit|initial|unset|revert|revert-layer)$/;
+
+/** What each property accepts, by the kind of token that can sit in it. */
+const EXPECTS = [
+  [/^(color|background-color|background|border(-(top|right|bottom|left|block|inline)(-start|-end)?)?-color|outline-color|fill|stroke|caret-color|accent-color|text-decoration-color|column-rule-color)$/, ['color']],
+  [RADIUS_PROP, ['radius']],
+  [SPACING_PROP, ['space']],
+  [/^font-size$/, ['font-size']],
+  [/^line-height$/, ['line-height', 'leading']],
+  [/^font-weight$/, ['font-weight']],
+  [/^letter-spacing$/, ['tracking']],
+  [/^font-family$/, ['font-family']],
+  [/^z-index$/, ['z']],
+  [/^(transition|animation)-duration$/, ['duration']],
+  [/^(transition|animation)-timing-function$/, ['easing']],
+];
+const expectsFor = (prop) => EXPECTS.find(([re]) => re.test(prop))?.[1] ?? null;
+
+/**
+ * A token of the wrong kind is invalid where it is used, so the browser drops
+ * the declaration and the property falls back to whatever it would have been.
+ * Name-based like `unknown-token`, so it runs whether or not impeccable is
+ * reporting the token half.
+ */
+function checkTokenTypes(file, src) {
+  const s = maskDevtool(mask(src));
+  for (const { prop, value, index } of declarationsIn(s)) {
+    const expects = expectsFor(prop);
+    if (!expects) continue;
+    for (const m of value.matchAll(/var\(\s*(--pp-[\w-]+)/g)) {
+      const kind = TOKEN_KIND.get(m[1]);
+      if (kind && !expects.includes(kind)) {
+        add(file, lineOf(s, index), 'wrong-token-type',
+          `${prop} takes a ${expects.join(' or ')} token, and ${m[1]} is a ${kind} token, so the browser drops it`);
+      }
+    }
+  }
+}
+
+/**
+ * A value a script is still assembling — a template interpolation, a regular
+ * expression, a var() whose name is built at run time — is not one this can
+ * read, and reading it anyway reports the template rather than the page.
+ */
+const unfinished = (value) => /\$\{|\\/.test(value) || /var\((?![^()]*\))/.test(value);
+
+function checkDeclaration(file, s, { prop, value, index }) {
+  if (unfinished(value)) return;
+  const line = lineOf(s, index);
+  const literal = literalsOf(value).trim();
+  if (!literal || RESETS.test(literal)) return;
+
+  if (SPACING_PROP.test(prop)) {
+    for (const l of lengthsIn(literal)) {
+      if (l.px === 0 || SPACE.has(l.px)) continue;
+      add(file, line, 'off-scale-spacing', `${prop} ${asPx(l)} is not a --pp-space-* step`);
+    }
+  }
+
+  if (RADIUS_PROP.test(prop) && !/\b(50|100)%/.test(literal)) {
+    for (const l of lengthsIn(literal)) {
+      if (RADII.has(l.px) || l.px >= PILL) continue;
+      add(file, line, 'off-scale-radius', `${prop} ${asPx(l)} is not a --pp-radius-* step`);
+    }
+  }
+
+  if (prop === 'font-size') {
+    const l = lengthsIn(literal)[0];
+    if (l && !FONT_SIZES.has(l.px)) {
+      add(file, line, 'off-ramp-type', `font-size ${asPx(l)} is not a ramp step`);
+    } else if (!l && FONT_SIZE_KEYWORD.test(literal)) {
+      add(file, line, 'off-ramp-type', `font-size ${literal} is a keyword, not a ramp step`);
+    }
+  }
+
+  if (prop === 'font-weight') {
+    const n = literal.match(/\b(\d{3})\b/);
+    if (n && !WEIGHTS.has(Number(n[1]))) {
+      add(file, line, 'off-ramp-weight', `weight ${n[1]} is outside 400 / 563 / 590 / 660 / 700`);
+    } else if (/\b(bolder|lighter)\b/.test(literal)) {
+      add(file, line, 'off-ramp-weight', `font-weight ${literal} is relative to the parent, not a ramp weight`);
+    }
+  }
+
+  if (prop === 'font-family' && !/Thumbtack Rise/i.test(literal) && !value.includes('var(')) {
+    add(file, line, 'off-family', `not Thumbtack Rise; use var(--pp-font-family)`);
+  }
+
+  // The shorthand sets size, weight and family at once, so each is held to
+  // the ramp as its own longhand would be.
+  if (prop === 'font') {
+    const [size] = lengthsIn(literal);
+    if (size && !FONT_SIZES.has(size.px)) {
+      add(file, line, 'off-ramp-type', `font sets ${asPx(size)}, which is not a ramp step`);
+    }
+    const weight = literal.match(/^(?:\D*\s)?([1-9]00|\d{3})\s/);
+    if (weight && !WEIGHTS.has(Number(weight[1]))) {
+      add(file, line, 'off-ramp-weight', `font sets weight ${weight[1]}, outside 400 / 563 / 590 / 660 / 700`);
+    }
+    const family = literal.split(/\d*\.?\d+(?:px|rem|em|%)(?:\s*\/\s*[\d.]+(?:px|rem|em|%)?)?/).at(-1).trim();
+    if (size && family && !/Thumbtack Rise/i.test(family) && !value.includes('var(')) {
+      add(file, line, 'off-family', `font sets ${family}, not Thumbtack Rise; use var(--pp-font-family)`);
+    }
+  }
+
+  if (prop === 'line-height' && literal !== 'normal') {
+    const n = Number(literal);
+    const [l] = lengthsIn(literal);
+    const ok = Number.isFinite(n) ? LEADINGS.has(n) : l ? LINE_HEIGHTS.has(l.px) : false;
+    if (!ok) {
+      add(file, line, 'off-ramp-leading',
+        `line-height ${literal} is not a --pp-line-height-* or --pp-leading-* value`);
+    }
+  }
+
+  if (prop === 'letter-spacing' && literal !== 'normal' && !/^0(px|em|rem)?$/.test(literal)) {
+    const em = literal.match(/^(-?\d*\.?\d+)em$/);
+    if (!em || !TRACKING.has(Number(em[1]))) {
+      add(file, line, 'off-ramp-tracking', `letter-spacing ${literal} is not a --pp-tracking-* value`);
+    }
+  }
+
+  if (COLOR_PROP.test(prop)) {
+    const fn = literal.match(COLOR_FUNCTION);
+    if (fn) add(file, line, 'raw-color', `\`${fn[0]}…\` is a literal; use a --pp-* token`);
+    for (const word of literal.toLowerCase().match(/[a-z]+/g) ?? []) {
+      if (!NAMED_COLORS.has(word)) continue;
+      if (prop === 'color' && word === 'black') continue;
+      add(file, line, 'raw-color', `\`${word}\` is a named colour; use a --pp-* token`);
+    }
+  }
+
+  if (prop === 'z-index' && /^\d+$/.test(literal)) {
+    const z = Number(literal);
+    if (z >= 100 && !Z_INDEXES.has(z)) {
+      add(file, line, 'off-scale-z', `z-index ${z} is not --pp-z-modal (${[...Z_INDEXES].join(', ')})`);
+    }
+  }
+}
+
+/**
+ * Durations and easing curves in transitions and animations, and the widths
+ * media queries break at. A media query cannot hold a custom property, so the
+ * breakpoint is the one value that has to be typed; it is held to the token's
+ * number instead, or the pixel below it for a `max-width`.
+ */
+function checkMotion(file, s) {
+  for (const d of declarationsIn(s)) {
+    if (!/^(transition|animation)(-duration)?$/.test(d.prop)) continue;
+    const literal = literalsOf(d.value);
+    for (const m of literal.matchAll(/(?<![\w.-])(\d*\.?\d+)(ms|s)\b/g)) {
+      const ms = Number(m[1]) * (m[2] === 's' ? 1000 : 1);
+      if (ms === 0 || DURATIONS.has(ms)) continue;
+      add(file, lineOf(s, d.index), 'off-scale-duration', `${d.prop} ${m[0]} is not a --pp-duration-* step`);
+    }
+    for (const m of literal.matchAll(/cubic-bezier\(([^)]*)\)/g)) {
+      if (EASINGS.has(curveKey(m[1]))) continue;
+      add(file, lineOf(s, d.index), 'off-scale-easing', `cubic-bezier(${m[1].trim()}) is not a --pp-ease-* curve`);
+    }
+  }
+  for (const m of s.matchAll(/(?:@media[^{]*|matchMedia\(\s*['"`][^'"`]*)\((min|max)-width\s*:\s*(\d*\.?\d+)(px|em|rem)\s*\)/g)) {
+    const px = Number(m[2]) * (m[3] === 'px' ? 1 : 16);
+    const ok = BREAKPOINTS.has(px) || (m[1] === 'max' && [...BREAKPOINTS].some((b) => b - px > 0 && b - px <= 1));
+    if (ok) continue;
+    add(file, lineOf(s, m.index), 'off-scale-breakpoint',
+      `${m[1]}-width ${m[2]}${m[3]} is not a --pp-breakpoint-* width (${[...BREAKPOINTS].join(', ')}px)`);
+  }
+}
+
+const rawAttr = (attrs, name) => {
+  const m = attrs.match(new RegExp(`(?:^|\\s)${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`, 'i'));
+  return m ? (m[1] ?? m[2]) : null;
+};
+
+/**
+ * A page that uses Pushpin and never loads it. Every `var(--pp-*)` on it then
+ * resolves to nothing and every `.pp-*` class to no rule, so the page renders
+ * in browser defaults while each declaration on it looks correct.
+ *
+ * HTML only: a page's `<link>` is the whole of a flat prototype's wiring, and a
+ * stylesheet or a module can be loaded by something this cannot see. A linked
+ * local stylesheet that imports `pushpin.css` counts, one level deep.
+ */
+function checkStylesheetLoaded(abs, rel, src) {
+  if (!/\.html?$/i.test(abs)) return;
+  const s = maskMarkup(src);
+  if (!/var\(\s*--pp-|class\s*=\s*["'][^"']*\bpp-/.test(s)) return;
+  if (/pushpin\.css/.test(s)) return;
+  const linked = [...s.matchAll(/<link\b[^>]*>/gi)]
+    .map((m) => rawAttr(m[0], 'href'))
+    .filter((h) => h && !/^(https?:)?\/\//.test(h) && /\.css(\?|#|$)/.test(h));
+  for (const href of linked) {
+    try {
+      const css = readFileSync(resolve(dirname(abs), href.replace(/[?#].*$/, '')), 'utf8');
+      if (/@import[^;]*pushpin\.css/.test(css)) return;
+    } catch {}
+  }
+  let wanted = 'pushpin.css';
+  try {
+    const cfg = JSON.parse(readFileSync(join(ROOT, 'pushpin.config.json'), 'utf8'));
+    if (cfg.css) wanted = relative(dirname(abs), resolve(ROOT, cfg.css)).split('\\').join('/');
+  } catch {}
+  add(rel, 1, 'stylesheet-not-loaded',
+    `this page uses Pushpin but never loads pushpin.css, so every var(--pp-*) and .pp-* class on it ` +
+      `does nothing; add <link rel="stylesheet" href="${wanted}">`);
+}
+
+/** Square corners on a control styled inline, which no CSS rule block shows. */
+function checkInlineControls(file, s) {
+  for (const m of s.matchAll(TAGS)) {
+    const [, tag, attrs = ''] = m;
+    const control = /^(button|input|select|textarea)$/i.test(tag) || CONTROL.test(rawAttr(attrs, 'class') ?? '');
+    if (!control) continue;
+    const style = rawAttr(attrs, 'style');
+    const r = style?.match(/border-radius\s*:\s*([^;]+)/i);
+    if (!r || /--pp-radius-sides/.test(r[1]) || /\b(50|100)%|9999/.test(r[1])) continue;
+    const px = r[1].match(/(\d*\.?\d+)px/);
+    if (px && Number(px[1]) >= PILL) continue;
+    add(file, lineOf(s, m.index), 'square-control',
+      `<${tag}> sets border-radius: ${r[1].trim()} inline — controls are --pp-radius-sides`);
+  }
+}
+
 function checkTokens(file, src) {
   const s = maskDevtool(mask(src));
 
@@ -258,39 +557,8 @@ function checkTokens(file, src) {
       `body text is --pp-text-neutral-default (#1f2022), never pure black`);
   }
 
-  // Spacing off the 13-step scale.
-  for (const m of s.matchAll(/\b(padding|margin|gap|row-gap|column-gap)(?:-(?:top|right|bottom|left|inline|block))?\s*:\s*([^;{}\n]+)/gi)) {
-    const decl = m[2];
-    if (decl.includes('var(')) continue;
-    for (const v of decl.matchAll(/(-?\d*\.?\d+)px/g)) {
-      const px = Math.abs(Number(v[1]));
-      if (px === 0 || SPACE.has(px)) continue;
-      add(file, lineOf(s, m.index), 'off-scale-spacing',
-        `${m[1]} ${v[0]} is not a --pp-space-* step`);
-    }
-  }
-
-  // Type off the ramp.
-  for (const m of s.matchAll(/\bfont-size\s*:\s*([^;{}\n]+)/gi)) {
-    if (m[1].includes('var(')) continue;
-    const v = m[1].match(/(\d*\.?\d+)px/);
-    if (v && !FONT_SIZES.has(Number(v[1]))) {
-      add(file, lineOf(s, m.index), 'off-ramp-type', `font-size ${v[0]} is not a ramp step`);
-    }
-  }
-  for (const m of s.matchAll(/\bfont-weight\s*:\s*([^;{}\n]+)/gi)) {
-    if (m[1].includes('var(')) continue;
-    const v = m[1].match(/\b(\d{3})\b/);
-    if (v && !WEIGHTS.has(Number(v[1]))) {
-      add(file, lineOf(s, m.index), 'off-ramp-weight',
-        `weight ${v[1]} is outside 400 / 563 / 590 / 660 / 700`);
-    }
-  }
-  for (const m of s.matchAll(/\bfont-family\s*:\s*([^;{}\n]+)/gi)) {
-    if (m[1].includes('var(') || /Thumbtack Rise/i.test(m[1])) continue;
-    add(file, lineOf(s, m.index), 'off-family',
-      `not Thumbtack Rise; use var(--pp-font-family)`);
-  }
+  for (const d of declarationsIn(s)) checkDeclaration(file, s, d);
+  checkMotion(file, s);
 
   // Square corners on a control. Only where a radius was actually declared —
   // a missing one may be inherited or composed, and guessing there is noise.
@@ -304,6 +572,160 @@ function checkTokens(file, src) {
     if (/\b(50|100)%|9999/.test(r[1])) continue;
     add(file, lineOf(s, m.index + m[0].indexOf(r[0])), 'square-control',
       `${selector.trim().split('\n').pop().trim()} sets border-radius: ${r[1].trim()} — controls are --pp-radius-sides`);
+  }
+  checkInlineControls(file, s);
+}
+
+// ------------------------------------------------------------- token names
+
+/**
+ * A `var(--pp-*)` naming nothing is invalid at computed-value time, so the
+ * property quietly takes its initial value: a radius renders square, a gap
+ * collapses, and the file reads as on-system. Every other token check passes
+ * it, because it is the right shape. The names are not guessable either —
+ * `--pp-radius-md` reads as plausible and the scale says `medium`.
+ *
+ * Not part of the token half, because impeccable's detector holds values
+ * against the ramps and has no list of names to hold this against, so
+ * `--component-only` would leave nothing reporting it.
+ */
+const SHIPPED_CSS = [
+  join(ASSETS, 'pushpin.css'),
+  join(ASSETS, '..', 'scripts', 'pushpin-device.css'),
+];
+const declaredIn = (src) => [...mask(src).matchAll(/(--pp-[\w-]+)\s*:/g)].map((m) => m[1]);
+const KNOWN_TOKENS = new Set(SHIPPED_CSS.flatMap((f) => declaredIn(readFileSync(f, 'utf8'))));
+const groupOf = (name) => name.slice('--pp-'.length).split('-')[0];
+const stepOf = (name) => name.slice(`--pp-${groupOf(name)}-`.length);
+// A project may declare `--pp-*` properties of its own. Only a name in one of
+// Pushpin's own groups, or a misspelling of one, is held to the list, since an
+// invented `--pp-radius-card` is a token that does not exist and an invented
+// `--pp-card-gap` is not.
+const TOKEN_GROUP_NAMES = new Set([...KNOWN_TOKENS].map(groupOf));
+
+/** Each shipped token's value, from its first declaration, which is `:root`'s. */
+const TOKEN_VALUES = new Map();
+for (const f of SHIPPED_CSS) {
+  for (const m of mask(readFileSync(f, 'utf8')).matchAll(/(--pp-[\w-]+)\s*:\s*([^;]+);/g)) {
+    if (!TOKEN_VALUES.has(m[1])) TOKEN_VALUES.set(m[1], m[2].trim().replace(/\s+/g, ' '));
+  }
+}
+const isColorValue = (v) => /^(#|rgba?\(|hsla?\()/.test(v) || /^var\(--pp-(color|background|border|text|icon|link|heading|data)-/.test(v);
+
+/** What kind of value a token holds, which is what decides where it can be used. */
+function kindOfToken(name) {
+  const value = TOKEN_VALUES.get(name) ?? '';
+  const prefixes = [
+    ['--pp-font-size-', 'font-size'], ['--pp-line-height-', 'line-height'],
+    ['--pp-font-weight-', 'font-weight'], ['--pp-font-family', 'font-family'],
+    ['--pp-radius-', 'radius'], ['--pp-space-', 'space'], ['--pp-leading-', 'leading'],
+    ['--pp-tracking-', 'tracking'], ['--pp-duration-', 'duration'], ['--pp-ease-', 'easing'],
+    ['--pp-z-', 'z'], ['--pp-breakpoint-', 'length'], ['--pp-wrap-', 'length'], ['--pp-device-', 'length'],
+  ];
+  const hit = prefixes.find(([p]) => name.startsWith(p));
+  if (hit) return hit[1];
+  if (isColorValue(value)) return 'color';
+  if (name.startsWith('--pp-shadow-')) return 'shadow';
+  return null;
+}
+const TOKEN_KIND = new Map([...KNOWN_TOKENS].map((t) => [t, kindOfToken(t)]).filter(([, k]) => k));
+
+const valuesOf = (prefix, parse) =>
+  new Set([...TOKEN_VALUES].filter(([n]) => n.startsWith(prefix)).map(([, v]) => parse(v)).filter((v) => v !== null));
+const pxOf = (v) => (/^-?\d*\.?\d+px$/.test(v) ? Number(v.slice(0, -2)) : null);
+const LINE_HEIGHTS = valuesOf('--pp-line-height-', pxOf);
+const LEADINGS = valuesOf('--pp-leading-', (v) => (Number.isFinite(Number(v)) ? Number(v) : null));
+const TRACKING = valuesOf('--pp-tracking-', (v) => (/em$/.test(v) ? Number(v.slice(0, -2)) : null));
+const DURATIONS = valuesOf('--pp-duration-', (v) => (/ms$/.test(v) ? Number(v.slice(0, -2)) : null));
+const Z_INDEXES = valuesOf('--pp-z-', (v) => (/^\d+$/.test(v) ? Number(v) : null));
+const BREAKPOINTS = valuesOf('--pp-breakpoint-', pxOf);
+const curveKey = (args) => args.split(',').map((n) => Number(n)).join(',');
+const EASINGS = valuesOf('--pp-ease-', (v) => {
+  const m = v.match(/^cubic-bezier\(([^)]*)\)$/);
+  return m ? curveKey(m[1]) : null;
+});
+const pushpinGroup = (group) =>
+  TOKEN_GROUP_NAMES.has(group)
+    ? group
+    : group.length >= 4
+      ? ([...TOKEN_GROUP_NAMES].find((g) => g.length >= 4 && distance(group, g) <= 2) ?? null)
+      : null;
+
+/** The words people reach for, mapped onto the ones the scale uses. */
+const STEP_ALIASES = {
+  xs: 'xsmall', sm: 'small', md: 'medium', lg: 'large', xl: 'xlarge',
+  xxl: 'xxlarge', '2xl': 'xxlarge', pill: 'sides', round: 'sides',
+  rounded: 'sides', circle: 'full',
+};
+
+/**
+ * The real token someone most plausibly meant, or null when none is close.
+ * Distance is measured on the step alone: every name in a group shares its
+ * prefix, so measured over the whole name `--pp-shadow-huge` is as close to
+ * `--pp-shadow-1` as a typo is to the word it misspells.
+ */
+function nearestToken(group, step) {
+  const parts = step.split('-');
+  const alias = STEP_ALIASES[parts.at(-1)];
+  if (alias) {
+    const aliased = `--pp-${group}-${[...parts.slice(0, -1), alias].join('-')}`;
+    if (KNOWN_TOKENS.has(aliased)) return aliased;
+  }
+  if (KNOWN_TOKENS.has(`--pp-${group}-${step}`)) return `--pp-${group}-${step}`;
+  let best = null;
+  let bestD = Infinity;
+  for (const t of KNOWN_TOKENS) {
+    if (groupOf(t) !== group) continue;
+    const d = distance(step, stepOf(t));
+    if (d < bestD) [best, bestD] = [t, d];
+  }
+  return bestD < step.length && bestD <= Math.max(1, Math.floor(step.length / 3)) ? best : null;
+}
+
+/**
+ * Uses and declarations both. A declared name in one of Pushpin's own groups is
+ * a token the scale does not have, so declaring `--pp-radius-md: 8px` is
+ * reported where it is declared and where it is used, rather than excusing
+ * every use. A declared name that only resembles a group, like `--pp-spacer`,
+ * is the project's own property and is left alone; undeclared, it is a typo.
+ */
+function checkTokenNames(file, src, declared) {
+  const s = maskDevtool(mask(src));
+  const refs = [
+    ...[...s.matchAll(/var\(\s*(--pp-[\w-]+)/g)].map((m) => ({ m, isDecl: false })),
+    ...[...s.matchAll(/(--pp-[\w-]+)\s*:/g)].map((m) => ({ m, isDecl: true })),
+  ];
+  for (const { m, isDecl } of refs) {
+    const name = m[1];
+    if (KNOWN_TOKENS.has(name)) continue;
+    // A name a script is still building, `--pp-radius-${step}` or
+    // `'--pp-radius-' + step`, is a prefix rather than a token.
+    if (name.endsWith('-') || /^[$`'"+{]/.test(s.slice(m.index + m[0].length).trimStart())) continue;
+    const own = groupOf(name);
+    const exact = TOKEN_GROUP_NAMES.has(own);
+    if (!exact && (isDecl || declared.has(name))) continue;
+    const group = pushpinGroup(own);
+    if (!group) continue;
+    const step = stepOf(name);
+    const near = nearestToken(group, step);
+    const members = [...KNOWN_TOKENS].filter((t) => groupOf(t) === group);
+    const closest = members
+      .map((t) => [t, distance(step, stepOf(t))])
+      .sort((a, b) => a[1] - b[1])
+      .slice(0, 6)
+      .map(([t]) => t);
+    const what = isDecl
+      ? `declares ${name}, which is not a Pushpin token`
+      : declared.has(name)
+        ? `${name} is declared by this project, not by Pushpin`
+        : `${name} is not a Pushpin token, so it resolves to nothing`;
+    add(file, lineOf(s, m.index), 'unknown-token',
+      what +
+        (near
+          ? `; the scale has ${near}`
+          : members.length <= 12
+            ? `; the ${group} tokens are ${members.join(', ')}`
+            : `; the nearest real ones are ${closest.join(', ')}`));
   }
 }
 
@@ -852,8 +1274,52 @@ for (const file of files) {
   }
 }
 
+// Declared anywhere in the walk counts, so a project's own property defined in
+// one file and used in another is not reported as missing. The edit hook walks
+// only the file just written, so inside a Pushpin project the stylesheets and
+// pages around it count too; otherwise a property the project declares once
+// would be reported on every other file that uses it.
+// Bounded, because the edit hook pays for this walk on every edit and a large
+// repository would otherwise spend its whole timeout here.
+const projectStyles = [];
+if (existsSync(join(ROOT, 'pushpin.config.json'))) {
+  const walk = (dir, depth) => {
+    if (projectStyles.length >= 500 || depth > 6) return;
+    let entries;
+    try {
+      entries = readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const e of entries) {
+      if (projectStyles.length >= 500) return;
+      if (e.isDirectory()) {
+        if (!SKIP_DIR.has(e.name)) walk(join(dir, e.name), depth + 1);
+      } else if (EXT.has(extname(e.name))) {
+        projectStyles.push(join(dir, e.name));
+      }
+    }
+  };
+  walk(ROOT, 0);
+}
+const declaredHere = new Set([
+  ...sources.flatMap(([, , src]) => declaredIn(src)),
+  ...projectStyles
+    .filter((f) => STYLE_EXT.has(extname(f)) || EMBEDS_STYLE.has(extname(f)) || extname(f) === '.html')
+    .flatMap((f) => {
+      try {
+        return declaredIn(readFileSync(f, 'utf8'));
+      } catch {
+        return [];
+      }
+    }),
+]);
+
 for (const [file, rel, src] of sources) {
   if (!COMPONENT_ONLY) checkTokens(rel, src);
+  checkTokenNames(rel, src, declaredHere);
+  checkTokenTypes(rel, src);
+  checkStylesheetLoaded(file, rel, src);
   checkFormFactor(rel, src);
   checkIdentity(rel, src);
   if (COPY_ON && MARKUP_EXT.has(extname(file))) checkCopy(rel, src);
