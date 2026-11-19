@@ -201,8 +201,10 @@ p(' */');
 p();
 
 // The url resolves from this stylesheet, which is where init puts the file.
-// `local()` comes last: it matches one named instance rather than the whole
-// axis, so it is only for a project whose copy of the file is missing.
+// `local()` is for a project whose copy is missing. Chrome matches it by
+// PostScript name, and on the installed variable TTF that name resolves to the
+// whole weight axis, so it renders exactly as the url does. On the static OTFs
+// from the Brand Asset Library it resolves to Regular alone.
 const fontUrl = WEB_FONT_REL.split('\\').join('/');
 p('/* Thumbtack Rise. Not shipped with the plugin: `pushpin init` downloads it');
 p(` * to ${fontUrl} beside this stylesheet. */`);

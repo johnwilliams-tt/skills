@@ -60,14 +60,24 @@ published=$(version_in "$upstream")
 if [ -n "$published" ] && [ "$working" = "$published" ]; then
   node "$SYNC" patch >/dev/null || exit 0
   echo "pre-commit: $working was already published; bumped to $(version_in "")."
-  # DESIGN.md and design.json name the version, and the manifest hashes them,
-  # so a bump that stops at the manifests leaves build-design --check red.
-  ASSETS="$PLUGIN/$PLUGIN/assets"
-  node "$PLUGIN/$PLUGIN/scripts/build-design.mjs" >/dev/null &&
-    node "$PLUGIN/$PLUGIN/scripts/manifest.mjs" >/dev/null &&
-    git add -- "$ASSETS/DESIGN.md" "$ASSETS/design.json" "$ASSETS/manifest.json"
 else
   node "$SYNC" >/dev/null || exit 0
+fi
+
+# DESIGN.md and design.json name the version, and the manifest hashes them, so
+# a version they do not name leaves build-design --check red. Asked of the files
+# rather than of this run, so a commit retried after a failed rebuild, which
+# bumps nothing, still rebuilds. A rebuild that fails stops the commit: the
+# alternative is committing manifests that disagree with the generated files.
+ASSETS="$PLUGIN/$PLUGIN/assets"
+named=$(node -pe 'JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).source.pluginVersion' "$ASSETS/design.json" 2>/dev/null)
+if [ "$named" != "$(version_in "")" ]; then
+  if ! node "$PLUGIN/$PLUGIN/scripts/build-design.mjs" >/dev/null ||
+    ! node "$PLUGIN/$PLUGIN/scripts/manifest.mjs" >/dev/null; then
+    echo "pre-commit: rebuilding DESIGN.md and design.json for $(version_in "") failed; fix that and commit again." >&2
+    exit 1
+  fi
+  git add -- "$ASSETS/DESIGN.md" "$ASSETS/design.json" "$ASSETS/manifest.json"
 fi
 
 git add -- \

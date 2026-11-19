@@ -55,7 +55,7 @@ frame someone is about to build from does not.
 | Raw color | A hex, `rgb()`, or `hsl()` literal — flag it whether or not it matches a ramp. Matching a ramp means the token exists and was bypassed. |
 | Pure black text | `#000`, `black`, `rgb(0,0,0)` on text. Body text is `--pp-text-neutral-default`. |
 | Square corners on a control | A button, input, chip, or search bar without `--pp-radius-sides`. |
-| Unknown token | A `var(--pp-*)` in one of Pushpin's groups that names no token, such as `--pp-radius-md` for `--pp-radius-medium`. It resolves to nothing, so the property silently falls back to its initial value. Reported with the real token it was probably meant to be. |
+| Unknown token | A `var(--pp-*)` in one of Pushpin's groups that names no token, such as `--pp-radius-md` for `--pp-radius-medium`. It resolves to nothing, so the property silently falls back to its initial value. Reported with the real token it was probably meant to be. A project declaring such a name, like `--pp-radius-md: 8px`, is reported at the declaration and at every use. |
 | Off-scale spacing | A padding, margin, or gap in px that is not one of the 13 `--pp-space-*` steps. |
 | Off-ramp type | A `font-size` that is not a ramp step, or a family that is not Thumbtack Rise. |
 | Off-ramp weight | A weight outside 400 / 563 / 590 / 660 / 700. |

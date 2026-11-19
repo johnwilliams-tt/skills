@@ -50,14 +50,18 @@ its `cssHash` no longer matches and session start reports it as behind.
   be. `var(--pp-radius-md)` passed every check while the browser drew square
   corners, because the property falls back to its initial value; it now
   reports `--pp-radius-medium`. It runs under `--component-only` too, since
-  impeccable's detector has no list of names to check one against. A
-  project's own `--pp-*` properties outside Pushpin's groups are left alone.
+  impeccable's detector has no list of names to check one against. A name
+  declared in one of Pushpin's own groups, such as `--pp-radius-md: 8px`, is
+  reported where it is declared and wherever it is used. A project's own
+  `--pp-*` properties outside those groups are left alone, including in the
+  edit hook, which reads the project's stylesheets for their declarations.
 
 **Fixed**
 
 - **The pre-commit hook rebuilds `DESIGN.md`, `design.json` and the manifest
-  after it bumps the version.** Both files name the version, so a bump that
-  stopped at the manifests left `build-design --check` red.
+  whenever they name a different version from the plugin manifest.** Both
+  files name the version, so a bump that stopped at the manifests left
+  `build-design --check` red. A rebuild that fails stops the commit.
 - **`verify.mjs` reads the `:root` block from where it starts.** It took the
   first closing brace in the file, which an `@font-face` above `:root` would
   have turned into an empty block.

@@ -264,8 +264,9 @@ When GitHub will not serve it — `gh` missing, signed out, or an account
 outside the Thumbtack org — the font writes are not counted as written, and
 Next names the reason and the Brand Asset Library's Drive folder. Drive holds
 the static OTFs, so a download there installs the machine on the next run and
-never the project; a project without its file falls back to `local()`, then
-to the system stack. `setup.mjs --verify` reports the missing file as a NOTE
+never the project. A project without its file falls back to `local()`, which
+on the installed variable TTF renders exactly as the file does and on the
+static OTFs renders Regular at every weight, then to the system stack. `setup.mjs --verify` reports the missing file as a NOTE
 with the init remedy.
 
 **A replay carries the flags from the record.** `pin.mjs` exports

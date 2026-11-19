@@ -371,12 +371,26 @@ function nearestToken(group, step) {
   return bestD < step.length && bestD <= Math.max(1, Math.floor(step.length / 3)) ? best : null;
 }
 
+/**
+ * Uses and declarations both. A declared name in one of Pushpin's own groups is
+ * a token the scale does not have, so declaring `--pp-radius-md: 8px` is
+ * reported where it is declared and where it is used, rather than excusing
+ * every use. A declared name that only resembles a group, like `--pp-spacer`,
+ * is the project's own property and is left alone; undeclared, it is a typo.
+ */
 function checkTokenNames(file, src, declared) {
   const s = maskDevtool(mask(src));
-  for (const m of s.matchAll(/var\(\s*(--pp-[\w-]+)/g)) {
+  const refs = [
+    ...[...s.matchAll(/var\(\s*(--pp-[\w-]+)/g)].map((m) => ({ m, isDecl: false })),
+    ...[...s.matchAll(/(--pp-[\w-]+)\s*:/g)].map((m) => ({ m, isDecl: true })),
+  ];
+  for (const { m, isDecl } of refs) {
     const name = m[1];
-    if (KNOWN_TOKENS.has(name) || declared.has(name)) continue;
-    const group = pushpinGroup(groupOf(name));
+    if (KNOWN_TOKENS.has(name)) continue;
+    const own = groupOf(name);
+    const exact = TOKEN_GROUP_NAMES.has(own);
+    if (!exact && (isDecl || declared.has(name))) continue;
+    const group = pushpinGroup(own);
     if (!group) continue;
     const step = stepOf(name);
     const near = nearestToken(group, step);
@@ -386,8 +400,13 @@ function checkTokenNames(file, src, declared) {
       .sort((a, b) => a[1] - b[1])
       .slice(0, 6)
       .map(([t]) => t);
+    const what = isDecl
+      ? `declares ${name}, which is not a Pushpin token`
+      : declared.has(name)
+        ? `${name} is declared by this project, not by Pushpin`
+        : `${name} is not a Pushpin token, so it resolves to nothing`;
     add(file, lineOf(s, m.index), 'unknown-token',
-      `${name} is not a Pushpin token, so it resolves to nothing` +
+      what +
         (near
           ? `; the scale has ${near}`
           : members.length <= 12
@@ -942,8 +961,26 @@ for (const file of files) {
 }
 
 // Declared anywhere in the walk counts, so a project's own property defined in
-// one file and used in another is not reported as missing.
-const declaredHere = new Set(sources.flatMap(([, , src]) => declaredIn(src)));
+// one file and used in another is not reported as missing. The edit hook walks
+// only the file just written, so inside a Pushpin project the stylesheets and
+// pages around it count too; otherwise a property the project declares once
+// would be reported on every other file that uses it.
+const projectStyles = [];
+if (existsSync(join(ROOT, 'pushpin.config.json'))) {
+  collect(ROOT, projectStyles);
+}
+const declaredHere = new Set([
+  ...sources.flatMap(([, , src]) => declaredIn(src)),
+  ...projectStyles
+    .filter((f) => STYLE_EXT.has(extname(f)) || EMBEDS_STYLE.has(extname(f)) || extname(f) === '.html')
+    .flatMap((f) => {
+      try {
+        return declaredIn(readFileSync(f, 'utf8'));
+      } catch {
+        return [];
+      }
+    }),
+]);
 
 for (const [file, rel, src] of sources) {
   if (!COMPONENT_ONLY) checkTokens(rel, src);

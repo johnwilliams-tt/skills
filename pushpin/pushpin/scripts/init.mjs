@@ -960,10 +960,17 @@ if (WRITE && plan.length) {
   const next = [];
 
   // The Drive folder can stand in for the machine's copy and not for the
-  // project's, which needs the variable WOFF2. So a machine that has Rise once
-  // this run is done is told only about the project file.
+  // project's, which needs the variable WOFF2. So when both failed, the Drive
+  // line says it covers the machine only, and a machine that has Rise once this
+  // run is done is told only about the project file.
   if (fontFailures.system) {
-    next.push(driveRemedy(fontFailures.system));
+    next.push(
+      driveRemedy(fontFailures.system) +
+        (fontFailures.web
+          ? `\n     That installs it on this machine only. ${fontRel} is a different file that\n` +
+            `     only GitHub serves, so re-run init --write once it can serve ${WEB_FONT.repo}.`
+          : ''),
+    );
   } else if (fontFailures.web) {
     next.push(
       `${fontRel} could not be downloaded because ${fontFailures.web}. ` +
