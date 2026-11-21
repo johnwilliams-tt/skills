@@ -3,7 +3,7 @@
   "source": {
     "fileKey": "VVRGrLgkPRU3vs765d5Q3r",
     "fileName": "Pushpin Thumbprint UI Kit",
-    "extractedAt": "2026-11-18",
+    "extractedAt": "2026-11-21",
     "capturedTotal": 1045,
     "publishedTotal": 1044,
     "publishedSets": 98,
@@ -724,7 +724,7 @@
         "👁️ Copy": {
           "type": "BOOLEAN",
           "key": "👁️ Copy#13576:49",
-          "default": false
+          "default": true
         },
         "👁️ Steps": {
           "type": "BOOLEAN",
@@ -1385,10 +1385,10 @@
           "type": "VARIANT",
           "key": "color",
           "options": [
-            "gray",
-            "gray 300"
+            "default",
+            "medium"
           ],
-          "default": "gray 300"
+          "default": "medium"
         }
       }
     },
