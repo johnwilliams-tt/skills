@@ -97,11 +97,11 @@
   },
   "findings": [
     "11 components in the kit changed after the capture (2026-11-18), most recently on 2026-11-20. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Messenger / Media modal\n   view\n   Dropdown\n   Button Row\n   iOS / Sheet\n   General / Footer\n   Input Row\n   Text Area\n   Label\n   Horizontal Rule\n   Badge",
-    "The content design rules have not been pulled in 60 days. Nothing is known to have changed — only that nobody has asked GitHub — so re-pull them before trusting a rule quoted out of them."
+    "The content design rules have not been pulled in 61 days. Nothing is known to have changed — only that nobody has asked GitHub — so re-pull them before trusting a rule quoted out of them."
   ],
   "brief": [
     "The Pushpin team has changed some components since this version of Pushpin; the next plugin update will carry those.",
-    "Pushpin's copy of Thumbtack's content rules is 60 days old and may be behind; the next plugin update will carry a fresh one."
+    "Pushpin's copy of Thumbtack's content rules is 61 days old and may be behind; the next plugin update will carry a fresh one."
   ],
-  "observedAt": "2026-11-21"
+  "observedAt": "2026-11-22"
 }
