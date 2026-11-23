@@ -17,6 +17,18 @@ Changes are grouped the way `diff.mjs` classifies them:
 An entry about the plugin rather than the capture adds **Fixed** for a bug in
 the toolchain, which `diff.mjs` has no category for.
 
+## 0.23.11 — 2026-11-23
+
+Weekly token capture: the kit and the published library match the committed
+tokens and variable keys, with 300 variables, 131 bindable and 169 hidden. All
+131 bindable keys imported into rXFecV4AAtgjaES8935fbh with no failures.
+
+Re-captured: `tokens.figma.json` (captured 2026-11-18 → 2026-11-23),
+`variable-keys.figma.json` (captured 2026-11-18 → 2026-11-23; verified
+2026-11-18 → 2026-11-23).
+
+Every entry is unchanged; only the capture dates moved.
+
 ## 0.23.10 — 2026-11-18
 
 Thumbtack Rise reaches every project. The stylesheet named the face and nothing

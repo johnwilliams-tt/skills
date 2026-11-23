@@ -4,13 +4,13 @@
     "fileKey": "VVRGrLgkPRU3vs765d5Q3r",
     "fileName": "Pushpin Thumbprint UI Kit",
     "libraryKey": "lk-003ce4846b4638268325b33ad167ece0cd390787a2782f1949cee2e38ca2e7719472f0968d45b4c2f0db9b35ec1820babadcf97a9f40fdd6cc84ba22f7b10a80",
-    "extractedAt": "2026-11-18",
+    "extractedAt": "2026-11-23",
     "bindableCount": 131,
     "hiddenCount": 169,
-    "verifiedAt": "2026-11-18",
+    "verifiedAt": "2026-11-23",
     "verifiedIn": "rXFecV4AAtgjaES8935fbh",
     "verifiedCount": 131,
-    "verifiedBy": "All 131 bindable keys imported successfully into file rXFecV4AAtgjaES8935fbh on 2026-11-18, and every published key matched the committed one in both directions. Written from verifiedAt, verifiedIn and verifiedCount; see scripts/check.md section 2 for the pass that sets them."
+    "verifiedBy": "All 131 bindable keys imported successfully into file rXFecV4AAtgjaES8935fbh on 2026-11-23, and every published key matched the committed one in both directions. Written from verifiedAt, verifiedIn and verifiedCount; see scripts/check.md section 2 for the pass that sets them."
   },
 
   "$howToUse": {
