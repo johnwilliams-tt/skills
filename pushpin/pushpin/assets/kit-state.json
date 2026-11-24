@@ -1,9 +1,9 @@
 {
   "$comment": "What the scheduled Figma check last found about the captures in this directory. Written by scripts/kit-state.mjs from a freshness --json report, read by scripts/freshness.mjs when no token is available. Not a capture: deliberately absent from manifest.json, because a verdict changing must not report every project as holding an older build.",
   "verdict": "moved",
-  "pluginVersion": "0.23.10",
+  "pluginVersion": "0.23.11",
   "against": {
-    "tokens": "2026-11-18",
+    "tokens": "2026-11-23",
     "components": "2026-11-18",
     "properties": null,
     "specs": "2026-11-18",
@@ -97,11 +97,11 @@
   },
   "findings": [
     "11 components in the kit changed after the capture (2026-11-18), most recently on 2026-11-20. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Messenger / Media modal\n   view\n   Dropdown\n   Button Row\n   iOS / Sheet\n   General / Footer\n   Input Row\n   Text Area\n   Label\n   Horizontal Rule\n   Badge",
-    "The content design rules have not been pulled in 62 days. Nothing is known to have changed — only that nobody has asked GitHub — so re-pull them before trusting a rule quoted out of them."
+    "The content design rules have not been pulled in 63 days. Nothing is known to have changed — only that nobody has asked GitHub — so re-pull them before trusting a rule quoted out of them."
   ],
   "brief": [
     "The Pushpin team has changed some components since this version of Pushpin; the next plugin update will carry those.",
-    "Pushpin's copy of Thumbtack's content rules is 62 days old and may be behind; the next plugin update will carry a fresh one."
+    "Pushpin's copy of Thumbtack's content rules is 63 days old and may be behind; the next plugin update will carry a fresh one."
   ],
-  "observedAt": "2026-11-23"
+  "observedAt": "2026-11-24"
 }
