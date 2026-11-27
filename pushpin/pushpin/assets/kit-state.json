@@ -11,80 +11,12 @@
     "icons": "2026-11-18"
   },
   "layers": [
-    "components",
     "copy source"
   ],
   "moved": {
     "components": {
       "unpublished": [],
-      "changed": [
-        {
-          "name": "Messenger / Media modal",
-          "key": "99ccc1ff94409ce8de706af3dd67994a142c18e8",
-          "page": "Additional Components",
-          "updatedAt": "2026-11-20T02:12:14.056Z"
-        },
-        {
-          "name": "view",
-          "key": "872028cf3cf9807db992c1402fa69c9d9c269188",
-          "page": "Guidelines",
-          "updatedAt": "2026-11-20T02:12:13.916Z"
-        },
-        {
-          "name": "Dropdown",
-          "key": "fb605fd2eb1327afb7bbb59c280d491691532bab",
-          "page": "Dropdown",
-          "updatedAt": "2026-11-20T02:12:13.285Z"
-        },
-        {
-          "name": "Button Row",
-          "key": "ac39db4bceb59767f18e209979b5fdf7067ca94f",
-          "page": "Button Row",
-          "updatedAt": "2026-11-20T02:12:13.280Z"
-        },
-        {
-          "name": "iOS / Sheet",
-          "key": "972cc358b317396273e7e170662c4d27972d546d",
-          "page": "Layouts",
-          "updatedAt": "2026-11-20T02:12:13.276Z"
-        },
-        {
-          "name": "General / Footer",
-          "key": "88aa966c84e46395b4ea55f520fc821caefd937c",
-          "page": "Layouts",
-          "updatedAt": "2026-11-20T02:12:13.270Z"
-        },
-        {
-          "name": "Input Row",
-          "key": "506a18c60761d0371cd1752f2a797a05272ef189",
-          "page": "Input Row",
-          "updatedAt": "2026-11-20T02:12:13.261Z"
-        },
-        {
-          "name": "Text Area",
-          "key": "42f39fd842e0ad4566870f9387dc86a93259adde",
-          "page": "Text Area",
-          "updatedAt": "2026-11-20T02:12:13.255Z"
-        },
-        {
-          "name": "Label",
-          "key": "3d42d12b04042867a74ad11abd1fb41009797cee",
-          "page": "Label",
-          "updatedAt": "2026-11-20T02:12:13.248Z"
-        },
-        {
-          "name": "Horizontal Rule",
-          "key": "30d38d322705af1c5a21787f9854ebc56124a288",
-          "page": "Horizontal Rule",
-          "updatedAt": "2026-11-20T02:12:13.241Z"
-        },
-        {
-          "name": "Badge",
-          "key": "18cc824af2c9a69129e1ef000cd46878dd9332c8",
-          "page": "Badge",
-          "updatedAt": "2026-11-20T02:12:13.231Z"
-        }
-      ]
+      "changed": []
     },
     "icons": {
       "unpublished": [],
@@ -96,12 +28,10 @@
     }
   },
   "findings": [
-    "11 components in the kit changed after the capture (2026-11-18), most recently on 2026-11-20. Every import key still resolves, but variant options and property keys may have moved, and a changed property key breaks setProperties:\n   Messenger / Media modal\n   view\n   Dropdown\n   Button Row\n   iOS / Sheet\n   General / Footer\n   Input Row\n   Text Area\n   Label\n   Horizontal Rule\n   Badge",
-    "The content design rules have not been pulled in 65 days. Nothing is known to have changed — only that nobody has asked GitHub — so re-pull them before trusting a rule quoted out of them."
+    "The content design rules have not been pulled in 66 days. Nothing is known to have changed — only that nobody has asked GitHub — so re-pull them before trusting a rule quoted out of them."
   ],
   "brief": [
-    "The Pushpin team has changed some components since this version of Pushpin; the next plugin update will carry those.",
-    "Pushpin's copy of Thumbtack's content rules is 65 days old and may be behind; the next plugin update will carry a fresh one."
+    "Pushpin's copy of Thumbtack's content rules is 66 days old and may be behind; the next plugin update will carry a fresh one."
   ],
-  "observedAt": "2026-11-26"
+  "observedAt": "2026-11-27"
 }
