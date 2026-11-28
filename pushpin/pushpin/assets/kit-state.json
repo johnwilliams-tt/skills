@@ -28,10 +28,10 @@
     }
   },
   "findings": [
-    "The content design rules have not been pulled in 66 days. Nothing is known to have changed — only that nobody has asked GitHub — so re-pull them before trusting a rule quoted out of them."
+    "The content design rules have not been pulled in 67 days. Nothing is known to have changed — only that nobody has asked GitHub — so re-pull them before trusting a rule quoted out of them."
   ],
   "brief": [
-    "Pushpin's copy of Thumbtack's content rules is 66 days old and may be behind; the next plugin update will carry a fresh one."
+    "Pushpin's copy of Thumbtack's content rules is 67 days old and may be behind; the next plugin update will carry a fresh one."
   ],
-  "observedAt": "2026-11-27"
+  "observedAt": "2026-11-28"
 }
